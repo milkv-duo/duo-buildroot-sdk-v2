@@ -18,6 +18,15 @@ config BR2_RISCV_ISA_RVD
 config BR2_RISCV_ISA_RVC
 	bool
 
+config BR2_RISCV_ISA_RVV
+	bool
+
+config BR2_RISCV_ISA_RVV0P7
+	bool
+
+config BR2_RISCV_ISA_THEAD
+	bool
+
 choice
 	prompt "Target Architecture Variant"
 	default BR2_riscv_g
@@ -63,6 +72,26 @@ config BR2_RISCV_ISA_CUSTOM_RVD
 config BR2_RISCV_ISA_CUSTOM_RVC
 	bool "Compressed Instructions (C)"
 	select BR2_RISCV_ISA_RVC
+
+choice
+	prompt "Vector Instructions"
+	default BR2_RISCV_ISA_CUSTOM_RVV_NONE
+
+config BR2_RISCV_ISA_CUSTOM_RVV_NONE
+	bool "Vector Instructions (None)"
+
+config BR2_RISCV_ISA_CUSTOM_RVV
+	bool "Vector Instructions (V)"
+	select BR2_RISCV_ISA_RVV
+
+config BR2_RISCV_ISA_CUSTOM_RVV0P7
+	bool "Vector 0.7 Instructions (V0P7)"
+	select BR2_RISCV_ISA_RVV0P7
+endchoice
+
+config BR2_RISCV_ISA_CUSTOM_THEAD
+	bool "T-HEAD Extensions"
+	select BR2_RISCV_ISA_THEAD
 endif
 
 choice
@@ -110,6 +139,10 @@ config BR2_RISCV_ABI_LP64F
 config BR2_RISCV_ABI_LP64D
 	bool "lp64d"
 	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVD
+
+config BR2_RISCV_ABI_LP64V
+	bool "lp64v"
+	depends on BR2_ARCH_IS_64 && BR2_RISCV_ISA_RVV
 endchoice
 
 config BR2_ARCH
@@ -126,6 +159,7 @@ config BR2_GCC_TARGET_ABI
 	default "lp64" if BR2_RISCV_ABI_LP64
 	default "lp64f" if BR2_RISCV_ABI_LP64F
 	default "lp64d" if BR2_RISCV_ABI_LP64D
+	default "lp64v" if BR2_RISCV_ABI_LP64V
 
 config BR2_READELF_ARCH_NAME
 	default "RISC-V"

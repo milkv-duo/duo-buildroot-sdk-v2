@@ -463,6 +463,11 @@ create_lib_symlinks = \
 	ARCH_LIB_DIR="$(call toolchain_find_libdir,$(TOOLCHAIN_EXTERNAL_CC) $(TOOLCHAIN_EXTERNAL_CFLAGS))" ; \
 	if [ ! -e "$${DESTDIR}/$${ARCH_LIB_DIR}" -a ! -e "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ]; then \
 		relpath="$(call relpath_prefix,$${ARCH_LIB_DIR})" ; \
+		mkdir -p `dirname "$${DESTDIR}/$${ARCH_LIB_DIR}"` ; \
+		mkdir -p `dirname "$${DESTDIR}/usr/$${ARCH_LIB_DIR}"` ; \
+		ORIGIN_ARCH_LIB_DIR=`echo $${ARCH_LIB_DIR} | sed -r -e 's/(lib(32|64))[^/]*/\1/'` ; \
+ 		ln -snf $${relpath}lib "$${DESTDIR}/$${ORIGIN_ARCH_LIB_DIR}" ; \
+ 		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ORIGIN_ARCH_LIB_DIR}" ; \
 		ln -snf $${relpath}lib "$${DESTDIR}/$${ARCH_LIB_DIR}" ; \
 		ln -snf $${relpath}lib "$${DESTDIR}/usr/$${ARCH_LIB_DIR}" ; \
 	fi
