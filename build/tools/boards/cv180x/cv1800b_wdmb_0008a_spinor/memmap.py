@@ -1,1 +1,0 @@
-../../default/memmap/cv180x/memmap_ddr_64mb.py
