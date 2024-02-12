@@ -4,7 +4,8 @@
 #include "cv181x_asic_emmc.dtsi"
 #include "cv181x_default_memmap.dtsi"
 
-/ {
-
+&vo {
+	reset-gpio = <&porte 13 GPIO_ACTIVE_LOW>;
+	pwm-gpio = <&porta 30 GPIO_ACTIVE_HIGH>;
+	power-ct-gpio = <&portb 3 GPIO_ACTIVE_HIGH>;
 };
-

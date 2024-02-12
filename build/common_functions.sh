@@ -191,20 +191,6 @@ function pack_cfg
   fi
 )}
 
-function copy_tools
-{(
-  # Copy USB_DL, partition.xml and bootlogo
-  if [[ "${chip_cv[*]}" =~ "$CHIP" ]] && [[ ${BOARD} != "fpga" &&  ${BOARD} != "palladium" ]]; then
-    command rm -rf "$OUTPUT_DIR"/tools
-    command mkdir -p "$OUTPUT_DIR"/tools/
-    command cp -rf "$TOOLS_PATH"/"${CHIP_ARCH,,}"/usb_dl/ "$OUTPUT_DIR"/tools/
-    if [ "$ENABLE_BOOTLOGO" -eq 1 ];then
-      python3 "$IMGTOOL_PATH"/raw2cimg.py "$BOOTLOGO_PATH" "$OUTPUT_DIR" "$FLASH_PARTITION_XML"
-    fi
-    command cp --remove-destination "$FLASH_PARTITION_XML" "$OUTPUT_DIR"/
-  fi
-)}
-
 function pack_upgrade
 {(
   local TMPDIR

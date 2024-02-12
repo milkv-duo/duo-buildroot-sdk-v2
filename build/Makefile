@@ -1,6 +1,4 @@
 .PHONY: FORCE
-.PHONY: bld bld-clean
-.PHONY: arm-trusted-firmware arm-trusted-firmware-clean
 .PHONY: u-boot u-boot-clean
 .PHONY: rtos rtos-clean
 
@@ -33,20 +31,9 @@ qstrip = $(strip $(subst ",,$(1)))
 # Default actions
 ################################################################################
 NPROC := $(shell nproc)
-FTP_SRV := ftp://10.58.65.3
 
 export CHIP_ARCH_L := $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 export BORAD_FOLDER_PATH := ${BUILD_PATH}/boards/${CHIP_ARCH_L}/${PROJECT_FULLNAME}
-
-export KEYSERVER := 10.18.98.102
-export KEYSERVER_SSHKEY_PATH := ${ATF_PATH}/tools/build_script/service_sign@cvi_keyserver.pem
-
-export RELEASE_BIN_DIR := $(TOP_DIR)/rel_bin
-export RELEASE_BIN_LICENSE_DIR := ${RELEASE_BIN_DIR}/release_bin_license
-export RELEASE_BIN_ATF_DIR     := ${RELEASE_BIN_DIR}/release_bin_atf
-export RELEASE_BIN_BLD_DIR     := ${RELEASE_BIN_DIR}/release_bin_bld
-export RELEASE_BIN_BLDP_DIR    := ${RELEASE_BIN_DIR}/release_bin_bldp
-export RELEASE_BIN_BLP_DIR     := ${RELEASE_BIN_DIR}/release_bin_blp
 
 ifneq ($(origin OUTPUT_DIR),environment)
     $(error Please execute defconfig/menuconfig/oldconfig first)
@@ -68,11 +55,6 @@ ${OUTPUT_DIR}/elf:
 # Generate global memmory map for all source repo
 ################################################################################
 include scripts/mmap.mk
-
-################################################################################
-# arm-trusted-firmware and bld
-################################################################################
-include scripts/atf.mk
 
 ################################################################################
 # rtos targets
@@ -224,7 +206,7 @@ u-boot-clean: export KBUILD_OUTPUT=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}
 u-boot-clean:
 	$(call print_target)
 	${Q}$(MAKE) -j${NPROC} -C ${UBOOT_PATH} distclean
-	${Q}rm -f ${OUTPUT_DIR}/fip.bin ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot.bin.lzma
+	${Q}rm -f ${OUTPUT_DIR}/fip.bin ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot.bin.lzma ${UBOOT_CVIPART_DEP}
 
 
 ################################################################################
@@ -254,14 +236,20 @@ define copy_ko_action
 	${Q}find ${1} -name '*.ko' -exec cp -f {} ${SYSTEM_OUT_DIR}/ko/ \;
 endef
 
-ifeq ($(CHIP_ARCH),$(filter $(CHIP_ARCH),CV181X CV180X))
+ifeq ($(CHIP_ARCH),$(filter $(CHIP_ARCH),CV181X CV180X ATHENA2))
 define copy_header_action
+	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/linux/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/common/uapi/linux/* ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion_cvitek.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/include/uapi/linux/dma-buf.h ${1}/linux/
 endef
 else
 define copy_header_action
+	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/vip/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/base/uapi/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/uapi/* ${1}/linux/
+	${Q}cp ${OSDRV_PATH}/interdrv/${MW_VER}/usb/gadget/function/f_cvg.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion_cvitek.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/include/uapi/linux/dma-buf.h ${1}/linux/

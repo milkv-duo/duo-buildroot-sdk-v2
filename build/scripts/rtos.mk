@@ -9,5 +9,5 @@ endif
 rtos-clean:
 ifeq (${CONFIG_ENABLE_FREERTOS},y)
 	$(call print_target)
-	cd ${FREERTOS_PATH}/cvitek && rm -rf build 
+	cd ${FREERTOS_PATH}/cvitek && rm -rf build install
 endif
