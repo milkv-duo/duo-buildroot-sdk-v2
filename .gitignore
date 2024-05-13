@@ -15,5 +15,7 @@ cviruntime
 cvikernel
 cvimath
 cvibuilder
+cnpy
+flatbuffers
 install
 
