@@ -70,7 +70,7 @@ done
 # 设置全局变量
 REMOTE_NAME=$(grep -o '<remote.*/>' ${dir} | sed 's/.*name="\([^"]*\)".*/\1/')
 DEFAULT_REVISION=$(grep -o '<default.*/>' ${dir} | sed 's/.*revision="\([^"]*\)".*/\1/')
-PARAMETERS="--single-branch --depth 2000"
+PARAMETERS="--single-branch --depth 200"
 
 # 获取xml文件中所有的project name
 repo_list=$(grep -o '<project name="[^"]*"' ${dir} | sed 's/.*name="\([^"]*\)".*/\1/')
