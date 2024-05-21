@@ -12,17 +12,17 @@
     <project name="opensbi"/>
     <project name="u-boot-2021.10"/>
     <project name="linux_5.10"/>
-    <project name="ramdisk"/>
     <project name="osdrv"/>
+    <project name="ramdisk"/>
+    <project name="oss" revision="master"/>
     <project name="middleware"/>
     <project name="isp_tuning"/>
-    <project name="oss" revision="master"/>
-    <project name="SensorSupportList" path="middleware/v2/component/isp" revision="cv18xx-v4.1.x"/>
-    <project name="buildroot-2021.05" revision="master"/>
-    <project name="cvibuilder" path="cvibuilder" revision="master"/>
-    <project name="cvikernel" path="cvikernel" revision="master"/>
-    <project name="cviruntime" path="cviruntime" revision="master"/>
-    <project name="cvimath" path="cvimath" revision="master"/>
-    <project name="cnpy" path="cnpy" revision="master"/>
+    <project name="SensorSupportList" path="middleware/v2/component/isp"/>
+    <project name="cvibuilder" path="cvibuilder"/>
+    <project name="cvikernel" path="cvikernel"/>
+    <project name="cviruntime" path="cviruntime"/>
+    <project name="cvimath" path="cvimath"/>
     <project name="flatbuffers" path="flatbuffers" revision="master">
+    <project name="cnpy" path="cnpy" revision="tpu"/>
+    <project name="buildroot-2021.05"/>
 </manifest>
