@@ -142,59 +142,104 @@ int obj_project_on_line(DRAW_OBJ *obj_vec, uint32_t obj_num, dlist_t *slc_list_h
 					(y > y1) ? obj_attr.rect.y + obj_attr.rect.height : y1);
 			}
 		} else if (obj_attr.type == LINE) {
-			float pt_x0, pt_x1;
+			float pt_x0, pt_x1, width;
 
-			if (is_in_range(y, (int)round(obj_attr.line._by[0]),
-					(int)round(obj_attr.line._by[1]))) {
-				float delta_x0 = obj_attr.line._mx * (y - obj_attr.line._by[0]);
+			if (obj_attr.line._ey[0] > obj_attr.line._by[1]) {
+				if (is_in_range(y, 0, (int)round(obj_attr.line._by[1]))) {
+					float delta_x0 = obj_attr.line._mx * (y + 0.5 - obj_attr.line._by[0]);
 
-				pt_x0 = obj_attr.line._bx[0] + delta_x0;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x0 = clip((int)pt_x0, (int)(obj_attr.line._bx[1] + obj_attr.line.ts_h), (int)obj_attr.line._bx[0]);
-				else
-					pt_x0 = clip((int)pt_x0, (int)obj_attr.line._bx[0], (int)(obj_attr.line._bx[1] + obj_attr.line.ts_h));
-				float width = (y - obj_attr.line._by[0]) *
-						(obj_attr.line.ts_h / (obj_attr.line._by[1] -
-						obj_attr.line._by[0]));
+					pt_x0 = obj_attr.line._bx[0] + delta_x0;
 
-				pt_x1 = pt_x0 - width;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x1 = clip((int)pt_x1, (int)obj_attr.line._bx[0], (int)obj_attr.line._bx[1]);
-				else
-					pt_x1 = clip((int)pt_x1, (int)obj_attr.line._bx[1], (int)obj_attr.line._bx[0]);
-			} else if (is_in_range(y, (int)round(obj_attr.line._by[1]),
-					   (int)round(obj_attr.line._ey[0]))) {
-				float delta_x0 = obj_attr.line._mx * (y - obj_attr.line._by[0]);
+					width = (y + 0.5 - obj_attr.line._by[0]) *
+							(obj_attr.line.ts_h / (obj_attr.line._by[1] -
+							obj_attr.line._by[0]));
 
-				pt_x0 = obj_attr.line._bx[0] + delta_x0;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x0 = clip((int)pt_x0, (int)obj_attr.line._ex[0], (int)(obj_attr.line._bx[1] + obj_attr.line._mx));
-				else
-					pt_x0 = clip((int)pt_x0, (int)(obj_attr.line._bx[1] + obj_attr.line._mx), (int)obj_attr.line._ex[0]);
-				pt_x1 = pt_x0 - obj_attr.line.ts_h;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x1 = clip((int)pt_x1, (int)(obj_attr.line._ex[0] - obj_attr.line._mx), (int)obj_attr.line._bx[1]);
-				else
-					pt_x1 = clip((int)pt_x1, (int)obj_attr.line._bx[1], (int)(obj_attr.line._ex[0] - obj_attr.line._mx));
-			} else {
-				float delta_x0 = obj_attr.line._mx * (y - obj_attr.line._by[1]);
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 - width;
+					} else {
+						pt_x1 = pt_x0 + width;
+					}
 
-				pt_x0 = obj_attr.line._bx[1] + delta_x0;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x0 = clip((int)pt_x0, (int)obj_attr.line._ex[1], (int)(obj_attr.line._ex[0] - obj_attr.line.ts_h));
-				else
-					pt_x0 = clip((int)pt_x0, (int)(obj_attr.line._ex[0] - obj_attr.line.ts_h), (int)obj_attr.line._ex[1]);
-				float width = (obj_attr.line._ey[1] - y) *
+				} else if (is_in_range(y, (int)round(obj_attr.line._by[1]),
+						(int)round(obj_attr.line._ey[0]))) {
+					float delta_x0 = obj_attr.line._mx * (y + 0.5 - obj_attr.line._by[0]);
+
+					pt_x0 = obj_attr.line._bx[0] + delta_x0;
+
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 - obj_attr.line.ts_h;
+					} else {
+						pt_x1 = pt_x0 + obj_attr.line.ts_h;
+					}
+
+				} else {
+					float delta_x0 = (y + 0.5 - obj_attr.line._ey[0]) / obj_attr.line._mx;
+
+					pt_x0 = obj_attr.line._ex[0] - delta_x0;
+					float width = (obj_attr.line._ey[1] - (y + 0.5)) *
 						(obj_attr.line.ts_h / (obj_attr.line._ey[1] - obj_attr.line._ey[0]));
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 - width;
+					} else {
+						pt_x1 = pt_x0 + width;
+					}
+				}
+			} else {
+				if (is_in_range(y, 0, (int)round(obj_attr.line._ey[0]))) {
+					float delta_x0 = obj_attr.line._mx * (y + 0.5 - obj_attr.line._by[0]);
 
-				pt_x1 = pt_x0 + width;
-				if (obj_attr.line._bx[0] > obj_attr.line._ex[0])
-					pt_x1 = clip((int)pt_x1, (int)obj_attr.line._ex[0], (int)obj_attr.line._ex[1]);
-				else
-					pt_x1 = clip((int)pt_x1, (int)obj_attr.line._ex[1], (int)obj_attr.line._ex[0]);
+					pt_x0 = obj_attr.line._bx[0] + delta_x0;
+
+					width = (y + 0.5 - obj_attr.line._by[0]) *
+							(obj_attr.line.ts_h / (obj_attr.line._by[1] -
+							obj_attr.line._by[0]));
+
+
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 - width;
+					} else {
+						pt_x1 = pt_x0 + width;
+					}
+
+				} else if (is_in_range(y, (int)round(obj_attr.line._ey[0]),
+						(int)round(obj_attr.line._by[1]))) {
+					float delta_x0 = (y + 0.5 - obj_attr.line._ey[0]) / obj_attr.line._mx;
+
+					pt_x0 = obj_attr.line._ex[0] - delta_x0;
+
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 - obj_attr.line.ts_h;
+					} else {
+						pt_x1 = pt_x0 + obj_attr.line.ts_h;
+					}
+
+				} else {
+					float delta_x0 = obj_attr.line._mx * (y + 0.5 - obj_attr.line._by[1]);
+
+					pt_x0 = obj_attr.line._bx[1] + delta_x0;
+					float width = (obj_attr.line._ey[1] - (y + 0.5)) *
+						(obj_attr.line.ts_h / (obj_attr.line._ey[1] - obj_attr.line._by[1]));
+					if (obj_attr.line._mx > 0) {
+						pt_x1 = pt_x0 + width;
+					} else {
+						pt_x1 = pt_x0 - width;
+					}
+				}
+
 			}
 			slc->slice.x0 = clip((int)round(MIN(pt_x0, pt_x1)), 0, canvas_width-1);
 			slc->slice.x1 = clip((int)round(MAX(pt_x0, pt_x1)), 0, canvas_width-1);
+			if (obj_attr.line._mx > 0) {
+				slc->slice.x0 = clip(slc->slice.x0, obj_attr.line._bx[1], obj_attr.line._ex[0]);
+				slc->slice.x1 = clip(slc->slice.x1, obj_attr.line._bx[1], obj_attr.line._ex[0]);
+			} else {
+				slc->slice.x0 = clip(slc->slice.x0, obj_attr.line._ex[0], obj_attr.line._bx[1]);
+				slc->slice.x1 = clip(slc->slice.x1, obj_attr.line._ex[0], obj_attr.line._bx[1]);
+			}
+			if (slc->slice.x0 == slc->slice.x1) {
+				slc->slice.x1 = slc->slice.x0 + 1;
+			}
+
 			slc->slice.obj_id = obj_i;
 			dlist_add_tail(&slc->item, slc_list_head);
 			*slc_num = *slc_num + 1;
@@ -820,31 +865,43 @@ void set_line_obj_attr(DRAW_OBJ *obj_attr, Canvas_Attr *canvas,
 		float thick_offset_y = thick_offset * dy;
 
 		for (int side_i = 0; side_i < 2; side_i++) {
-			obj_attr->line._bx[side_i] =
-				clip(x[0] + ((dx >= 0) ? thick_offset_y : (-thick_offset_y)),
-					 (float)0., (float)canvas->width);
-			obj_attr->line._by[side_i] =
-				clip(y[0] + ((dx >= 0) ? (-thick_offset_x) : thick_offset_x),
-					 (float)0., (float)canvas->height);
-			obj_attr->line._ex[side_i] =
-				clip(x[1] + ((dx >= 0) ? thick_offset_y : (-thick_offset_y)),
-					 (float)0., (float)canvas->width);
-			obj_attr->line._ey[side_i] =
-				clip(y[1] + ((dx >= 0) ? (-thick_offset_x) : thick_offset_x),
-					 (float)0., (float)canvas->height);
+			obj_attr->line._bx[side_i] = (float)(x[0] + ((dx >= 0) ? thick_offset_y : (-thick_offset_y)));
+
+			obj_attr->line._by[side_i] = (float)(y[0] + ((dx >= 0) ? (-thick_offset_x) : thick_offset_x));
+
+			obj_attr->line._ex[side_i] = (float)(x[1] + ((dx >= 0) ? thick_offset_y : (-thick_offset_y)));
+
+			obj_attr->line._ey[side_i] = (float)(y[1] + ((dx >= 0) ? (-thick_offset_x) : thick_offset_x));
+
 			thick_offset_x = -thick_offset_x;
 			thick_offset_y = -thick_offset_y;
 		}
-		obj_attr->line.ts_h =
-			(obj_attr->line._bx[0] +
-			obj_attr->line._mx * (obj_attr->line._by[1] - obj_attr->line._by[0])) -
-			obj_attr->line._bx[1];
-		if (obj_attr->line.ts_h > 0)
-			obj_attr->line.ts_h = clip((int)obj_attr->line.ts_h, 0
-				, (int)(obj_attr->line._ex[0] - obj_attr->line._bx[0]));
-		else
-			obj_attr->line.ts_h = clip((int)obj_attr->line.ts_h
-				, (int)(obj_attr->line._ex[0] - obj_attr->line._bx[0]), 0);
+
+		if (dx > 0) {
+			if (obj_attr->line._ey[0] > obj_attr->line._by[1]) {
+				obj_attr->line.ts_h =
+					(obj_attr->line._bx[0] +
+					obj_attr->line._mx * (obj_attr->line._by[1] - obj_attr->line._by[0])) -
+					obj_attr->line._bx[1];
+			} else {
+				obj_attr->line.ts_h =
+					obj_attr->line._ex[0] - (obj_attr->line._bx[0] -
+					(obj_attr->line._ey[0] - obj_attr->line._by[0]) / obj_attr->line._mx);
+			}
+
+		} else {
+			if (obj_attr->line._ey[0] > obj_attr->line._by[1]) {
+				obj_attr->line.ts_h =
+					obj_attr->line._bx[1] -
+					(obj_attr->line._mx * (obj_attr->line._by[1] - obj_attr->line._by[0]) +
+					obj_attr->line._bx[0]);
+			} else {
+				obj_attr->line.ts_h =
+					obj_attr->line._bx[0] - ((obj_attr->line._ey[0] -
+					obj_attr->line._by[0]) / obj_attr->line._mx) - obj_attr->line._ex[0];
+
+			}
+		}
 
 		obj_attr->_min_y =
 			(int)round(MIN(obj_attr->line._by[0], obj_attr->line._by[1]));
