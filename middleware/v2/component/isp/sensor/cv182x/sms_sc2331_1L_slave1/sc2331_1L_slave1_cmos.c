@@ -178,6 +178,7 @@ static CVI_S32 cmos_fps_set(VI_PIPE ViPipe, CVI_FLOAT f32Fps, AE_SENSOR_DEFAULT_
 	switch (pstSnsState->u8ImgMode) {
 	case SC2331_1L_slave1_MODE_1920X1080P30:
 		if ((f32Fps <= f32MaxFps) && (f32Fps >= f32MinFps)) {
+			f32Fps = 30;//fixed fps--unchangable
 			u32VMAX = u32Vts * f32MaxFps / DIV_0_TO_1_FLOAT(f32Fps);
 		} else {
 			CVI_TRACE_SNS(CVI_DBG_ERR, "Not support Fps: %f\n", f32Fps);
@@ -642,13 +643,18 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 		case WDR_MODE_NONE:
 			//Linear Mode Regs
 			pstI2c_data[LINEAR_EXP_H_ADDR].u32RegAddr = SC2331_1L_slave1_EXP_H_ADDR;
+			//pstI2c_data[LINEAR_EXP_H_ADDR].u8DelayFrmNum = 1;
 			pstI2c_data[LINEAR_EXP_M_ADDR].u32RegAddr = SC2331_1L_slave1_EXP_M_ADDR;
+			//pstI2c_data[LINEAR_EXP_M_ADDR].u8DelayFrmNum = 1;
 			pstI2c_data[LINEAR_EXP_L_ADDR].u32RegAddr = SC2331_1L_slave1_EXP_L_ADDR;
+			//pstI2c_data[LINEAR_EXP_L_ADDR].u8DelayFrmNum = 1;
 			pstI2c_data[LINEAR_AGAIN_H_ADDR].u32RegAddr = SC2331_1L_slave1_AGAIN_H_ADDR;
+			//pstI2c_data[LINEAR_AGAIN_H_ADDR].u8DelayFrmNum = 1;
 			pstI2c_data[LINEAR_AGAIN_L_ADDR].u32RegAddr = SC2331_1L_slave1_DGAIN_L_ADDR;
+			//pstI2c_data[LINEAR_AGAIN_L_ADDR].u8DelayFrmNum = 1;
 			pstI2c_data[LINEAR_DGAIN_H_ADDR].u32RegAddr = SC2331_1L_slave1_DGAIN_H_ADDR;
 			pstI2c_data[LINEAR_DGAIN_L_ADDR].u32RegAddr = SC2331_1L_slave1_DGAIN_L_ADDR;
-			printf("awei pingbi2\n");
+			//pstI2c_data[LINEAR_DGAIN_L_ADDR].u8DelayFrmNum = 1;
 			// pstI2c_data[LINEAR_VMAX_H_ADDR].u32RegAddr = SC2331_1L_slave1_VMAX_H_ADDR;
 			// pstI2c_data[LINEAR_VMAX_L_ADDR].u32RegAddr = SC2331_1L_slave1_VMAX_L_ADDR;
 			break;

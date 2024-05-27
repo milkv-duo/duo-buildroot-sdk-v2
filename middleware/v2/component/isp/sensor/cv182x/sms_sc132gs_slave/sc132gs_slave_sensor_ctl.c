@@ -94,7 +94,7 @@ int sc132gs_slave_read_register(VI_PIPE ViPipe, int addr)
 	// add address byte 0
 	buf[idx++] = addr & 0xff;
 
-	ret = write(g_fd[ViPipe], buf, sc132gs_slave_data_byte);
+	ret = write(g_fd[ViPipe], buf, sc132gs_slave_addr_byte);
 	if (ret < 0) {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "I2C_WRITE error!\n");
 		return ret;

@@ -265,13 +265,13 @@ static void cv2003_linear_1080P30_init(VI_PIPE ViPipe)
 	cv2003_write_register(ViPipe, 0x3021, 0x08);
 	cv2003_write_register(ViPipe, 0x3024, 0x80);
 	cv2003_write_register(ViPipe, 0x3025, 0x02);
-	cv2003_write_register(ViPipe, 0x3038, 0x04);
+	cv2003_write_register(ViPipe, 0x3038, 0x00);
 	cv2003_write_register(ViPipe, 0x3039, 0x00);
-	cv2003_write_register(ViPipe, 0x303A, 0x80);
+	cv2003_write_register(ViPipe, 0x303A, 0x88);
 	cv2003_write_register(ViPipe, 0x303B, 0x07);
-	cv2003_write_register(ViPipe, 0x3034, 0x04);
+	cv2003_write_register(ViPipe, 0x3034, 0x00);
 	cv2003_write_register(ViPipe, 0x3035, 0x00);
-	cv2003_write_register(ViPipe, 0x3036, 0x38);
+	cv2003_write_register(ViPipe, 0x3036, 0x40);
 	cv2003_write_register(ViPipe, 0x3037, 0x04);
 	cv2003_write_register(ViPipe, 0x3908, 0x48);
 	cv2003_write_register(ViPipe, 0x390A, 0x02);

@@ -53,6 +53,7 @@ sensor-$(CONFIG_SENSOR_VIVO_MCS369Q)         += vivo_mcs369q
 sensor-$(CONFIG_SENSOR_VIVO_MM308M2)         += vivo_mm308m2
 else ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X CV181X CV182X SG200X))
 sensor-$(CONFIG_SENSOR_BRIGATES_BG0808)      += brigates_bg0808
+sensor-$(CONFIG_SENSOR_CHIPUP_XS9922B)       += chipup_xs9922b
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003)        += cvsens_cv2003
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003_1L_SLAVE)  += cvsens_cv2003_1L_slave
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003_1L_SLAVE1) += cvsens_cv2003_1L_slave1
@@ -143,6 +144,7 @@ sensor-$(CONFIG_SENSOR_SONY_IMX335)          += sony_imx335
 sensor-$(CONFIG_SENSOR_TECHPOINT_TP2825)     += techpoint_tp2825
 sensor-$(CONFIG_SENSOR_TECHPOINT_TP2863)     += techpoint_tp2863
 sensor-$(CONFIG_SENSOR_LONTIUM_LT6911)       += lontium_lt6911
+sensor-$(CONFIG_SENSOR_LONTIUM_LT7911)       += lontium_lt7911
 else
 $(error not supported chip arch cv180x/cv181x/cv182x/cv183x)
 endif

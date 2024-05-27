@@ -43,7 +43,7 @@ static const SC2331_1L_SLAVE_MODE_S g_astSC2331_1L_Slave_mode[SC2331_1L_SLAVE_MO
 		.u32HtsDef = 2200,
 		.u32VtsDef = 1125,
 		.stExp[0] = {
-			.u16Min = 2,//3
+			.u16Min = 7,//3
 			.u16Max = 1125 - 13,
 			.u16Def = 400,
 			.u16Step = 1,

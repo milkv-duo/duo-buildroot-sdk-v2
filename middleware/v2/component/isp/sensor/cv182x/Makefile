@@ -29,6 +29,9 @@ brigates_bg0808:
 byd_bf2253l:
 	$(call MAKE_SENSOR, ${@})
 
+chipup_xs9922b:
+	$(call MAKE_SENSOR, ${@})
+
 cvsens_cv2003:
 	$(call MAKE_SENSOR, ${@})
 
@@ -294,6 +297,9 @@ techpoint_tp2863:
 	$(call MAKE_SENSOR, ${@})
 
 lontium_lt6911:
+	$(call MAKE_SENSOR, ${@})
+
+lontium_lt7911:
 	$(call MAKE_SENSOR, ${@})
 
 all_sensor:

@@ -37,7 +37,10 @@
 #define DIV_0_TO_1_FLOAT(a) ((((a) < 1E-10) && ((a) > -1E-10)) ? 1 : (a))
 #define SC132GS_ID 0x132
 
-#define SC132GS_I2C_ADDR_IS_VALID(addr)      ((addr) == SC132GS_I2C_ADDR_1)
+#define SC132GS_I2C_ADDR_1 0x30
+#define SC132GS_I2C_ADDR_2 0x31
+
+#define SC132GS_I2C_ADDR_IS_VALID(addr)      ((addr) == SC132GS_I2C_ADDR_1 || (addr) == SC132GS_I2C_ADDR_2)
 
 /****************************************************************************
  * global variables                                                         *

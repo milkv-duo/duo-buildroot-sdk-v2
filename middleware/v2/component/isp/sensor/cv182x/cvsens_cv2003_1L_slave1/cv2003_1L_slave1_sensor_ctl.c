@@ -221,10 +221,16 @@ static void cv2003_1l_slave1_linear_1080P30_init(VI_PIPE ViPipe)
 {
 	delay_ms(10);
 
-	//30fps
+	//15fps
 	cv2003_1l_slave1_write_register(ViPipe, 0x3300, 0x03);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3422, 0xBF);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3401, 0x00);
+	//CHAGE MIPI DATA<==>MIPI CLK
+	// cv2003_1l_slave1_write_register(ViPipe, 0x342E,0x00);
+	// cv2003_1l_slave1_write_register(ViPipe, 0x342F,0x01);
+	// cv2003_1l_slave1_write_register(ViPipe, 0x3430,0x02);
+	// cv2003_1l_slave1_write_register(ViPipe, 0x3431,0x03);
+
 	cv2003_1l_slave1_write_register(ViPipe, 0x3440, 0x01);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3442, 0x00);
 	// cv2003_1l_slave1_write_register(ViPipe, 0x3460, 0x03);//drive capability
@@ -261,17 +267,17 @@ static void cv2003_1l_slave1_linear_1080P30_init(VI_PIPE ViPipe)
 	cv2003_1l_slave1_write_register(ViPipe, 0x3144, 0x20);
 	cv2003_1l_slave1_write_register(ViPipe, 0x301c, 0x00);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3030, 0x01);
-	cv2003_1l_slave1_write_register(ViPipe, 0x3020, 0xCA);
-	cv2003_1l_slave1_write_register(ViPipe, 0x3021, 0x08);
+	cv2003_1l_slave1_write_register(ViPipe, 0x3020, 0x94);
+	cv2003_1l_slave1_write_register(ViPipe, 0x3021, 0x11);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3024, 0x80);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3025, 0x02);
-	cv2003_1l_slave1_write_register(ViPipe, 0x3038, 0x04);
+	cv2003_1l_slave1_write_register(ViPipe, 0x3038, 0x00);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3039, 0x00);
-	cv2003_1l_slave1_write_register(ViPipe, 0x303A, 0x80);
+	cv2003_1l_slave1_write_register(ViPipe, 0x303A, 0x88);
 	cv2003_1l_slave1_write_register(ViPipe, 0x303B, 0x07);
-	cv2003_1l_slave1_write_register(ViPipe, 0x3034, 0x04);
+	cv2003_1l_slave1_write_register(ViPipe, 0x3034, 0x00);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3035, 0x00);
-	cv2003_1l_slave1_write_register(ViPipe, 0x3036, 0x38);
+	cv2003_1l_slave1_write_register(ViPipe, 0x3036, 0x40);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3037, 0x04);
 	cv2003_1l_slave1_write_register(ViPipe, 0x3908, 0x48);
 	cv2003_1l_slave1_write_register(ViPipe, 0x390A, 0x02);
@@ -280,6 +286,8 @@ static void cv2003_1l_slave1_linear_1080P30_init(VI_PIPE ViPipe)
 	cv2003_1l_slave1_write_register(ViPipe, 0x3001, 0x01);
 	cv2003_1l_slave1_write_register(ViPipe, 0x307A, 0x02);
 	cv2003_1l_slave1_write_register(ViPipe, 0x306D, 0x0F);
+	//low
+	cv2003_1l_slave1_write_register(ViPipe, 0x3078, 0x04);
 
 	cv2003_1l_slave1_default_reg_init(ViPipe);
 	delay_ms(100);

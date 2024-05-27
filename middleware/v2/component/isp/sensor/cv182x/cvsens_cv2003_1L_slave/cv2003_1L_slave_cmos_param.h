@@ -24,8 +24,8 @@ static const CV2003_1L_SLAVE_MODE_S g_astCV2003_1L_SLAVE_mode[CV2003_1L_SLAVE_MO
 		.name = "1920X1080P30",
 		.astImg[0] = {
 			.stSnsSize = {
-				.u32Width = 1920,
-				.u32Height = 1080,
+				.u32Width = 1928,
+				.u32Height = 1088,
 			},
 			.stWndRect = {
 				.s32X = 0,
@@ -34,8 +34,8 @@ static const CV2003_1L_SLAVE_MODE_S g_astCV2003_1L_SLAVE_mode[CV2003_1L_SLAVE_MO
 				.u32Height = 1080,
 			},
 			.stMaxSize = {
-				.u32Width = 1920,
-				.u32Height = 1080,
+				.u32Width = 1928,
+				.u32Height = 1088,
 			},
 		},
 		.f32MaxFps = 30,
