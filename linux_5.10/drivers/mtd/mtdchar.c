@@ -668,6 +668,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 	case BLKRRPART:
 	case OTPREAD:
 	case OTPINFO:
+	case GET_ALL_SIZE:
 		break;
 
 	/* "dangerous" commands */
@@ -728,6 +729,14 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 			return -EFAULT;
 		break;
 
+	case GET_ALL_SIZE:
+	{
+		u64 size = mtd_get_device_size(mtd);
+
+		if (copy_to_user(argp, &size, sizeof(u64)))
+			return -EFAULT;
+		break;
+	}
 	case MEMERASE:
 	case MEMERASE64:
 	{
