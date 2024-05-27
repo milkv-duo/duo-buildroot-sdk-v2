@@ -23,13 +23,11 @@ ifeq ($(CONFIG_BUILD_FOR_DEBUG), y)
 INTRERDRV_FLAGS += -DDRV_DEBUG -DDRV_TEST
 endif
 
-define COPY_KO
-	( cd $(1) && cp -f *.ko $(INSTALL_DIR); )
-endef
-
 define MAKE_KO
 	( cd $(1) && $(MAKE) KERNEL_DIR=$(KERNEL_DIR) all -j$(shell nproc))
-	( cd $(1) && cp -f *.ko $(INSTALL_DIR); )
+	if [ $$(find $(1) -name '*.ko' | wc -l) -gt 0 ]; then \
+		cd $(1) && cp -f *.ko $(INSTALL_DIR); \
+	fi
 endef
 
 MAKE_EXT_KO_CP :=
@@ -116,7 +114,7 @@ fast_image: rtos_cmdqu
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 jpeg:
-	$(call COPY_KO, ${INTERDRV_PATH}/${@}/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/${SDK_VER})
+	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 pwm:
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
@@ -176,7 +174,7 @@ ive:
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 cvi_vc_drv: sys base vcodec jpeg
-	@$(call COPY_KO, ${INTERDRV_PATH}/${@}/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/${SDK_VER})
+	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 rtos_cmdqu:
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})

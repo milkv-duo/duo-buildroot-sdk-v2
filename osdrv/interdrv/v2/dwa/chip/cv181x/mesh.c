@@ -68,6 +68,9 @@ static int init_ldc_param(const struct vb_s *vb_in, struct vb_s *vb_out,
 {
 	int i;
 	void *_pcbParam;
+	u32 ctu_w, ctu_h;
+	int x, y;
+	int rotated_x, rotated_y;
 
 	memset(stTask, 0, sizeof(*stTask));
 	// prepare the in/out image info of the gdc task.
@@ -145,8 +148,32 @@ static int init_ldc_param(const struct vb_s *vb_in, struct vb_s *vb_out,
 	vb_out->buf.u64PTS = stTask->stImgOut.stVFrame.u64PTS;
 	vb_out->buf.frm_num = vb_in->buf.frm_num;
 	vb_out->buf.motion_lv = vb_in->buf.motion_lv;
+	vb_out->buf.dci_lv = vb_in->buf.dci_lv;
 	memcpy(vb_out->buf.motion_table, vb_in->buf.motion_table,
 	       MO_TBL_SIZE);
+
+	ctu_w = ALIGN(vb_in->buf.size.u32Width, 64) >> 6;
+	ctu_h = ALIGN(vb_in->buf.size.u32Height, 64) >> 6;
+
+	if (enRotation == ROTATION_90) {
+		for (y = 0; y < ctu_h; y++) {
+			for (x = 0; x < ctu_w; x++) {
+				rotated_x = ctu_h - y - 1;
+				rotated_y = x;
+				vb_out->buf.motion_table[rotated_y * ctu_h + rotated_x] =
+					vb_in->buf.motion_table[y * ctu_w + x];
+			}
+		}
+	} else if (enRotation == ROTATION_270) {
+		for (y = 0; y < ctu_h; y++) {
+			for (x = 0; x < ctu_w; x++) {
+				rotated_x = y;
+				rotated_y = ctu_w - x - 1;
+				vb_out->buf.motion_table[rotated_y * ctu_h + rotated_x] =
+					vb_in->buf.motion_table[y * ctu_w + x];
+			}
+		}
+	}
 
 	_pcbParam = vmalloc(cbParamSize);
 	if (!_pcbParam) {
@@ -201,6 +228,7 @@ static s32 mesh_gdc_do_rot(struct cvi_dwa_vdev *wdev, struct vb_s *vb_in,
 	vb_in->mod_ids &= ~BIT(enModId);
 	vb_in->mod_ids |= BIT(CVI_ID_GDC);
 	vb_out = (struct vb_s *)blk;
+
 	base_get_frame_info(enPixFormat, size_out, &vb_out->buf, vb_out->phy_addr, DEFAULT_ALIGN);
 	CVI_TRACE_DWA(CVI_DBG_DEBUG, "GDC usage(%d) rot(%d) src phy-addr(0x%llx) dst phy-addr(0x%llx)\n",
 		      GDC_USAGE_ROTATION, enRotation, (unsigned long long)vb_in->phy_addr,

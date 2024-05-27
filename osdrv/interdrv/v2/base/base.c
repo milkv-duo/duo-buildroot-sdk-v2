@@ -258,6 +258,8 @@ static unsigned int _cvi_base_read_by_kernel(unsigned int chip_id)
 		return E_CHIPID_CV1811C;
 	case 0x1812C:
 		return E_CHIPID_CV1812C;
+	case 0x1810F:
+		return E_CHIPID_CV1810H;
 	case 0x1811F:
 		return E_CHIPID_CV1811H;
 	case 0x1812F:
@@ -319,6 +321,7 @@ unsigned int cvi_base_read_chip_id(void)
 	case 0x1810C:
 	case 0x1811C:
 	case 0x1812C:
+	case 0x1810F:
 	case 0x1811F:
 	case 0x1812F:
 	case 0x1813F:

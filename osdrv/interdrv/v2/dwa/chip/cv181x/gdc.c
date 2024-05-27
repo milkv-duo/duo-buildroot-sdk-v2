@@ -444,15 +444,6 @@ static void cvi_dwa_handle_hw_cb(struct cvi_dwa_vdev *wdev, struct cvi_dwa_job *
 			// free memory allocated in init_ldc_param(), size cbParamSize
 			vfree((void *)(uintptr_t)tsk->stTask.au64privateData[2]);
 		}
-	} else {
-		// release mesh
-		if (tsk->stTask.au64privateData[0] &&
-		    tsk->stTask.au64privateData[0] != DEFAULT_MESH_PADDR)
-			sys_ion_free(tsk->stTask.au64privateData[0]);
-
-		// release slice buffer
-		if (tsk->stTask.bufWrapPhyAddr)
-			sys_ion_free(tsk->stTask.bufWrapPhyAddr);
 	}
 }
 
@@ -952,4 +943,49 @@ s32 gdc_get_buf_wrap(struct cvi_dwa_vdev *wdev, struct dwa_buf_wrap_cfg *cfg)
 	}
 
 	return s32Ret;
+}
+
+s32 dwa_stop_handler(struct cvi_dwa_vdev *wdev_dwa)
+{
+	s32 ret = CVI_SUCCESS;
+
+	if (!wdev_dwa->thread){
+		CVI_TRACE_DWA(CVI_DBG_ERR, "dwa thread not initialized yet\n");
+		return CVI_ERR_GDC_SYS_NOTREADY;
+	}
+
+	ret = kthread_stop(wdev_dwa->thread);
+	if (ret)
+		CVI_TRACE_DWA(CVI_DBG_ERR, "fail to stop dwa thread, err=%d\n", ret);
+
+	wdev_dwa->thread = NULL;
+
+	return ret;
+}
+
+s32 dwa_start_handler(struct cvi_dwa_vdev *wdev_dwa)
+{
+	s32 ret = CVI_SUCCESS;
+	struct sched_param tsk;
+
+	if(wdev_dwa->thread){
+		CVI_TRACE_DWA(CVI_DBG_ERR, "dwa thread has been initialized\n");
+		return CVI_ERR_GDC_NOT_SUPPORT;
+	}
+
+	wdev_dwa->thread = kthread_run(kthread_worker_fn, &wdev_dwa->worker,
+				   "gdc_work");
+
+	// Same as sched_set_fifo in linux 5.x
+	tsk.sched_priority = MAX_USER_RT_PRIO / 2;
+	ret = sched_setscheduler(wdev_dwa->thread, SCHED_FIFO, &tsk);
+	if (ret)
+		CVI_TRACE_DWA(CVI_DBG_WARN, "gdc thread priority update failed: %d\n", ret);
+
+	if (IS_ERR(wdev_dwa->thread)) {
+		CVI_TRACE_DWA(CVI_DBG_ERR, "failed to create gdc kthread\n");
+		return -1;
+	}
+
+	return ret;
 }

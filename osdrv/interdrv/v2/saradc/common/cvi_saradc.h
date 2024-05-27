@@ -20,6 +20,9 @@
 #define SARADC_EN_SHIFT		0x0
 #define SARADC_SEL_SHIFT	0x4
 
+#define	SARADC_REGS_SIZE (0x2c + 4)
+#define	SARADC_REGS_NUM	 (SARADC_REGS_SIZE / 4)
+
 struct cvi_saradc_device {
 	struct device *dev;
 	struct reset_control *rst_saradc;
@@ -35,6 +38,8 @@ struct cvi_saradc_device {
 	int use_count;
 	int channel_index;
 	void *private_data;
+	u32 saradc_saved_top_regs[SARADC_REGS_NUM];
+	u32 saradc_saved_rtc_regs[SARADC_REGS_NUM];
 };
 
 #endif /* __CVI_SARADC_H__ */

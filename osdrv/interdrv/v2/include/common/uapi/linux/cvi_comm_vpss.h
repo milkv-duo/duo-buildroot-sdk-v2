@@ -29,7 +29,7 @@ extern "C" {
 #define VPSS_INVALID_GRP     -1
 
 /*
- * VPSS_CROP_RATIO_COOR: Ratio coordinate.
+ * VPSS_CROP_RATIO_COOR: Ratio coordinate, not supported currently.
  * VPSS_CROP_ABS_COOR: Absolute coordinate.
  */
 typedef enum _VPSS_CROP_COORDINATE_E {

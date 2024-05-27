@@ -20,9 +20,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-#define VI_MAX_ADCHN_NUM (4UL)
+#define VI_MAX_ADCHN_NUM 4
 
-#define VI_COMPMASK_NUM (2UL)
+#define VI_COMPMASK_NUM 2
 #define VI_PRO_MAX_FRAME_NUM (8UL)
 #define VI_SHARPEN_GAIN_NUM 32
 #define VI_AUTO_ISO_STRENGTH_NUM 16
@@ -407,8 +407,8 @@ typedef struct _VI_PIPE_ATTR_S {
 	VI_PIPE_BYPASS_MODE_E enPipeBypassMode;
 	CVI_BOOL bYuvSkip; /* RW;YUV skip enable */
 	CVI_BOOL bIspBypass; /* RW;ISP bypass enable */
-	CVI_U32 u32MaxW; /* RW;Range[VI_PIPE_MIN_WIDTH,VI_PIPE_MAX_WIDTH];Maximum width */
-	CVI_U32 u32MaxH; /* RW;Range[VI_PIPE_MIN_HEIGHT,VI_PIPE_MAX_HEIGHT];Maximum height */
+	CVI_U32 u32MaxW; /* RW;Maximum width */
+	CVI_U32 u32MaxH; /* RW;Maximum height */
 	PIXEL_FORMAT_E enPixFmt; /* RW;Pixel format */
 	COMPRESS_MODE_E enCompressMode; /* RW;Compress mode.*/
 	DATA_BITWIDTH_E enBitWidth; /* RW;Bit width*/
@@ -675,7 +675,7 @@ typedef struct _VI_CHN_ATTR_S {
 	COMPRESS_MODE_E enCompressMode; /* RW;256B Segment compress or no compress. */
 	CVI_BOOL bMirror; /* RW;Mirror enable */
 	CVI_BOOL bFlip; /* RW;Flip enable */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range [0x00, 0x08], Depth */
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
 	CVI_U32 u32BindVbPool; /*chn bind vb*/
 } VI_CHN_ATTR_S;
@@ -719,7 +719,7 @@ typedef struct _VI_EXT_CHN_ATTR_S {
 	VI_CHN s32BindChn; /* RW;Range [VI_CHN0, VI_MAX_PHY_CHN_NUM);The channel num which extend channel will bind to*/
 	SIZE_S stSize; /* RW;Channel out put size */
 	PIXEL_FORMAT_E enPixelFormat; /* RW;Pixel format */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range [0x00, 0x08], Depth */
 	FRAME_RATE_CTRL_S stFrameRate; /* RW;Frame rate */
 } VI_EXT_CHN_ATTR_S;
 
@@ -769,7 +769,7 @@ typedef enum _VI_DUMP_TYPE_E {
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 typedef struct _VI_DUMP_ATTR_S {
 	CVI_BOOL bEnable; /* RW;Whether dump is enable */
-	CVI_U32 u32Depth; /* RW;Range [0,8];Depth */
+	CVI_U32 u32Depth; /* RW;Range [0x00, 0x08], Depth */
 	VI_DUMP_TYPE_E enDumpType;
 } VI_DUMP_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------

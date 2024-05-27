@@ -18,6 +18,8 @@
 #include <linux/delay.h>
 #endif  // ENV_CVITEST
 
+#include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include "ldc_reg.h"
 #include "ldc_cfg.h"
 #include "ldc.h"
@@ -286,4 +288,29 @@ void ldc_set_default_sb(void)
 
 	ldc_get_sb_default(&ldc_sb_cfg);
 	ldc_set_sb(&ldc_sb_cfg);
+}
+
+void ldc_clk_enable(struct cvi_dwa_vdev *wdev)
+{
+	if (unlikely(!wdev)) {
+		CVI_TRACE_DWA(CVI_DBG_ERR, "dwa_dev is null\n");
+		return;
+	}
+
+	if (wdev->clk && !__clk_is_enabled(wdev->clk)) {
+		clk_prepare_enable(wdev->clk);
+	}
+}
+
+void ldc_clk_disable(struct cvi_dwa_vdev *wdev)
+{
+	if (unlikely(!wdev)) {
+		CVI_TRACE_DWA(CVI_DBG_ERR, "dwa_dev is null\n");
+		return;
+	}
+
+	if (wdev->clk && __clk_is_enabled(wdev->clk)) {
+		clk_disable_unprepare(wdev->clk);
+	}
+
 }

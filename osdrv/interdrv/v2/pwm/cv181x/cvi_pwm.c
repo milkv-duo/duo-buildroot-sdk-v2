@@ -191,6 +191,12 @@ static int pwm_cv_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 		return ret;
 	}
 
+	ret = pwm_cv_set_polarity(chip, pwm, state->polarity);
+	if (ret) {
+		dev_err(chip->dev, "pwm apply err\n");
+		return ret;
+	}
+
 	dev_dbg(chip->dev, "pwm_cv_apply state->enabled = %d\n", state->enabled);
 	if (state->enabled)
 		ret = pwm_cv_enable(chip, pwm);
@@ -244,7 +250,8 @@ static int pwm_cv_capture(struct pwm_chip *chip, struct pwm_device *pwm_dev,
 	result->duty_cycle = 0;
 
 	// Disable capture
-	writel(0x0, our_chip->base + REG_FREQEN);
+	value = readl(our_chip->base + REG_FREQEN) & (~(1 << (pwm_dev->hwpwm)));
+	writel(value, our_chip->base + REG_FREQEN);
 
 	return 0;
 }
@@ -255,8 +262,8 @@ static const struct pwm_ops pwm_cv_ops = {
 	.enable		= pwm_cv_enable,
 	.disable	= pwm_cv_disable,
 	.config		= pwm_cv_config,
-	.set_polarity	= pwm_cv_set_polarity,
-	/* .apply		= pwm_cv_apply, */
+	/* .set_polarity	= pwm_cv_set_polarity, */
+	.apply		= pwm_cv_apply,
 	.capture	= pwm_cv_capture,
 	.owner		= THIS_MODULE,
 };

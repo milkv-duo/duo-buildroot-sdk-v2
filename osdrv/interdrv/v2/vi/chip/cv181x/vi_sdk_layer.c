@@ -136,13 +136,13 @@ void vi_fill_mlv_info(struct vb_s *blk, u8 dev, struct mlv_i_s *m_lv_i, u8 is_vp
 	}
 }
 
-CVI_S32 vi_set_motion_lv(struct mlv_info_s mlv_i)
+CVI_S32 vi_set_motion_lv(struct mlv_info_s *mlv_i)
 {
-	if (mlv_i.sensor_num >= VI_MAX_DEV_NUM)
+	if (mlv_i->sensor_num >= VI_MAX_DEV_NUM)
 		return CVI_FAILURE;
 
-	gmLVi[mlv_i.sensor_num].mlv_i_level = mlv_i.mlv;
-	memcpy(gmLVi[mlv_i.sensor_num].mlv_i_table, mlv_i.mtable, MO_TBL_SIZE);
+	gmLVi[mlv_i->sensor_num].mlv_i_level = mlv_i->mlv;
+	memcpy(gmLVi[mlv_i->sensor_num].mlv_i_table, mlv_i->mtable, MO_TBL_SIZE);
 
 	return CVI_SUCCESS;
 }
@@ -1260,14 +1260,22 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 	}
 	case VI_SDK_SET_MOTION_LV:
 	{
-		struct mlv_info_s mlv_i;
+		struct mlv_info_s *mlv_i = kzalloc(sizeof(struct mlv_info_s), GFP_KERNEL);
 
-		if (copy_from_user(&mlv_i, p->sdk_cfg.ptr, sizeof(struct mlv_info_s)) != 0) {
+		if (!mlv_i) {
+			vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct mlv_info_s));
+			break;
+		}
+
+		if (copy_from_user(mlv_i, p->sdk_cfg.ptr, sizeof(struct mlv_info_s)) != 0) {
+			kfree(mlv_i);
 			vi_pr(VI_ERR, "struct mlv_info copy from user fail.\n");
 			break;
 		}
 
 		rc = vi_set_motion_lv(mlv_i);
+
+		kfree(mlv_i);
 		break;
 	}
 	case VI_SDK_ENABLE_DIS:

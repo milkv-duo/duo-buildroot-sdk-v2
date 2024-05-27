@@ -59,6 +59,8 @@ enum ENUM_CHIP_ID {
 	E_CHIPID_CV1801B,		//23
 	E_CHIPID_CV1800C,		//24
 	E_CHIPID_CV1801C,		//25
+// new add for cv181x
+	E_CHIPID_CV1810H = 28,		//28
 };
 
 /* chip version list */

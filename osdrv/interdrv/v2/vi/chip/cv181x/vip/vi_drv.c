@@ -620,8 +620,13 @@ int ispblk_dma_buf_get_size(struct isp_ctx *ctx, int dmaid, u8 raw_num)
 	case ISP_BLK_ID_DMA_CTL19: //fe2_csibdg_se
 	{
 		/* csibdg */
-		w = ctx->isp_pipe_cfg[raw_num].crop.w;
-		num = ctx->isp_pipe_cfg[raw_num].crop.h;
+		w = ctx->isp_pipe_cfg[raw_num].is_mux ?
+			ctx->isp_pipe_cfg[raw_num].csibdg_width
+			: ctx->isp_pipe_cfg[raw_num].crop.w;
+		num = ctx->isp_pipe_cfg[raw_num].is_mux ?
+			ctx->isp_pipe_cfg[raw_num].csibdg_height
+			: ctx->isp_pipe_cfg[raw_num].crop.h;
+
 		if (ctx->is_dpcm_on)
 			w >>= 1;
 
@@ -644,8 +649,12 @@ int ispblk_dma_buf_get_size(struct isp_ctx *ctx, int dmaid, u8 raw_num)
 		} else {
 			uint8_t grid_size = RGBMAP_MAX_BIT;
 
-			len = (((UPPER(ctx->isp_pipe_cfg[raw_num].crop.w, grid_size)) * 6 + 15) >> 4) << 4;
-			num = UPPER(ctx->isp_pipe_cfg[raw_num].crop.h, grid_size);
+			len = ctx->isp_pipe_cfg[raw_num].is_mux ?
+				(((UPPER(ctx->isp_pipe_cfg[raw_num].csibdg_width, grid_size)) * 6 + 15) >> 4) << 4
+				: (((UPPER(ctx->isp_pipe_cfg[raw_num].crop.w, grid_size)) * 6 + 15) >> 4) << 4;
+			num = ctx->isp_pipe_cfg[raw_num].is_mux ?
+				UPPER(ctx->isp_pipe_cfg[raw_num].csibdg_height, grid_size)
+				: UPPER(ctx->isp_pipe_cfg[raw_num].crop.h, grid_size);
 		}
 
 		break;
@@ -849,8 +858,12 @@ void ispblk_rgbmap_dma_config(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, int
 {
 	uintptr_t dmab = ctx->phys_regs[dmaid];
 	u32 grid_size = (1 << g_w_bit[raw_num]);
-	u32 w = ctx->isp_pipe_cfg[raw_num].crop.w, stride = 0, seglen = 0;
-	u32 num = UPPER(ctx->isp_pipe_cfg[raw_num].crop.h, g_w_bit[raw_num]);
+	u32 w = ctx->isp_pipe_cfg[raw_num].is_mux ? ctx->isp_pipe_cfg[raw_num].csibdg_width
+						  : ctx->isp_pipe_cfg[raw_num].crop.w;
+	u32 stride = 0, seglen = 0;
+	u32 num = ctx->isp_pipe_cfg[raw_num].is_mux
+			? UPPER(ctx->isp_pipe_cfg[raw_num].csibdg_height, g_w_bit[raw_num])
+			: UPPER(ctx->isp_pipe_cfg[raw_num].crop.h, g_w_bit[raw_num]);
 
 	stride = ((((w + grid_size - 1) / grid_size) * 6 + 15) / 16) * 16;
 	seglen = ((w + grid_size - 1) / grid_size) * 6;
@@ -866,7 +879,9 @@ void ispblk_mmap_dma_config(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, int d
 {
 	uintptr_t dmab = ctx->phys_regs[dmaid];
 	u32 grid_size = (1 << g_w_bit[raw_num]);
-	u32 w = ctx->isp_pipe_cfg[raw_num].crop.w, stride = 0;
+	u32 w = ctx->isp_pipe_cfg[raw_num].is_mux ? ctx->isp_pipe_cfg[raw_num].csibdg_width
+						  : ctx->isp_pipe_cfg[raw_num].crop.w;
+	u32 stride = 0;
 
 	stride = ((((w + grid_size - 1) / grid_size) * 6 + 15) / 16) * 16;
 
@@ -907,8 +922,13 @@ int ispblk_dma_config(struct isp_ctx *ctx, int dmaid, enum cvi_isp_raw raw_num, 
 	case ISP_BLK_ID_DMA_CTL18: //fe2_csibdg_le
 	case ISP_BLK_ID_DMA_CTL19: //fe2_csibdg_se
 		/* csibdg */
-		w = ctx->isp_pipe_cfg[raw_num].crop.w;
-		num = ctx->isp_pipe_cfg[raw_num].crop.h;
+		w = ctx->isp_pipe_cfg[raw_num].is_mux ?
+			ctx->isp_pipe_cfg[raw_num].csibdg_width
+			: ctx->isp_pipe_cfg[raw_num].crop.w;
+		num = ctx->isp_pipe_cfg[raw_num].is_mux ?
+			ctx->isp_pipe_cfg[raw_num].csibdg_height
+			: ctx->isp_pipe_cfg[raw_num].crop.h;
+
 		if (ctx->is_dpcm_on)
 			w >>= 1;
 
@@ -1580,6 +1600,7 @@ void _ispblk_rgbtop_cfg_update(struct isp_ctx *ctx, const enum cvi_isp_raw raw_n
 {
 	uintptr_t rgbtop = ctx->phys_regs[ISP_BLK_ID_RGBTOP];
 	uintptr_t manr = ctx->phys_regs[ISP_BLK_ID_MMAP];
+	union REG_ISP_MMAP_00 reg_00;
 
 	if (ctx->isp_pipe_cfg[raw_num].is_yuv_bypass_path) { //YUV sensor
 		//Disable manr
@@ -1589,6 +1610,10 @@ void _ispblk_rgbtop_cfg_update(struct isp_ctx *ctx, const enum cvi_isp_raw raw_n
 	} else { //RGB sensor
 		if (ctx->is_3dnr_on) {
 			//Enable manr
+			reg_00.raw = ISP_RD_REG(manr, REG_ISP_MMAP_T, REG_00);
+			reg_00.bits.MMAP_1_ENABLE = (ctx->isp_pipe_cfg[raw_num].is_hdr_on) ? 1 : 0;
+			ISP_WR_REG(manr, REG_ISP_MMAP_T, REG_00, reg_00.raw);
+
 			ISP_WR_BITS(manr, REG_ISP_MMAP_T, REG_6C, FORCE_DMA_DISABLE,
 					(ctx->isp_pipe_cfg[raw_num].is_hdr_on) ? 0xa0 : 0x0a);
 			ISP_WR_BITS(manr, REG_ISP_MMAP_T, REG_00, BYPASS, 0);

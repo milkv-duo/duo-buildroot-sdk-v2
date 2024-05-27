@@ -685,15 +685,15 @@ int32_t vb_dqbuf(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK *blk)
 {
 	struct vb_jobs_t *jobs;
 	struct vb_s *p;
-	struct cvi_buffer buf;
+	//struct cvi_buffer buf;
 	uint32_t cb_param = 0;
 
 	*blk = VB_INVALID_HANDLE;
 
 	///<TODO:
 	cb_param = 0xFF;
-	if (base_dqbuf_cb[chn.enModId])
-		(*base_dqbuf_cb[chn.enModId])(&buf, cb_param);
+	//if (base_dqbuf_cb[chn.enModId])
+	//	(*base_dqbuf_cb[chn.enModId])(&buf, cb_param);
 	jobs = base_get_jobs_by_chn(chn, chn_type);
 
 	mutex_lock(&jobs->lock);

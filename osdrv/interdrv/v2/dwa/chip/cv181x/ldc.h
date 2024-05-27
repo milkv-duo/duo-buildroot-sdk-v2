@@ -2,6 +2,7 @@
 #define _CVI_LDC_H_
 
 #include "ldc_cfg.h"
+#include "dwa_platform.h"
 
 void ldc_set_base_addr(void *base);
 void ldc_get_base_addr(void **base);
@@ -83,5 +84,8 @@ bool ldc_is_busy(void);
 void ldc_get_sb_default(struct ldc_sb_cfg *cfg);
 void ldc_set_sb(struct ldc_sb_cfg *cfg);
 void ldc_set_default_sb(void);
+
+void ldc_clk_enable(struct cvi_dwa_vdev *wdev);
+void ldc_clk_disable(struct cvi_dwa_vdev *wdev);
 
 #endif // _CVI_LDC_H_

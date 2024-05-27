@@ -1054,6 +1054,7 @@ int _vo_sdk_setfmt(CVI_S32 width, CVI_S32 height, CVI_U32 pxlfmt)
 
 	switch (pxlfmt) {
 	case PIXEL_FORMAT_HSV_888_PLANAR:
+	case PIXEL_FORMAT_YUV_PLANAR_420:
 	case PIXEL_FORMAT_YUV_PLANAR_422:
 	case PIXEL_FORMAT_YUV_PLANAR_444:
 	case PIXEL_FORMAT_NV12:

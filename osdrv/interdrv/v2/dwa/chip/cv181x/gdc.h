@@ -99,4 +99,7 @@ void gdc_proc_record_hw_end(struct cvi_dwa_job *job);
 
 int dwa_vpss_sdm_cb_done(struct cvi_dwa_vdev *wdev);
 
+s32 dwa_stop_handler(struct cvi_dwa_vdev *wdev_dwa);
+s32 dwa_start_handler(struct cvi_dwa_vdev *wdev_dwa);
+
 #endif /* _GDC_H_ */

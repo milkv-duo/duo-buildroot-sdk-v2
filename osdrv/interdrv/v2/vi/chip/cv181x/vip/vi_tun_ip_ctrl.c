@@ -992,12 +992,11 @@ void ispblk_clut_tun_cfg(
 
 	ISP_WR_BITS(clut, REG_ISP_CLUT_T, CLUT_CTRL, CLUT_ENABLE, cfg->enable);
 
-	if (!cfg->enable)
-		return;
-
 	if (cfg->is_update_partial) { //partail update table
 		ispblk_clut_partial_update(ctx, cfg, raw_num);
 	} else {
+		if (!cfg->enable)
+			return;
 #if defined(__CV180X__)
 		ispblk_clut_config(ctx, cfg->enable, cfg->r_lut, cfg->g_lut, cfg->b_lut);
 #else

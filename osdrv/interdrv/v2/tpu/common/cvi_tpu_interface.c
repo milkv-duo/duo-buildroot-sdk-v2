@@ -997,6 +997,18 @@ static int cvi_tpu_cache_invalidate(struct cvi_tpu_device *ndev,
 	return 0;
 }
 
+static int cvi_tpu_usage_get(struct cvi_tpu_device *ndev, unsigned long arg)
+{
+	int ret = 0;
+
+	ret = copy_to_user((uint64_t __user *)arg, &info.run_sum_us, sizeof(uint64_t));
+	if (ret) {
+		dev_err(ndev->dev, "copy to user fail\n");
+		return ret;
+	}
+	return ret;
+}
+
 static long cvi_tpu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	struct cvi_tpu_device *ndev = filp->private_data;
@@ -1037,6 +1049,9 @@ static long cvi_tpu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 		break;
 	case CVITPU_WAIT_PIO:
 		ret = cvi_tpu_wait_pio(ndev, arg);
+		break;
+	case CVITPU_GET_USAGE:
+		ret = cvi_tpu_usage_get(ndev, arg);
 		break;
 
 	default:

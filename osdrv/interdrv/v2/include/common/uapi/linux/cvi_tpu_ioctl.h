@@ -88,5 +88,6 @@ struct cvi_tdma_wait_arg {
 #define CVITPU_UNLOAD_TEE _IOW(IOCTL_TPU_BASE, 0x0A, unsigned long long)
 #define CVITPU_SUBMIT_PIO _IOW(IOCTL_TPU_BASE, 0x0B, unsigned long long)
 #define CVITPU_WAIT_PIO _IOWR(IOCTL_TPU_BASE, 0x0C, unsigned long long)
+#define CVITPU_GET_USAGE _IOWR(IOCTL_TPU_BASE, 0x0D, unsigned long long)
 
 #endif /* __CVI_TPU_IOCTL_H__ */

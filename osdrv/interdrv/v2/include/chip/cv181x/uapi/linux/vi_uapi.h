@@ -184,7 +184,7 @@ struct vi_event {
 #endif
 };
 
-#define MO_TBL_SIZE 256
+#define MO_TBL_SIZE 2048
 
 struct mlv_info_s {
 	__u8	sensor_num;

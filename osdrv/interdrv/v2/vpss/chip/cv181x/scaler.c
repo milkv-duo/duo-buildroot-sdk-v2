@@ -5496,7 +5496,10 @@ u8 sclr_tile_cal_size(u8 inst, bool is_online_from_isp, struct sc_cfg_cb *post_p
 			cfg->tile.r_ini_phase = R_first_phase & 0x1fff;
 			cfg->tile.src_r_offset = R_first_pixel - 1;
 			cfg->tile.src_r_width = crop_size.w - cfg->tile.src_r_offset;
-			mode = SCL_TILE_BOTH;
+			if (!out_l_width)
+				mode = SCL_TILE_RIGHT;
+			else
+				mode = SCL_TILE_BOTH;
 		}
 	}
 #endif

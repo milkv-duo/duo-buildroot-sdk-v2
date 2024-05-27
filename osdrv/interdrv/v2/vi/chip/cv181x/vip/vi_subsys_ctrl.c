@@ -12,8 +12,10 @@ extern struct lmap_cfg g_lmp_cfg[ISP_PRERAW_VIRT_MAX];
 void ispblk_preraw_fe_config(struct isp_ctx *ctx, enum cvi_isp_raw raw_num)
 {
 	uintptr_t preraw_fe;
-	uint32_t width = ctx->isp_pipe_cfg[raw_num].crop.w;
-	uint32_t height = ctx->isp_pipe_cfg[raw_num].crop.h;
+	uint32_t width = ctx->isp_pipe_cfg[raw_num].is_mux ?
+				ctx->isp_pipe_cfg[raw_num].csibdg_width : ctx->isp_pipe_cfg[raw_num].crop.w;
+	uint32_t height = ctx->isp_pipe_cfg[raw_num].is_mux ?
+				ctx->isp_pipe_cfg[raw_num].csibdg_height : ctx->isp_pipe_cfg[raw_num].crop.h;
 	union REG_PRE_RAW_FE_PRE_RAW_CTRL raw_ctrl;
 	union REG_PRE_RAW_FE_PRE_RAW_FRAME_SIZE  frm_size;
 	union REG_PRE_RAW_FE_LE_RGBMAP_GRID_NUMBER  rgbmap_le;

@@ -466,12 +466,40 @@ static const struct of_device_id cvi_saradc_match[] = {
 };
 MODULE_DEVICE_TABLE(of, cvi_saradc_match);
 
+#ifdef CONFIG_PM_SLEEP
+static int saradc_cv_suspend(struct	device *dev)
+{
+	struct cvi_saradc_device *ndev = iio_priv(dev_get_drvdata(dev));
+
+	memcpy_fromio(ndev->saradc_saved_top_regs, ndev->top_saradc_base_addr, SARADC_REGS_SIZE);
+	memcpy_fromio(ndev->saradc_saved_rtc_regs, ndev->rtcsys_saradc_base_addr, SARADC_REGS_SIZE);
+	platform_saradc_clk_deinit(ndev);
+
+	return 0;
+}
+
+static int saradc_cv_resume(struct device *dev)
+{
+	struct cvi_saradc_device *ndev = iio_priv(dev_get_drvdata(dev));
+
+	platform_saradc_clk_init(ndev);
+
+	memcpy_toio(ndev->top_saradc_base_addr,	ndev->saradc_saved_top_regs, SARADC_REGS_SIZE);
+	memcpy_toio(ndev->rtcsys_saradc_base_addr, ndev->saradc_saved_rtc_regs, SARADC_REGS_SIZE);
+
+	return 0;
+}
+#endif
+
+static SIMPLE_DEV_PM_OPS(saradc_cv_pm_ops, saradc_cv_suspend,
+						 saradc_cv_resume);
 static struct platform_driver cvi_saradc_driver = {
 	.probe = cvi_saradc_probe,
 	.remove = cvi_saradc_remove,
 	.driver = {
 			.owner = THIS_MODULE,
 			.name = "cvi-saradc",
+			.pm = &saradc_cv_pm_ops,
 			.of_match_table = cvi_saradc_match,
 		},
 };
