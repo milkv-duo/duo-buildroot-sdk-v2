@@ -176,10 +176,17 @@ int main(int argc, char **argv)
 	printf("Run HW IVE BgModel.\n");
 	for (s32FrmCnt = 0; s32FrmCnt < u32FrameNumMax; s32FrmCnt++) {
 		u32FrameNum = s32FrmCnt + 1;
-		memcpy((void *)(uintptr_t)src.u64VirAddr[0],
-		       (void *)(uintptr_t)(stInput.u64VirAddr +
-				(s32FrmCnt * input_w * input_h)),
-		       input_w * input_h);
+		for (int i = 0; i < input_h; i++) {
+			memcpy(&((char *)(uintptr_t)src
+						.u64VirAddr[0])[i * src.u32Stride[0]],
+					&((char *)(uintptr_t)stInput.u64VirAddr)
+					[s32FrmCnt * input_w * input_h + i * input_w],
+					input_w);
+			int stride = src.u32Stride[0] - input_w;
+
+			memset(&((char *)(uintptr_t)src
+						.u64VirAddr[0])[i * src.u32Stride[0] + input_w], 0x0, stride);
+		}
 
 		IVE_BG_STAT_DATA_S *stat =
 			(IVE_BG_STAT_DATA_S *)(uintptr_t)stStatData.u64VirAddr;
@@ -221,9 +228,6 @@ int main(int argc, char **argv)
 
 	CVI_IVE_WriteData(handle, "sample_BgModelSample2_BgMdl.bin",
 			  &stBgModel);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_DiffFg.bin", &stDiffFg);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_ChgSta.bin", &stChgSta);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_FgFlag.bin", &stFgFlag);
 
 	IVE_DST_IMAGE_S stBgDiffFg, stFrmDiffFg;
 
@@ -247,12 +251,8 @@ int main(int argc, char **argv)
 			    stChgSta.u32Width, stChgSta.u32Height);
 	CVI_IVE_ChgSta_Split(handle, &stChgSta, &stChgStaImg, &stChgStaFg,
 			     &stChStaLift);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_ChgStaImg.yuv",
-			 &stChgStaImg);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_ChgStaFg.yuv",
-			 &stChgStaFg);
-	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_ChStaLift.yuv",
-			 &stChStaLift);
+	CVI_IVE_WriteImg(handle, "sample_BgModelSample2_BgImg.yuv", &stBgImg);
+
 
 	UninitMatchBgModel(handle, &src, &stBgModel, &stFgFlag, &stDiffFg,
 			   &stStatData);

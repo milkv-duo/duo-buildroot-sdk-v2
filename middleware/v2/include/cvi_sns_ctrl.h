@@ -230,6 +230,8 @@ extern ISP_SNS_OBJ_S stSnsMCS369_Obj;
 extern ISP_SNS_OBJ_S stSnsMCS369Q_Obj;
 extern ISP_SNS_OBJ_S stSnsMM308M2_Obj;
 extern ISP_SNS_OBJ_S stSnsLT6911_Obj;
+extern ISP_SNS_OBJ_S stSnsLT7911_Obj;
+extern ISP_SNS_OBJ_S stSnsXS9922B_Obj;
 
 #define CMOS_CHECK_POINTER(ptr)\
 	do {\

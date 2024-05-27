@@ -287,6 +287,7 @@ CVI_S32 CVI_AI_GetTalkVqeAttr(AUDIO_DEV AiDevId, AI_CHN AiChn,
 CVI_S32 CVI_BitOut_Transfer(CVI_CHAR **InPt, CVI_U32 *pu32InSizeByte,
 				CVI_CHAR **OutPt,
 				CVI_U32 *pu32OutSizeByte, CVI_S32 s32BitOut);
+
 /**
  * @brief Set the parameter to audio output
  * @param AoDevId the number of output device
@@ -302,6 +303,14 @@ CVI_S32 CVI_AO_SetPubAttr(AUDIO_DEV AoDevId, const AIO_ATTR_S *pstAttr);
  * @return CVI_S32 Return CVI_SUCCESS if succeed
  */
 CVI_S32 CVI_AO_GetPubAttr(AUDIO_DEV AoDevId, AIO_ATTR_S *pstAttr);
+
+/**
+ * @brief Clear the parameter to audio output
+ * @param AoDevId the number of output device
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+
+CVI_S32 CVI_AO_ClrPubAttr(AUDIO_DEV AoDevId);
 
 /**
  * @brief Create and initial ao device.
@@ -340,6 +349,41 @@ CVI_S32 CVI_AO_DisableChn(AUDIO_DEV AoDevId, AO_CHN AoChn);
  */
 CVI_S32 CVI_AO_SendFrame(AUDIO_DEV AoDevId, AO_CHN AoChn,
 			     const AUDIO_FRAME_S *pstData, CVI_S32 s32MilliSec);
+
+/**
+ * @brief Set the parameter to audio downvqe
+ * @param AoDevId the number of output device
+ * @param AoChn the number of output channels
+ * @param pstVqeConfig pointer that describes downvqe
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_SetVqeAttr(AUDIO_DEV AoDevId, AO_CHN AoChn,
+			const AO_VQE_CONFIG_S *pstVqeConfig);
+
+/**
+ * @brief Set the parameter to audio downvqe
+ * @param AoDevId the number of output device
+ * @param AoChn the number of output channels
+ * @param pstVqeConfig pointer that describes downvqe
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_GetVqeAttr(AUDIO_DEV AoDevId, AO_CHN AoChn,
+			AO_VQE_CONFIG_S *pstVqeConfig);
+
+/**
+ * @brief Create and initial down vqe
+ * @param AoDevId the number of output device
+ * @param AoChn the number of output channels
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_EnableVqe(AUDIO_DEV AoDevId, AO_CHN AoChn);
+/**
+ * @brief Destroy down vqe
+ * @param AoDevId the number of output device
+ * @param AoChn the number of output channels
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_DisableVqe(AUDIO_DEV AoDevId, AO_CHN AoChn);
 
 /**
  * @brief Start resample

@@ -19,14 +19,14 @@
 
 #include "cvi_gdc.h"
 #include "gdc_mesh.h"
-#include "dwa_ioctl.h"
+#include "ldc_ioctl.h"
 #include "vi_ioctl.h"
 #include "vpss_ioctl.h"
 #include "gdc_ctx.h"
 
 
-#define DWA_YUV_BLACK 0x808000
-#define DWA_RGB_BLACK 0x0
+// #define LDC_YUV_BLACK 0x808000
+// #define LDC_RGB_BLACK 0x0
 
 #define CHECK_GDC_FORMAT(imgIn, imgOut)                                                                                \
 	do {                                                                                                           \

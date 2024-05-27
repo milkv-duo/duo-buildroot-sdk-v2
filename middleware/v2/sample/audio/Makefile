@@ -119,12 +119,15 @@ TEST_OBJ_KER_MODE = cvi_sample_audio_rtos.o
 LDLIBS =
 LDLIBS += -lcvi_audio
 LDLIBS += -lcvi_vqe
+LDLIBS += -lcvi_dnvqe
 LDLIBS += -lcvi_VoiceEngine
 LDLIBS += -lcvi_RES1
 LDLIBS += -lcvi_ssp
+LDLIBS += -lcvi_ssp2
 
 ifeq ($(USE_CVIAUDIO_STATIC), yes)
 LDLIBS += -lcvi_ssp
+LDLIBS += -lcvi_ssp2
 endif
 
 ifeq ($(USE_ALSA), yes)

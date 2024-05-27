@@ -181,6 +181,9 @@ typedef enum _SAMPLE_SNS_TYPE_E {
 	/* ------ LINEAR BEGIN ------*/
 	BRIGATES_BG0808_MIPI_2M_30FPS_10BIT,
 	BYD_BF2253L_MIPI_1200P_30FPS_10BIT,
+	CHIPUP_XS9922B_MODE_720P_1CH_8BIT,
+	CHIPUP_XS9922B_MODE_720P_2CH_8BIT,
+	CHIPUP_XS9922B_MODE_720P_3CH_8BIT,
 	CVSENS_CV2003_MIPI_2M_1080P_30FPS_10BIT,
 	CVSENS_CV2003_1L_SLAVE_MIPI_2M_1080P_30FPS_10BIT,
 	CVSENS_CV2003_1L_SLAVE1_MIPI_2M_1080P_30FPS_10BIT,
@@ -325,6 +328,7 @@ typedef enum _SAMPLE_SNS_TYPE_E {
 	VIVO_MCS369Q_4M_30FPS_12BIT,
 	VIVO_MM308M2_2M_25FPS_8BIT,
 	LONTIUM_LT6911_2M_60FPS_8BIT,
+	LONTIUM_LT7911_2M_60FPS_8BIT,
 	/* ------ LINEAR END ------*/
 	SAMPLE_SNS_TYPE_LINEAR_BUTT,
 
@@ -644,6 +648,8 @@ typedef struct _chnInputCfg_ {
 	char output_path[MAX_STRING_LEN];
 	char outputFileName[MAX_STRING_LEN];
 	char roiCfgFile[MAX_STRING_LEN];
+	char roiBinFile[MAX_STRING_LEN];
+	int roideltaqp;
 	char qpMapCfgFile[MAX_STRING_LEN];
 	char user_data[NUM_OF_USER_DATA_BUF][MAX_STRING_LEN];
 	CVI_S32 num_frames;
@@ -750,6 +756,18 @@ typedef struct _chnInputCfg_ {
 	CVI_S32 betaOffset;
 	CVI_S32 alphaOffset;
 	CVI_BOOL bIntraPred;
+	FILE *roiFile;
+
+	CVI_BOOL svc_enable;
+	CVI_BOOL fg_protect_en;
+	CVI_S32  fg_dealt_qp;
+	CVI_BOOL complex_scene_detect_en;
+	CVI_U32  complex_scene_low_th;
+	CVI_U32  complex_scene_hight_th;
+	CVI_U32  middle_min_percent;
+	CVI_U32  complex_min_percent;
+	CVI_BOOL smart_ai_en;
+
 } chnInputCfg;
 
 typedef enum _CHN_STATE_ {
@@ -797,6 +815,7 @@ typedef struct _vencChnCtx_ {
 	CHN_STATE nextChnStat;
 	SAMPLE_COMM_VENC_ROI vencRoi[MAX_NUM_ROI];
 	CVI_U8 *pu8QpMap;
+	CVI_U8 *pu8RoiBinMap;
 	CVI_BOOL bQpMapValid;
 	CVI_S32 s32VencFd;
 } vencChnCtx;
@@ -950,6 +969,8 @@ CVI_S32 SAMPLE_COMM_VENC_SetH265SliceSplit(chnInputCfg *pIc, VENC_CHN VencChn);
 CVI_S32 SAMPLE_COMM_VENC_SetH264Dblk(chnInputCfg *pIc, VENC_CHN VencChn);
 CVI_S32 SAMPLE_COMM_VENC_SetH265Dblk(chnInputCfg *pIc, VENC_CHN VencChn);
 CVI_S32 SAMPLE_COMM_VENC_SetH264IntraPred(chnInputCfg *pIc, VENC_CHN VencChn);
+CVI_S32 SAMPLE_COMM_VENC_EnableSvc(chnInputCfg *pIc, VENC_CHN VencChn);
+CVI_S32 SAMPLE_COMM_VENC_SetSvcParam(chnInputCfg *pIc, VENC_CHN VencChn);
 CVI_S32 SAMPLE_COMM_VENC_SetChnParam(chnInputCfg *pIc, VENC_CHN VencChn);
 CVI_S32 SAMPLE_COMM_VENC_Start(
 		chnInputCfg * pIc,

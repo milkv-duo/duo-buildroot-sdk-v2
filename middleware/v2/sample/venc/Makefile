@@ -60,7 +60,7 @@ EXTRA_LDFLAGS += -g -O0
 EXTRA_LDFLAGS_WITH_ASAN += -g -O0
 endif
 
-EXTRA_LDFLAGS_WITH_ASAN += -fno-omit-frame-pointer -fsanitize-recover=address -lasan
+EXTRA_LDFLAGS_WITH_ASAN += -fno-omit-frame-pointer -fsanitize-recover=address -lasan -lcvi_dnvqe -lcvi_ssp2
 
 .PHONY : clean all
 

@@ -177,6 +177,10 @@ static optionExt venc_long_option_ext[] = {
 		"tempLayer"},
 	{{"roiCfgFile", optional_argument, NULL, 0}, ARG_STRING, 0, 0,
 		"ROI configuration file"},
+	{{"roiBinFile", optional_argument, NULL, 0}, ARG_STRING, 0, 0,
+		"ROI bin file for AI test"},
+	{{"roideltaqp", optional_argument, NULL, 0}, ARG_INT, 0, 10,
+	    "roi delta qp for AI test"},
 	{{"qpMapCfgFile", optional_argument, NULL, 0}, ARG_STRING, 0, 0,
 		"Roi-based qpMap file"},
 	{{"bgInterval", optional_argument, NULL, 0}, ARG_INT,
@@ -339,6 +343,20 @@ static optionExt venc_long_option_ext[] = {
 		"alphaoffset [-6, 6], default = 0"},
 	{{"intraPred", optional_argument, NULL, 0}, ARG_INT, 0, 1,
 		"intraPred [0, 1], default = 0"},
+	{{"svcEnable", optional_argument, NULL, 0}, ARG_INT, 0, 1,
+		"svcEnable [0, 1], default = 0"},
+	{{"fgProtectEn", optional_argument, NULL, 0}, ARG_INT, 0, 1,
+		"fgProtectEn [0, 1], default = 0"},
+	{{"fgDealtQp", optional_argument, NULL, 0}, ARG_INT, 0, 8,
+		"fgDealtQp [0, 8], default = 0"},
+	{{"cplxSceneDetectEn", optional_argument, NULL, 0}, ARG_INT, 0, 1,
+		"cplxSceneDetectEn [0, 1], default = 0"},
+	{{"cplxSceneLowTh", optional_argument, NULL, 0}, ARG_INT, 0, 512,
+		"cplxSceneLowTh [0, 512], default = 256"},
+	{{"cplxSceneHightTh", optional_argument, NULL, 0}, ARG_INT, 0, 512,
+		"cplxSceneHightTh [0, 512], default = 318"},
+	{{"smartAiEn", optional_argument, NULL, 0}, ARG_INT, 0, 1,
+		"smartAiEn [0, 1], default = 0"},
 	{{NULL, 0, NULL, 0}, ARG_INT, 0, 0, ""}
 };
 
@@ -919,6 +937,10 @@ CVI_S32 parseEncArgv(sampleVenc *psv, chnInputCfg *pIc, CVI_S32 argc, char **arg
 				pIc->tempLayer = arg.ival;
 			} else if (!strcmp(long_options[idx].name, "roiCfgFile")) {
 				strcpy(pIc->roiCfgFile, optarg);
+			} else if (!strcmp(long_options[idx].name, "roiBinFile")) {
+				strcpy(pIc->roiBinFile, optarg);
+			} else if (!strcmp(long_options[idx].name, "roideltaqp")) {
+				pIc->roideltaqp = arg.ival;
 			} else if (!strcmp(long_options[idx].name, "qpMapCfgFile")) {
 				strcpy(pIc->qpMapCfgFile, optarg);
 			} else if (!strcmp(long_options[idx].name, "bgInterval")) {
@@ -1053,6 +1075,24 @@ CVI_S32 parseEncArgv(sampleVenc *psv, chnInputCfg *pIc, CVI_S32 argc, char **arg
 				pIc->alphaOffset = arg.ival;
 			} else if (!strcmp(long_options[idx].name, "intraPred")) {
 				pIc->bIntraPred = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "svcEnable")) {
+				pIc->svc_enable = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "fgProtectEn")) {
+				pIc->fg_protect_en = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "fgDealtQp")) {
+				pIc->fg_dealt_qp = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "cplxSceneDetectEn")) {
+				pIc->complex_scene_detect_en = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "cplxSceneLowTh")) {
+				pIc->complex_scene_low_th = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "cplxSceneHightTh")) {
+				pIc->complex_scene_hight_th = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "middleMinPercent")) {
+				pIc->middle_min_percent = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "cplxMinPercent")) {
+				pIc->complex_min_percent = arg.uval;
+			} else if (!strcmp(long_options[idx].name, "smartAiEn")) {
+				pIc->smart_ai_en = arg.uval;
 			} else {
 				CVI_VENC_TRACE("not exist name = %s\n", long_options[idx].name);
 				print_help(argv);
@@ -2353,6 +2393,10 @@ CVI_S32 SAMPLE_VENC_STOP(sampleVenc *psv)
 				free(pvecc->pu8QpMap);
 				pvecc->pu8QpMap = NULL;
 			}
+			if (pvecc->pu8RoiBinMap) {
+				free(pvecc->pu8RoiBinMap);
+				pvecc->pu8RoiBinMap = NULL;
+			}
 			if (vpssVB[s32ChnIdx] != VB_INVALID_POOLID) {
 				CVI_VPSS_DetachVbPool(0, s32ChnIdx);
 				CVI_VB_DestroyPool(vpssVB[s32ChnIdx]);
@@ -2438,6 +2482,13 @@ static CVI_S32 checkInputCfg(chnInputCfg *pIc)
 		}
 		pIc->iqp = (pIc->iqp >= 0) ? pIc->iqp : DEF_IQP;
 		pIc->pqp = (pIc->pqp >= 0) ? pIc->pqp : DEF_PQP;
+
+		if (pIc->complex_scene_detect_en) {
+			if (pIc->complex_scene_hight_th <= pIc->complex_scene_low_th) {
+				CVI_VENC_ERR("scene complex threshold set issue\n");
+				return -1;
+			}
+		}
 
 		if (pIc->rcMode == -1) {
 			pIc->rcMode = SAMPLE_RC_FIXQP;
@@ -2956,6 +3007,14 @@ static CVI_VOID *SAMPLE_VENC_GetVencStreamProc(CVI_VOID *pArgs)
 		}
 	}
 
+	if (strlen(pIc->roiBinFile) > 0) {
+		pIc->roiFile = fopen(pIc->roiBinFile, "r");
+		if (pIc->roiFile == NULL) {
+			printf("open roi bin file fail\n");
+			return (CVI_VOID *) CVI_FAILURE;
+		}
+	}
+
 	i = 0;
 	while (pvecc->chnStat == CHN_STAT_START && pvecc->pFile && i < pvecc->num_frames) {
 		if (pIc->bind_mode == VENC_BIND_DISABLE) {
@@ -2991,6 +3050,9 @@ static CVI_VOID *SAMPLE_VENC_GetVencStreamProc(CVI_VOID *pArgs)
 		CVI_VENC_CloseFd(VencChn);
 	}
 
+	if (strlen(pIc->roiBinFile) > 0) {
+		fclose(pIc->roiFile);
+	}
 	_venc_unbind_source(pIc, VencChn);
 
 	return (CVI_VOID *) CVI_SUCCESS;
@@ -3031,10 +3093,14 @@ RETRY_GET_STREAM:
 
 static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 {
+	uint64_t readBytes;
 	chnInputCfg *pIc = &pvecc->chnIc;
 	VENC_CHN VencChn = pvecc->VencChn;
-	CVI_U32 enableQpMap =
-		(pvecc->enPayLoad == PT_H265 && pvecc->enRcMode == SAMPLE_RC_QPMAP);
+	CVI_U32 ctbHeight, ctbStride;
+	CVI_U32 enableBinRoi = (strlen(pIc->roiBinFile) > 0);
+	CVI_U32 enableRoicfg = (strlen(pIc->roiCfgFile) > 0);
+	CVI_U32 enableQpMap = (strlen(pIc->qpMapCfgFile) > 0 && pvecc->enPayLoad == PT_H265
+			      && pvecc->enRcMode == SAMPLE_RC_QPMAP);
 	CVI_S32 s32Ret = CVI_SUCCESS;
 
 	CVI_VENC_TRACE("[Chn%d] frame %d (%d)\n", VencChn, i, pvecc->num_frames);
@@ -3045,7 +3111,20 @@ static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 		CVI_VENC_RequestIDR(VencChn, bInstant);
 		CVI_VENC_TRACE("CVI_VENC_RequestIDR\n");
 	}
+	if (enableBinRoi) {
+		ctbHeight = ((pvecc->stSize.u32Width + 63) & ~63) >> 6;
+		ctbStride = ((pvecc->stSize.u32Height + 63) & ~63) >> 6;
+		if (i == 0)
+			pvecc->pu8RoiBinMap = (CVI_U8 *)malloc(ctbHeight * ctbStride * sizeof(CVI_U8));
 
+		readBytes = fread(pvecc->pu8RoiBinMap, 1, ctbHeight * ctbStride, pIc->roiFile);
+		if (readBytes != ctbHeight * ctbStride) {
+			printf("fread error.readBytes:%lu\n", readBytes);
+			free(pvecc->pu8RoiBinMap);
+			fclose(pIc->roiFile);
+			return -1;
+		}
+	}
 	if (enableQpMap) {
 		s32Ret = SAMPLE_COMM_VENC_SetQpMapByCfgFile(VencChn,
 				pvecc->vencRoi, i, pvecc->pu8QpMap, &pvecc->bQpMapValid,
@@ -3054,14 +3133,18 @@ static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 			CVI_VENC_ERR("SAMPLE_COMM_VENC_SetQpMapByCfgFile, %d\n", s32Ret);
 			return s32Ret;
 		}
-	} else if ((pvecc->enPayLoad == PT_H264) ||
-			(pvecc->enPayLoad == PT_H265 && pvecc->enRcMode != SAMPLE_RC_FIXQP)) {
-		s32Ret = SAMPLE_COMM_VENC_SetRoiAttrByCfgFile(VencChn, pvecc->vencRoi, i);
-		if (s32Ret != CVI_SUCCESS) {
-			CVI_VENC_ERR("SAMPLE_COMM_VENC_SetRoiAttrByCfgFile, %d\n", s32Ret);
-			return s32Ret;
+	}
+	if (enableRoicfg) {
+		if ((pvecc->enPayLoad == PT_H264) ||
+				(pvecc->enPayLoad == PT_H265 && pvecc->enRcMode != SAMPLE_RC_FIXQP)) {
+			s32Ret = SAMPLE_COMM_VENC_SetRoiAttrByCfgFile(VencChn, pvecc->vencRoi, i);
+			if (s32Ret != CVI_SUCCESS) {
+				CVI_VENC_ERR("SAMPLE_COMM_VENC_SetRoiAttrByCfgFile, %d\n", s32Ret);
+				return s32Ret;
+			}
 		}
 	}
+
 
 	if (pIc->bind_mode == VENC_BIND_DISABLE) {
 		if ((pIc->chgNum != -1) &&  ((CVI_S32)i == pIc->chgNum)) {
@@ -3344,8 +3427,9 @@ static CVI_S32 _SAMPLE_VENC_SendOneFrame(vencChnCtx *pvecc)
 {
 	VENC_CHN VencChn = pvecc->VencChn;
 	chnInputCfg *pIc = &pvecc->chnIc;
-	CVI_U32 enableQpMap =
-		(pvecc->enPayLoad == PT_H265 && pvecc->enRcMode == SAMPLE_RC_QPMAP);
+	CVI_U32 enableBinRoi = (strlen(pIc->roiBinFile) > 0);
+	CVI_U32 enableQpMap = (strlen(pIc->qpMapCfgFile) > 0 && pvecc->enPayLoad == PT_H265
+			      && pvecc->enRcMode == SAMPLE_RC_QPMAP);
 	CVI_S32 s32Ret = CVI_SUCCESS;
 
 	if (pIc->rcMode == SAMPLE_RC_UBR) {
@@ -3357,6 +3441,17 @@ static CVI_S32 _SAMPLE_VENC_SendOneFrame(vencChnCtx *pvecc)
 	}
 
 	SAMPLE_VENC_InsertUserData(VencChn, pIc);
+
+	if (enableBinRoi) {
+		USER_FRAME_INFO_S userFrameInfo;
+
+		userFrameInfo.stUserFrame = *pvecc->pstFrameInfo;
+		userFrameInfo.stUserRcInfo.bRoiBinValid = 1;
+		userFrameInfo.stUserRcInfo.roideltaqp = pIc->roideltaqp;
+		userFrameInfo.stUserRcInfo.u64QpMapPhyAddr = (uintptr_t) pvecc->pu8RoiBinMap;
+		s32Ret = CVI_VENC_SendFrameEx(VencChn, &userFrameInfo, pIc->sendframe_timeout);
+		return s32Ret;
+	}
 
 	if (enableQpMap) {
 		USER_FRAME_INFO_S userFrameInfo;
@@ -3372,6 +3467,7 @@ static CVI_S32 _SAMPLE_VENC_SendOneFrame(vencChnCtx *pvecc)
 
 		s32Ret = CVI_VENC_SendFrameEx(VencChn, &userFrameInfo,
 				pIc->sendframe_timeout);
+		return s32Ret;
 	} else {
 		s32Ret = CVI_VENC_SendFrame(VencChn, pvecc->pstFrameInfo,
 				pIc->sendframe_timeout);

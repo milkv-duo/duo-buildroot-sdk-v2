@@ -1566,6 +1566,7 @@ CVI_S32 dump_hw_register(VI_PIPE ViPipe, FILE *fp, VI_DUMP_REGISTER_TABLE_S *pst
 	CVI_U32 length;
 	CVI_U32 data;
 	CVI_CHAR name[32];
+	CVI_CHAR cmd[128];
 
 	s32Ret = vi_sdk_get_dev_attr(d->fd, (int)ViPipe, &stDevAttr);
 	if (s32Ret != CVI_SUCCESS) {
@@ -1580,19 +1581,15 @@ CVI_S32 dump_hw_register(VI_PIPE ViPipe, FILE *fp, VI_DUMP_REGISTER_TABLE_S *pst
 		free(ip_info_list);
 		return s32Ret;
 	}
+
+	/* stop tuning update */
 #ifdef __CV181X__
-	/* stop tuning update */
-	if (ViPipe == 0) {
-		system("echo 1,1,1,1 > /sys/module/cv181x_vi/parameters/tuning_dis");
-	} else if (ViPipe == 1) {
-		system("echo 2,1,1,1 > /sys/module/cv181x_vi/parameters/tuning_dis");
-	}
+	sprintf(cmd, "echo %d,1,1,1 > /sys/module/cv181x_vi/parameters/tuning_dis", ViPipe + 1);
 #else
-	/* stop tuning update */
-	if (ViPipe == 0) {
-		system("echo 1,1,1,1 > /sys/module/cv180x_vi/parameters/tuning_dis");
-	}
+	sprintf(cmd, "echo %d,1,1,1 > /sys/module/cv180x_vi/parameters/tuning_dis", ViPipe + 1);
 #endif
+	system(cmd);
+
 	/* In the worst case, have to wait two frames to stop tuning update. */
 	usleep(80 * 1000);
 	/* start of file */

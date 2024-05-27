@@ -45,7 +45,7 @@
 // #define ENABLE_PROFILE
 
 typedef struct {
-	int dwa_en;
+	int ldc_en;
 
 	int stage2_rotate_type; // 0: +90, 1: -90
 	int bg_color_y_r;
@@ -59,7 +59,7 @@ typedef struct {
 	int src_xend_s1;
 	int src_xstr_s2;
 	int src_xend_s2;
-} _reg_dwa;
+} _reg_ldc;
 
 typedef struct COORD2D {
 	double xcor;
@@ -1333,7 +1333,7 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	void *mesh_vir_addr, ROTATION_E rot)
 {
 	CVI_S32 ret = CVI_SUCCESS;
-	_reg_dwa reg;
+	_reg_ldc reg;
 	COORD2D_INT_HW *src_1st_list_1d = NULL, *src_2nd_list_1d = NULL;
 	COORD2D_INT_HW *src_1st_list = NULL, *src_2nd_list = NULL;
 	LDC_ATTR *cfg = NULL;
@@ -1369,7 +1369,7 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	}
 
 	// al registers
-	reg.dwa_en = 1;
+	reg.ldc_en = 1;
 	reg.stage2_rotate_type = 0;
 
 	int bgc_pack = 0x00217E;

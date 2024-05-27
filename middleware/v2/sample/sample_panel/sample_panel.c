@@ -90,6 +90,8 @@ static optionExt long_option_ext[] = {
 		"pnswap sequence by order"},
 	{{"dsi-control",     no_argument, NULL, 'd'}, ARG_STRING, 0,   0,
 		"set/get dsi status or settings." },
+	{{"show-pattern",    no_argument, NULL, 's'}, ARG_STRING, 0,   0,
+		"show colorbar." },
 	{{"help",      no_argument, NULL, 'h'},       ARG_STRING, 0,   0,
 		"print usage."},
 	{{NULL, 0, NULL, 0}, ARG_INT, 0, 0, "no param: just init the panel."}
@@ -143,10 +145,10 @@ void printHelp(char **argv)
 
 	printf("\n.for mipi/lvds panel you can cfg lane seq or pnswap");
 	printf("\nEX.\n");
-	printf(" %s --panel=HX8394_EVB --laneid=1,2,0,3,4 --pnswap=0,0,0,0,0\n", argv[0]);
-	printf("\n.for mipi panel You can also manually set the dsi by -d");
+	printf(" %s -d\n", argv[0]);
+	printf("\n.After initializing panel, to show colorbar by -s");
 	printf("\nEX.\n");
-	printf(" %s -d\n\n", argv[0]);
+	printf(" %s -s\n\n", argv[0]);
 
 	for (idx = 0; idx < sizeof(long_option_ext) / sizeof(optionExt); idx++) {
 		if (long_option_ext[idx].opt.name == NULL) {
@@ -230,6 +232,30 @@ CVI_S32 SAMPLE_MIPI_TX_ENABLE(void)
 
 	printf("Init for MIPI-Driver-%s\n", g_panel_desc.panel_mode);
 
+	close(fd);
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 SAMPLE_PANEL_ShowPattern(void)
+{
+	CVI_S32 ret = 0;
+	VO_DEV VoDev = 0;
+
+	ret = CVI_VO_ShowPattern(VoDev, VO_PAT_COLORBAR);
+	if (ret != CVI_SUCCESS) {
+		printf("CVI_VO_ShowPattern failed with %#x!\n", ret);
+		return CVI_FAILURE;
+	}
+
+	sleep(2);
+
+	ret = CVI_VO_ShowPattern(VoDev, VO_PAT_OFF);
+	if (ret != CVI_SUCCESS) {
+		printf("CVI_VO_ShowPattern failed with %#x!\n", ret);
+		return CVI_FAILURE;
+	}
+
 	return CVI_SUCCESS;
 }
 
@@ -253,18 +279,17 @@ CVI_S32 SAMPLE_PANEL_ENABLE(void)
 		printf("Init for Driver-%s\n", g_panel_desc.panel_mode);
 	}
 
-	ret = CVI_VO_ShowPattern(VoDev, VO_PAT_COLORBAR);
-	if (ret != CVI_SUCCESS) {
-		printf("failed with %#x!\n", ret);
-		return CVI_FAILURE;
-	}
-
 	return CVI_SUCCESS;
 }
 
 void SAMPLE_DSI_CONTROLE(void)
 {
 	CVI_U32 tmp;
+
+	fd = open(MIPI_TX_NAME, O_RDWR | O_NONBLOCK, 0);
+	if (fd == -1) {
+		printf("Cannot open '%s': %d, %s\n", MIPI_TX_NAME, errno, strerror(errno));
+	}
 
 	do {
 		printdsiHelp();
@@ -340,6 +365,8 @@ void SAMPLE_DSI_CONTROLE(void)
 		} else
 			break;
 	} while (1);
+
+	close(fd);
 }
 
 void SAMPLE_SET_PANEL_DESC(void)
@@ -630,7 +657,8 @@ int main(int argc, char *argv[])
 	}
 
 	struct option long_options[MAX_OPTIONS + 1];
-	CVI_S32 ch, idx, ret;
+	CVI_S32 ch, idx;
+	CVI_S32 ret = CVI_SUCCESS;
 
 	memset((void *)long_options, 0, sizeof(long_options));
 
@@ -647,7 +675,7 @@ int main(int argc, char *argv[])
 	}
 
 	optind = 0;
-	while ((ch = getopt_long(argc, argv, "dh", long_options, &idx)) != -1) {
+	while ((ch = getopt_long(argc, argv, "dhs", long_options, &idx)) != -1) {
 		switch (ch) {
 		case 'l':
 			ret = SAMPLE_SET_LANEID(optarg);
@@ -677,6 +705,9 @@ int main(int argc, char *argv[])
 			}
 			SAMPLE_DSI_CONTROLE();
 			break;
+		case 's':
+			ret = SAMPLE_PANEL_ShowPattern();
+			break;
 		case 'h':
 			printHelp(argv);
 			return CVI_SUCCESS;
@@ -694,9 +725,10 @@ int main(int argc, char *argv[])
 	SAMPLE_SET_PANEL_DESC();
 	SAMPLE_PANEL_ENABLE();
 
-	while (1) {
-		sleep(1);
-	}
+	if (ret == CVI_SUCCESS)
+		SAMPLE_PRT("sample_panel exit success!\n");
+	else
+		SAMPLE_PRT("sample_panel exit abnormally!\n");
 
 	return CVI_SUCCESS;
 }

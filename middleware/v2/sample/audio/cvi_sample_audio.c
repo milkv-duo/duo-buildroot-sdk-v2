@@ -93,6 +93,7 @@ typedef struct {
 	int ChnCnt;
 	unsigned int u32PtNumPerFrm;
 	FILE *fp_playfile;
+	int stop_flag;
 } ST_VQE_PLAY_TEST_STRUCT;
 
 typedef struct {
@@ -135,6 +136,58 @@ void register_inthandler(void)
 	signal(SIGHUP, sigint_handler_sample);
 	signal(SIGTERM, sigint_handler_sample);
 }
+
+
+static void _update_down_vqe_setting(AO_VQE_CONFIG_S *pstVqeConfig, int samplerate, int channels)
+{
+	CVI_HPF_CONFIG_S stHpfParam;
+	CVI_EQ_CONFIG_S stEqParam;
+	CVI_DRC_COMPRESSOR_PARAM stDrcCompressor;
+	CVI_DRC_LIMITER_PARAM stDrcLimiter;
+	CVI_DRC_EXPANDER_PARAM stDrcExpander;
+
+	pstVqeConfig->u32OpenMask = DNVQE_HPFILTER;
+	pstVqeConfig->s32WorkSampleRate = samplerate;
+	pstVqeConfig->s32channels = channels;
+	//HPF
+	stHpfParam.type = E_FILTER_HPF;
+	stHpfParam.f0 = 70;
+	stHpfParam.Q = 0.707;
+	stHpfParam.gainDb = 0;
+	pstVqeConfig->stHpfParam = stHpfParam;
+
+	//EQ
+	stEqParam.bandIdx = 5;	/*bandIdx	0-5*/
+	stEqParam.freq = 150;	/*freq		100-20000*/
+	stEqParam.QValue = 0.707;	/*QValue	0.01-10*/
+	stEqParam.gainDb = 6;	/*gainDb	-30-30*/
+	pstVqeConfig->stEqParam = stEqParam;
+
+	//DRC-Limiter
+	stDrcLimiter.attackTimeMs = 10;
+	stDrcLimiter.releaseTimeMs = 100;
+	stDrcLimiter.thresholdDb = -2;
+	stDrcLimiter.postGain = 4.0f;
+	pstVqeConfig->stDrcLimiter = stDrcLimiter;
+
+	//DRC-Compressor
+	stDrcCompressor.attackTimeMs = 5;
+	stDrcCompressor.releaseTimeMs = 200;
+	stDrcCompressor.thresholdDb = -2;
+	stDrcCompressor.ratio = 10;
+	pstVqeConfig->stDrcCompressor = stDrcCompressor;
+
+	//DRC-pExpander
+	stDrcExpander.attackTimeMs = 10;
+	stDrcExpander.releaseTimeMs = 200;
+	stDrcExpander.thresholdDb = -20;
+	stDrcExpander.minDb = -60;
+	stDrcExpander.ratio = 5;
+	stDrcExpander.holdTimeMs = 20;
+	pstVqeConfig->stDrcExpander = stDrcExpander;
+
+}
+
 
 static CVI_BOOL _update_agc_anr_setting(AI_TALKVQE_CONFIG_S *pstAiVqeTalkAttr)
 {
@@ -705,8 +758,9 @@ CVI_S32 SAMPLE_AUDIO_AI_BIND_AENC(void *argv)
 
 	if (bVqe) {
 		memset(&stAiVqeTalkAttr, 0, sizeof(AI_TALKVQE_CONFIG_S));
-		if ((AudinAttr.enSamplerate == AUDIO_SAMPLE_RATE_8000) ||
-			(AudinAttr.enSamplerate == AUDIO_SAMPLE_RATE_16000)) {
+		if (((AudinAttr.enSamplerate == AUDIO_SAMPLE_RATE_8000) ||
+			(AudinAttr.enSamplerate == AUDIO_SAMPLE_RATE_16000)) &&
+			channel == 2) {
 
 			pstAiVqeTalkAttr->s32WorkSampleRate = AudinAttr.enSamplerate;
 			_update_agc_anr_setting(pstAiVqeTalkAttr);
@@ -1503,11 +1557,6 @@ CVI_S32 SAMPLE_AUDIO_RECORD_PCM_FORMAT_FILE(void *argv)
 
 	int s32OutputChnCnt = channel;
 
-	/*AEC input two channel with one channel output */
-	if (bVqe == CVI_TRUE)
-		s32OutputChnCnt = 1;
-
-
 	while (running) {
 		if (record_time) {
 			clock_gettime(CLOCK_MONOTONIC, &now);
@@ -1541,8 +1590,6 @@ ERROR3:
 
 	return 0;
 }
-
-
 
 CVI_S32 SAMPLE_AUDIO_PLAY_PCM_FORMAT_FILE(void *argv)
 {
@@ -1582,7 +1629,7 @@ CVI_S32 SAMPLE_AUDIO_PLAY_PCM_FORMAT_FILE(void *argv)
 				 AUDIO_SOUND_MODE_MONO);
 	AudoutAttr.enWorkmode	  = AIO_MODE_I2S_MASTER;
 	AudoutAttr.u32EXFlag	  = 0;
-	AudoutAttr.u32FrmNum	  = 4; /* only use in bind mode */
+	AudoutAttr.u32FrmNum	  = 10; /* only use in bind mode */
 	AudoutAttr.enBitwidth = AUDIO_BIT_WIDTH_16;
 	AudoutAttr.u32PtNumPerFrm =
 		pstAudioparam->preiod_size;/* 20*targetsamplerate/1000 */
@@ -1614,12 +1661,23 @@ CVI_S32 SAMPLE_AUDIO_PLAY_PCM_FORMAT_FILE(void *argv)
 		}
 	}
 
-	/*s32Ret = CVI_AO_EnablePP(AoDev, AoChn);
-	if (s32Ret != CVI_SUCCESS) {
-		printf("[cvi_error],[%s],[line:%d],\n", __func__, __LINE__);
-		goto ERROR1;
+	if (pstAudioparam->bVqeOn) {
+		AO_VQE_CONFIG_S stVqeConfig;
+		AO_VQE_CONFIG_S *pstVqeConfig = &stVqeConfig;
+
+		_update_down_vqe_setting(pstVqeConfig, AudoutAttr.enSamplerate, channel);
+		s32Ret = CVI_AO_SetVqeAttr(AoDev, AoChn, pstVqeConfig);
+		if (s32Ret != CVI_SUCCESS) {
+			printf("[cvi_error],[%s],[line:%d],\n", __func__, __LINE__);
+			goto ERROR1;
+		}
+		s32Ret = CVI_AO_EnableVqe(AoDev, AoChn);
+		if (s32Ret != CVI_SUCCESS) {
+			printf("[cvi_error],[%s],[line:%d],\n", __func__, __LINE__);
+			goto ERROR1;
+		}
 	}
-	*/
+
 
 	play_audio_file(&AudoutAttr, fpAo, AoChn, AoDev);
 
@@ -1627,7 +1685,9 @@ CVI_S32 SAMPLE_AUDIO_PLAY_PCM_FORMAT_FILE(void *argv)
 	if (pstAudioparam->Chnsample_rate != pstAudioparam->sample_rate)
 		CVI_AO_DisableReSmp(AoDev, AoChn);
 
-	//CVI_AO_DisablePP(AoDev, AoChn);
+	if (pstAudioparam->bVqeOn)
+		CVI_AO_DisableVqe(AoDev, AoChn);
+
 ERROR1:
 	CVI_AO_DisableChn(AoDev, AoChn);
 ERROR2:
@@ -1813,13 +1873,13 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 
 	switch (s32Cmd) {
 	case 0:
-		if (ioctl(fdAcodec_adc, ACODEC_SOFT_RESET_CTRL)) {
+		if (ioctl(fdAcodec_adc, ACODEC_SOFT_RESET_CTRL, &u32Val)) {
 			/* test reset fdAcodec_adc */
 			printf("fdAcodec_adc ioctl reset err!\n");
 		} else
 			printf("fdAcodec_adc ACODEC_SOFT_RESET_CTRL ok!\n");
 
-		if (ioctl(fdAcodec_dac, ACODEC_SOFT_RESET_CTRL)) {
+		if (ioctl(fdAcodec_dac, ACODEC_SOFT_RESET_CTRL, &u32Val)) {
 			/* test reset fdAcodec_adc */
 			printf("fdAcodec_dac ioctl reset err!\n");
 		} else
@@ -2254,7 +2314,7 @@ void *VQE_PLAY_SEND_FRAME(void *parg)
 
 	char *pBuffer = malloc(s32FrameBytes);
 
-	while (running) {
+	while (running && !pstVqePlay->stop_flag) {
 
 		memset(pBuffer, 0, s32FrameBytes);
 		num_readbytes = fread(pBuffer, 1, s32FrameBytes, pstVqePlay->fp_playfile);
@@ -2278,7 +2338,6 @@ void *VQE_PLAY_SEND_FRAME(void *parg)
 			printf("[cvi_info] End of the play !!\n");
 			break;
 		}
-
 	}
 
 	if (!pBuffer) {
@@ -2434,6 +2493,7 @@ CVI_S32 SAMPLE_AUDIO_AEC_LOOP_TEST(void *argv)
 	st_PlayThreadStruct.ChnCnt = channel;
 	st_PlayThreadStruct.u32PtNumPerFrm = AudoutAttr.u32PtNumPerFrm;
 	st_PlayThreadStruct.fp_playfile = fp_play;
+	st_PlayThreadStruct.stop_flag = 0;
 
 	pthread_create(&st_PlayThread, 0, VQE_PLAY_SEND_FRAME,
 		       &st_PlayThreadStruct);
@@ -2447,6 +2507,7 @@ CVI_S32 SAMPLE_AUDIO_AEC_LOOP_TEST(void *argv)
 	if (bVqeOn == CVI_FALSE)
 		CVI_AI_DisableVqe(AiDev, AiChn);
 
+	st_PlayThreadStruct.stop_flag = 1;
 	CVI_AI_DisableChn(AiDev, AiChn);
 	CVI_AI_Disable(AiDev);
 	s32Ret = CVI_AO_DisableChn(AoDev, AoChn);

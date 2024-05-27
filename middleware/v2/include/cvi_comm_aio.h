@@ -73,6 +73,12 @@ extern "C" {
 #define SPK_AGC_ENABLE 0x1  /* bit 0 */
 #define SPK_EQ_ENABLE 0x2  /* bit 1 */
 
+
+#define DNVQE_HPFILTER				0x1
+#define DNVQE_EQ					0x2
+#define DNVQE_DRC_EXPANDER_COMPRESS	0x4
+#define DNVQE_DRC_LIMITER			0x8
+
 #define CVI_MAX_AI_DEVICE_ID_NUM 3
 #define CVI_MAX_AO_DEVICE_ID_NUM 3
 /* define macro */
@@ -368,12 +374,66 @@ typedef struct _AI_TALKVQE_CONFIG_S {
 	CVI_CHAR customize[MAX_AUDIO_VQE_CUSTOMIZE_NAME];
 } AI_TALKVQE_CONFIG_S;
 
+typedef enum {
+	E_FILTER_LPF,
+	E_FILTER_HPF,
+	E_FILTER_LSF,
+	E_FILTER_HSF,
+	E_FILTER_PEF,
+	E_FILTER_MAX,
+} HPF_FILTER_TYPE;
+
+typedef struct _CVI_HPF_CONFIG_S {
+	int type;
+	float f0;
+	float Q;
+	float gainDb;
+} CVI_HPF_CONFIG_S;
+
+typedef struct _CVI_EQ_CONFIG_S {
+	int bandIdx;
+	uint32_t freq;
+	float QValue;
+	float gainDb;
+} CVI_EQ_CONFIG_S;
+
+
+typedef struct _CVI_DRC_COMPRESSOR_PARAM {
+	uint32_t attackTimeMs;
+	uint32_t releaseTimeMs;
+	uint16_t ratio;
+	float thresholdDb;
+} CVI_DRC_COMPRESSOR_PARAM;
+
+typedef struct _CVI_DRC_LIMITER_PARAM {
+	uint32_t attackTimeMs;
+	uint32_t releaseTimeMs;
+	float thresholdDb;
+	float postGain;
+} CVI_DRC_LIMITER_PARAM;
+
+typedef struct _CVI_DRC_EXPANDER_PARAM {
+	uint32_t attackTimeMs;
+	uint32_t releaseTimeMs;
+	uint32_t holdTimeMs;
+	uint16_t ratio;
+	float thresholdDb;
+	float minDb;
+} CVI_DRC_EXPANDER_PARAM;
+
 typedef struct _AO_VQE_CONFIG_S {
 	CVI_U32	 u32OpenMask;
 	CVI_S32 s32WorkSampleRate;
+	CVI_S32 s32channels;
 	/* Sample Rate: 8KHz/16KHz default: 8KHz*/
 	AUDIO_SPK_AGC_CONFIG_S stAgcCfg;
 	AUDIO_SPK_EQ_CONFIG_S stEqCfg;
+
+	CVI_HPF_CONFIG_S stHpfParam;
+	CVI_EQ_CONFIG_S stEqParam;
+	CVI_DRC_COMPRESSOR_PARAM stDrcCompressor;
+	CVI_DRC_LIMITER_PARAM stDrcLimiter;
+	CVI_DRC_EXPANDER_PARAM stDrcExpander;
 } AO_VQE_CONFIG_S;
 
 /**Defines the configure parameters of Record VQE.*/

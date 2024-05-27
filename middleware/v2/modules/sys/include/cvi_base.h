@@ -123,7 +123,7 @@
 		(var) && ((tvar) = STAILQ_NEXT((var), field), 1);	\
 		(var) = (tvar))
 
-#define Mo_Table_Size 256
+#define Mo_Table_Size 2048
 #define DEFAULT_MESH_PADDR	0x80000000
 
 enum vdev_type {

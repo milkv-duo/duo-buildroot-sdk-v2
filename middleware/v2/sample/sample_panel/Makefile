@@ -29,8 +29,8 @@ EXTRA_CFLAGS = $(INCS)
 EXTRA_LDFLAGS = $(LIBS) -lm -lpthread -latomic
 EXTRA_LDFLAGS += -lcvi_bin -lcvi_bin_isp $(ISP_LIB)
 
-.PHONY : clean all
-all: $(TARGET)
+.PHONY : clean all lt9611 clean_lt9611
+all: $(TARGET) lt9611
 
 $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
@@ -39,6 +39,15 @@ $(SDIR)/%.o: $(SDIR)/%.c
 $(TARGET): $(OBJS) $(MW_LIB)/libvpu.a $(MW_LIB)/libsys.a $(MW_LIB)/libmipi_tx.a
 	@$(CXX) -o $@ $(OBJS) $(ELFFLAGS) $(EXTRA_LDFLAGS)
 	@echo -e $(BLUE)[LINK]$(END)[$(notdir $(CC))] $(notdir $@)
+
+lt9611:
+	cd $(SDIR)/lt9611;make clean;make
+
+clean: clean_lt9611
+	@rm -f $(OBJS) $(DEPS) $(TARGET)
+
+clean_lt9611:
+	cd $(SDIR)/lt9611;make clean;
 
 clean:
 	@rm -f $(OBJS) $(DEPS) $(TARGET)

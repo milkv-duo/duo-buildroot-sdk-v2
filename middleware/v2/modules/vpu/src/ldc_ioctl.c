@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <errno.h>
 
-#include "dwa_ioctl.h"
+#include "ldc_ioctl.h"
 
 CVI_S32 gdc_begin_job(CVI_S32 fd, struct gdc_handle_data *cfg)
 {

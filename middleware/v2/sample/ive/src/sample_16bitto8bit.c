@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	if (argc != 4) {
 		printf("Incorrect loop value. Usage: %s <w> <h> <file_name>\n",
 		       argv[0]);
-		printf("Example: %s 352 288 data/00_704x576.s16.yuv\n", argv[0]);
+		printf("Example: %s 352 288 data/00_704x576.s16\n", argv[0]);
 		return CVI_FAILURE;
 	}
 	// 00_704x576.s16

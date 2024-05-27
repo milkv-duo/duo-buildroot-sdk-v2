@@ -693,3 +693,26 @@ CVI_S32 CVI_VENC_GetH264IntraPred(VENC_CHN VeChn, VENC_H264_INTRA_PRED_S *pstH26
 	}
 	return CVI_FAILURE;
 }
+
+CVI_S32 CVI_VENC_EnableSvc(VENC_CHN VeChn, CVI_BOOL enable)
+{
+	if (s32VencFd[VeChn] > 0) {
+		return ioctl(s32VencFd[VeChn], CVI_VC_VENC_ENABLE_SVC, &enable);
+	}
+	return CVI_FAILURE;
+}
+CVI_S32 CVI_VENC_SetSvcParam(VENC_CHN VeChn, const VENC_SVC_PARAM_S *pstSvcParam)
+{
+	if (s32VencFd[VeChn] > 0) {
+		return ioctl(s32VencFd[VeChn], CVI_VC_VENC_SET_SVC_PARAM, pstSvcParam);
+	}
+	return CVI_FAILURE;
+}
+
+CVI_S32 CVI_VENC_GetSvcParam(VENC_CHN VeChn, VENC_SVC_PARAM_S *pstSvcParam)
+{
+	if (s32VencFd[VeChn] > 0) {
+		return ioctl(s32VencFd[VeChn], CVI_VC_VENC_GET_SVC_PARAM, pstSvcParam);
+	}
+	return CVI_FAILURE;
+}

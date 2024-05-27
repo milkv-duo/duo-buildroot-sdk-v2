@@ -48,7 +48,7 @@ EXTRA_LDFLAGS = $(LIBS) -lini -lm -lpthread
 
 
 EXTRA_LDFLAGS_WITH_ASAN = -Wl,-Bdynamic $(LIBS) -lini -lm -lpthread
-EXTRA_LDFLAGS_WITH_ASAN +=  -fno-omit-frame-pointer -fsanitize-recover=address -lasan
+EXTRA_LDFLAGS_WITH_ASAN +=  -fno-omit-frame-pointer -fsanitize-recover=address -lasan -lcvi_dnvqe -lcvi_ssp2
 
 .PHONY : clean all
 all: $(TARGET) $(TARGET_WITH_ASAN)

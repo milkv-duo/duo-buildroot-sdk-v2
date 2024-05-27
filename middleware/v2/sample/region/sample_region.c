@@ -34,22 +34,25 @@ void SAMPLE_REGION_Usage(char *sPrgNm)
 	printf("Usage : %s <index>\n", sPrgNm);
 	printf("index:\n");
 	printf("\t 0)VPSS OSD.\n");
-	printf("\t 1)VPSS OSDEX.\n");
-	printf("\t 2)VPSS COVEREX.\n");
-	printf("\t 3)VPSS COVER.\n");
-	printf("\t 4)VPSS MOSAIC.\n");
-	printf("\t 5)VO OSDEX.\n");
-	printf("\t 6)VO COEREX.\n");
-	printf("\t 7)VPSS 2-layer COEREX.\n");
-	printf("\t 8)VPSS OSD TIME.\n");
-	printf("\t 9)VPSS OSD MultiChn.\n");
-	printf("\t 10)VPSS OSD 8bit mode OVERLAY.\n");
+	printf("\t 1)VPSS COVEREX.\n");
+	printf("\t 2)VPSS COVER.\n");
+	printf("\t 3)VPSS MOSAIC.\n");
+	printf("\t 4)VO OSD.\n");
+	printf("\t 5)VO COVER.\n");
+	printf("\t 6)VPSS 2-layer.\n");
+	printf("\t 7)VPSS OSD TIME.\n");
+	printf("\t 8)VPSS OSD MultiChn.\n");
+	printf("\t 9)VPSS OSD 8bit mode OVERLAY.\n");
 }
 
 void SAMPLE_REGION_HandleSig(CVI_S32 signo)
 {
+	CVI_BOOL abChnEnable[VPSS_MAX_CHN_NUM] = {CVI_TRUE, };
+
 	if (SIGINT == signo || SIGTERM == signo) {
 		SAMPLE_COMM_All_ISP_Stop();
+		SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+		SAMPLE_COMM_VO_Exit();
 		SAMPLE_COMM_SYS_Exit();
 		printf("\033[0;35mprogram termination abnormally!\033[0;39m\n");
 	}
@@ -185,6 +188,7 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_START(CVI_VOID)
 {
 	MMF_VERSION_S stVersion;
 	SAMPLE_INI_CFG_S	   stIniCfg = {0};
+	CVI_BOOL abChnEnable[VPSS_MAX_CHN_NUM] = {CVI_TRUE, };
 
 	PIC_SIZE_E enPicSize;
 	SIZE_S stSize;
@@ -280,16 +284,23 @@ START_Vo_FAILED:
 	SAMPLE_COMM_VI_UnBind_VPSS(0, 0, 0);
 VI_BIND_VPSS_FAILED:
 START_VPSS_FAILED:
+
+	SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+	SAMPLE_COMM_VO_Exit();
 	SAMPLE_COMM_SYS_Exit();
 	return s32Ret;
 }
 
 CVI_VOID SAMPLE_REGION_VI_VPSS_VO_END(CVI_VOID)
 {
+	CVI_BOOL abChnEnable[VPSS_MAX_CHN_NUM] = {CVI_TRUE, };
+
 	SAMPLE_COMM_VI_DestroyIsp(&stViConfig);
 	SAMPLE_COMM_VI_DestroyVi(&stViConfig);
 	SAMPLE_COMM_VPSS_UnBind_VO(0, 0, 0, 0);
 	SAMPLE_COMM_VI_UnBind_VPSS(0, 0, 0);
+	SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+	SAMPLE_COMM_VO_Exit();
 	SAMPLE_COMM_SYS_Exit();
 }
 
@@ -445,23 +456,6 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD(CVI_VOID)
 	return s32Ret;
 }
 
-CVI_S32 SAMPLE_REGION_VPSS_OSDEX(CVI_VOID)
-{
-	CVI_S32 s32Ret;
-	CVI_S32 HandleNum;
-	RGN_TYPE_E enType;
-	MMF_CHN_S stChn;
-
-	HandleNum = 3;
-	enType = OVERLAYEX_RGN;
-	stChn.enModId = CVI_ID_VPSS;
-	stChn.s32DevId = 0;
-	stChn.s32ChnId = 0;
-	Path_BMP = test_bmp;
-	s32Ret = SAMPLE_REGION_VI_VPSS_VO(HandleNum, enType, &stChn);
-	return s32Ret;
-}
-
 CVI_S32 SAMPLE_REGION_VPSS_COVEREX(CVI_VOID)
 {
 	CVI_S32 s32Ret;
@@ -567,6 +561,7 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_2LAYER(CVI_VOID)
 	MMF_VERSION_S stVersion;
 	SAMPLE_INI_CFG_S	   stIniCfg = {0};
 	SAMPLE_VI_CONFIG_S stViConfig;
+	CVI_BOOL abChnEnable[VPSS_MAX_CHN_NUM] = {CVI_TRUE, };
 
 	PIC_SIZE_E enPicSize;
 	SIZE_S stSize;
@@ -792,6 +787,9 @@ START_Vo_FAILED:
 VI_BIND_VPSS_FAILED:
 VPSS_BIND_VPSS_FAILED:
 START_VPSS_FAILED:
+	SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+	SAMPLE_COMM_VPSS_Stop(1, abChnEnable);
+	SAMPLE_COMM_VO_Exit();
 	SAMPLE_COMM_SYS_Exit();
 	return s32Ret;
 }
@@ -807,7 +805,7 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 	MMF_CHN_S stChn0;
 	RGN_ATTR_S stRegion;
 	RGN_CHN_ATTR_S stChnAttr;
-	CVI_S32 i;
+	CVI_S32 i, j = 0;
 	char szStr[MAX_STR_LEN];
 	int s32StrLen;
 
@@ -838,6 +836,7 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 	stRegion.unAttr.stOverlay.stSize.u32Width = OSD_LIB_FONT_W * s32StrLen;
 	stRegion.unAttr.stOverlay.u32BgColor = 0x7fff;
 	stRegion.unAttr.stOverlay.u32CanvasNum = 1;
+	stRegion.unAttr.stOverlay.stCompressInfo.enOSDCompressMode = OSD_COMPRESS_MODE_NONE;
 	for (i = MinHandle; i < MinHandle + HandleNum; i++) {
 		s32Ret = CVI_RGN_Create(i, &stRegion);
 		if (s32Ret != CVI_SUCCESS) {
@@ -856,10 +855,6 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 	for (i = MinHandle; i < MinHandle + HandleNum; i++) {
 		stChnAttr.unChnAttr.stOverlayChn.stPoint.s32X = 20 + 300 * (i - MinHandle);
 		stChnAttr.unChnAttr.stOverlayChn.stPoint.s32Y = 20 + 300 * (i - MinHandle);
-		if (i % 2 != 0)
-			stChnAttr.unChnAttr.stOverlayChn.stInvertColor.bInvColEn = CVI_TRUE;
-		else
-			stChnAttr.unChnAttr.stOverlayChn.stInvertColor.bInvColEn = CVI_FALSE;
 		s32Ret = CVI_RGN_AttachToChn(i, &stChn0, &stChnAttr);
 		if (s32Ret != CVI_SUCCESS) {
 			SAMPLE_PRT("CVI_RGN_AttachToChn failed with %#x!\n", s32Ret);
@@ -870,14 +865,11 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 	BITMAP_S stBitmap;
 	CVI_U32 *pu32Color = (CVI_U32 *)malloc(s32StrLen * sizeof(CVI_U32));
 
-	while (CVI_TRUE) {
+	while (j++ < 5) {
 		for (i = MinHandle; i < MinHandle + HandleNum; i++) {
 			memset(pu32Color, 0, sizeof(CVI_U32) * s32StrLen);
 			CVI_RGN_GetDisplayAttr(i, &stChn0, &stChnAttr);
-			if (stChnAttr.unChnAttr.stOverlayChn.stInvertColor.bInvColEn)
-				CVI_RGN_Invert_Color(i, &stChn0, pu32Color);
-			else
-				memset(pu32Color, 0xffff, sizeof(CVI_U32) * s32StrLen);
+			memset(pu32Color, 0xffff, sizeof(CVI_U32) * s32StrLen);
 			stBitmap.u32Width = stRegion.unAttr.stOverlay.stSize.u32Width;
 			stBitmap.u32Height = stRegion.unAttr.stOverlay.stSize.u32Height;
 			stBitmap.enPixelFormat = stRegion.unAttr.stOverlay.enPixelFormat;
@@ -910,6 +902,7 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_MULTICHN(CVI_VOID)
 	MMF_VERSION_S stVersion;
 	SAMPLE_INI_CFG_S	   stIniCfg = {0};
 	SAMPLE_VI_CONFIG_S stViConfig;
+	CVI_BOOL abChnEnable[VPSS_MAX_CHN_NUM] = {CVI_TRUE, };
 
 	PIC_SIZE_E enPicSize;
 	SIZE_S stSize;
@@ -1221,6 +1214,11 @@ START_VPSS_FAILED:
 VI_BIND_VPSS_FAILED:
 	SAMPLE_COMM_VI_DestroyIsp(&stViConfig);
 	SAMPLE_COMM_VI_DestroyVi(&stViConfig);
+	SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+	SAMPLE_COMM_VPSS_Stop(1, abChnEnable);
+	SAMPLE_COMM_VPSS_Stop(2, abChnEnable);
+	SAMPLE_COMM_VPSS_Stop(3, abChnEnable);
+	SAMPLE_COMM_VO_Exit();
 	SAMPLE_COMM_SYS_Exit();
 
 	return s32Ret;
@@ -1250,33 +1248,30 @@ int main(int argc, char *argv[])
 		s32Ret = SAMPLE_REGION_VPSS_OSD();
 		break;
 	case 1:
-		s32Ret = SAMPLE_REGION_VPSS_OSDEX();
-		break;
-	case 2:
 		s32Ret = SAMPLE_REGION_VPSS_COVEREX();
 		break;
-	case 3:
+	case 2:
 		s32Ret = SAMPLE_REGION_VPSS_COVER();
 		break;
-	case 4:
+	case 3:
 		s32Ret = SAMPLE_REGION_VPSS_MOSAIC();
 		break;
-	case 5:
+	case 4:
 		s32Ret = SAMPLE_REGION_VO_OSD();
 		break;
-	case 6:
+	case 5:
 		s32Ret = SAMPLE_REGION_VO_COVER();
 		break;
-	case 7:
+	case 6:
 		s32Ret = SAMPLE_REGION_VI_VPSS_VO_2LAYER();
 		break;
-	case 8:
+	case 7:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_TIME();
 		break;
-	case 9:
+	case 8:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_MULTICHN();
 		break;
-	case 10:
+	case 9:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_8BIT_MODE();
 		break;
 	default:

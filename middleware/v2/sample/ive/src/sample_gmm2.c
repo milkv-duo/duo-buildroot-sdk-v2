@@ -79,10 +79,17 @@ int main(int argc, char **argv)
 	// Run IVE
 	printf("Run HW IVE GMM2.\n");
 	for (s32FrmCnt = 0; s32FrmCnt < u32FrameNumMax; s32FrmCnt++) {
-		memcpy((void *)(uintptr_t)stIveImg.u64VirAddr[0],
-		       (void *)(uintptr_t)(stInput.u64VirAddr +
-				(s32FrmCnt * input_w * input_h)),
-		       input_w * input_h);
+		for (int i = 0; i < input_h; i++) {
+			memcpy(&((char *)(uintptr_t)stIveImg
+						.u64VirAddr[0])[i * stIveImg.u32Stride[0]],
+					&((char *)(uintptr_t)stInput.u64VirAddr)
+					[s32FrmCnt * input_w * input_h + i * input_w],
+					input_w);
+			int stride = stIveImg.u32Stride[0] - input_w;
+
+			memset(&((char *)(uintptr_t)stIveImg
+						.u64VirAddr[0])[i * stIveImg.u32Stride[0] + input_w], 0x0, stride);
+		}
 		u32FrmNum = s32FrmCnt + 1;
 		if (stGmm2Ctrl.u8ModelNum == 1) {
 			//If the parameter u8ModelNum is set to 1, the parameter u16FreqReduFactor

@@ -66,10 +66,17 @@ int main(int argc, char **argv)
 	// Run IVE
 	printf("Run HW IVE GMM.\n");
 	for (s32FrmCnt = 0; s32FrmCnt < u32FrameNumMax; s32FrmCnt++) {
-		memcpy((void *)(uintptr_t)src.u64VirAddr[0],
-		       (void *)(uintptr_t)(stInput.u64VirAddr +
-				(s32FrmCnt * input_w * input_h)),
-		       input_w * input_h);
+		for (int i = 0; i < input_h; i++) {
+			memcpy(&((char *)(uintptr_t)src
+						.u64VirAddr[0])[i * src.u32Stride[0]],
+					&((char *)(uintptr_t)stInput.u64VirAddr)
+					[s32FrmCnt * input_w * input_h + i * input_w],
+					input_w);
+			int stride = src.u32Stride[0] - input_w;
+
+			memset(&((char *)(uintptr_t)src
+						.u64VirAddr[0])[i * src.u32Stride[0] + input_w], 0x0, stride);
+		}
 
 		if (s32FrmCnt >= 500) {
 			stGMMCtrl.u0q16LearnRate = 131; //0.02
