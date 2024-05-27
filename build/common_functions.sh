@@ -234,7 +234,8 @@ function pack_burn_image
 {(
   pushd "$OUTPUT_DIR"
   [ -d tmp ] && rm -rf tmp
-  [ -d br-rootfs ] && rm -rf br-rootfs && mkdir br-rootfs
+  [ -d br-rootfs ] && rm -rf br-rootfs
+  mkdir br-rootfs
   tar xf $BR_DIR/output/$BR_BOARD/images/rootfs.tar.xz -C br-rootfs
 
   # genimage
