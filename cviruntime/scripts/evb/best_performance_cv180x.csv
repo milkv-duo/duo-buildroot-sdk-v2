@@ -1,0 +1,13 @@
+CV180x,500Mhz,2022-10-18
+Net,Inference Cycle(ms)
+resnet18_bs1,136.03
+mobilenet_v1_bs1,37.60
+mobilenet_v2_bs1,31.68
+squeezenet_v1.1_bs1,27.45
+shufflenet_v2_bs1,4.94
+googlenet_bs1,119.58
+densenet_121_bs1,198.20
+efficientnet-lite_b0_bs1,29.19
+nasnet_mobile_bs1,53.29
+retinaface_mnet25_bs1,18.53
+retinaface_mnet25_600_bs1,64.11

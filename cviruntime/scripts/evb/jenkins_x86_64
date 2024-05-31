@@ -1,0 +1,68 @@
+pipeline {
+  agent {
+    label 'docker-slave'
+  }
+  options {
+    timeout(time: 1, unit: 'HOURS')
+    parallelsAlwaysFailFast()
+    timestamps()
+  }
+  environment {
+    MODEL_PATH = "/data/mlir-models"
+    DATASET_PATH = "/data/dataset"
+    DAILYRELEASE_PATH = "/data/dailyrelease"
+  }
+  stages {
+    stage('CleanWorkspace') {
+      steps {
+        cleanWs()
+      }
+    }
+    stage('Build') {
+      steps {
+        echo 'Begin to build tpu_sdk latest version'
+        sh '''#!/bin/bash
+          pushd ~/workspace/sdk
+          rm -rf install
+          ./update.sh
+          popd
+          pushd ~/workspace/sdk/cviruntime/scripts/evb
+          ./build_x86_sdk.sh
+          popd
+        '''
+      }
+    }
+  }
+  post {
+    success {
+      sh'''
+        RELEASE_PATH="/data/dailyrelease/$(date '+%Y-%m-%d')-18.04"
+        cp ~/workspace/sdk/cvitek_tpu_sdk_x86_64.tar.gz $RELEASE_PATH/
+        rm -f ~/workspace/sdk/cvitek_tpu_sdk_x86_64.tar.gz
+
+        #release tpu_samples
+        pushd ~/workspace/sdk/cviruntime
+        cp -rf ./samples ./cvitek_tpu_samples
+        tar zcvf cvitek_tpu_samples.tar.gz  cvitek_tpu_samples
+        mv cvitek_tpu_samples.tar.gz $RELEASE_PATH
+        rm -rf ./cvitek_tpu_samples
+        popd 
+      '''
+
+      emailext (
+              body: '''${SCRIPT, template="groovy-html.template"}''',
+              subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful",
+              mimeType: 'text/html',
+              to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+    failure {
+      emailext (
+          body: '''${SCRIPT, template="groovy-html.template"}''',
+          subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed",
+          mimeType: 'text/html',
+          to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+  }
+}

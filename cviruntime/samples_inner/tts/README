@@ -1,0 +1,7 @@
+1. build tts binary in src directory.
+2. cp binary, npz and cvimodel to ecb:
+4. execute cmds:
+   # bash
+   # cd cvitek_tpu_sdk && source envs_tpu_sdk.sh
+   # ./tts mt_encoder_cv1829.cvimodel mt_decoder_600_cv1829.cvimodel tts_input_x.npz
+

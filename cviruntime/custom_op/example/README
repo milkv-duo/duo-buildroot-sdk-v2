@@ -1,0 +1,42 @@
+CustomOp:
+    Attributes:
+      `param`           : required, a PoolParam struct attributes, carrying
+                          filter size, stride, padding, and do_relu.
+      `quant`           : required, a QuantParam struct attributes.
+      `name`            : required, name for calibration, comparing, or debug.
+      `do_quant`         : required, quantize to int8/bf16 or not.
+      `threshold_overwrite` : required, overwrite threshold backward/forward or not.
+      `layer_id`        : optional, id for profiling.
+
+FrontEnd:
+    def convert_leaky_relu_op(self, onnx_node):
+        assert(onnx_node.op_type == "LeakyRelu")
+        alpha = onnx_node.attrs.get("alpha", 0.01)
+        custom_op_param = {
+            'tpu': True,
+            'do_quant': True,
+            'operation_name': 'leaky_relu',
+            'threshold_overwrite': 'backward',
+            'param': {
+                'negative_slope': float(alpha)
+            }
+        }
+        op, input_shape, tensor_type = self.getOperand(onnx_node.inputs[0])
+        operands = list()
+        operands.append(op)
+        output_shape = input_shape
+        custom_op = self.CVI.add_custom_op("{}_{}".format(onnx_node.name, onnx_node.op_type), operands, output_shape, **custom_op_param)
+        self.addOperand(onnx_node.name, custom_op, output_shape, TensorType.ACTIVATION)
+
+Calibration:
+    gen_data_list.py /work/dataset/coco/val2017/ 1000 cali_list.txt
+    python /work/cvitek_mlir/python/run_calibration.py \
+        --model_name yolo_v3 yolo_v3_416_onnx_opt.mlir cali_list.txt \
+        --input_num=100 --custom_op_plugin libCustomOpPlugin.so
+
+Quantization & Optimization:
+  add "--custom-op-plugin libCustomOpPlugin.so"
+
+Codegen:
+  add "--custom-op-plugin libCustomOpPlugin.so" &
+      "--custom-runtime-lib libCustomOpRuntime_arm64.so,libCustomOpRuntime_x86.so"

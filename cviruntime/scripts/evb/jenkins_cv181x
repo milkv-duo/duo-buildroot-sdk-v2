@@ -1,0 +1,173 @@
+pipeline {
+  agent {
+    label 'docker-slave'
+  }
+  options {
+    timeout(time: 1, unit: 'HOURS')
+    parallelsAlwaysFailFast()
+    timestamps()
+  }
+  environment {
+    MODEL_PATH = "/data/mlir-models"
+    DATASET_PATH = "/data/dataset"
+    DAILYRELEASE_PATH = "/data/dailyrelease"
+    EVB_IP = "192.168.0.19"
+    NFS_IP = "192.168.0.16"
+    SSH_TOOL = "./ssh_tool.py"
+    TPU_SDK_RISCV= "cvitek_tpu_sdk_cv181x_musl_riscv64_rvv"
+    TPU_SDK_RISCV_LEGACY= "cvitek_tpu_sdk_cv181x_musl_riscv64"
+    TPU_SDK_GLIBC= "cvitek_tpu_sdk_cv181x_glibc_arm"
+    TPU_SDK_RISCV_GLIBC= "cvitek_tpu_sdk_cv181x_glibc_riscv64"
+    TPU_SDK_ARM= "cvitek_tpu_sdk_cv181x_glibc_arm"
+  }
+  stages {
+    stage('CleanWorkspace') {
+      steps {
+        cleanWs()
+      }
+    }
+    stage('Build') {
+      steps {
+        echo 'Begin to build tpu_sdk latest version'
+        sh '''#!/bin/bash
+          set -xe
+          echo "$WORKSPACE"
+          pushd ~/workspace/sdk
+          rm -rf install
+          ./update.sh
+          source build/envsetup_soc.sh
+          # riscv rvv
+          defconfig cv1811c_wevb_0006a_spinor
+          export TPU_REL=1
+          clean_3rd_party
+          build_3rd_party
+          clean_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          build_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          pushd install/soc_cv1811c_wevb_0006a_spinor/tpu_musl_riscv64/
+          tar -zcf ${TPU_SDK_RISCV}.tar.gz cvitek_tpu_sdk
+          cp ${TPU_SDK_RISCV}.tar.gz $WORKSPACE
+          popd
+          # riscv 
+          export RISCV_LEGACY=1
+          clean_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          build_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          pushd install/soc_cv1811c_wevb_0006a_spinor/tpu_musl_riscv64/
+          tar -zcf ${TPU_SDK_RISCV_LEGACY}.tar.gz cvitek_tpu_sdk
+          cp ${TPU_SDK_RISCV_LEGACY}.tar.gz $WORKSPACE
+          popd
+          # riscv glibc
+          defconfig cv181x_fpga_c906
+          clean_3rd_party
+          build_3rd_party
+          clean_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          build_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          pushd install/soc_cv181x_fpga_c906/tpu_glibc_riscv64/
+          tar -zcf ${TPU_SDK_RISCV_GLIBC}.tar.gz cvitek_tpu_sdk
+          cp ${TPU_SDK_RISCV_GLIBC}.tar.gz $WORKSPACE
+          popd
+          # arm 
+          defconfig cv1811c_wevb_0006a_spinor
+          setconfig TOOLCHAIN_GLIBC_ARM=y
+          export TPU_REL=1
+          clean_3rd_party
+          build_3rd_party
+          clean_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          build_tpu_sdk
+          rm -rf cviruntime/build_sdk
+          pushd install/soc_cv1811c_wevb_0006a_spinor/tpu_32bit/
+          tar -zcf ${TPU_SDK_ARM}.tar.gz cvitek_tpu_sdk
+          cp ${TPU_SDK_ARM}.tar.gz $WORKSPACE
+          popd
+
+          # cp data
+          cp -rf cviruntime/scripts/evb/* $WORKSPACE
+          popd
+        '''
+      }
+    }
+    stage("MountNfs") {
+      steps {
+        sh '''#!/bin/bash
+          set -xe
+          pip3 install paramiko
+
+          pushd /data/nfs/evb_test/
+          rm -rf * 2> /dev/null || true
+          cp /data/dailyrelease/regression_models/cvimodel_regression_int8_cv181x.tar.gz ./
+          cp -rf $WORKSPACE/* ./
+
+          tar -zxf cvimodel_regression_int8_cv181x.tar.gz
+          tar -zxf ${TPU_SDK_RISCV}.tar.gz
+          chmod 777 -R *
+          popd
+        '''
+        retry(count: 3) {
+          sh '''#!/bin/bash
+            set -e
+            pwd
+            ping -c 10 $EVB_IP
+            $SSH_TOOL -t 30 -b $EVB_IP --exec "/sbin/reboot"
+            sleep 30
+            ping -c 10 $EVB_IP
+            $SSH_TOOL -t 30 -b $EVB_IP --exec "mkdir -p /mnt/data/nfs;mount -t nfs -o nolock ${NFS_IP}:/data/nfs/evb_test /mnt/data/nfs"
+          '''
+        }
+      }
+    }
+    stage("Testing") {
+      steps {
+        sh'pwd;ls -l'
+        sh'$SSH_TOOL -t 300 -b $EVB_IP --exec "set -o pipefail;/mnt/data/nfs/performance_testing_cv181x.sh 2>&1|tee /mnt/data/nfs/performance.log"'
+      }
+      post {
+        always {
+          sh'$SSH_TOOL -b $EVB_IP --exec "rm -rf /mnt/data/nfs/cvitek_tpu_sdk"'
+          sh'$SSH_TOOL -b $EVB_IP --exec "rm -rf /mnt/data/nfs/sdk_regression_out"'
+          sh'$SSH_TOOL -b $EVB_IP --exec "umount /mnt/data/nfs; rm -rf /mnt/data/nfs"'
+        }
+      }
+    }
+  }
+  post {
+    success {
+      sh'''
+        RELEASE_PATH="/data/dailyrelease/$(date '+%Y-%m-%d')-18.04"
+        PERF_PATH=$RELEASE_PATH/perf_result_cv181x
+        mkdir -p $PERF_PATH
+        cp ${TPU_SDK_RISCV}.tar.gz $RELEASE_PATH/
+        cp ${TPU_SDK_RISCV_LEGACY}.tar.gz $RELEASE_PATH/
+        cp ${TPU_SDK_RISCV_GLIBC}.tar.gz $RELEASE_PATH/
+        cp ${TPU_SDK_ARM}.tar.gz $RELEASE_PATH/
+        cp -f /data/nfs/evb_test/performance.log .
+        cp -f performance.log $PERF_PATH
+        python3 parse_performance.py best_performance_cv181x.csv performance.log performance_improve.csv  cv181x
+        cp -f performance_improve.csv $PERF_PATH
+        cp -f performance_history.csv $PERF_PATH
+        cp -f performance_history.jpg $PERF_PATH
+      '''
+
+      emailext (
+              attachmentsPattern:"performance_history.jpg, performance_history.csv, performance_improve.csv",
+              body: '''${SCRIPT, template="groovy-html.template"}''',
+              subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful",
+              mimeType: 'text/html',
+              to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+    failure {
+      emailext (
+          body: '''${SCRIPT, template="groovy-html.template"}''',
+          subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed",
+          mimeType: 'text/html',
+          to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+  }
+}

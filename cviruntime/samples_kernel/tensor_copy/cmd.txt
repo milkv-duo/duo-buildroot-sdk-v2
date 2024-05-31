@@ -1,0 +1,4 @@
+aarch64-linux-gnu-gcc -I../cvitek_tpu_sdk/include -L../cvitek_tpu_sdk/lib -lcvikernel -lcviruntime -O3 -o tensor_copy tensor_copy.c
+
+gcc -I../cvitek_mlir/include -L../cvitek_mlir/lib -O3 -o tensor_copy tensor_copy.c -lcvicmodel -lcvikernel -lcviruntime
+

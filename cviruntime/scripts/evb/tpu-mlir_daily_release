@@ -1,0 +1,88 @@
+pipeline {
+    agent {
+        docker {
+            image 'sophgo/tpuc_dev'
+            label 'master'
+            args '-u 0:0 --privileged -v /home/docker-slave:/home/jenkins -v /data:/data'
+        }
+    }
+    options {
+        timeout(time: 7, unit: 'HOURS')
+        parallelsAlwaysFailFast()
+        timestamps()
+    }
+    environment {
+        DATASET_PATH = "/data/dataset"
+        DAILYRELEASE_PATH = "/data/dailyrelease"
+    }
+    stages {
+        stage('CleanWorkspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Begin to build tpu-mlir latest version'
+                sh '''
+                set -e
+                cd
+                apt-get update
+                apt-get install -y ssh
+                pushd /home/jenkins/workspace/tpu-mlir
+                mkdir -p /root/.ssh
+                cp -r /home/jenkins/.ssh/* /root/.ssh
+                git pull
+                rm -rf ./build
+                rm -rf ./install
+                source envsetup.sh
+                ./build.sh
+                popd
+                '''
+            }
+        }
+        stage('Release tpu-mlir && models') {
+            steps {
+                sh'''#!/bin/bash
+                set -e
+                cd
+                pushd /home/jenkins/workspace/tpu-mlir
+                source envsetup.sh
+                ./release.sh
+                os_ver="18.04"
+                mlir_version="$(grep MLIR_VERSION ${BUILD_PATH}/CMakeCache.txt | cut -d "=" -f2)"
+                mkdir -p $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver}
+                cp ./tpu-mlir_${mlir_version}.tar.gz $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver}/
+                rm ./tpu-mlir_${mlir_version}.tar.gz
+                chmod 777 -R $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver}
+                popd
+
+                #release cvimodels
+                export NNMODELS_PATH=/data/sophgo_models/nnmodels
+                export MODEL_ZOO_PATH=/data/sophgo_models/model-zoo
+                rm -rf /home/jenkins/workspace/tpu-mlir/regression/regression_out
+                pushd /home/jenkins/workspace/tpu-mlir/regression
+                ./dailyrelease_cvimodel.py $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver} 10
+                chmod 777 -R $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver}
+				if [ -e "$DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver}/cvimodel_regression_int8_cv183x.tar.gz" ]; then
+					unlink /data/dailyrelease/regression_models
+					ln -s $DAILYRELEASE_PATH/$(date '+%Y-%m-%d')-${os_ver} /data/dailyrelease/regression_models
+				fi
+                popd
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            emailext (
+                body: '''${SCRIPT, template="groovy-html.template"}''',
+                subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+                mimeType: 'text/html',
+                to: "${EMAIL_RECIPIENTS}"
+            )
+        }
+    }
+}
+
+

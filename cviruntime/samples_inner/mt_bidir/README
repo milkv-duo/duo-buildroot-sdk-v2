@@ -1,0 +1,8 @@
+1. build mt binary in src directory.
+2. cp binary, npz and cvimodel to ecb:
+3. cp cvitek_tpu_sdk.tar.gz to evb and extract it to /mnt/data/
+4. execute cmds:
+   # bash
+   # cd cvitek_tpu_sdk && source envs_tpu_sdk.sh
+   # ./mt mt_encoder_decoder_0_10_20_30_39_mix_2.cvimodel mt_input_x.npz mt_output_ref.npz s2t
+

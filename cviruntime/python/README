@@ -1,0 +1,21 @@
+1. Download pyruntime.tgz from NAS server("ai/prebuilt/pyruntime.tgz")
+   This package provides a complete environment of python3.6, and also contains
+   modules of torch, torchvision, numpy and cvitek's runtime python wrapper.
+
+2. Decompress pacakge to soc platform:
+   $ cd /mnt/data
+   $ tar -zxvf pyruntime.tgz ./
+
+3. Setup environment variables.
+   $ export PATH=/mnt/data/python/bin/:/mnt/data/cvitek_tpu_sdk/bin:${PATH}
+   $ export LD_LIBRARY_PATH=/mnt/data/python/lib:/mnt/data/cvitek_tpu_sdk/lib:${LD_LIBRARY_PATH}
+   $ export PYTHON_EGG_CACHE=/mnt/data/python/.cache/
+
+4. Run accuracy evaluation script:
+   $ ./eval_imagenet.py \
+        --dataset imagenet/img_val_extracted/ \
+        --cvimodel resnet50_bs4.cvimodel \
+        --count 1000 --batch_size 4 \
+        --image_resize_dims 256,256 \
+        --net_input_dims 224,224 \
+        --mean 104.01,116.67,122.68
