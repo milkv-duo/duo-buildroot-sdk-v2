@@ -15,6 +15,7 @@
 #include "jdi_osal.h"
 #include "asm/cache.h"
 #include "jpulog.h"
+#include "cpu_func.h"
 
 #if defined(JPEG_FVP)
 #define FILE_BUFFER_BASE 0xE0000000

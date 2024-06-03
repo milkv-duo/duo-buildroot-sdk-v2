@@ -7,6 +7,7 @@
 #include "regdefine.h"
 #include <stdlib.h>
 #include "asm/cache.h"
+#include "cpu_func.h"
 
 #ifdef JPU_FPGA_PLATFORM
 //#define ENC_SOURCE_FRAME_DISPLAY

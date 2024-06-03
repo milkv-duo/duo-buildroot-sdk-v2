@@ -876,7 +876,7 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_SYSRESET)
 	print_resetinfo,
 #endif
-#if defined(CONFIG_DISPLAY_CPUINFO)
+#if defined(CONFIG_DISPLAY_CPUINFO) && CONFIG_IS_ENABLED(CPU)
 	print_cpuinfo,		/* display cpu info (and speed) */
 #endif
 #if defined(CONFIG_DTB_RESELECT)
