@@ -2863,7 +2863,9 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 	}
 
 	_vi_mempool_reset();
-	vi_tuning_buf_clear();
+
+	vi_tuning_buf_setup(ctx);
+	vi_tuning_buf_clear(ctx);
 
 	_vi_scene_ctrl(vdev, &raw_max);
 
@@ -4734,7 +4736,6 @@ static int _vi_mempool_setup(void)
 	int ret = 0;
 
 	_vi_mempool_reset();
-	ret = vi_tuning_buf_setup();
 
 	return ret;
 }
@@ -5588,12 +5589,16 @@ static long _vi_g_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 		void *tun_addr = NULL;
 		u32 size;
 
+		rc = vi_tuning_buf_setup(ctx);
+
 		tun_addr = vi_get_tuning_buf_addr(&size);
 
-		if (copy_to_user(p->ptr, tun_addr, size) != 0)
+		if (copy_to_user(p->ptr, tun_addr, size) != 0) {
+			vi_pr(VI_ERR, "Failed to copy tun_addr\n");
+			rc = -EINVAL;
 			break;
+		}
 
-		rc = 0;
 		break;
 	}
 
@@ -8157,7 +8162,7 @@ int vi_destroy_instance(struct platform_device *pdev)
 	for (i = 0; i < E_VI_TH_MAX; i++)
 		vi_destory_thread(vdev, i);
 
-	vi_tuning_buf_release();
+	vi_tuning_buf_release(&vdev->ctx);
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
 		sync_task_exit(i);

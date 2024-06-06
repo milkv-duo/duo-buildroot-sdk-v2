@@ -5047,6 +5047,7 @@ packet-based streaming with ring-buffer, this variable is ignored.
 	/*
 	 * A flag to use a force picture type
 	 * by source index order
+	 * 0 : I, 1 : P, 2 : B, 3 : IDR, 4 : CRA
 	 */
 	int forcePicType; /**< A force picture type (I, P, B, IDR, CRA) */
 	int srcIdx; /**< A source frame buffer index */
@@ -5089,6 +5090,7 @@ packet-based streaming with ring-buffer, this variable is ignored.
 	BOOL is_i_period;
 	BOOL idr_registered;
 	BOOL force_i_for_gop_sync;
+	BOOL resetGop;
 
 	BOOL roi_request;
 	BOOL roi_enable[8];

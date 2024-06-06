@@ -977,6 +977,7 @@ static int initEncOneFrame(stTestEncoder *pTestEnc, TestEncConfig *pEncConfig)
 			pTestEnc->encParam.codeOption.encodeAUD = pEncCfg->encAUD;
 			pTestEnc->encParam.codeOption.encodeEOS = 0;
 
+			pTestEnc->encParam.force_i_for_gop_sync = 1;
 			CVI_VC_TRACE("ringBufferEnable = %d\n",
 					pEncOP->ringBufferEnable);
 
@@ -1201,6 +1202,12 @@ RETRY:
 	pTestEnc->encConfig.cviEc.roi_request = FALSE;
 
 	pEncParam->is_idr_frame = cviCheckIdrPeriod(pTestEnc);
+
+	if (pEncParam->idr_request && pEncParam->resetGop) {
+		pTestEnc->frameIdx = 0;
+		pEncParam->resetGop = 0;
+		CVI_VC_FLOW("reset gop, frameIdx = %d\n", pTestEnc->frameIdx);
+	}
 
 #ifdef DROP_FRAME
 	 // because bitstream not enough, need request IDR and reduce target bitrate
@@ -1596,10 +1603,11 @@ static BOOL cviCheckIdrValid(EncOpenParam *pEncOP, Uint32 frameIdx)
 }
 
 static void cviForcePicTypeCtrl(EncOpenParam *pEncOP, EncParam *encParam,
-				EncInfo *pEncInfo, BOOL is_intra_period,
-				BOOL force_idr, BOOL force_skip_frame,
-				Uint32 frameIdx)
+				EncInfo *pEncInfo, BOOL force_skip_frame, Uint32 frameIdx)
 {
+	int force_idr = encParam->idr_request;
+	int is_intra_period = encParam->is_i_period;
+
 	encParam->skipPicture = 0;
 	encParam->forceIPicture = 0;
 	encParam->forcePicTypeEnable = 0;
@@ -1619,7 +1627,12 @@ static void cviForcePicTypeCtrl(EncOpenParam *pEncOP, EncParam *encParam,
 	    (is_intra_period && encParam->force_i_for_gop_sync)) {
 		if (pEncOP->bitstreamFormat == STD_HEVC) {
 			encParam->forcePicTypeEnable = 1;
-			encParam->forcePicType = 3;
+			encParam->forcePicType =
+				(pEncOP->EncStdParam.hevcParam.decodingRefreshType == H265_RT_IDR) ? 3 : 4;
+			// first frame and request idr frame should be idr
+			if (frameIdx == 0) {
+				encParam->forcePicType = 3;
+			}
 		} else { // encOP->bitstreamFormat == STD_AVC
 			encParam->forceIPicture = 1;
 			pEncInfo->force_as_long_term_ref = 1;
@@ -1730,7 +1743,6 @@ static void cviPicParamChangeCtrl(EncHandle handle, TestEncConfig *pEncConfig,
 		}
 
 		cviForcePicTypeCtrl(pEncOP, encParam, &handle->CodecInfo->encInfo,
-					encParam->is_i_period, encParam->idr_request,
 					force_skip_frame, frameIdx);
 	} while (0);
 
@@ -2970,12 +2982,15 @@ int cviVEncGetStream(void *handle, cviVEncStreamInfo *pStreamInfo,
 	CVI_VC_IF("\n");
 
 	if (pTestEnc->encConfig.bIsoSendFrmEn) {
+wait:
 		ret = wait_for_completion_timeout(&pTestEnc->semGetStreamCmd,
 				usecs_to_jiffies(s32MilliSec * 1000));
 		if (ret == 0) {
 			CVI_VC_WARN("get stream timeout!\n");
 			return RET_VCODEC_TIMEOUT;
 		}
+		if (0 == pTestEnc->streamPack.totalPacks)
+			goto wait;
 		memcpy(pStreamInfo, &pTestEnc->tStreamInfo, sizeof(cviVEncStreamInfo));
 		return RETCODE_SUCCESS;
 	}
@@ -3315,13 +3330,13 @@ int cviVEncReleaseStream(void *handle, cviVEncStreamInfo *pStreamInfo)
 
 static int cviVEncSetRequestIDR(stTestEncoder *pTestEnc, void *arg)
 {
+	unsigned int *resetGop = (unsigned int *)arg;
 	int ret = 0;
-
-	UNREFERENCED_PARAMETER(arg);
 
 	CVI_VC_IF("\n");
 
 	pTestEnc->encParam.idr_request = TRUE;
+	pTestEnc->encParam.resetGop = *resetGop;
 
 	return ret;
 }

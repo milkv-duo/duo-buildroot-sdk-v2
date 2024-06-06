@@ -139,8 +139,7 @@ static int32_t _vb_set_config(struct cvi_vb_cfg *vb_cfg)
 {
 	int i;
 
-	if (vb_cfg->comm_pool_cnt > VB_COMM_POOL_MAX_CNT
-		|| vb_cfg->comm_pool_cnt == 0) {
+	if (vb_cfg->comm_pool_cnt > VB_COMM_POOL_MAX_CNT) {
 		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "Invalid comm_pool_cnt(%d)\n", vb_cfg->comm_pool_cnt);
 		return -EINVAL;
 	}
@@ -1163,6 +1162,14 @@ long vb_ctrl(struct vb_ext_control *p)
 		break;
 	}
 #endif
+
+	case VB_IOCTL_GET_VB_INIT:
+	{
+		p->value = atomic_read(&ref_count);
+
+		ret = 0;
+		break;
+	}
 
 	default:
 	break;

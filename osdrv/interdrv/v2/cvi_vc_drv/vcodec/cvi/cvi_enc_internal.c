@@ -726,6 +726,11 @@ int cviPutEsInPack(stTestEncoder *pTestEnc, PhysicalAddress paBsBufStart,
 				return FALSE;
 			}
 		}
+
+		if (cviNalType == NAL_I || cviNalType == NAL_IDR) {
+			pTestEnc->encParam.idr_request = TRUE;
+		}
+
 		psp->dropCnt++;
 		psp->seq++;
 		MUTEX_UNLOCK(&psp->packMutex);

@@ -217,20 +217,22 @@ int vi_tuning_sw_init(void)
 	return 0;
 }
 
-int vi_tuning_buf_setup(void)
+int vi_tuning_buf_setup(struct isp_ctx *ctx)
 {
 	u8 i = 0;
 	static u64 fe_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
 	static u64 be_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
 	static u64 post_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
 	u32 size = 0;
+	u64 phyAddr = 0;
 
 	size = (VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg)) +
 		VI_ALIGN(sizeof(struct cvi_vip_isp_be_cfg)) +
 		VI_ALIGN(sizeof(struct cvi_vip_isp_fe_cfg)));
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
-		u64 phyAddr = 0;
+		if (!ctx->isp_pipe_enable[i])
+			continue;
 
 		if (vi_tuning_ptr[i] == NULL) {
 			vi_tuning_ptr[i] = kzalloc(size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
@@ -270,11 +272,14 @@ int vi_tuning_buf_setup(void)
 	return 0;
 }
 
-void vi_tuning_buf_release(void)
+void vi_tuning_buf_release(struct isp_ctx *ctx)
 {
 	u8 i;
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
+		if (!ctx->isp_pipe_enable[i])
+			continue;
+
 		kfree(vi_tuning_ptr[i]);
 		vi_tuning_ptr[i] = NULL;
 	}
@@ -287,7 +292,7 @@ void *vi_get_tuning_buf_addr(u32 *size)
 	return (void *)&tuning_buf_addr;
 }
 
-void vi_tuning_buf_clear(void)
+void vi_tuning_buf_clear(struct isp_ctx *ctx)
 {
 	struct cvi_vip_isp_post_cfg *post_cfg;
 	struct cvi_vip_isp_be_cfg   *be_cfg;
@@ -295,6 +300,9 @@ void vi_tuning_buf_clear(void)
 	u8 i = 0, tun_idx = 0;
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
+		if (!ctx->isp_pipe_enable[i])
+			continue;
+
 		post_cfg = (struct cvi_vip_isp_post_cfg *)tuning_buf_addr.post_vir[i];
 		be_cfg   = (struct cvi_vip_isp_be_cfg *)tuning_buf_addr.be_vir[i];
 		fe_cfg   = (struct cvi_vip_isp_fe_cfg *)tuning_buf_addr.fe_vir[i];

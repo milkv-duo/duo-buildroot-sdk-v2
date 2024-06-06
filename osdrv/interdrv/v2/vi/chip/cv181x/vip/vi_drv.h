@@ -727,10 +727,10 @@ void vi_tuning_clut_update(
 	enum cvi_isp_raw raw_num);
 int vi_tuning_get_clut_tbl_idx(enum cvi_isp_raw raw_num, int tun_idx);
 int vi_tuning_sw_init(void);
-int vi_tuning_buf_setup(void);
-void vi_tuning_buf_release(void);
+int vi_tuning_buf_setup(struct isp_ctx *ctx);
+void vi_tuning_buf_release(struct isp_ctx *ctx);
 void *vi_get_tuning_buf_addr(u32 *size);
-void vi_tuning_buf_clear(void);
+void vi_tuning_buf_clear(struct isp_ctx *ctx);
 
 /*******************************************************************************
  *	Tuning modules update

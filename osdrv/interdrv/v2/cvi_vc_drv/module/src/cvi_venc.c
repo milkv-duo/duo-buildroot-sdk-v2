@@ -3312,7 +3312,7 @@ CVI_S32 CVI_VENC_GetStream(VENC_CHN VeChn, VENC_STREAM_S *pstStream,
 	}
 
 #if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
-	pstStream->pstPack = vmalloc(sizeof(VENC_PACK_S) * _cviGetNumPacks(pChnAttr->stVencAttr.enType));
+	pstStream->pstPack = vzalloc(sizeof(VENC_PACK_S) * _cviGetNumPacks(pChnAttr->stVencAttr.enType));
 	if (pstStream->pstPack == NULL)
 		return CVI_ERR_VENC_NOMEM;
 #endif

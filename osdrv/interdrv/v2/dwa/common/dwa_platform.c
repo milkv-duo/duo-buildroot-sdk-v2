@@ -269,7 +269,8 @@ int dwa_create_instance(struct platform_device *pdev)
 
 	// clk_ldc_src_sel default 1(clk_src_vip_sys_2), 600 MHz
 	// set 0(clk_src_vip_sys_4), 400MHz for ND
-	vip_sys_reg_write_mask(VIP_SYS_VIP_CLK_CTRL1, BIT(20), 0);
+	vip_sys_reg_write_mask(VIP_SYS_VIP_CLK_CTRL1, BIT(20), BIT(20));
+	CVI_TRACE_DWA(CVI_DBG_DEBUG, "VIP_SYS_VIP_CLK_CTRL1:%#x\n", vip_sys_reg_read(VIP_SYS_VIP_CLK_CTRL1));
 
 	//wdev->align = LDC_ADDR_ALIGN;
 
@@ -321,9 +322,12 @@ void dwa_irq_handler(u8 intr_status, struct cvi_dwa_vdev *wdev)
 {
 	struct cvi_dwa_job *job = NULL;
 	struct gdc_task *tsk;
+	unsigned long flags;
 
+	spin_lock_irqsave(&wdev->lock, flags);
 	if (!list_empty(&wdev->jobq))
 		job = list_entry(wdev->jobq.next, struct cvi_dwa_job, node);
+	spin_unlock_irqrestore(&wdev->lock, flags);
 
 	if (job) {
 		if (!list_empty(&job->task_list)) {

@@ -1001,7 +1001,7 @@ RetCode Wave4VpuEncSetup(CodecInst *instance)
 	VpuWriteReg(coreIdx, W4_CMD_ENC_SEQ_INTRA_PARAM,
 		    (pHevc->decodingRefreshType << 0) | (pHevc->intraQP << 3) |
 			    (pHevc->forcedIdrHeaderEnable << 9) |
-			    (pHevc->intraPeriod << 16));
+			    (0 << 16));
 
 	VpuWriteReg(coreIdx, W4_CMD_ENC_SEQ_CONF_WIN_TOP_BOT,
 		    pHevc->confWinBot << 16 | pHevc->confWinTop);

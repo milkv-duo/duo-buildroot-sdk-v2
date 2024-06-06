@@ -98,6 +98,7 @@ void ldc_intr_ctrl(u8 intr_mask)
 void ldc_intr_clr(u8 intr_mask)
 {
 	_reg_write(reg_base + REG_LDC_IRQCLR, intr_mask);
+	_reg_write(reg_base + REG_LDC_SRC_BG, 0x0);
 }
 
 /**

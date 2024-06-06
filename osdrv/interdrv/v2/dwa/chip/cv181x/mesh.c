@@ -276,6 +276,7 @@ static s32 mesh_gdc_do_ldc(struct cvi_dwa_vdev *wdev, const void *pUsageParam,
 	SIZE_S size_out[2];
 	ROTATION_E enRotationOut[2];
 	u32 mesh_1st_size;
+	LDC_ATTR_S *pstLDCAttr = NULL;
 
 	pstTask[0] = vmalloc(sizeof(struct gdc_task_attr));
 	pstTask[1] = vmalloc(sizeof(struct gdc_task_attr));
@@ -288,6 +289,7 @@ static s32 mesh_gdc_do_ldc(struct cvi_dwa_vdev *wdev, const void *pUsageParam,
 	blk = vb_get_block_with_id(VB_INVALID_POOLID, buf_size, CVI_ID_GDC);
 	if (blk == VB_INVALID_HANDLE) {
 		vb_release_block((VB_BLK)vb_in);
+		CVI_TRACE_DWA(CVI_DBG_ERR, "vb_get_block failed.\n");
 		ret = CVI_ERR_GDC_NOBUF;
 		goto LDC_FAIL_EXIT;
 	}
@@ -319,8 +321,14 @@ static s32 mesh_gdc_do_ldc(struct cvi_dwa_vdev *wdev, const void *pUsageParam,
 	switch (enRotation) {
 	default:
 	case ROTATION_0:
-		enRotationOut[0] = ROTATION_90;
-		enRotationOut[1] = ROTATION_270;
+		pstLDCAttr =  (LDC_ATTR_S *)pUsageParam;
+		if (pstLDCAttr->stGridInfoAttr.Enable) {
+			enRotationOut[0] = ROTATION_270;
+			enRotationOut[1] = ROTATION_90;
+		} else {
+			enRotationOut[0] = ROTATION_90;
+			enRotationOut[1] = ROTATION_270;
+		}
 		break;
 	case ROTATION_90:
 		enRotationOut[0] = ROTATION_90;
