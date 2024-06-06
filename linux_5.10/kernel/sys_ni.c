@@ -471,3 +471,7 @@ COND_SYSCALL(setuid16);
 
 /* restartable sequence */
 COND_SYSCALL(rseq);
+
+/* cv181x/cv180x reset c906l */
+COND_SYSCALL(reset_c906l);
+

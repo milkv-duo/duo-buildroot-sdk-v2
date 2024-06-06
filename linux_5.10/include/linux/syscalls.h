@@ -1222,6 +1222,8 @@ asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
 			unsigned long fd, unsigned long pgoff);
 asmlinkage long sys_old_mmap(struct mmap_arg_struct __user *arg);
 
+/* add by sophon.com, rst/unrst c906l */
+asmlinkage long sys_reset_c906l(int reset, const unsigned long address);
 
 /*
  * Not a real system call, but a placeholder for syscalls which are

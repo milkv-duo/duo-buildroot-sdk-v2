@@ -860,8 +860,13 @@ __SYSCALL(__NR_faccessat2, sys_faccessat2)
 #define __NR_process_madvise 440
 __SYSCALL(__NR_process_madvise, sys_process_madvise)
 
+// Reset/Unreset c906l at cv181x/cv180x
+// add by sophon.com
+#define __NR_reset_c906l 441
+__SYSCALL(__NR_reset_c906l, sys_reset_c906l)
+
 #undef __NR_syscalls
-#define __NR_syscalls 441
+#define __NR_syscalls 442
 
 /*
  * 32 bit systems traditionally used different

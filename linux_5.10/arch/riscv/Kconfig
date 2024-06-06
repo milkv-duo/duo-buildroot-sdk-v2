@@ -524,4 +524,4 @@ source "kernel/power/Kconfig"
 endmenu
 
 source "drivers/firmware/Kconfig"
-source "arch/riscv/mach-cvitek/Kconfig"
+source "arch/riscv/march-cvitek/Kconfig"
