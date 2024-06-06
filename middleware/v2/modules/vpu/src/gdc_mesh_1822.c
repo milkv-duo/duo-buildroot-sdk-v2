@@ -8,9 +8,9 @@
 #include <inttypes.h>
 
 #if !(defined(__CV181X__) || defined(__CV180X__))
-#include "cvi_common.h"
+#include "linux/cvi_common.h"
 #include "cvi_math.h"
-#include "cvi_comm_video.h"
+#include "linux/cvi_comm_video.h"
 #endif
 
 #include "cvi_base.h"
@@ -18,6 +18,7 @@
 #include "cvi_sys.h"
 #include "cvi_gdc.h"
 #include "gdc_mesh.h"
+#include "grid_info.h"
 
 #define TILESIZE 64 // HW: data Tile Size
 #define HW_MESH_SIZE 8
@@ -41,7 +42,9 @@
 
 #define minmax(a, b, c)  (((a) < (b)) ? (b):((a) > (c)) ? (c) : (a))
 
-// #define SAVE_MESH_TBL_FILE
+meshdata_all gdc_meshdata;
+
+//#define SAVE_MESH_TBL_FILE
 // #define ENABLE_PROFILE
 
 typedef struct {
@@ -92,34 +95,34 @@ typedef struct LDC_ATTR {
 	int InRadius; // input fisheye radius in pixels.
 
 	// frame-based dst mesh info. maximum num=128*28 = 16384 meshes.
-	MESH_STRUCT DstRgnMeshInfo[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfo;
 
 	// frame-based src mesh info.
-	MESH_STRUCT SrcRgnMeshInfo[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfo;
 
 	// frame-based dst mesh info. maximum num=128*28 = 16384 meshes.
-	MESH_STRUCT DstRgnMeshInfoExt[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfoExt;
 
 	// frame-based src mesh info.
-	MESH_STRUCT SrcRgnMeshInfoExt[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfoExt;
 
 	// frame-based dst mesh info. maximum num=128*28 = 16384 meshes.
-	MESH_STRUCT DstRgnMeshInfoExt2ND[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfoExt2ND;
 
 	// frame-based src mesh info.
-	MESH_STRUCT SrcRgnMeshInfoExt2ND[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfoExt2ND;
 
 	// frame-based dst mesh info. maximum num=128*28 = 16384 meshes.
-	MESH_STRUCT DstRgnMeshInfo_1st[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfo_1st;
 
 	// frame-based src mesh info.
-	MESH_STRUCT SrcRgnMeshInfo_1st[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfo_1st;
 
 	// frame-based dst mesh info. maximum num=128*28 = 16384 meshes.
-	MESH_STRUCT DstRgnMeshInfo_2nd[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfo_2nd;
 
 	// frame-based src mesh info.
-	MESH_STRUCT SrcRgnMeshInfo_2nd[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfo_2nd;
 
 	// How many tile is sliced in a frame horizontally.
 	int SliceX_Num;
@@ -154,16 +157,16 @@ typedef struct LDC_RGN_ATTR {
 	int RegionValid; // label valid/ invalid for each region
 
 	// initial buffer to store destination mesh info. max: 32*32
-	MESH_STRUCT DstRgnMeshInfo[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfo;
 
 	// extend to 3x3 range.
-	MESH_STRUCT DstRgnMeshInfoExt[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *DstRgnMeshInfoExt;
 
 	// initial buffer to store source mesh info
-	MESH_STRUCT SrcRgnMeshInfo[MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfo;
 
 	// extend to 3x3 range.
-	MESH_STRUCT SrcRgnMeshInfoExt[9 * MAX_FRAME_MESH_NUM];
+	MESH_STRUCT *SrcRgnMeshInfoExt;
 } LDC_RGN_ATTR;
 
 typedef struct Vector2D {
@@ -372,10 +375,12 @@ static void save_2nd_src_mesh_table(int num_tiley_s2, int num_tilex_s2,
 	if (fp2x_bin) {
 		size_t wr_size = fwrite(src_2nd_list, mesh_2nd_size, 1, fp2x_bin);
 
-		if (wr_size != mesh_2nd_size)
+		if (wr_size != mesh_2nd_size) {
 			CVI_TRACE_GDC(CVI_DBG_ERR,
 				"2nd src mesh, fwrite %d, only %d succeed\n",
 				mesh_2nd_size, wr_size);
+		}
+
 		fclose(fp2x_bin);
 	}
 
@@ -390,12 +395,12 @@ static void save_2nd_src_mesh_table(int num_tiley_s2, int num_tilex_s2,
 	}
 }
 
-static void save_mesh_info(LDC_ATTR *cfg)
+static void save_mesh_info(LDC_ATTR *cfg, int max_frame_mesh_num)
 {
 	FILE *fpsrc = fopen("mesh_frm_src.txt", "w");
 	FILE *fpdst = fopen("mesh_frm_dst.txt", "w");
 
-	for (int meshidx = 0; meshidx < 9 * MAX_FRAME_MESH_NUM; meshidx++) {
+	for (int meshidx = 0; meshidx < 9 * max_frame_mesh_num; meshidx++) {
 		fprintf(fpsrc, "meshidx = %d\n", meshidx);
 		fprintf(fpdst, "meshidx = %d\n", meshidx);
 
@@ -512,10 +517,12 @@ static CVI_S32 convert_1st_src_mesh_table(int num_tiley_s1, int num_tilex_s1,
 	if (fp1x_bin) {
 		size_t wr_size = fwrite(src_1st_list_1d, mesh_1st_size, 1, fp1x_bin);
 
-		if (wr_size != mesh_1st_size)
+		if (wr_size != mesh_1st_size) {
 			CVI_TRACE_GDC(CVI_DBG_DEBUG,
 				"1st src mesh, fwrite %d, only %d succeed\n",
 				mesh_1st_size, wr_size);
+		}
+
 		fclose(fp1x_bin);
 	}
 #endif
@@ -523,10 +530,141 @@ static CVI_S32 convert_1st_src_mesh_table(int num_tiley_s1, int num_tilex_s1,
 	return CVI_SUCCESS;
 }
 
-static CVI_S32 _get_1st_src_midxy(int num_tilex_s1,
-	LDC_ATTR *cfg, COORD2D_INT_HW *src_1st_list, int tidx, int tidy)
+static CVI_S32 _get_src_1st_list(int num_tilex_s1, const LDC_ATTR_S *pstLDCAttr,
+	LDC_ATTR *cfg, COORD2D_INT *cur_dst_mesh, int tidx, int tidy, int midx, int midy,
+	CVI_U32 max_mesh_num, COORD2D_INT_HW *src_1st_list)
 {
-	CVI_U32 max_mesh_num = 9 * (MAX_HEIGHT_MESH_NUM * MAX_WIDTH_MESH_NUM);
+	uint32_t swmesh_hit_index[4];
+
+	for (int i = 0; i < 4; i++)
+		swmesh_hit_index[i] = 0xFFFFFFFF;
+
+	if (pstLDCAttr->stGridInfoAttr.Enable) {
+		// go through al hwmesh knots
+		int use_count = 0;
+
+		for (int knotidx = 0; knotidx < 4; knotidx++) {
+			for (uint32_t meshidx = 0; meshidx < max_mesh_num; meshidx++) {
+				MESH_STRUCT cur_sw_mesh;
+				MESH_STRUCT *dst = &cfg->DstRgnMeshInfoExt[meshidx];
+				MESH_STRUCT *src = &cfg->SrcRgnMeshInfoExt[meshidx];
+
+				// load cur_sw_mesh to check if hwmesh's knot is in it?
+				for (int swknotidx = 0; swknotidx < 4; swknotidx++) {
+					cur_sw_mesh.knot[swknotidx].xcor = dst->knot[swknotidx].xcor;
+					cur_sw_mesh.knot[swknotidx].ycor = src->knot[swknotidx].ycor;
+				}
+
+				// check if cur-pixel in this mesh
+				int sw_mesh_hit = _chk_in_mesh(cur_dst_mesh[knotidx].xcor,
+					cur_dst_mesh[knotidx].ycor, cur_sw_mesh);
+
+				if (sw_mesh_hit) {
+					swmesh_hit_index[knotidx] = meshidx;
+					break;
+				}
+			}
+
+			// each knot has been
+			// assigned a swmesh index
+			// to estimate approximation.
+			// do estimation here:
+			COORD2D map_src_knot;
+
+			memset(&map_src_knot, 0, sizeof(map_src_knot));
+
+			if (swmesh_hit_index[knotidx] != 0xFFFFFFFF)
+				use_count++;
+		}
+
+		for (int knotidx = 0; knotidx < 4; knotidx++) {
+			COORD2D map_src_knot;
+			int xidx = tidx * MESH_NUM_ATILE + midx;
+			int yidx = tidy * MESH_NUM_ATILE + midy;
+			uint32_t xcor;
+			uint32_t offset;
+
+			if (use_count == 4) {
+				map_src_knot = _find_knot_map2src(cur_dst_mesh[knotidx], cfg,
+					swmesh_hit_index[knotidx], 0); //0 = 1st stage
+				xcor = (uint32_t)_double2Int_s13_10(map_src_knot.xcor);
+			} else {
+				xcor = 0;
+			}
+			offset = (yidx * (num_tilex_s1 * MESH_NUM_ATILE) + xidx) * 4 + knotidx;
+
+			src_1st_list[offset].xcor[0] = xcor & 0xff;
+			src_1st_list[offset].xcor[1] = (xcor >> 8) & 0xff;
+			src_1st_list[offset].xcor[2] = (xcor >> 16) & 0xff;
+		}
+	} else {
+		// go through al hwmesh knots
+		for (int knotidx = 0; knotidx < 4; knotidx++) {
+			for (uint32_t meshidx = 0; meshidx < max_mesh_num; meshidx++) {
+				MESH_STRUCT cur_sw_mesh;
+				MESH_STRUCT *dst = &cfg->DstRgnMeshInfoExt[meshidx];
+				MESH_STRUCT *src = &cfg->SrcRgnMeshInfoExt[meshidx];
+
+				// load cur_sw_mesh to check if hwmesh's knot is in it?
+				for (int swknotidx = 0; swknotidx < 4; swknotidx++) {
+					cur_sw_mesh.knot[swknotidx].xcor = dst->knot[swknotidx].xcor;
+					cur_sw_mesh.knot[swknotidx].ycor = src->knot[swknotidx].ycor;
+				}
+
+				// check if cur-pixel in this mesh
+				int sw_mesh_hit = _chk_in_mesh(cur_dst_mesh[knotidx].xcor,
+					cur_dst_mesh[knotidx].ycor, cur_sw_mesh);
+
+				if (sw_mesh_hit) {
+					swmesh_hit_index[knotidx] = meshidx;
+					break;
+				}
+			}
+
+			// each knot has been
+			// assigned a swmesh index
+			// to estimate approximation.
+			// do estimation here:
+			COORD2D map_src_knot;
+
+			memset(&map_src_knot, 0, sizeof(map_src_knot));
+
+			if (swmesh_hit_index[knotidx] == 0xFFFFFFFF) {
+				CVI_TRACE_GDC(CVI_DBG_ERR,
+					"    knotidx = %d tidx = %d tidy = %d,\n",
+					knotidx, tidx, tidy);
+				CVI_TRACE_GDC(CVI_DBG_ERR, "    midx = %d, midy = %d,\n", midx,
+					midy);
+				CVI_TRACE_GDC(CVI_DBG_ERR,
+					"    cur_dst_mesh[%d] = (%d, %d)\n", knotidx,
+					cur_dst_mesh[knotidx].xcor,
+					cur_dst_mesh[knotidx].ycor);
+				CVI_TRACE_GDC(CVI_DBG_ERR, "    DEBUG STASRT!!\n");
+				return CVI_ERR_GDC_ILLEGAL_PARAM;
+			}
+
+			map_src_knot = _find_knot_map2src(cur_dst_mesh[knotidx], cfg,
+				swmesh_hit_index[knotidx], 0); //0 = 1st stage
+
+			int xidx = tidx * MESH_NUM_ATILE + midx;
+			int yidx = tidy * MESH_NUM_ATILE + midy;
+			uint32_t xcor = (uint32_t)_double2Int_s13_10(map_src_knot.xcor);
+			uint32_t offset =
+				(yidx * (num_tilex_s1 * MESH_NUM_ATILE) + xidx) * 4 +
+				knotidx;
+
+			src_1st_list[offset].xcor[0] = xcor & 0xff;
+			src_1st_list[offset].xcor[1] = (xcor >> 8) & 0xff;
+			src_1st_list[offset].xcor[2] = (xcor >> 16) & 0xff;
+		}
+	}
+	return CVI_SUCCESS;
+}
+
+static CVI_S32 _get_1st_src_midxy(int num_tilex_s1,	LDC_ATTR *cfg, COORD2D_INT_HW *src_1st_list,
+	int tidx, int tidy, int mesh_horcnt, int mesh_vercnt, const LDC_ATTR_S *pstLDCAttr)
+{
+	CVI_U32 max_mesh_num = 9 * (mesh_vercnt * mesh_horcnt);
 
 	// go check all meshes inside.
 	for (int midy = 0; midy < MESH_NUM_ATILE; midy++) {
@@ -546,78 +684,8 @@ static CVI_S32 _get_1st_src_midxy(int num_tilex_s1,
 			cur_dst_mesh[1].ycor = (tidy * TILESIZE) + (midy + 0) * HW_MESH_SIZE;
 			cur_dst_mesh[2].ycor = (tidy * TILESIZE) + (midy + 1) * HW_MESH_SIZE;
 			cur_dst_mesh[3].ycor = (tidy * TILESIZE) + (midy + 1) * HW_MESH_SIZE;
-
-			// for each knot of grid cur_dst_mesh, check all sw mesh
-			// "on source" to estimate approximation.
-			// swmesh_hit_index[N] is to record which sw-mesh index
-			// cur knot-N hit.
-			uint32_t swmesh_hit_index[4];
-
-			for (int i = 0; i < 4; i++)
-				swmesh_hit_index[i] = 0xFFFFFFFF;
-
-			// go through al hwmesh knots
-			for (int knotidx = 0; knotidx < 4; knotidx++) {
-				for (uint32_t meshidx = 0; meshidx < max_mesh_num; meshidx++) {
-					MESH_STRUCT cur_sw_mesh;
-					MESH_STRUCT *dst = &cfg->DstRgnMeshInfoExt[meshidx];
-					MESH_STRUCT *src = &cfg->SrcRgnMeshInfoExt[meshidx];
-
-					// load cur_sw_mesh to check if hwmesh's knot is in it?
-					for (int swknotidx = 0; swknotidx < 4; swknotidx++) {
-						// 1st stage, SW destination( x, y ) = ( int ,float )
-						// 1st stage, SW source( x,y ) = ( float, float )
-						cur_sw_mesh.knot[swknotidx].xcor =
-							dst->knot[swknotidx].xcor;
-						cur_sw_mesh.knot[swknotidx].ycor =
-							src->knot[swknotidx].ycor;
-					}
-
-					// check if cur-pixel in this mesh
-					int sw_mesh_hit = _chk_in_mesh(cur_dst_mesh[knotidx].xcor,
-							cur_dst_mesh[knotidx].ycor, cur_sw_mesh);
-					if (sw_mesh_hit) {
-						swmesh_hit_index[knotidx] = meshidx;
-						break;
-					}
-				}
-
-				// each knot has been
-				// assigned a swmesh index
-				// to estimate approximation.
-				// do estimation here:
-				COORD2D map_src_knot;
-
-				memset(&map_src_knot, 0, sizeof(map_src_knot));
-
-				if (swmesh_hit_index[knotidx] == 0xFFFFFFFF) {
-					CVI_TRACE_GDC(CVI_DBG_ERR,
-						       "    knotidx = %d tidx = %d tidy = %d,\n",
-						       knotidx, tidx, tidy);
-					CVI_TRACE_GDC(CVI_DBG_ERR, "    midx = %d, midy = %d,\n", midx,
-						       midy);
-					CVI_TRACE_GDC(CVI_DBG_ERR,
-						       "    cur_dst_mesh[%d] = (%d, %d)\n", knotidx,
-						       cur_dst_mesh[knotidx].xcor,
-						       cur_dst_mesh[knotidx].ycor);
-					CVI_TRACE_GDC(CVI_DBG_ERR, "    DEBUG STASRT!!\n");
-					return CVI_ERR_GDC_ILLEGAL_PARAM;
-				}
-
-				map_src_knot = _find_knot_map2src(cur_dst_mesh[knotidx], cfg,
-							swmesh_hit_index[knotidx], 0); //0 = 1st stage
-
-				int xidx = tidx * MESH_NUM_ATILE + midx;
-				int yidx = tidy * MESH_NUM_ATILE + midy;
-				uint32_t xcor = (uint32_t)_double2Int_s13_10(map_src_knot.xcor);
-				uint32_t offset =
-					(yidx * (num_tilex_s1 * MESH_NUM_ATILE) + xidx) * 4 +
-					knotidx;
-
-				src_1st_list[offset].xcor[0] = xcor & 0xff;
-				src_1st_list[offset].xcor[1] = (xcor >> 8) & 0xff;
-				src_1st_list[offset].xcor[2] = (xcor >> 16) & 0xff;
-			}
+			_get_src_1st_list(num_tilex_s1, pstLDCAttr, cfg, cur_dst_mesh,
+				tidx, tidy, midx, midy, max_mesh_num, src_1st_list);
 		}
 	}
 
@@ -625,9 +693,8 @@ static CVI_S32 _get_1st_src_midxy(int num_tilex_s1,
 }
 
 static CVI_S32 _offline_get_1st_src_mesh_table(int num_tiley_s1,
-					       int num_tilex_s1,
-					       LDC_ATTR *cfg,
-					       COORD2D_INT_HW *src_1st_list)
+					       int num_tilex_s1, LDC_ATTR *cfg, COORD2D_INT_HW *src_1st_list,
+						   int mesh_horcnt, int mesh_vercnt, const LDC_ATTR_S *pstLDCAttr)
 {
 	CVI_S32 ret;
 
@@ -635,7 +702,7 @@ static CVI_S32 _offline_get_1st_src_mesh_table(int num_tiley_s1,
 	for (int tidy = 0; tidy < num_tiley_s1; tidy++) {
 		for (int tidx = 0; tidx < num_tilex_s1; tidx++) {
 			ret = _get_1st_src_midxy(num_tilex_s1, cfg,
-						 src_1st_list, tidx, tidy);
+						 src_1st_list, tidx, tidy, mesh_horcnt, mesh_vercnt, pstLDCAttr);
 			if (ret != CVI_SUCCESS)
 				return ret;
 		}
@@ -730,10 +797,12 @@ static void convert_2nd_src_mesh_table(int num_tiley_s2, int num_tilex_s2,
 	FILE *fp2x_bin = fopen("srcx_2nd_mesh.bin", "wb");
 	size_t wr_size = fwrite(src_2nd_list_1d, mesh_2nd_size, 1, fp2x_bin);
 
-	if (wr_size != mesh_2nd_size)
+	if (wr_size != mesh_2nd_size) {
 		CVI_TRACE_GDC(CVI_DBG_DEBUG,
 			"2nd src mesh, fwrite %d, only %d succeed\n",
 			mesh_2nd_size, wr_size);
+	}
+
 	fclose(fp2x_bin);
 #endif
 }
@@ -741,9 +810,9 @@ static void convert_2nd_src_mesh_table(int num_tiley_s2, int num_tilex_s2,
 static CVI_S32 _fill_src_2nd_list(int num_tilex_s2, LDC_ATTR *cfg,
 	COORD2D_INT_HW *src_2nd_list, int tidx, int tidy, int midx, int midy,
 	MESH_STRUCT *dstMesh, COORD2D_INT *cur_dst_mesh,
-	uint32_t *swmesh_hit_index)
+	uint32_t *swmesh_hit_index, int mesh_horcnt, int mesh_vercnt)
 {
-	CVI_U32 max_mesh_num = 9 * (MAX_HEIGHT_MESH_NUM * MAX_WIDTH_MESH_NUM);
+	CVI_U32 max_mesh_num = 9 * (mesh_vercnt * mesh_horcnt);
 
 	// go through all hwmesh knots
 	for (int knotidx = 0; knotidx < 4; knotidx++) {
@@ -804,12 +873,12 @@ static CVI_S32 _fill_src_2nd_list(int num_tilex_s2, LDC_ATTR *cfg,
 static CVI_S32 _offline_get_2nd_src_mesh_table(int stage2_rotate_type,
 	int num_tiley_s2, int num_tilex_s2, LDC_ATTR *cfg,
 	COORD2D_INT_HW *src_2nd_list, int src_width_s1, int src_height_s1,
-	CVI_U32 mesh_2nd_size)
+	CVI_U32 mesh_2nd_size, int mesh_horcnt, int mesh_vercnt)
 {
 	// stage2_rotate_type = 0:  +90 degrees
 	// stage2_rotate_type = 1:  -90 degrees
 
-	CVI_U32 max_mesh_num = 9 * (MAX_HEIGHT_MESH_NUM * MAX_WIDTH_MESH_NUM);
+	CVI_U32 max_mesh_num = 9 * (mesh_vercnt * mesh_horcnt);
 
 	int RMATRIX[2][2];
 	MESH_STRUCT *dstMesh = cfg->DstRgnMeshInfoExt2ND;
@@ -899,7 +968,8 @@ static CVI_S32 _offline_get_2nd_src_mesh_table(int stage2_rotate_type,
 
 					ret = _fill_src_2nd_list(num_tilex_s2, cfg, src_2nd_list,
 								 tidx, tidy, midx, midy,
-								 dstMesh, cur_dst_mesh, swmesh_hit_index);
+								 dstMesh, cur_dst_mesh, swmesh_hit_index,
+								 mesh_horcnt, mesh_vercnt);
 					if (ret != CVI_SUCCESS)
 						return ret;
 				}
@@ -919,7 +989,7 @@ static CVI_S32 _offline_get_2nd_src_mesh_table(int stage2_rotate_type,
 
 static void _ldc_attr_map_cv182x(const LDC_ATTR_S *pstLDCAttr, LDC_ATTR *cfg,
 				 LDC_RGN_ATTR *rgn_attr, double x0,
-				 double y0, double r)
+				 double y0, double r, int mesh_horcnt, int mesh_vercnt)
 {
 	// Global Initialization
 	cfg->Enable = 1;
@@ -943,8 +1013,13 @@ static void _ldc_attr_map_cv182x(const LDC_ATTR_S *pstLDCAttr, LDC_ATTR *cfg,
 	rgn_attr[0].OutY = 0;
 	rgn_attr[0].InRadius = pstLDCAttr->s32CenterXOffset;
 	rgn_attr[0].OutRadius = pstLDCAttr->s32CenterYOffset;
-	rgn_attr[0].MeshVer = 16;
-	rgn_attr[0].MeshHor = 16;
+	if (pstLDCAttr->stGridInfoAttr.Enable) {
+		rgn_attr[0].MeshVer = mesh_vercnt;
+		rgn_attr[0].MeshHor = mesh_horcnt;
+	} else {
+		rgn_attr[0].MeshVer = MAX_WIDTH_MESH_NUM;
+		rgn_attr[0].MeshHor = MAX_HEIGHT_MESH_NUM;
+	}
 	rgn_attr[0].ThetaX = pstLDCAttr->s32XRatio;
 	rgn_attr[0].ThetaZ = pstLDCAttr->s32YRatio;
 }
@@ -978,12 +1053,6 @@ static CVI_S32 _get_region_dst_mesh_list(LDC_RGN_ATTR *rgn_attr, int view_w,
 	for (int j = 0; j < mesh_vercnt; j++) {
 		for (int i = 0; i < mesh_horcnt; i++) {
 			int meshidx = j * mesh_horcnt + i;
-
-			if (meshidx >= MAX_FRAME_MESH_NUM) {
-				CVI_TRACE_GDC(CVI_DBG_WARN, "  [%d][%d] meshidx = %d >= MAX_FRAME_MESH_NUM(%d)\n",
-						j, i, meshidx, MAX_FRAME_MESH_NUM);
-				return CVI_ERR_GDC_ILLEGAL_PARAM;
-			}
 
 			int xcor = (mesh_xstep * (i + 0)) >> PHASEBIT;
 			int xcor_r = (mesh_xstep * (i + 1)) >> PHASEBIT;
@@ -1134,7 +1203,7 @@ static void _get_frame_mesh_list(LDC_ATTR *cfg, LDC_RGN_ATTR *rgn_attr)
 {
 	// pack all regions' mesh info, including src & dst.
 	int rgnNum = cfg->RgnNum;
-	int meshNumRgn[MAX_REGION_NUM];
+	int meshNumRgn[MAX_REGION_NUM] = {0};
 	int frameMeshIdx = 0;
 
 	for (int i = 0; i < rgnNum; i++) {
@@ -1164,12 +1233,12 @@ static void _get_frame_mesh_list(LDC_ATTR *cfg, LDC_RGN_ATTR *rgn_attr)
 	cfg->TotalMeshNum = frameMeshIdx;
 
 #ifdef SAVE_MESH_TBL_FILE
-	save_mesh_info(cfg);
+	save_mesh_info(cfg, meshNumRgn[0]);
 #endif
 }
 
 static void _get_region_src_mesh_list(LDC_RGN_ATTR *rgn_attr, int rgn_idx,
-				      double x0, double y0)
+				      double x0, double y0, meshdata_all *meshdata, const LDC_ATTR_S *pstLDCAttr)
 {
 	int view_w = rgn_attr[rgn_idx].OutW;
 	int view_h = rgn_attr[rgn_idx].OutH;
@@ -1196,36 +1265,71 @@ static void _get_region_src_mesh_list(LDC_RGN_ATTR *rgn_attr, int rgn_idx,
 	double Aspect_gainY = MAX(ud_gain, lr_gain);
 	Vector2D dist2d;
 
-	for (int i = 0; i < 9*(mesh_horcnt * mesh_vercnt); i++) {
-		// Do LDC mapping in Center Mesh Grid only
-		for (int knotidx = 0; knotidx < 4; knotidx++) {
-			double x = rgn_attr[rgn_idx].DstRgnMeshInfoExt[i].knot[knotidx].xcor -
-				   rgn_attr[rgn_idx].OutX - rgn_attr[rgn_idx].OutW / 2;
-			double y = rgn_attr[rgn_idx].DstRgnMeshInfoExt[i].knot[knotidx].ycor -
-				   rgn_attr[rgn_idx].OutY - rgn_attr[rgn_idx].OutH / 2;
+	if (pstLDCAttr->stGridInfoAttr.Enable) {
+		int str_idx = *(meshdata->pmesh_dst) / meshdata->mesh_w;
+		int str_idy = *(meshdata->pmesh_dst + 1) / meshdata->mesh_h;
+		int end_idx = str_idx + meshdata->mesh_horcnt - 1;
+		int end_idy = str_idy + meshdata->mesh_vercnt - 1;
 
-			x = x - CenterXOffset; // -view_w / 2 + 1, view_w / 2 - 1);
-			y = y - CenterYOffset; // -view_h / 2 + 1, view_h / 2 - 1);
+		int ext_str_idx = str_idx + mesh_horcnt;
+		int ext_end_idx = end_idx + mesh_horcnt;
+		int ext_str_idy = str_idy + mesh_vercnt;
+		int ext_end_idy = end_idy + mesh_vercnt;
 
-			x = x / Aspect_gainX;
-			y = y / Aspect_gainY;
+		for (int i = 0; i < 9 * (mesh_horcnt * mesh_vercnt); i++) {
+			int idy = i / (mesh_horcnt * 3);
+			int idx = i % (mesh_horcnt * 3);
 
-			if (bAspect == true) {
-				x = x * (1 - 0.333 * (100 - XYRatio) / 100);
-				y = y * (1 - 0.333 * (100 - XYRatio) / 100);
-			} else {
-				x = x * (1 - 0.333 * (100 - XRatio) / 100);
-				y = y * (1 - 0.333 * (100 - YRatio) / 100);
+			for (int j = 0; j < 4; j++) {
+				if (ext_str_idx <= idx && idx <= ext_end_idx && ext_str_idy <= idy &&
+					idy <= ext_end_idy) {
+					int roi_idx = idx - ext_str_idx;
+					int roi_idy = idy - ext_str_idy;
+
+					rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[j].xcor = *(meshdata->pmesh_src +
+						8 * roi_idx + meshdata->mesh_horcnt * 8 * roi_idy + 2 * j);
+					rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[j].ycor = *(meshdata->pmesh_src +
+						8 * roi_idx + meshdata->mesh_horcnt * 8 * roi_idy + 2 * j + 1);
+				} else {
+					rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[j].xcor = 0;
+					rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[j].ycor = 0;
+				}
 			}
+		}
+	} else {
+		for (int i = 0; i < 9*(mesh_horcnt * mesh_vercnt); i++) {
+			// Do LDC mapping in Center Mesh Grid only
+			for (int knotidx = 0; knotidx < 4; knotidx++) {
+				double x = rgn_attr[rgn_idx].DstRgnMeshInfoExt[i].knot[knotidx].xcor -
+					   rgn_attr[rgn_idx].OutX - rgn_attr[rgn_idx].OutW / 2;
+				double y = rgn_attr[rgn_idx].DstRgnMeshInfoExt[i].knot[knotidx].ycor -
+					   rgn_attr[rgn_idx].OutY - rgn_attr[rgn_idx].OutH / 2;
 
-			double rd = MIN(norm, sqrt(x * x + y * y));
+				x = x - CenterXOffset; // -view_w / 2 + 1, view_w / 2 - 1);
+				y = y - CenterYOffset; // -view_h / 2 + 1, view_h / 2 - 1);
 
-			dist2d.x = x * (1 + k * ((rd / norm) * (rd / norm)));
-			dist2d.y = y * (1 + k * ((rd / norm) * (rd / norm)));
+				x = x / Aspect_gainX;
+				y = y / Aspect_gainY;
 
-			// update source mesh-info here
-			rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[knotidx].xcor = dist2d.x + x0 + CenterXOffset;
-			rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[knotidx].ycor = dist2d.y + y0 + CenterYOffset;
+				if (bAspect == true) {
+					x = x * (1 - 0.333 * (100 - XYRatio) / 100);
+					y = y * (1 - 0.333 * (100 - XYRatio) / 100);
+				} else {
+					x = x * (1 - 0.333 * (100 - XRatio) / 100);
+					y = y * (1 - 0.333 * (100 - YRatio) / 100);
+				}
+
+				double rd = MIN(norm, sqrt(x * x + y * y));
+
+				dist2d.x = x * (1 + k * ((rd / norm) * (rd / norm)));
+				dist2d.y = y * (1 + k * ((rd / norm) * (rd / norm)));
+
+				// update source mesh-info here
+				rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[knotidx].xcor =
+					dist2d.x + x0 + CenterXOffset;
+				rgn_attr[rgn_idx].SrcRgnMeshInfoExt[i].knot[knotidx].ycor =
+					dist2d.y + y0 + CenterYOffset;
+			}
 		}
 	}
 }
@@ -1354,15 +1458,60 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	CVI_TRACE_GDC(CVI_DBG_DEBUG, "  1st src_1st_list=%p(%d), src_2nd_list=%p(%d)\n",
 		       src_1st_list_1d, mesh_1st_size, src_2nd_list_1d, mesh_2nd_size);
 
+	// load gridinfo
+	int mesh_horcnt = MAX_WIDTH_MESH_NUM, mesh_vercnt = MAX_HEIGHT_MESH_NUM;
+
+	if (pstLDCAttr->stGridInfoAttr.Enable) {
+		load_meshdata(pstLDCAttr->stGridInfoAttr.gridFileName, &gdc_meshdata,
+			pstLDCAttr->stGridInfoAttr.gridBindName);
+		mesh_horcnt = gdc_meshdata.imgw  / gdc_meshdata.mesh_w;
+		mesh_vercnt = gdc_meshdata.imgh / gdc_meshdata.mesh_h;
+	}
+	CVI_TRACE_GDC(CVI_DBG_DEBUG, "mesh_horcnt, mesh_vercnt (%d, %d\n)", mesh_horcnt, mesh_vercnt);
+	int max_frame_mesh_num = mesh_horcnt * mesh_vercnt;
+
 	src_1st_list = (COORD2D_INT_HW *)malloc(mesh_1st_size);
 	src_2nd_list = (COORD2D_INT_HW *)malloc(mesh_2nd_size);
 	cfg = (LDC_ATTR *)calloc(1, sizeof(*cfg));
 	rgn_attr = (LDC_RGN_ATTR *)calloc(1, sizeof(*rgn_attr) * MAX_REGION_NUM);
-	if (!src_1st_list || !src_2nd_list || !cfg || !rgn_attr) {
+	cfg->DstRgnMeshInfo = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->SrcRgnMeshInfo = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->DstRgnMeshInfoExt = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->SrcRgnMeshInfoExt = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->DstRgnMeshInfoExt2ND = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->SrcRgnMeshInfoExt2ND = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->DstRgnMeshInfo_1st = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->SrcRgnMeshInfo_1st = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->DstRgnMeshInfo_2nd = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	cfg->SrcRgnMeshInfo_2nd = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	rgn_attr->DstRgnMeshInfo = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	rgn_attr->DstRgnMeshInfoExt = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	rgn_attr->SrcRgnMeshInfo = (MESH_STRUCT *)calloc(max_frame_mesh_num, sizeof(MESH_STRUCT));
+	rgn_attr->SrcRgnMeshInfoExt = (MESH_STRUCT *)calloc(9 * max_frame_mesh_num, sizeof(MESH_STRUCT));
+	if (!src_1st_list || !src_2nd_list || !cfg || !rgn_attr || !cfg->DstRgnMeshInfo ||
+	    !cfg->SrcRgnMeshInfo || !cfg->DstRgnMeshInfoExt || !cfg->SrcRgnMeshInfoExt ||
+	    !cfg->DstRgnMeshInfoExt2ND || !cfg->SrcRgnMeshInfoExt2ND || !cfg->DstRgnMeshInfo_1st ||
+	    !cfg->SrcRgnMeshInfo_1st || !cfg->DstRgnMeshInfo_2nd || !cfg->SrcRgnMeshInfo_2nd ||
+	    !rgn_attr->DstRgnMeshInfo || !rgn_attr->DstRgnMeshInfoExt || !rgn_attr->SrcRgnMeshInfo ||
+	    !rgn_attr->SrcRgnMeshInfoExt) {
 		free(src_1st_list);
 		free(src_2nd_list);
 		free(cfg);
 		free(rgn_attr);
+		free(cfg->DstRgnMeshInfo);
+		free(cfg->SrcRgnMeshInfo);
+		free(cfg->DstRgnMeshInfoExt);
+		free(cfg->SrcRgnMeshInfoExt);
+		free(cfg->DstRgnMeshInfoExt2ND);
+		free(cfg->SrcRgnMeshInfoExt2ND);
+		free(cfg->DstRgnMeshInfo_1st);
+		free(cfg->SrcRgnMeshInfo_1st);
+		free(cfg->DstRgnMeshInfo_2nd);
+		free(cfg->SrcRgnMeshInfo_2nd);
+		free(rgn_attr->DstRgnMeshInfo);
+		free(rgn_attr->DstRgnMeshInfoExt);
+		free(rgn_attr->SrcRgnMeshInfo);
+		free(rgn_attr->SrcRgnMeshInfoExt);
 
 		CVI_TRACE_GDC(CVI_DBG_ERR, "  fail to alloc mesh\n");
 		return CVI_ERR_GDC_NOMEM;
@@ -1377,9 +1526,16 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	reg.bg_color_y_r = (bgc_pack & 0xFF0000) >> 16;
 	reg.bg_color_u_g = (bgc_pack & 0x00FF00) >> 8;
 	reg.bg_color_v_b = (bgc_pack & 0x0000FF) >> 0;
+	int ori_src_width;
+	int ori_src_height;
 
-	int ori_src_width = in_size.u32Width;
-	int ori_src_height = in_size.u32Height;
+	if (pstLDCAttr->stGridInfoAttr.Enable) {
+		ori_src_width = gdc_meshdata.imgw;
+		ori_src_height = gdc_meshdata.imgh;
+	} else {
+		ori_src_width = in_size.u32Width;
+		ori_src_height = in_size.u32Height;
+	}
 
 	CVI_TRACE_GDC(CVI_DBG_DEBUG, "  ori_src_width = %d,\n", ori_src_width);
 	CVI_TRACE_GDC(CVI_DBG_DEBUG, "  ori_src_height = %d,\n", ori_src_height);
@@ -1415,8 +1571,7 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	CVI_TRACE_GDC(CVI_DBG_DEBUG, "cfg size %d\n", (int)sizeof(LDC_ATTR));
 
 	// update parameters
-	_ldc_attr_map_cv182x(pstLDCAttr, cfg, rgn_attr, x0, y0, r);
-
+	_ldc_attr_map_cv182x(pstLDCAttr, cfg, rgn_attr, x0, y0, r, mesh_horcnt, mesh_vercnt);
 	// In Each Mode, for Every Region:
 	for (int rgn_idx = 0; rgn_idx < cfg->RgnNum; rgn_idx++) {
 		// check region valid first
@@ -1426,8 +1581,8 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 		// Destination Mesh-Info Allocation
 		int view_w = rgn_attr[rgn_idx].OutW;
 		int view_h = rgn_attr[rgn_idx].OutH;
-		int mesh_horcnt = rgn_attr[rgn_idx].MeshHor;
-		int mesh_vercnt = rgn_attr[rgn_idx].MeshVer;
+		// int mesh_horcnt = rgn_attr[rgn_idx].MeshHor;
+		// int mesh_vercnt = rgn_attr[rgn_idx].MeshVer;
 
 		// get & store region mesh info.
 #ifdef ENABLE_PROFILE
@@ -1444,7 +1599,7 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 #ifdef ENABLE_PROFILE
 		clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
-		_get_region_src_mesh_list(rgn_attr, rgn_idx, x0, y0); //, mat0);
+		_get_region_src_mesh_list(rgn_attr, rgn_idx, x0, y0, &gdc_meshdata, pstLDCAttr); //, mat0);
 #ifdef ENABLE_PROFILE
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		CVI_TRACE_GDC(CVI_DBG_ERR, "    _get_region_src_mesh_list: %ldms\n",
@@ -1454,6 +1609,8 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 		// debug msg
 		CVI_TRACE_GDC(CVI_DBG_DEBUG, "  REGION %d done.\n", rgn_idx);
 	}
+
+	free_cur_meshdata(&gdc_meshdata);
 
 	//combine all region meshs - mesh projection done.
 #ifdef ENABLE_PROFILE
@@ -1503,7 +1660,8 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 #ifdef ENABLE_PROFILE
 	clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
-	ret |= _offline_get_1st_src_mesh_table(num_tiley_s1, num_tilex_s1, cfg, src_1st_list);
+	ret |= _offline_get_1st_src_mesh_table(num_tiley_s1, num_tilex_s1, cfg, src_1st_list,
+							mesh_horcnt, mesh_vercnt, pstLDCAttr);
 #ifdef ENABLE_PROFILE
 	clock_gettime(CLOCK_MONOTONIC, &end);
 	CVI_TRACE_GDC(CVI_DBG_ERR, "    _offline_get_1st_src_mesh_table: %ldms\n",
@@ -1514,7 +1672,7 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	clock_gettime(CLOCK_MONOTONIC, &start);
 #endif
 	ret |= _offline_get_2nd_src_mesh_table(reg.stage2_rotate_type, num_tiley_s2, num_tilex_s2, cfg,
-					       src_2nd_list, src_width_s1, src_height_s1, mesh_2nd_size);
+				src_2nd_list, src_width_s1, src_height_s1, mesh_2nd_size, mesh_horcnt, mesh_vercnt);
 #ifdef ENABLE_PROFILE
 	clock_gettime(CLOCK_MONOTONIC, &end);
 	CVI_TRACE_GDC(CVI_DBG_ERR, "    _offline_get_2nd_src_mesh_table: %ldms\n",
@@ -1545,7 +1703,20 @@ CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size,
 	free(src_2nd_list);
 	free(cfg);
 	free(rgn_attr);
-
+	free(cfg->DstRgnMeshInfo);
+	free(cfg->SrcRgnMeshInfo);
+	free(cfg->DstRgnMeshInfoExt);
+	free(cfg->SrcRgnMeshInfoExt);
+	free(cfg->DstRgnMeshInfoExt2ND);
+	free(cfg->SrcRgnMeshInfoExt2ND);
+	free(cfg->DstRgnMeshInfo_1st);
+	free(cfg->SrcRgnMeshInfo_1st);
+	free(cfg->DstRgnMeshInfo_2nd);
+	free(cfg->SrcRgnMeshInfo_2nd);
+	free(rgn_attr->DstRgnMeshInfo);
+	free(rgn_attr->DstRgnMeshInfoExt);
+	free(rgn_attr->SrcRgnMeshInfo);
+	free(rgn_attr->SrcRgnMeshInfoExt);
 	return ret;
 }
 

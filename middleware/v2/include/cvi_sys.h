@@ -35,6 +35,13 @@ extern "C" {
 CVI_S32 CVI_SYS_Init(void);
 
 /**
+ * @brief To check is SYS initialized.
+ *
+ * @return CVI_S32 Return CVI_TRUE if initialized.
+ */
+CVI_S32 CVI_SYS_IsInited(void);
+
+/**
  * @brief system exit.
  *
  * @return CVI_S32 Return CVI_SUCCESS if succeed.

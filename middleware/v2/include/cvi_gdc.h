@@ -154,9 +154,10 @@ CVI_S32 CVI_GDC_DumpMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr);
  * @brief load mesh for GDC, mesh data is load from user
  *
  * @param pMeshDumpAttr(In), mesh dump attribute
+ * @param pstLDCAttr(In), LDC_ATTR_S
  * @return CVI_S32 Return CVI_SUCCESS if succeed
  */
-CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr);
+CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr, const LDC_ATTR_S *pstLDCAttr);
 #ifdef __cplusplus
 #if __cplusplus
 }

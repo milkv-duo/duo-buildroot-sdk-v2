@@ -167,6 +167,8 @@ static optionExt venc_long_option_ext[] = {
 		"0: disable, 1: use single core(h264 or h265 only)"},
 	{{"forceIdr", optional_argument, NULL, 0}, ARG_INT,	  0,   1000000000,
 		"0: disable, > 0: set force idr at number of frame"},
+	{{"resetGop", optional_argument, NULL, 0}, ARG_UINT,	  0,   1,
+		"0: not reset, 1: reset gop, reset when forceIdr > 0"},
 	{{"chgNum", optional_argument, NULL, 0},	  ARG_INT,	  0, 1000000,
 		"frame num to change attr"},
 	{{"chgBitrate", optional_argument, NULL, 0},  ARG_INT,	  1, 1000000,
@@ -927,6 +929,8 @@ CVI_S32 parseEncArgv(sampleVenc *psv, chnInputCfg *pIc, CVI_S32 argc, char **arg
 				pIc->single_LumaBuf = arg.ival;
 			} else if (!strcmp(long_options[idx].name, "forceIdr")) {
 				pIc->forceIdr = arg.ival;
+			} else if (!strcmp(long_options[idx].name, "resetGop")) {
+				pIc->u32ResetGop = arg.uval;
 			} else if (!strcmp(long_options[idx].name, "chgNum")) {
 				pIc->chgNum = arg.ival;
 			} else if (!strcmp(long_options[idx].name, "chgBitrate")) {
@@ -3106,10 +3110,10 @@ static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 	CVI_VENC_TRACE("[Chn%d] frame %d (%d)\n", VencChn, i, pvecc->num_frames);
 
 	if (pIc->forceIdr > 0 && pIc->forceIdr == (CVI_S32)i) {
-		CVI_BOOL bInstant = CVI_TRUE;
+		CVI_BOOL bInstant = pIc->u32ResetGop;
 
 		CVI_VENC_RequestIDR(VencChn, bInstant);
-		CVI_VENC_TRACE("CVI_VENC_RequestIDR\n");
+		CVI_VENC_TRACE("CVI_VENC_RequestIDR, resetGop:%d\n", bInstant);
 	}
 	if (enableBinRoi) {
 		ctbHeight = ((pvecc->stSize.u32Width + 63) & ~63) >> 6;

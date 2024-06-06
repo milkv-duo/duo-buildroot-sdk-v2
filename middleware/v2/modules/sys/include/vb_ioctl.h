@@ -21,5 +21,6 @@ int vb_ioctl_release_block(int fd, VB_BLK blk);
 int vb_ioctl_get_pool_max_cnt(int fd, CVI_U32 *vb_max_pools);
 int vb_ioctl_print_pool(int fd, VB_POOL poolId);
 int vb_ioctl_unit_test(int fd, CVI_U32 op);
+int vb_ioctl_get_vb_init(int fd, CVI_U32 *val);
 
 #endif // MODULES_VB_IOCTL_H_

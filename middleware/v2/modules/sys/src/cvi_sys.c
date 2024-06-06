@@ -298,6 +298,28 @@ CVI_S32 CVI_SYS_Init(void)
 	return s32ret;
 }
 
+CVI_S32 CVI_SYS_IsInited(void)
+{
+	CVI_S32 s32ret = CVI_SUCCESS, _sys_fd = -1;
+	CVI_U32 sys_init = 0;
+
+	_sys_fd = get_sys_fd();
+	if (_sys_fd == -1) {
+		CVI_TRACE_VB(CVI_DBG_ERR, "get_sys_fd failed.\n");
+		return CVI_FALSE;
+	}
+
+	sys_get_sys_init(_sys_fd, &sys_init);
+	if (s32ret != CVI_SUCCESS) {
+		CVI_TRACE_VB(CVI_DBG_ERR, "sys_get_sys_init failed.\n");
+		return CVI_FALSE;
+	}
+
+	if (sys_init == 0)
+		return CVI_FALSE;
+	else return CVI_TRUE;
+}
+
 CVI_S32 CVI_SYS_Exit(void)
 {
 	CVI_S32 s32ret = CVI_SUCCESS, _sys_fd = -1;

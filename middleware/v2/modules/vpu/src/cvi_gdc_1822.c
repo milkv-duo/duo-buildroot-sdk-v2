@@ -339,6 +339,7 @@ CVI_S32 CVI_GDC_GenLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const LDC_ATTR_S
 		CVI_TRACE_GDC(CVI_DBG_ERR, " Can't acquire memory for LDC mesh.\n");
 		return CVI_ERR_GDC_NOMEM;
 	}
+	memset(vaddr, 0 , mesh_size);
 
 	if (mesh_gen_ldc(in_size, out_size, pstLDCAttr, paddr, vaddr, enRotation) != CVI_SUCCESS) {
 		CVI_SYS_IonFree(paddr, vaddr);
@@ -387,6 +388,7 @@ CVI_S32 CVI_GDC_LoadLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const char *fil
 		CVI_TRACE_GDC(CVI_DBG_ERR, "Can't acquire memory for mesh.\n");
 		return CVI_ERR_GDC_NOMEM;
 	}
+	memset(vaddr, 0 , mesh_size);
 
 	FILE *fp = fopen(fileNname, "rb");
 	if (!fp) {
@@ -553,7 +555,7 @@ CVI_S32 CVI_GDC_DumpMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
 	return CVI_SUCCESS;
 }
 
-CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
+CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr, const LDC_ATTR_S *pstLDCAttr)
 {
 	MOD_CHECK_NULL_PTR(CVI_ID_GDC, pMeshDumpAttr);
 
@@ -628,6 +630,7 @@ CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
 		fclose(fp);
 		return CVI_ERR_VPSS_NOMEM;
 	}
+	memset(virMesh, 0 , mesh_size);
 
 	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#"PRIx64", vir addr:%p.\n",
 		mesh_size, phyMesh, virMesh);
@@ -647,7 +650,7 @@ CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
 
 		vi_cfg.ViChn = viChn;
 		vi_cfg.enRotation = ROTATION_0;
-		//vi_cfg.stLDCAttr = *pstLDCAttr;
+		vi_cfg.stLDCAttr.stAttr = *pstLDCAttr;
 		vi_cfg.stLDCAttr.bEnable = CVI_TRUE;
 		vi_cfg.meshHandle = pmesh->paddr;
 		if (vi_sdk_set_chn_ldc(fd, &vi_cfg) != CVI_SUCCESS) {
@@ -665,7 +668,7 @@ CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
 		vpss_cfg.VpssGrp = vpssGrp;
 		vpss_cfg.VpssChn = vpssChn;
 		vpss_cfg.enRotation = ROTATION_0;
-		//vpss_cfg.stLDCAttr = *pstLDCAttr;
+		vpss_cfg.stLDCAttr.stAttr = *pstLDCAttr;
 		vpss_cfg.stLDCAttr.bEnable = CVI_TRUE;
 		vpss_cfg.meshHandle = pmesh->paddr;
 		if (vpss_set_chn_ldc(fd, &vpss_cfg) != CVI_SUCCESS) {

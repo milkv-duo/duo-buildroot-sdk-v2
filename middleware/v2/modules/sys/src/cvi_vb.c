@@ -216,6 +216,28 @@ CVI_S32 CVI_VB_Init(void)
 	return CVI_SUCCESS;
 }
 
+CVI_S32 CVI_VB_IsInited(void)
+{
+	CVI_S32 s32ret = CVI_SUCCESS, _vb_fd = -1;
+	CVI_U32 vb_init = 0;
+
+	_vb_fd = get_base_fd();
+	if (_vb_fd == -1) {
+		CVI_TRACE_VB(CVI_DBG_ERR, "get_base_fd failed.\n");
+		return CVI_FALSE;
+	}
+
+	s32ret = vb_ioctl_get_vb_init(_vb_fd, &vb_init);
+	if (s32ret != CVI_SUCCESS) {
+		CVI_TRACE_VB(CVI_DBG_ERR, "vb_ioctl_get_vb_init failed.\n");
+		return CVI_FALSE;
+	}
+
+	if (vb_init == 0)
+		return CVI_FALSE;
+	else return CVI_TRUE;
+}
+
 CVI_S32 CVI_VB_Exit(void)
 {
 	CVI_S32 s32Ret, fd;
@@ -325,8 +347,7 @@ CVI_S32 CVI_VB_SetConfig(const VB_CONFIG_S *pstVbConfig)
 	CVI_U32 i;
 
 	MOD_CHECK_NULL_PTR(CVI_ID_VB, pstVbConfig);
-	if (pstVbConfig->u32MaxPoolCnt > VB_COMM_POOL_MAX_CNT
-		|| pstVbConfig->u32MaxPoolCnt == 0) {
+	if (pstVbConfig->u32MaxPoolCnt > VB_COMM_POOL_MAX_CNT) {
 		CVI_TRACE_VB(CVI_DBG_ERR, "Invalid vb u32MaxPoolCnt(%d)\n",
 			pstVbConfig->u32MaxPoolCnt);
 		return CVI_ERR_VB_ILLEGAL_PARAM;

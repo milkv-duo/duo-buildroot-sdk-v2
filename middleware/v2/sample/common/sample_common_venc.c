@@ -201,6 +201,7 @@ CVI_VOID SAMPLE_COMM_VENC_InitChnInputCfg(chnInputCfg *pIc)
 	pIc->single_LumaBuf = 0;
 	pIc->single_core = 0;
 	pIc->forceIdr = -1;
+	pIc->u32ResetGop = 0;
 	pIc->chgNum = -1;
 	pIc->tempLayer = 0;
 	pIc->bgInterval = CVI_H26X_SMARTP_BG_INTERVAL_DEFAULT;

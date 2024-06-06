@@ -33,6 +33,13 @@ extern "C"{
 CVI_S32 CVI_VB_Init(void);
 
 /**
+ * @brief To check is VB initialized.
+ *
+ * @return CVI_S32 Return CVI_TRUE if initialized.
+ */
+CVI_S32 CVI_VB_IsInited(void);
+
+/**
  * @brief VB exit.
  *
  * @return CVI_S32 Return CVI_SUCCESS if succeed.
