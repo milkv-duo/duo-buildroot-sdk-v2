@@ -37,6 +37,9 @@
 #define SBI_EXT_BASE_GET_MVENDORID		0x4
 #define SBI_EXT_BASE_GET_MARCHID		0x5
 #define SBI_EXT_BASE_GET_MIMPID			0x6
+#define SBI_EXT_BASE_RESET_C906L		0x7
+#define SBI_EXT_BASE_RST_C906L			0x8
+#define SBI_EXT_BASE_UNRST_C906L		0x9
 
 /* SBI function IDs for TIME extension*/
 #define SBI_EXT_TIME_SET_TIMER			0x0

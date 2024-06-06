@@ -14,6 +14,7 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_version.h>
 #include <sbi/riscv_asm.h>
+#include <sbi/riscv_io.h>
 
 static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
 {
@@ -29,6 +30,41 @@ static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
 		return ext->probe(extid, out_val);
 
 	*out_val = 1;
+	return 0;
+}
+
+#define SEC_SYS_BASE (0x020B0000)
+static int sbi_ecall_base_rst_c906l(void)
+{
+	unsigned int value;
+
+	value = readl((void *)0x3003024);
+	writel((value & (~(1 << 6))), (void *)0x3003024);
+
+	return 0;
+}
+
+static int sbi_ecall_base_unrst_c906l(const unsigned long address)
+{
+	unsigned int value;
+
+	value = readl((void *)SEC_SYS_BASE + 0x04);
+	writel((value | (1 << 13)), (void *)SEC_SYS_BASE + 0x04);
+	writel(address, (void *)SEC_SYS_BASE + 0x20);
+	writel((address >> 32), (void *)SEC_SYS_BASE + 0x24);
+
+	value = readl((void *)0x3003024);
+	writel((value | (1 << 6)), (void *)0x3003024);
+
+	return 0;
+}
+
+static int sbi_ecall_base_reset_c906l(const unsigned long address)
+{
+	sbi_ecall_base_rst_c906l();
+
+	sbi_ecall_base_unrst_c906l(address);
+
 	return 0;
 }
 
@@ -64,6 +100,16 @@ static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
 		break;
 	case SBI_EXT_BASE_PROBE_EXT:
 		ret = sbi_ecall_base_probe(regs->a0, out_val);
+		break;
+	case SBI_EXT_BASE_RESET_C906L:
+		ret = sbi_ecall_base_reset_c906l(regs->a0);
+		*out_val = regs->a0;
+		break;
+	case SBI_EXT_BASE_RST_C906L:
+		ret = sbi_ecall_base_rst_c906l();
+		break;
+	case SBI_EXT_BASE_UNRST_C906L:
+		ret = sbi_ecall_base_unrst_c906l(regs->a0);
 		break;
 	default:
 		ret = SBI_ENOTSUPP;
