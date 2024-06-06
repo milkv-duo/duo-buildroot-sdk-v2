@@ -1,7 +1,5 @@
 <physical_partition type="spinand">
-    <!--Uboot will ues 9th block to store a back up of fip.bin.
-    Please keep the first 2.5MB reserved for fip and fip size less than 1.25MB-->
-    <partition label="fip" size_in_kb="2560" file="fip.bin"/>
+    <partition label="fip" size_in_kb="2560" file="fip.bin"/> <!-- uboot 备份 fip，这里至少需要分配2560-->
     <partition label="BOOT" size_in_kb="4096" file="boot.spinand"/>
     <partition label="MISC" size_in_kb="384" file="logo.jpg" />
     <partition label="ENV" size_in_kb="128" file="" />

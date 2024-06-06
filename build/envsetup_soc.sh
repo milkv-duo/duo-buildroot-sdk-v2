@@ -333,7 +333,7 @@ function build_sdk()
   CNV_SDK_INSTALL_PATH="$CNV_SDK_INSTALL_PATH" \
   KERNEL_HEADER_PATH="$KERNEL_PATH"/"$KERNEL_OUTPUT_FOLDER"/usr/ \
       scripts/sdk_release.sh
-  test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd return 1
+  test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
   popd
 
   # copy so
