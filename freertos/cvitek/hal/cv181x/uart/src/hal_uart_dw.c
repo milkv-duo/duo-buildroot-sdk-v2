@@ -6,7 +6,7 @@ static struct dw_regs *uart = 0;
 
 void hal_uart_init(device_uart dev_uart, int baudrate, int uart_clock)
 {
-	int divisor = uart_clock / (16 * baudrate);
+	int divisor = (uart_clock + 8 * baudrate) / (16 * baudrate);
 	switch (dev_uart) {
 		case UART0:
 			uart = (struct dw_regs *)UART0_BASE;
