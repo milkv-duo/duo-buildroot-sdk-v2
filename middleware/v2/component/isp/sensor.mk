@@ -108,6 +108,7 @@ sensor-$(CONFIG_SENSOR_SMS_SC531AI_2L)       += sms_sc531ai_2L
 sensor-$(CONFIG_SENSOR_SMS_SC3332)           += sms_sc3332
 sensor-$(CONFIG_SENSOR_SMS_SC3335)           += sms_sc3335
 sensor-$(CONFIG_SENSOR_SMS_SC3336)           += sms_sc3336
+sensor-$(CONFIG_SENSOR_SMS_SC3336_1L)        += sms_sc3336_1L
 sensor-$(CONFIG_SENSOR_SMS_SC3336P)          += sms_sc3336p
 sensor-$(CONFIG_SENSOR_SMS_SC2331_1L)        += sms_sc2331_1L
 sensor-$(CONFIG_SENSOR_SMS_SC2331_1L_SLAVE)  += sms_sc2331_1L_slave

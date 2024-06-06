@@ -191,6 +191,9 @@ sms_sc3335:
 sms_sc3336:
 	$(call MAKE_SENSOR, ${@})
 
+sms_sc3336_1L:
+	$(call MAKE_SENSOR, ${@})
+
 sms_sc3336p:
 	$(call MAKE_SENSOR, ${@})
 
