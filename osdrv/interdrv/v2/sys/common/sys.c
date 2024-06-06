@@ -375,11 +375,7 @@ static int32_t sys_ion_alloc_user(struct cvi_sys_device *ndev, unsigned long arg
 
 int32_t sys_cache_invalidate(uint64_t addr_p, void *addr_v, uint32_t u32Len)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) && defined(__riscv)
 	arch_sync_dma_for_device(addr_p, u32Len, DMA_FROM_DEVICE);
-#else
-	__dma_map_area(addr_v, u32Len, DMA_FROM_DEVICE);
-#endif
 
 	/*	*/
 	smp_mb();
@@ -389,11 +385,7 @@ EXPORT_SYMBOL_GPL(sys_cache_invalidate);
 
 int32_t sys_cache_flush(uint64_t addr_p, void *addr_v, uint32_t u32Len)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) && defined(__riscv)
 	arch_sync_dma_for_device(addr_p, u32Len, DMA_TO_DEVICE);
-#else
-	__dma_map_area(addr_v, u32Len, DMA_TO_DEVICE);
-#endif
 
 	/*  */
 	smp_mb();
@@ -412,17 +404,11 @@ static int32_t sys_cache_op_userv(unsigned long arg, enum enum_cache_op op_code)
 		return ret;
 	}
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) && defined(__riscv)
 	if (op_code == enum_cache_op_invalid)
 		arch_sync_dma_for_device(ioctl_arg.addr_p, ioctl_arg.size, DMA_FROM_DEVICE);
 	else if (op_code == enum_cache_op_flush)
 		arch_sync_dma_for_device(ioctl_arg.addr_p, ioctl_arg.size, DMA_TO_DEVICE);
-#else
-	if (op_code == enum_cache_op_invalid)
-		__dma_map_area(ioctl_arg.addr_v, ioctl_arg.size, DMA_FROM_DEVICE);
-	else if (op_code == enum_cache_op_flush)
-		__dma_map_area(ioctl_arg.addr_v, ioctl_arg.size, DMA_TO_DEVICE);
-#endif
+
 	/*	*/
 	smp_mb();
 	return 0;
