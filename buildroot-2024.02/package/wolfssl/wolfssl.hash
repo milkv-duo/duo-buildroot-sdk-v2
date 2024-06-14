@@ -1,0 +1,6 @@
+# Locally computed:
+sha256  2de93e8af588ee856fe67a6d7fce23fc1b226b74d710b0e3946bc8061f6aa18f  wolfssl-5.7.0.tar.gz
+
+# Hash for license files:
+sha256  8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643  COPYING
+sha256  b23c1da1f85d699d3288d73c952b4cd02760d23dc1ddc1b221cbb8be82387189  LICENSING

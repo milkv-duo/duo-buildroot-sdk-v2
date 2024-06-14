@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/netaddr/json
+md5  c0d7b080da18c851ea436389813d7652  netaddr-0.10.1.tar.gz
+sha256  f4da4222ca8c3f43c8e18a8263e5426c750a3a837fdfeccf74c68d0408eaa3bf  netaddr-0.10.1.tar.gz
+# Locally computed sha256 checksums
+sha256  0e53de62547787462f41eefb5cee31a14f7ea767ba0362c6f9304f1742486d47  LICENSE
