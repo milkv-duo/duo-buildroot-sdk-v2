@@ -1,0 +1,3 @@
+common/toolJsonGenerator/pqtool_definition.json
+cv181x/isp-daemon2/src/cvi_pqtool_json.h
+cv181x/isp/inc/isp_version.h
