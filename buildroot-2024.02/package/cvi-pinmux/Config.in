@@ -1,0 +1,24 @@
+config BR2_PACKAGE_CVI_PINMUX
+	bool "cvi-pinmux"
+	help
+	  CVI Pin Multiplexing.
+
+if BR2_PACKAGE_CVI_PINMUX
+
+choice
+	prompt "cvi pin multiplexing"
+	default BR2_PACKAGE_CVI_PINMUX_CV180X
+
+config BR2_PACKAGE_CVI_PINMUX_CV180X
+	bool "CV180X"
+	help
+	  pinmux for cv180x.
+
+config BR2_PACKAGE_CVI_PINMUX_SG200X
+	bool "SG200X"
+	help
+	  pinmux for sg200x.
+
+endchoice
+
+endif
