@@ -853,11 +853,20 @@ function cvi_setup_env()
   export SYSTEM_OUT_DIR
   export CROSS_COMPILE_PATH
   # buildroot config
+  if [ -z "${MV_BOARD// }" ]; then
+    print_error "No MV_BOARD specified!"
+    return 1
+  fi
+  if [ -z "${MV_VENDOR// }" ]; then
+    print_error "No MV_VENDOR specified!"
+    return 1
+  fi
   export BR_DIR="$TOP_DIR"/buildroot-2024.02
-  export BR_BOARD=cvitek_${CHIP_ARCH}_${SDK_VER}
-  export BR_OVERLAY_DIR=${BR_DIR}/board/cvitek/${CHIP_ARCH}/overlay
+  export BR_BOARD=${MV_BOARD}
+  export BR_OVERLAY_DIR=${BR_DIR}/board/${MV_VENDOR}/${MV_BOARD}/overlay
   export BR_DEFCONFIG=${BR_BOARD}_defconfig
   export BR_ROOTFS_DIR="$OUTPUT_DIR"/tmp-rootfs
+  export BR_MV_VENDOR_DIR=${BR_DIR}/board/${MV_VENDOR}
 }
 
 cvi_print_env()
