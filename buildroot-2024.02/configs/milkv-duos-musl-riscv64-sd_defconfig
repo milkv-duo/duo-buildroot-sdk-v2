@@ -142,7 +142,7 @@ BR2_BZCAT="bzcat"
 BR2_XZCAT="xzcat"
 BR2_LZCAT="lzip -d -c"
 BR2_TAR_OPTIONS=""
-BR2_DEFCONFIG="./configs/milkv-duo256m-musl-riscv64-sd_defconfig"
+BR2_DEFCONFIG="./configs/milkv-duos-musl-riscv64-sd_defconfig"
 BR2_DL_DIR="$(TOPDIR)/dl"
 BR2_HOST_DIR="$(BASE_DIR)/host"
 
