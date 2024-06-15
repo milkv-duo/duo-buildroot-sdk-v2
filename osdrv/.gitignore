@@ -9,3 +9,5 @@ Module.symvers
 modules.order
 
 interdrv/gator/generated_gator_src_md5.h
+
+*.ko
