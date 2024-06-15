@@ -265,6 +265,13 @@ function pack_burn_image
   popd
 )}
 
+function pack_sd_image
+{(
+  pushd "$BUILD_PATH"
+  make sd_image || return "$?"
+  popd
+)}
+
 function pack_prog_img
 {(
   local tmp_dir

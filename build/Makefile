@@ -580,6 +580,19 @@ ifneq ($(STORAGE_TYPE), sd)
 endif
 endif
 
+sd_image:
+	$(call print_target)
+	-${Q}rm  $(OUTPUT_DIR)/fs
+ifeq ($(CONFIG_BUILDROOT_FS),y)
+	${Q}rm -rf $(OUTPUT_DIR)/br-rootfs
+	${Q}ln -s $(OUTPUT_DIR)/br-rootfs $(OUTPUT_DIR)/fs
+	${Q}mkdir $(OUTPUT_DIR)/br-rootfs
+	${Q}tar xvf $(BR_DIR)/output/$(BR_BOARD)/images/rootfs.tar.xz -C $(OUTPUT_DIR)/br-rootfs
+else
+	${Q}ln -s $(OUTPUT_DIR)/rootfs $(OUTPUT_DIR)/fs
+endif
+	$(TOP_DIR)/device/gen_burn_image_sd.sh $(OUTPUT_DIR)
+
 jffs2:
 	$(call print_target)
 ifeq ($(STORAGE_TYPE),spinor)
