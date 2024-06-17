@@ -556,7 +556,10 @@ br-rootfs-prepare:
 	${Q}cp -arf ${SYSTEM_OUT_DIR}/* $(BR_ROOTFS_DIR)/mnt/system/
 
 	# copy milkv overlay files
-	${Q}cp -arf $(TOP_DIR)/device/common/br_overlay/* $(BR_ROOTFS_DIR)/
+	${Q}cp -arf $(TOP_DIR)/device/common/br_overlay/common/* $(BR_ROOTFS_DIR)/
+ifneq ($(wildcard $(TOP_DIR)/device/common/br_overlay/$(SDK_VER)),)
+	${Q}cp -arf $(TOP_DIR)/device/common/br_overlay/$(SDK_VER)/* $(BR_ROOTFS_DIR)/
+endif
 
 	# clean this directory for multiple targets
 	${Q}rm -rf $(BR_OVERLAY_DIR)
