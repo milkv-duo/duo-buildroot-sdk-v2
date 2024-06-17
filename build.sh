@@ -39,7 +39,7 @@ function get_toolchain()
 
 function get_available_board()
 {
-  MILKV_BOARD_ARRAY=( $(find device -mindepth 1 -maxdepth 1 -not -path 'device/common' -type d -print ! -name "." | awk -F/ '{ print $NF }' | sort -t '-' -k2,2) )
+  MILKV_BOARD_ARRAY=( $(find device -mindepth 1 -maxdepth 1 -not -path 'device/generic' -type d -print ! -name "." | awk -F/ '{ print $NF }' | sort -t '-' -k2,2) )
   #echo ${MILKV_BOARD_ARRAY[@]}
 
   MILKV_BOARD_ARRAY_LEN=${#MILKV_BOARD_ARRAY[@]}
