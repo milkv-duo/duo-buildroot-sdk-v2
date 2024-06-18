@@ -7,3 +7,8 @@
 / {
 	model = "Milk-V Duo256M";
 };
+
+&dac {
+	mute-gpio-r = <&porte 1 GPIO_ACTIVE_LOW>;
+};
+
