@@ -1,8 +1,14 @@
+static void set_rtc_register_for_power(void)
+{
+	printf("set_rtc_register_for_power\n");
+}
+
 int cvi_board_init(void)
 {
-	PINMUX_CONFIG(PAD_MIPI_TXM1, IIC2_SDA);
-	PINMUX_CONFIG(PAD_MIPI_TXP1, IIC2_SCL);
-	PINMUX_CONFIG(PAD_MIPI_TXM0, CAM_MCLK1);
+	// LED
+	PINMUX_CONFIG(PWR_GPIO2, PWR_GPIO_2);
+
+	set_rtc_register_for_power();
 
 	return 0;
 }

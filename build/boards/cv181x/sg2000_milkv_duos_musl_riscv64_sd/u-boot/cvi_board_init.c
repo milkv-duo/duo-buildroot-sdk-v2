@@ -1,8 +1,17 @@
+static void set_rtc_register_for_power(void)
+{
+	printf("set_rtc_register_for_power\n");
+
+	// Reset Key
+	mmio_write_32(0x050260D0, 0x7);
+}
+
 int cvi_board_init(void)
 {
-	PINMUX_CONFIG(CAM_MCLK0, CAM_MCLK0);
+	// LED
+	PINMUX_CONFIG(IIC0_SDA, XGPIOA_29);
 
-	PINMUX_CONFIG(IIC3_SCL, IIC3_SCL);
-	PINMUX_CONFIG(IIC3_SDA, IIC3_SDA);
+	set_rtc_register_for_power();
+
 	return 0;
 }
