@@ -14,12 +14,22 @@ case "$1" in
         fi
 
         echo "Starting app..."
+
+        if [ -f $SYSTEMPATH/duo-init.sh ]; then
+                . $SYSTEMPATH/duo-init.sh &
+        fi
+
+        if [ -f $SYSTEMPATH/blink.sh ]; then
+                . $SYSTEMPATH/blink.sh &
+        fi
+
         if [ -f $USERDATAPATH/auto.sh ]; then
                 usleep 30000
                 . $USERDATAPATH/auto.sh &
-		exit 1
+                exit 1
         fi
-	if [ -f $SYSTEMPATH/auto.sh ]; then
+
+        if [ -f $SYSTEMPATH/auto.sh ]; then
                 usleep 30000
                 . $SYSTEMPATH/auto.sh &
         fi
