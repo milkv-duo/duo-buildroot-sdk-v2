@@ -1,0 +1,75 @@
+SHELL = /bin/bash
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../../$(shell echo $(MW_VER))/Makefile.param
+	include $(PARAM_FILE)
+endif
+
+TMP_FOLDER = $(PWD)/tmp
+SDIR = $(PWD)/src
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC) -Iinc -I../isp_algo/inc
+OBJS = $(patsubst $(SDIR)/%.c, $(TMP_FOLDER)/%.o, $(wildcard $(SDIR)/*.c))
+DEPS = $(patsubst $(SDIR)/%.c, $(TMP_FOLDER)/%.d, $(wildcard $(SDIR)/*.c))
+
+TARGET_A = $(MW_LIB)/libisp.a
+TARGET_SO = $(MW_LIB)/libisp.so
+
+LOCAL_CFLAGS = $(INCS) -std=gnu11
+LOCAL_LDFLAGS =
+
+# SOC Architecture
+ifeq ($(CHIP_ARCH), CV183X)
+	LOCAL_CFLAGS += -DCHIP_ARCH_CV183X
+else ifeq ($(CHIP_ARCH), CV182X)
+	LOCAL_CFLAGS += -DCHIP_ARCH_CV182X
+else ifeq ($(CHIP_ARCH), CV181X)
+	LOCAL_CFLAGS += -DCHIP_ARCH_CV181X
+else
+	$(error Un-support SOC Architecture)
+endif
+
+# Toolchain
+ifeq ($(SDK_VER), glibc_riscv64)
+	LOCAL_CFLAGS += -DSDK_LIB_BIT=64
+else ifeq ($(SDK_VER), musl_riscv64)
+	LOCAL_CFLAGS += -DSDK_LIB_BIT=64
+else ifeq ($(SDK_VER), 32bit)
+	LOCAL_CFLAGS += -DSDK_LIB_BIT=32
+else ifeq ($(SDK_VER), uclibc)
+	LOCAL_CFLAGS += -DSDK_LIB_BIT=32
+	LOCAL_CFLAGS += -DIGNORE_LOG_ERR -DIGNORE_LOG_WARNING -DIGNORE_LOG_NOTICE -DIGNORE_LOG_INFO -DIGNORE_LOG_DEBUG
+	LOCAL_CFLAGS += -DAPI_ATTR_CHECK_LOG_LEVEL=1
+else
+	LOCAL_CFLAGS += -DSDK_LIB_BIT=64
+endif
+
+.PHONY: clean all cleanall
+.SILENT: update_isp_version
+
+all: update_isp_version $(TARGET_A) $(TARGET_SO)
+
+$(TMP_FOLDER)/%.o: $(SDIR)/%.c | $(TMP_FOLDER)
+	@$(CC) $(CFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
+	@echo [$(notdir $(CC))] $(notdir $@)
+
+$(TARGET_A): $(OBJS)
+	@$(AR) $(ARFLAGS) $@ $(OBJS)
+	@echo -e $(YELLOW)[LINK]$(END)[$(notdir $(AR))] $(notdir $(TARGET_A))
+
+$(TARGET_SO): $(OBJS)
+	@$(LD) $(LDFLAGS) $(LOCAL_LDFLAGS) -o $@ --start-group $(OBJS) --end-group
+	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $(TARGET_SO))
+
+$(TMP_FOLDER):
+	@echo "Create $(TMP_FOLDER) for object file"
+	-@mkdir -p $(TMP_FOLDER)
+
+clean:
+	@rm -f $(OBJS) $(DEPS) $(TARGET_A) $(TARGET_SO)
+
+cleanall: clean
+	@rm -rf $(TMP_FOLDER)
+
+update_isp_version:
+	echo "#define ISP_VERSION \"T(Cvitek), V(Cvitek, Cvitek)\"" > $(PWD)/inc/isp_version.h
+
+-include $(DEPS)

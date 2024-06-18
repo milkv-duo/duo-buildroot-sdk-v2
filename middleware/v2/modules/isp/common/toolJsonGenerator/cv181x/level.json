@@ -1,0 +1,219 @@
+{
+	"ISP_AWB_ATTR_S": {
+		"enAlgType": 1,
+		"u8RGStrength": 1,
+		"u8BGStrength": 1,
+		"u16ZoneSel": 1,
+		"u8ZoneRadius": 1,
+		"as32CurvePara": 2
+	},
+	"@ISP_NR_ATTR_S": {
+		"NoiseSuppressStrMode": 1
+	},
+	"@ISP_NR_FILTER_ATTR_S": {
+		"LumaStr": 1,
+		"CoringWgtLF": 2,
+		"CoringWgtHF": 2,
+		"CoringWgtMax": 2,
+		"FilterMode": 1
+	},
+	"ISP_DEMOSAIC_ATTR_S": {
+		"Enable": 2
+	},
+	"@ISP_DEMOSAIC_DEMOIRE_ATTR_S": {
+		"EdgeWgtStr": 1
+	},
+	"ISP_YNR_ATTR_S": {
+		"FiltModeEnable": 2,
+		"FiltMode": 2
+	},
+	"@ISP_YNR_ATTR_S": {
+		"NoiseCoringMax": 2
+	},
+	"@ISP_YNR_MOTION_NR_ATTR_S": {
+		"MotionThr": 2,
+		"MotionNrPosGain": 2,
+		"MotionNrNegGain": 2
+	},
+	"@ISP_YNR_FILTER_ATTR_S": {
+		"LumaStr": 1
+	},
+	"@ISP_CNR_ATTR_S": {
+		"NoiseSuppressGain": 1,
+		"LumaWgt": 1,
+		"DetailSmoothMode": 1
+	},
+	"ISP_FSWDR_ATTR_S": {
+		"WDRCombineSNRAwareEn": 2,
+		"WDRCombineSNRAwareLowThr": 2,
+		"WDRCombineSNRAwareHighThr": 2,
+		"WDRCombineSNRAwareSmoothLevel": 2
+	},
+	"@ISP_FSWDR_ATTR_S": {
+		"WDRCombineSNRAwareToleranceLevel": 1
+	},
+	"@ISP_DRC_ATTR_S": {
+		"HdrStrength": 2,
+		"LinearStart": 2,
+		"LinearEnd": 2,
+		"ContrastGain": 2,
+		"LETargetYScale": 2,
+		"DarkOffset": 2,
+		"DarkToneRange": 2,
+		"BrightToneLeMode": 2,
+		"DarkToneLeMode": 2,
+		"ContrastDarkMinThrd": 1,
+		"ContrastDarkMaxThrd": 1,
+		"ContrastDarkMinWeight": 1,
+		"ContrastDarkMaxWeight": 1,
+		"ContrastBrightMinThrd": 1,
+		"ContrastBrightMaxThrd": 1,
+		"ContrastBrightMinWeight": 1,
+		"ContrastBrightMaxWeight": 1,
+		"ColorCorrectionIn": 2,
+		"ColorCorrectionOut": 2,
+		"SatStrength": 2,
+		"SdrDEAdaptPercentile": 1,
+		"SdrDEAdaptGainUB": 1,
+		"SdrDEAdaptGainLB": 1,
+		"SdrGlobalToneStr": 1
+	},
+	"ISP_DRC_ATTR_S": {
+		"BritMapStr": 1,
+		"ToneCurveSelect": 2,
+		"CurveUserDefine": 2,
+		"DarkUserDefine": 2,
+		"BrightUserDefine": 2,
+		"DrcMode": 2,
+		"SatEnable": 2,
+		"DEAdaptEn": 1,
+		"DEAdaptMode": 1,
+		"DarkMapStr": 1,
+		"SdrToneCurveSelect": 2,
+		"SdrDEAdaptMode": 1,
+		"SdrDarkMapStr": 1,
+		"SdrBritMapStr": 1
+	},
+	"ISP_TNR_ATTR_S": {
+		"DeflickerMode": 1,
+		"DeflickerToleranceLevel": 1,
+		"TnrMtMode": 1,
+		"YnrCnrSharpenMtMode": 1,
+		"PreSharpenMtMode": 1,
+		"ChromaScalingDownMode": 1
+	},
+	"@ISP_TNR_ATTR_S": {
+		"MtDetectUnit": 1,
+		"MapThdLow0": 1,
+		"MapThdHigh0": 1,
+		"BrightnessNoiseLevelLE": 2,
+		"BrightnessNoiseLevelSE": 2
+	},
+	"@ISP_TNR_NOISE_MODEL_ATTR_S": {
+		"RNoiseLevel0": 1,
+		"RNoiseHiLevel0": 1,
+		"GNoiseLevel0": 1,
+		"GNoiseHiLevel0": 1,
+		"BNoiseLevel0": 1,
+		"BNoiseHiLevel0": 1,
+		"RNoiseLevel1": 1,
+		"RNoiseHiLevel1": 1,
+		"GNoiseLevel1": 1,
+		"GNoiseHiLevel1": 1,
+		"BNoiseLevel1": 1,
+		"BNoiseHiLevel1": 1
+	},
+	"@ISP_TNR_LUMA_MOTION_ATTR_S": {
+		"L2mIn0": 1,
+		"L2mOut0": 1,
+		"L2mIn1": 1,
+		"L2mOut1": 1,
+		"MtLumaMode": 1
+	},
+	"ISP_DCI_ATTR_S": {
+		"Sensitivity": 1
+	},
+	"ISP_PRESHARPEN_ATTR_S": {
+		"DeltaShtCtrlEn": 1,
+		"WdrCoringCompensationEn": 2,
+		"WdrCoringCompensationMode": 2,
+		"WdrCoringToleranceLevel": 2,
+		"WdrCoringHighThr": 2,
+		"WdrCoringLowThr": 2,
+		"NoiseSuppressEnable": 1,
+		"NoiseSuppressMode": 1
+	},
+	"@ISP_PRESHARPEN_ATTR_S": {
+		"DeltaShtCtrlUnit": 1,
+		"DeltaShtCtrl": 1,
+		"OverShootThrMax": 2,
+		"UnderShootThrMin": 2,
+		"YNoiseLevel": 2
+	},
+	"@ISP_SHARPEN_ATTR_S": {
+		"EdgeGain": 2,
+		"TextureGain": 2,
+		"DeltaShtCtrlUnit": 1,
+		"DeltaShtCtrl": 1,
+		"OverShootThrMax": 2,
+		"UnderShootThrMin": 2,
+		"YNoiseLevel": 2,
+		"WdrCoringCompensationEn": 2,
+		"WdrCoringCompensationMode": 2,
+		"WdrCoringToleranceLevel": 2,
+		"WdrCoringHighThr": 2,
+		"WdrCoringLowThr": 2
+	},
+	"ISP_SHARPEN_ATTR_S": {
+		"FilterCoefByISOFuncEn": 1,
+		"FilterCoefByISOLowThd": 1,
+		"FilterCoefByISOHighThd": 1,
+		"FilterCoefNonDirType": 1,
+		"DeltaAdpGainEn": 1,
+		"DeltaAdpGain": 1,
+		"DeltaShtCtrlEn": 1,
+		"NoiseSuppressEnable": 1,
+		"NoiseSuppressMode": 1
+	},
+	"ISP_AF_CROP_S": {
+		"bEnable": 1,
+		"u16X": 1,
+		"u16Y": 1,
+		"u16W": 1,
+		"u16H": 1
+	},
+	"ISP_AF_RAW_CFG_S": {
+		"PreGammaEn": 1
+	},
+	"ISP_AF_CFG_S": {
+		"u16Hwnd": 1,
+		"u16Vwnd": 1
+	},
+	"ISP_WDR_EXPOSURE_ATTR_S": {
+		"u16SEHisThr": 1,
+		"u16SEHisCntRatio1": 1,
+		"u16SEHisCntRatio2": 1,
+		"u16SEHis255CntThr1": 1,
+		"u16SEHis255CntThr2": 1,
+		"u8AdjustTargetDetectFrmNum": 1,
+		"u32DiffPixelNum": 1,
+		"au8FrameAvgLumaMin": 1
+	},
+	"@ISP_LDCI_ATTR_S": {
+		"EdgeCoring": 2
+	},
+	"ISP_AE_CROP_S": {
+		"bEnable": 1,
+		"u16X": 1,
+		"u16Y": 1,
+		"u16W": 1,
+		"u16H": 1
+	},
+	"ISP_AWB_CROP_S": {
+		"bEnable": 1,
+		"u16X": 1,
+		"u16Y": 1,
+		"u16W": 1,
+		"u16H": 1
+	}
+}

@@ -1,0 +1,2553 @@
+{
+	"FUNCTIONS": {
+		"FUNCTION": [
+			{
+				"ID": "Top",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_TOP_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Top",
+							"MEMBER": [
+								"ISP_TOP_ATTR_S.ViPipe",
+								"ISP_TOP_ATTR_S.ViChn",
+								"ISP_TOP_ATTR_S.VpssGrp",
+								"ISP_TOP_ATTR_S.VpssChn"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Pub Attr",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_PUB_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Pub attr",
+							"MEMBER": [
+								"ISP_PUB_ATTR_S.f32FrameRate"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "BLC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_BLACK_LEVEL_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "BlackLevel",
+							"MEMBER": [
+								"ISP_BLACK_LEVEL_ATTR_S.Enable",
+								"ISP_BLACK_LEVEL_ATTR_S.enOpType",
+								"ISP_BLACK_LEVEL_ATTR_S.UpdateInterval",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetR",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetGr",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetGb",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetB",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetR2",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetGr2",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetGb2",
+								"ISP_BLACK_LEVEL_ATTR_S.stManual.OffsetB2",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetR",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetGr",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetGb",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetB",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetR2",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetGr2",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetGb2",
+								"ISP_BLACK_LEVEL_ATTR_S.stAuto.OffsetB2"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "DPC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DP_DYNAMIC_ATTR_S",
+						"ISP_DP_STATIC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Dynamic Attrbute",
+							"MEMBER": [
+								"ISP_DP_DYNAMIC_ATTR_S.Enable",
+								"ISP_DP_DYNAMIC_ATTR_S.enOpType",
+								"ISP_DP_DYNAMIC_ATTR_S.UpdateInterval",
+								"ISP_DP_DYNAMIC_ATTR_S.DynamicDPCEnable",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.ClusterSize",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.BrightDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.DarkDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.IrBrightDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.IrDarkDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreR",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreG",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreB",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreIR",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreMinG",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreMinRB",
+								"ISP_DP_DYNAMIC_ATTR_S.stManual.FlatThreMinIR",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.ClusterSize",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.BrightDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.DarkDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.IrBrightDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.IrDarkDefectToNormalPixRatio",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreR",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreG",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreB",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreIR",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreMinG",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreMinRB",
+								"ISP_DP_DYNAMIC_ATTR_S.stAuto.FlatThreMinIR",
+								"HEADER:Static Attribute",
+								"ISP_DP_STATIC_ATTR_S.Enable"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Crosstalk",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CROSSTALK_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Crosstalk",
+							"MEMBER": [
+								"ISP_CROSSTALK_ATTR_S.Enable",
+								"ISP_CROSSTALK_ATTR_S.enOpType",
+								"ISP_CROSSTALK_ATTR_S.UpdateInterval",
+								"ISP_CROSSTALK_ATTR_S.GrGbDiffThreSec",
+								"ISP_CROSSTALK_ATTR_S.FlatThre",
+								"ISP_CROSSTALK_ATTR_S.stManual.Strength",
+								"ISP_CROSSTALK_ATTR_S.stAuto.Strength"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "LSC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_MESH_SHADING_ATTR_S",
+						"ISP_MESH_SHADING_GAIN_LUT_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "LSC",
+							"MEMBER": [
+								"ISP_MESH_SHADING_ATTR_S.Enable",
+								"ISP_MESH_SHADING_ATTR_S.enOpType",
+								"ISP_MESH_SHADING_ATTR_S.UpdateInterval",
+								"ISP_MESH_SHADING_ATTR_S.stManual.MeshStr",
+								"ISP_MESH_SHADING_ATTR_S.stAuto.MeshStr",
+								"ISP_MESH_SHADING_ATTR_S.OverflowProtection"
+							]
+						},
+						{
+							"TITLE": "Shading Lut Attr",
+							"MEMBER": [
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.Size",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[0].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[0].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[0].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[0].BGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[1].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[1].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[1].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[1].BGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[2].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[2].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[2].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[2].BGain"
+							]
+						},
+						{
+							"TITLE": "Shading Lut Attr",
+							"MEMBER": [
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[3].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[3].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[3].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[3].BGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[4].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[4].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[4].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[4].BGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[5].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[5].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[5].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[5].BGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].ColorTemperature",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].RGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].GGain",
+								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].BGain"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "WB Attr",
+				"READY": true,
+				"PREFIX": false,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_WB_ATTR_S",
+						"ISP_AWB_Calibration_Gain_S",
+						"ISP_AWB_ATTR_EX_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_WB_ATTR_S.bByPass",
+								"ISP_WB_ATTR_S.enOpType",
+								"ISP_WB_ATTR_S.stAuto.bEnable",
+								"ISP_WB_ATTR_S.enAlgType",
+								"ISP_WB_ATTR_S.stAuto.u16Speed",
+								"ISP_WB_ATTR_S.u8AWBRunInterval",
+								"ISP_WB_ATTR_S.stAuto.enAlgType",
+								"ISP_WB_ATTR_S.stAuto.u16ZoneSel",
+								"ISP_WB_ATTR_S.u8DebugMode",
+								"HEADER:Mannual Attr",
+								"ISP_WB_ATTR_S.stManual.u16Rgain",
+								"ISP_WB_ATTR_S.stManual.u16Grgain",
+								"ISP_WB_ATTR_S.stManual.u16Gbgain",
+								"ISP_WB_ATTR_S.stManual.u16Bgain",
+								"HEADER:Calibraion Data",
+								"ISP_AWB_Calibration_Gain_S.u16ColorTemperature",
+								"ISP_AWB_Calibration_Gain_S.u16AvgRgain",
+								"ISP_AWB_Calibration_Gain_S.u16AvgBgain",
+								"ISP_WB_ATTR_S.stAuto.u16RefColorTemp",
+								"ISP_WB_ATTR_S.stAuto.au16StaticWB",
+								"ISP_WB_ATTR_S.stAuto.as32CurvePara"
+							]
+						},
+						{
+							"TITLE": "Target&Curve",
+							"MEMBER": [
+								"ISP_AWB_ATTR_EX_S.u8Tolerance",
+								"ISP_WB_ATTR_S.stAuto.bGainNormEn",
+								"ISP_WB_ATTR_S.stAuto.bShiftLimitEn",
+								"ISP_WB_ATTR_S.stAuto.bNaturalCastEn",
+								"ISP_AWB_ATTR_EX_S.adjBgainMode",
+								"ISP_WB_ATTR_S.stAuto.u8RGStrength",
+								"ISP_WB_ATTR_S.stAuto.u8BGStrength",
+								"HEADER:Curve",
+								"ISP_WB_ATTR_S.stAuto.u16HighColorTemp",
+								"ISP_WB_ATTR_S.stAuto.u16LowColorTemp",
+								"ISP_WB_ATTR_S.stAuto.u16ShiftLimit",
+								"ISP_AWB_ATTR_EX_S.u16CurveLLimit",
+								"ISP_AWB_ATTR_EX_S.u16CurveRLimit",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.bEnable",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.enOpType",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.u16HighRgLimit",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.u16HighBgLimit",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.u16LowRgLimit",
+								"ISP_WB_ATTR_S.stAuto.stCTLimit.u16LowBgLimit",
+								"ISP_AWB_ATTR_EX_S.bFineTunEn",
+								"ISP_AWB_ATTR_EX_S.u8FineTunStrength",
+								"ISP_WB_ATTR_S.stAuto.stCbCrTrack.bEnable",
+								"ISP_WB_ATTR_S.stAuto.stCbCrTrack.au16CrMax",
+								"ISP_WB_ATTR_S.stAuto.stCbCrTrack.au16CrMin",
+								"ISP_WB_ATTR_S.stAuto.stCbCrTrack.au16CbMax",
+								"ISP_WB_ATTR_S.stAuto.stCbCrTrack.au16CbMin",
+								"ISP_AWB_ATTR_EX_S.stRegion.u16Region1",
+								"ISP_AWB_ATTR_EX_S.stRegion.u16Region2",
+								"ISP_AWB_ATTR_EX_S.stRegion.u16Region3"
+							]
+						},
+						{
+							"TITLE": "Weight",
+							"MEMBER": [
+								"ISP_AWB_ATTR_EX_S.au16MultiCTBin",
+								"ISP_AWB_ATTR_EX_S.au16MultiCTWt",
+								"ISP_AWB_ATTR_EX_S.u8ZoneRadius",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.bEnable",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.enOpType",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.enOutdoorStatus",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u32OutThresh",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u16LowStart",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u16LowStop",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u16HighStart",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u16HighStop",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.bGreenEnhanceEn",
+								"ISP_AWB_ATTR_EX_S.stInOrOut.u8OutShiftLimit",
+								"ISP_WB_ATTR_S.stAuto.stLumaHist.bEnable",
+								"ISP_WB_ATTR_S.stAuto.stLumaHist.enOpType",
+								"ISP_WB_ATTR_S.stAuto.stLumaHist.au8HistThresh",
+								"ISP_WB_ATTR_S.stAuto.stLumaHist.au16HistWt",
+								"ISP_AWB_ATTR_EX_S.stInterference.u8Mode",
+								"ISP_AWB_ATTR_EX_S.stInterference.u8Limit",
+								"ISP_AWB_ATTR_EX_S.stInterference.u8Radius",
+								"ISP_AWB_ATTR_EX_S.stInterference.u8Ratio",
+								"ISP_AWB_ATTR_EX_S.stInterference.u8Distance",
+								"ISP_WB_ATTR_S.stAuto.bAWBZoneWtEn",
+								"ISP_WB_ATTR_S.stAuto.au8ZoneWt"
+							]
+						},
+						{
+							"TITLE": "ExtraLigh&Saturation",
+							"MEMBER": [
+								"ISP_AWB_ATTR_EX_S.bExtraLightEn",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[0].u16WhiteRgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[0].u16WhiteBgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[0].u16ExpQuant",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[0].u8LightStatus",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[0].u8Radius",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[1].u16WhiteRgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[1].u16WhiteBgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[1].u16ExpQuant",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[1].u8LightStatus",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[1].u8Radius",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[2].u16WhiteRgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[2].u16WhiteBgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[2].u16ExpQuant",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[2].u8LightStatus",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[2].u8Radius",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[3].u16WhiteRgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[3].u16WhiteBgain",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[3].u16ExpQuant",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[3].u8LightStatus",
+								"ISP_AWB_ATTR_EX_S.stLightInfo[3].u8Radius",
+								"HEADER:Saturation",
+								"ISP_AWB_ATTR_EX_S.bMultiLightSourceEn",
+								"ISP_AWB_ATTR_EX_S.enMultiLSType",
+								"ISP_AWB_ATTR_EX_S.u16MultiLSScaler",
+								"ISP_AWB_ATTR_EX_S.u16MultiLSThr",
+								"ISP_AWB_ATTR_EX_S.u16CALumaDiff",
+								"ISP_AWB_ATTR_EX_S.u16CAAdjustRatio"
+							]
+						},
+						{
+							"TITLE": "Local Tune",
+							"MEMBER": [
+								"ISP_AWB_ATTR_EX_S.stSkin.u8Mode",
+								"ISP_AWB_ATTR_EX_S.stSkin.u16RgainDiff",
+								"ISP_AWB_ATTR_EX_S.stSkin.u16BgainDiff",
+								"ISP_AWB_ATTR_EX_S.stSkin.u8Radius",
+								"ISP_AWB_ATTR_EX_S.stSky.u8Mode",
+								"ISP_AWB_ATTR_EX_S.stSky.u8ThrLv",
+								"ISP_AWB_ATTR_EX_S.stSky.u16Rgain",
+								"ISP_AWB_ATTR_EX_S.stSky.u16Bgain",
+								"ISP_AWB_ATTR_EX_S.stSky.u16MapRgain",
+								"ISP_AWB_ATTR_EX_S.stSky.u16MapBgain",
+								"ISP_AWB_ATTR_EX_S.stSky.u8Radius",
+								"ISP_AWB_ATTR_EX_S.stGrass.u8Mode",
+								"ISP_AWB_ATTR_EX_S.stGrass.u8ThrLv",
+								"ISP_AWB_ATTR_EX_S.stGrass.u16Rgain",
+								"ISP_AWB_ATTR_EX_S.stGrass.u16Bgain",
+								"ISP_AWB_ATTR_EX_S.stGrass.u16MapRgain",
+								"ISP_AWB_ATTR_EX_S.stGrass.u16MapBgain",
+								"ISP_AWB_ATTR_EX_S.stGrass.u8Radius",
+								"ISP_AWB_ATTR_EX_S.stCtLv.bEnable",
+								"ISP_AWB_ATTR_EX_S.stCtLv.au16MultiCTBin",
+								"ISP_AWB_ATTR_EX_S.stCtLv.s8ThrLv",
+								"ISP_AWB_ATTR_EX_S.stCtLv.au16MultiCTWt",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u8LowLvMode",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16LowLvCT",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16LowLvThr",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16LowLvRatio",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u8HighLvMode",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16HighLvCT",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16HighLvThr",
+								"ISP_AWB_ATTR_EX_S.stShiftLv.u16HighLvRatio",
+								"ISP_AWB_ATTR_EX_S.reserve"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "WB Info",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_WB_INFO_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "WBInfo",
+							"MEMBER": [
+								"ISP_WB_INFO_S.u16Rgain",
+								"ISP_WB_INFO_S.u16Grgain",
+								"ISP_WB_INFO_S.u16Gbgain",
+								"ISP_WB_INFO_S.u16Bgain",
+								"ISP_WB_INFO_S.u16Saturation",
+								"ISP_WB_INFO_S.u16ColorTemp",
+								"ISP_WB_INFO_S.au16CCM",
+								"ISP_WB_INFO_S.u32FirstStableTime",
+								"ISP_WB_INFO_S.enInOutStatus",
+								"ISP_WB_INFO_S.s16Bv"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "FSWDR",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_FSWDR_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"WIDTH": 240,
+							"MEMBER": [
+								"ISP_FSWDR_ATTR_S.Enable",
+								"ISP_FSWDR_ATTR_S.enOpType",
+								"ISP_FSWDR_ATTR_S.UpdateInterval",
+								"ISP_FSWDR_ATTR_S.TuningMode",
+								"ISP_FSWDR_ATTR_S.WDRDCMode",
+								"ISP_FSWDR_ATTR_S.WDRLumaMode",
+								"ISP_FSWDR_ATTR_S.WDRCombineSNRAwareEn",
+								"ISP_FSWDR_ATTR_S.WDRCombineSNRAwareLowThr",
+								"ISP_FSWDR_ATTR_S.WDRCombineSNRAwareHighThr",
+								"ISP_FSWDR_ATTR_S.WDRCombineSNRAwareSmoothLevel",
+								"ISP_FSWDR_ATTR_S.stManual.WDRCombineSNRAwareToleranceLevel",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRCombineSNRAwareToleranceLevel"
+							]
+						},
+						{
+							"TITLE": "Data Fusion 1st",
+							"WIDTH": 240,
+							"MEMBER": [
+								"ISP_FSWDR_ATTR_S.stManual.WDRCombineLongThr",
+								"ISP_FSWDR_ATTR_S.stManual.WDRCombineShortThr",
+								"ISP_FSWDR_ATTR_S.stManual.WDRCombineMaxWeight",
+								"ISP_FSWDR_ATTR_S.stManual.WDRCombineMinWeight",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRCombineLongThr",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRCombineShortThr",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRCombineMaxWeight",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRCombineMinWeight"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "WDRCombineCurve",
+                                    "POINTS": [
+                                        [
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRCombineLongThr",
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRCombineMaxWeight"
+                                        ],
+                                        [
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRCombineShortThr",
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRCombineMinWeight"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "Data Fusion 2nd",
+							"WIDTH": 240,
+							"MEMBER": [
+								"ISP_FSWDR_ATTR_S.MotionCompEnable",
+								"ISP_FSWDR_ATTR_S.WDRType",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMtIn",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMtOut",
+								"ISP_FSWDR_ATTR_S.stManual.WDRLongWgt",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMtIn",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMtOut",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRLongWgt"
+							]
+						},
+						{
+							"TITLE": "Mmap Fusion",
+							"WIDTH": 240,
+							"MEMBER": [
+								"ISP_FSWDR_ATTR_S.WDRMotionFusionMode",
+								"ISP_FSWDR_ATTR_S.MtMode",
+								"ISP_FSWDR_ATTR_S.stManual.MergeModeAlpha",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMotionCombineLongThr",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMotionCombineShortThr",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMotionCombineMaxWeight",
+								"ISP_FSWDR_ATTR_S.stManual.WDRMotionCombineMinWeight",
+								"ISP_FSWDR_ATTR_S.stAuto.MergeModeAlpha",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineLongThr",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineShortThr",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineMaxWeight",
+								"ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineMinWeight"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "WDRMotionCombineCurve",
+                                    "POINTS": [
+                                        [
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineLongThr",
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineMaxWeight"
+                                        ],
+                                        [
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineShortThr",
+                                            "ISP_FSWDR_ATTR_S.stAuto.WDRMotionCombineMinWeight"
+                                        ]
+                                    ]
+                                }
+                            ]
+						}
+					]
+				}
+			},
+			{
+				"ID": "WDR Exposure Attr",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_WDR_EXPOSURE_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "WDRExposureAttr",
+							"MEMBER": [
+								"ISP_WDR_EXPOSURE_ATTR_S.enExpRatioType",
+								"ISP_WDR_EXPOSURE_ATTR_S.au32ExpRatio",
+								"ISP_WDR_EXPOSURE_ATTR_S.u32ExpRatioMax",
+								"ISP_WDR_EXPOSURE_ATTR_S.u32ExpRatioMin",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16Tolerance",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16Speed",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16RatioBias",
+								"ISP_WDR_EXPOSURE_ATTR_S.u8SECompensation",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHisThr",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHis255CntThr1",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHis255CntThr2",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHisCntRatio1",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHisCntRatio2"
+							]
+						},
+						{
+							"TITLE": "WDRExposureAttr",
+							"MEMBER": [
+								"ISP_WDR_EXPOSURE_ATTR_S.au8LEAdjustTargetMin",
+								"ISP_WDR_EXPOSURE_ATTR_S.au8LEAdjustTargetMax",
+								"ISP_WDR_EXPOSURE_ATTR_S.au8SEAdjustTargetMin",
+								"ISP_WDR_EXPOSURE_ATTR_S.au8SEAdjustTargetMax",
+								"ISP_WDR_EXPOSURE_ATTR_S.au8FrameAvgLumaMin",
+								"ISP_WDR_EXPOSURE_ATTR_S.au8FrameAvgLumaMax",
+								"ISP_WDR_EXPOSURE_ATTR_S.u8AdjustTargetDetectFrmNum",
+								"ISP_WDR_EXPOSURE_ATTR_S.u32DiffPixelNum",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16LELowBinThr",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16LEHighBinThr",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SELowBinThr",
+								"ISP_WDR_EXPOSURE_ATTR_S.u16SEHighBinThr"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "DRC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DRC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "DRC",
+							"MEMBER": [
+								"ISP_DRC_ATTR_S.Enable",
+								"ISP_DRC_ATTR_S.enOpType",
+								"ISP_DRC_ATTR_S.UpdateInterval",
+								"ISP_DRC_ATTR_S.TuningMode",
+								"ISP_DRC_ATTR_S.LocalToneEn",
+								"ISP_DRC_ATTR_S.ToneCurveSelect",
+								"ISP_DRC_ATTR_S.ToneCurveSmooth",
+								"ISP_DRC_ATTR_S.CoarseFltScale",
+								"ISP_DRC_ATTR_S.CurveUserDefine",
+								"ISP_DRC_ATTR_S.DRCMu"
+							]
+						},
+						{
+							"TITLE": "DRC",
+							"MEMBER": [
+								"HEADER:Global Tone",
+								"ISP_DRC_ATTR_S.stManual.TargetYScale",
+								"ISP_DRC_ATTR_S.stManual.HdrStrength",
+								"ISP_DRC_ATTR_S.stAuto.TargetYScale",
+								"ISP_DRC_ATTR_S.stAuto.HdrStrength",
+								"HEADER:Dark Tone",
+								"ISP_DRC_ATTR_S.stManual.DEAdaptPercentile",
+								"ISP_DRC_ATTR_S.stManual.DEAdaptTargetGain",
+								"ISP_DRC_ATTR_S.stManual.DEAdaptGainUB",
+								"ISP_DRC_ATTR_S.stManual.DEAdaptGainLB",
+								"ISP_DRC_ATTR_S.stAuto.DEAdaptPercentile",
+								"ISP_DRC_ATTR_S.stAuto.DEAdaptTargetGain",
+								"ISP_DRC_ATTR_S.stAuto.DEAdaptGainUB",
+								"ISP_DRC_ATTR_S.stAuto.DEAdaptGainLB",
+								"HEADER:Bright Tone",
+								"ISP_DRC_ATTR_S.stManual.BritInflectPtLuma",
+								"ISP_DRC_ATTR_S.stManual.BritContrastLow",
+								"ISP_DRC_ATTR_S.stManual.BritContrastHigh",
+								"ISP_DRC_ATTR_S.stAuto.BritInflectPtLuma",
+								"ISP_DRC_ATTR_S.stAuto.BritContrastLow",
+								"ISP_DRC_ATTR_S.stAuto.BritContrastHigh"
+							]
+						},
+						{
+							"TITLE": "SDR DRC",
+							"MEMBER": [
+								"HEADER:Global Tone",
+								"ISP_DRC_ATTR_S.SdrTargetYGainMode",
+								"ISP_DRC_ATTR_S.stManual.SdrTargetY",
+								"ISP_DRC_ATTR_S.stManual.SdrTargetYGain",
+								"ISP_DRC_ATTR_S.stManual.SdrGlobalToneStr",
+								"ISP_DRC_ATTR_S.stAuto.SdrTargetY",
+								"ISP_DRC_ATTR_S.stAuto.SdrTargetYGain",
+								"ISP_DRC_ATTR_S.stAuto.SdrGlobalToneStr",
+								"HEADER:Dark Tone",
+								"ISP_DRC_ATTR_S.stManual.SdrDEAdaptPercentile",
+								"ISP_DRC_ATTR_S.stManual.SdrDEAdaptTargetGain",
+								"ISP_DRC_ATTR_S.stManual.SdrDEAdaptGainUB",
+								"ISP_DRC_ATTR_S.stManual.SdrDEAdaptGainLB",
+								"ISP_DRC_ATTR_S.stAuto.SdrDEAdaptPercentile",
+								"ISP_DRC_ATTR_S.stAuto.SdrDEAdaptTargetGain",
+								"ISP_DRC_ATTR_S.stAuto.SdrDEAdaptGainUB",
+								"ISP_DRC_ATTR_S.stAuto.SdrDEAdaptGainLB",
+								"HEADER:Bright Tone",
+								"ISP_DRC_ATTR_S.stManual.SdrBritInflectPtLuma",
+								"ISP_DRC_ATTR_S.stManual.SdrBritContrastLow",
+								"ISP_DRC_ATTR_S.stManual.SdrBritContrastHigh",
+								"ISP_DRC_ATTR_S.stAuto.SdrBritInflectPtLuma",
+								"ISP_DRC_ATTR_S.stAuto.SdrBritContrastLow",
+								"ISP_DRC_ATTR_S.stAuto.SdrBritContrastHigh"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "BNR",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_NR_ATTR_S",
+						"ISP_NR_FILTER_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "BNR",
+							"MEMBER": [
+								"ISP_NR_ATTR_S.Enable",
+								"ISP_NR_ATTR_S.enOpType",
+								"ISP_NR_ATTR_S.UpdateInterval",
+								"ISP_NR_ATTR_S.CoringParamEnable",
+								"ISP_NR_ATTR_S.stManual.WindowType",
+								"ISP_NR_ATTR_S.stManual.DetailSmoothMode",
+								"ISP_NR_ATTR_S.stManual.NoiseSuppressStr",
+								"ISP_NR_ATTR_S.stManual.FilterType",
+								"ISP_NR_ATTR_S.stManual.NoiseSuppressStrMode",
+								"ISP_NR_ATTR_S.stAuto.WindowType",
+								"ISP_NR_ATTR_S.stAuto.DetailSmoothMode",
+								"ISP_NR_ATTR_S.stAuto.NoiseSuppressStr",
+								"ISP_NR_ATTR_S.stAuto.FilterType",
+								"ISP_NR_ATTR_S.stAuto.NoiseSuppressStrMode",
+								"ISP_NR_FILTER_ATTR_S.TuningMode"
+							]
+						},
+						{
+							"TITLE": "Filter",
+							"MEMBER": [
+								"ISP_NR_FILTER_ATTR_S.stManual.VarThr",
+								"ISP_NR_FILTER_ATTR_S.stManual.CoringWgtLF",
+								"ISP_NR_FILTER_ATTR_S.stManual.CoringWgtHF",
+								"ISP_NR_FILTER_ATTR_S.stManual.NonDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stManual.VhDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stManual.AaDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stManual.LumaStr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.VarThr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.CoringWgtLF",
+								"ISP_NR_FILTER_ATTR_S.stAuto.CoringWgtHF",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NonDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.VhDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.AaDirFiltStr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.LumaStr"
+							]
+						},
+						{
+							"TITLE": "Filter",
+							"MEMBER": [
+								"ISP_NR_FILTER_ATTR_S.stManual.NpSlopeR",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpSlopeGr",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpSlopeGb",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpSlopeB",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLumaThrR",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLumaThrGr",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLumaThrGb",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLumaThrB",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLowOffsetR",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLowOffsetGr",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLowOffsetGb",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpLowOffsetB",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpHighOffsetR",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpHighOffsetGr",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpHighOffsetGb",
+								"ISP_NR_FILTER_ATTR_S.stManual.NpHighOffsetB",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpSlopeR",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpSlopeGr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpSlopeGb",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpSlopeB",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLumaThrR",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLumaThrGr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLumaThrGb",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLumaThrB",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLowOffsetR",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLowOffsetGr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLowOffsetGb",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpLowOffsetB",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpHighOffsetR",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpHighOffsetGr",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpHighOffsetGb",
+								"ISP_NR_FILTER_ATTR_S.stAuto.NpHighOffsetB"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Demosaic",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DEMOSAIC_ATTR_S",
+						"ISP_DEMOSAIC_DEMOIRE_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Demosaic",
+							"MEMBER": [
+								"ISP_DEMOSAIC_ATTR_S.Enable",
+								"ISP_DEMOSAIC_ATTR_S.enOpType",
+								"ISP_DEMOSAIC_ATTR_S.UpdateInterval",
+								"ISP_DEMOSAIC_ATTR_S.TuningMode",
+								"ISP_DEMOSAIC_ATTR_S.stManual.CoarseEdgeThr",
+								"ISP_DEMOSAIC_ATTR_S.stManual.CoarseStr",
+								"ISP_DEMOSAIC_ATTR_S.stManual.FineEdgeThr",
+								"ISP_DEMOSAIC_ATTR_S.stManual.FineStr",
+								"ISP_DEMOSAIC_ATTR_S.stManual.FilterMode",
+								"ISP_DEMOSAIC_ATTR_S.stAuto.CoarseEdgeThr",
+								"ISP_DEMOSAIC_ATTR_S.stAuto.CoarseStr",
+								"ISP_DEMOSAIC_ATTR_S.stAuto.FineEdgeThr",
+								"ISP_DEMOSAIC_ATTR_S.stAuto.FineStr",
+								"ISP_DEMOSAIC_ATTR_S.stAuto.FilterMode"
+							]
+						},
+						{
+							"TITLE": "Detail Smooth",
+							"MEMBER": [
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.DetailSmoothEnable",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailSmoothStr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailWgtThr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailWgtSlope",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailWgtMin",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailWgtMax",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeWgtThr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeWgtSlope",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeWgtMin",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeWgtMax",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailSmoothStr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailWgtThr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailWgtSlope",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailWgtMin",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailWgtMax",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeWgtThr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeWgtSlope",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeWgtMin",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeWgtMax"
+							]
+						},
+						{
+							"TITLE": "False Color",
+							"MEMBER": [
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.AntiFalseColorEnable",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.ProtectColorEnable",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.AntiFalseColorStr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.SatGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.SatGainOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.DetailGaintOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.EdgeGainOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.UserDefineProtectColor1",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.UserDefineProtectColor2",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.UserDefineProtectColor3",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.ProtectColorGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stManual.ProtectColorGainOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.AntiFalseColorStr",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.SatGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.SatGainOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.DetailGaintOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.EdgeGainOut",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.UserDefineProtectColor1",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.UserDefineProtectColor2",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.UserDefineProtectColor3",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.ProtectColorGainIn",
+								"ISP_DEMOSAIC_DEMOIRE_ATTR_S.stAuto.ProtectColorGainOut"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CCM",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CCM_ATTR_S",
+						"ISP_COLOR_TONE_ATTR_S",
+						"ISP_CCM_SATURATION_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CCM",
+							"MEMBER": [
+								"ISP_CCM_ATTR_S.Enable",
+								"ISP_CCM_ATTR_S.enOpType",
+								"ISP_CCM_ATTR_S.UpdateInterval",
+								"ISP_CCM_ATTR_S.stManual.SatEnable",
+								"ISP_CCM_ATTR_S.stManual.CCM",
+								"ISP_CCM_ATTR_S.stAuto.ISOActEnable",
+								"ISP_CCM_ATTR_S.stAuto.TempActEnable",
+								"ISP_CCM_ATTR_S.stAuto.CCMTabNum",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[0].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[0].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[1].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[1].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[2].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[2].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[3].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[3].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[4].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[4].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[5].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[5].CCM",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[6].ColorTemp",
+								"ISP_CCM_ATTR_S.stAuto.CCMTab[6].CCM"
+							]
+						},
+						{
+							"TITLE": "ColorToneAttr",
+							"MEMBER": [
+								"ISP_COLOR_TONE_ATTR_S.u16RedCastGain",
+								"ISP_COLOR_TONE_ATTR_S.u16GreenCastGain",
+								"ISP_COLOR_TONE_ATTR_S.u16BlueCastGain"
+							]
+						},
+						{
+							"TITLE": "Saturation",
+							"MEMBER": [
+								"ISP_CCM_SATURATION_ATTR_S.stManual.SaturationLE",
+								"ISP_CCM_SATURATION_ATTR_S.stAuto.SaturationLE",
+								"ISP_CCM_SATURATION_ATTR_S.stManual.SaturationSE",
+								"ISP_CCM_SATURATION_ATTR_S.stAuto.SaturationSE"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Gamma",
+				"READY": true,
+				"TYPE": "EXTERNAL",
+				"MODULE": "GAMMA",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_GAMMA_ATTR_S",
+						"ISP_AUTO_GAMMA_ATTR_S"
+					]
+				}
+			},
+			{
+				"ID": "Dehaze",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DEHAZE_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_DEHAZE_ATTR_S.Enable",
+								"ISP_DEHAZE_ATTR_S.enOpType",
+								"ISP_DEHAZE_ATTR_S.UpdateInterval",
+								"ISP_DEHAZE_ATTR_S.stAuto.Strength",
+								"ISP_DEHAZE_ATTR_S.stManual.Strength",
+								"ISP_DEHAZE_ATTR_S.DehazeWgt"
+							]
+						},
+						{
+							"TITLE": "DarkChannel&Airlight",
+							"MEMBER": [
+								"ISP_DEHAZE_ATTR_S.DehazeLumaEnable",
+								"ISP_DEHAZE_ATTR_S.DehazeLumaCOEFFI",
+								"ISP_DEHAZE_ATTR_S.DehazeSkinEnable",
+								"ISP_DEHAZE_ATTR_S.DehazeSkinCOEFFI",
+								"ISP_DEHAZE_ATTR_S.SkinCb",
+								"ISP_DEHAZE_ATTR_S.SkinCr",
+								"ISP_DEHAZE_ATTR_S.CumulativeThr",
+								"ISP_DEHAZE_ATTR_S.AirLightMixWgt",
+								"ISP_DEHAZE_ATTR_S.AirLightMin",
+								"ISP_DEHAZE_ATTR_S.AirLightMax"
+							]
+						},
+						{
+							"TITLE": "Transmission",
+							"MEMBER": [
+								"ISP_DEHAZE_ATTR_S.AirlightDiffWgt",
+								"ISP_DEHAZE_ATTR_S.TransMapScale",
+								"ISP_DEHAZE_ATTR_S.TransMapWgtSigma",
+								"ISP_DEHAZE_ATTR_S.TransMapWgtWgt",
+								"ISP_DEHAZE_ATTR_S.MinTransMapValue"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "3DNR",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_TNR_ATTR_S",
+						"ISP_TNR_NOISE_MODEL_ATTR_S",
+						"ISP_TNR_LUMA_MOTION_ATTR_S",
+						"ISP_TNR_GHOST_ATTR_S",
+						"ISP_TNR_MT_PRT_ATTR_S",
+						"ISP_TNR_MOTION_ADAPT_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_TNR_ATTR_S.Enable",
+								"ISP_TNR_ATTR_S.enOpType",
+								"ISP_TNR_ATTR_S.UpdateInterval",
+								"ISP_TNR_ATTR_S.TuningMode",
+								"ISP_TNR_ATTR_S.TnrMtMode",
+								"ISP_TNR_ATTR_S.YnrCnrSharpenMtMode",
+								"ISP_TNR_ATTR_S.PreSharpenMtMode",
+								"ISP_TNR_ATTR_S.ChromaScalingDownMode",
+								"ISP_TNR_ATTR_S.stManual.MtDetectUnit",
+								"ISP_TNR_ATTR_S.stManual.MtFiltMode",
+								"ISP_TNR_ATTR_S.stManual.MtFiltWgt",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.RNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.GNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.BNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.RNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.GNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.BNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.RNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.GNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.BNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.RNoiseHiLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.GNoiseHiLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stManual.BNoiseHiLevel1",
+								"ISP_TNR_ATTR_S.stAuto.MtDetectUnit",
+								"ISP_TNR_ATTR_S.stAuto.MtFiltMode",
+								"ISP_TNR_ATTR_S.stAuto.MtFiltWgt",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.RNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.GNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.BNoiseLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.RNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.GNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.BNoiseLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.RNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.GNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.BNoiseHiLevel0",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.RNoiseHiLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.GNoiseHiLevel1",
+								"ISP_TNR_NOISE_MODEL_ATTR_S.stAuto.BNoiseHiLevel1"
+							]
+						},
+						{
+							"TITLE": "TNR LE",
+							"MEMBER": [
+								"ISP_TNR_ATTR_S.stManual.TnrStrength0",
+								"ISP_TNR_ATTR_S.stManual.MapThdLow0",
+								"ISP_TNR_ATTR_S.stManual.MapThdHigh0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stManual.L2mIn0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stManual.L2mOut0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stManual.MtLumaMode",
+								"ISP_TNR_ATTR_S.stManual.BrightnessNoiseLevelLE",
+								"ISP_TNR_GHOST_ATTR_S.stManual.PrvMotion0",
+								"ISP_TNR_GHOST_ATTR_S.stManual.PrtctWgt0",
+								"ISP_TNR_ATTR_S.stAuto.TnrStrength0",
+								"ISP_TNR_ATTR_S.stAuto.MapThdLow0",
+								"ISP_TNR_ATTR_S.stAuto.MapThdHigh0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mIn0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mOut0",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.MtLumaMode",
+								"ISP_TNR_GHOST_ATTR_S.stAuto.PrvMotion0",
+								"ISP_TNR_GHOST_ATTR_S.stAuto.PrtctWgt0",
+								"ISP_TNR_ATTR_S.stAuto.BrightnessNoiseLevelLE"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "L2mCurve0",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mIn0",
+                                            "ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mOut0"
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "ALIAS": "PrtctCurve0",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_GHOST_ATTR_S.stAuto.PrvMotion0",
+                                            "ISP_TNR_GHOST_ATTR_S.stAuto.PrtctWgt0"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR SE",
+							"MEMBER": [
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stManual.L2mIn1",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stManual.L2mOut1",
+								"ISP_TNR_ATTR_S.stManual.BrightnessNoiseLevelSE",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mIn1",
+								"ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mOut1",
+								"ISP_TNR_ATTR_S.stAuto.BrightnessNoiseLevelSE"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "L2mCurve1",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mIn1",
+                                            "ISP_TNR_LUMA_MOTION_ATTR_S.stAuto.L2mOut1"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR",
+							"MEMBER": [
+								"ISP_TNR_MT_PRT_ATTR_S.LowMtPrtEn",
+								"ISP_TNR_GHOST_ATTR_S.stManual.MotionHistoryStr",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtLevelY",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtInY",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtOutY",
+								"ISP_TNR_GHOST_ATTR_S.stAuto.MotionHistoryStr",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtLevelY",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInY",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutY"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "LowMtPrtCurveY",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInY",
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutY"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR",
+							"MEMBER": [
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtLevelU",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtInU",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtOutU",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtLevelU",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInU",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutU"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "LowMtPrtCurveU",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInU",
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutU"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR",
+							"MEMBER": [
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtLevelV",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtInV",
+								"ISP_TNR_MT_PRT_ATTR_S.stManual.LowMtPrtOutV",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtLevelV",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInV",
+								"ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutV"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "LowMtPrtCurveV",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtInV",
+                                            "ISP_TNR_MT_PRT_ATTR_S.stAuto.LowMtPrtOutV"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR",
+							"MEMBER": [
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stManual.AdaptNrLumaStrIn",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stManual.AdaptNrLumaStrOut",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrLumaStrIn",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrLumaStrOut"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "AdaptNrLumaStr",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrLumaStrIn",
+                                            "ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrLumaStrOut"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "TNR",
+							"MEMBER": [
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stManual.AdaptNrChromaStrIn",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stManual.AdaptNrChromaStrOut",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrChromaStrIn",
+								"ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrChromaStrOut"
+							],
+                            "CURVE": [
+                                {
+                                    "ALIAS": "AdaptNrChromaStr",
+                                    "POINTS": [
+                                        [
+                                            "ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrChromaStrIn",
+                                            "ISP_TNR_MOTION_ADAPT_ATTR_S.stAuto.AdaptNrChromaStrOut"
+                                        ]
+                                    ]
+                                }
+                            ]
+						}
+					]
+				}
+			},
+			{
+				"ID": "YNR",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_YNR_ATTR_S",
+						"ISP_YNR_MOTION_NR_ATTR_S",
+						"ISP_YNR_FILTER_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "YNR",
+							"MEMBER": [
+								"ISP_YNR_ATTR_S.Enable",
+								"ISP_YNR_ATTR_S.enOpType",
+								"ISP_YNR_ATTR_S.UpdateInterval",
+								"ISP_YNR_ATTR_S.TuningMode",
+								"ISP_YNR_ATTR_S.FiltModeEnable",
+								"ISP_YNR_ATTR_S.FiltMode",
+								"ISP_YNR_ATTR_S.CoringParamEnable",
+								"ISP_YNR_ATTR_S.stManual.WindowType",
+								"ISP_YNR_ATTR_S.stManual.DetailSmoothMode",
+								"ISP_YNR_ATTR_S.stManual.NoiseSuppressStr",
+								"ISP_YNR_ATTR_S.stManual.FilterType",
+								"ISP_YNR_ATTR_S.stManual.NoiseCoringBase",
+								"ISP_YNR_ATTR_S.stManual.NoiseCoringAdv",
+								"ISP_YNR_ATTR_S.stManual.NoiseCoringMax",
+								"ISP_YNR_ATTR_S.stAuto.WindowType",
+								"ISP_YNR_ATTR_S.stAuto.DetailSmoothMode",
+								"ISP_YNR_ATTR_S.stAuto.NoiseSuppressStr",
+								"ISP_YNR_ATTR_S.stAuto.FilterType",
+								"ISP_YNR_ATTR_S.stAuto.NoiseCoringBase",
+								"ISP_YNR_ATTR_S.stAuto.NoiseCoringAdv",
+								"ISP_YNR_ATTR_S.stAuto.NoiseCoringMax"
+							]
+						},
+						{
+							"TITLE": "Motion NR",
+							"MEMBER": [
+								"ISP_YNR_MOTION_NR_ATTR_S.stManual.MotionCoringWgt",
+								"ISP_YNR_MOTION_NR_ATTR_S.stManual.MotionCoringWgtMax",
+								"ISP_YNR_MOTION_NR_ATTR_S.stManual.MotionYnrLut",
+								"ISP_YNR_MOTION_NR_ATTR_S.stAuto.MotionCoringWgt",
+								"ISP_YNR_MOTION_NR_ATTR_S.stAuto.MotionCoringWgtMax",
+								"ISP_YNR_MOTION_NR_ATTR_S.stAuto.MotionYnrLut"
+							]
+						},
+						{
+							"TITLE": "Filter",
+							"MEMBER": [
+								"ISP_YNR_FILTER_ATTR_S.stManual.VarThr",
+								"ISP_YNR_FILTER_ATTR_S.stManual.CoringWgtLF",
+								"ISP_YNR_FILTER_ATTR_S.stManual.CoringWgtHF",
+								"ISP_YNR_FILTER_ATTR_S.stManual.CoringWgtMax",
+								"ISP_YNR_FILTER_ATTR_S.stManual.NonDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stManual.VhDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stManual.AaDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stManual.FilterMode",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.VarThr",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.CoringWgtLF",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.CoringWgtHF",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.CoringWgtMax",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.NonDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.VhDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.AaDirFiltStr",
+								"ISP_YNR_FILTER_ATTR_S.stAuto.FilterMode"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CNR",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CNR_ATTR_S",
+						"ISP_CNR_MOTION_NR_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CNR",
+							"MEMBER": [
+								"ISP_CNR_ATTR_S.Enable",
+								"ISP_CNR_ATTR_S.enOpType",
+								"ISP_CNR_ATTR_S.UpdateInterval",
+								"ISP_CNR_ATTR_S.stManual.DetailSmoothMode",
+								"ISP_CNR_ATTR_S.stManual.CnrStr",
+								"ISP_CNR_ATTR_S.stManual.NoiseSuppressStr",
+								"ISP_CNR_ATTR_S.stManual.NoiseSuppressGain",
+								"ISP_CNR_ATTR_S.stManual.FilterType",
+								"ISP_CNR_ATTR_S.stManual.LumaWgt",
+								"ISP_CNR_ATTR_S.stManual.MotionNrStr",
+								"ISP_CNR_ATTR_S.stAuto.DetailSmoothMode",
+								"ISP_CNR_ATTR_S.stAuto.CnrStr",
+								"ISP_CNR_ATTR_S.stAuto.NoiseSuppressStr",
+								"ISP_CNR_ATTR_S.stAuto.NoiseSuppressGain",
+								"ISP_CNR_ATTR_S.stAuto.FilterType",
+								"ISP_CNR_ATTR_S.stAuto.LumaWgt",
+								"ISP_CNR_ATTR_S.stAuto.MotionNrStr"
+							]
+						},
+						{
+							"TITLE": "Motion NR",
+							"MEMBER": [
+								"ISP_CNR_MOTION_NR_ATTR_S.MotionCnrEnable",
+								"ISP_CNR_MOTION_NR_ATTR_S.stManual.MotionCnrStrLut",
+								"ISP_CNR_MOTION_NR_ATTR_S.stAuto.MotionCnrStrLut"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "DCI",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DCI_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "DCI",
+							"MEMBER": [
+								"ISP_DCI_ATTR_S.Enable",
+								"ISP_DCI_ATTR_S.enOpType",
+								"ISP_DCI_ATTR_S.UpdateInterval",
+								"ISP_DCI_ATTR_S.TuningMode",
+								"ISP_DCI_ATTR_S.Method",
+								"ISP_DCI_ATTR_S.Speed",
+								"ISP_DCI_ATTR_S.stManual.ContrastGain",
+								"ISP_DCI_ATTR_S.stManual.BlcThr",
+								"ISP_DCI_ATTR_S.stManual.WhtThr",
+								"ISP_DCI_ATTR_S.stManual.BlcCtrl",
+								"ISP_DCI_ATTR_S.stManual.WhtCtrl",
+								"ISP_DCI_ATTR_S.stManual.DciGainMax",
+								"ISP_DCI_ATTR_S.stAuto.ContrastGain",
+								"ISP_DCI_ATTR_S.stAuto.BlcThr",
+								"ISP_DCI_ATTR_S.stAuto.WhtThr",
+								"ISP_DCI_ATTR_S.stAuto.BlcCtrl",
+								"ISP_DCI_ATTR_S.stAuto.WhtCtrl",
+								"ISP_DCI_ATTR_S.stAuto.DciGainMax",
+								"ISP_DCI_ATTR_S.DciStrength",
+								"ISP_DCI_ATTR_S.DciGamma",
+								"ISP_DCI_ATTR_S.DciOffset",
+								"ISP_DCI_ATTR_S.ToleranceY",
+								"ISP_DCI_ATTR_S.Sensitivity"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Y Sharpen",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_SHARPEN_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_SHARPEN_ATTR_S.Enable",
+								"ISP_SHARPEN_ATTR_S.enOpType",
+								"ISP_SHARPEN_ATTR_S.UpdateInterval",
+								"ISP_SHARPEN_ATTR_S.TuningMode",
+								"ISP_SHARPEN_ATTR_S.NoiseSuppressEnable"
+							]
+						},
+						{
+							"TITLE": "Delta Coring&Blending",
+							"MEMBER": [
+								"ISP_SHARPEN_ATTR_S.stManual.LumaCorLutIn",
+								"ISP_SHARPEN_ATTR_S.stManual.LumaCorLutOut",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionCorLutIn",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionCorLutOut",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionCorWgtLutIn",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionCorWgtLutOut",
+								"ISP_SHARPEN_ATTR_S.stManual.HFBlendWgt",
+								"ISP_SHARPEN_ATTR_S.stManual.MFBlendWgt",
+								"ISP_SHARPEN_ATTR_S.stAuto.LumaCorLutIn",
+								"ISP_SHARPEN_ATTR_S.stAuto.LumaCorLutOut",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionCorLutIn",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionCorLutOut",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionCorWgtLutIn",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionCorWgtLutOut",
+								"ISP_SHARPEN_ATTR_S.stAuto.HFBlendWgt",
+								"ISP_SHARPEN_ATTR_S.stAuto.MFBlendWgt"
+							]
+						},
+						{
+							"TITLE": "Delta Gain",
+							"MEMBER": [
+								"ISP_SHARPEN_ATTR_S.LumaAdpGainEn",
+								"ISP_SHARPEN_ATTR_S.DeltaAdpGainEn",
+								"ISP_SHARPEN_ATTR_S.DeltaAdpGain",
+								"ISP_SHARPEN_ATTR_S.SatShtCtrlEn",
+								"ISP_SHARPEN_ATTR_S.stManual.GlobalGain",
+								"ISP_SHARPEN_ATTR_S.stManual.LumaAdpGain",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionShtGainIn",
+								"ISP_SHARPEN_ATTR_S.stManual.MotionShtGainOut",
+								"ISP_SHARPEN_ATTR_S.stManual.HueShtCtrl",
+								"ISP_SHARPEN_ATTR_S.stManual.SatShtGainIn",
+								"ISP_SHARPEN_ATTR_S.stManual.SatShtGainOut",
+								"ISP_SHARPEN_ATTR_S.stAuto.GlobalGain",
+								"ISP_SHARPEN_ATTR_S.stAuto.LumaAdpGain",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionShtGainIn",
+								"ISP_SHARPEN_ATTR_S.stAuto.MotionShtGainOut",
+								"ISP_SHARPEN_ATTR_S.stAuto.HueShtCtrl",
+								"ISP_SHARPEN_ATTR_S.stAuto.SatShtGainIn",
+								"ISP_SHARPEN_ATTR_S.stAuto.SatShtGainOut"
+							],
+							"CURVE": [
+                                {
+                                    "ALIAS": "MotionShtGainCurve",
+                                    "POINTS": [
+                                        [
+                                            "ISP_SHARPEN_ATTR_S.stAuto.MotionShtGainIn",
+                                            "ISP_SHARPEN_ATTR_S.stAuto.MotionShtGainOut"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "IOShoot",
+							"MEMBER": [
+								"ISP_SHARPEN_ATTR_S.stManual.OverShootThr",
+								"ISP_SHARPEN_ATTR_S.stManual.UnderShootThr",
+								"ISP_SHARPEN_ATTR_S.stManual.OverShootGain",
+								"ISP_SHARPEN_ATTR_S.stManual.UnderShootGain",
+								"ISP_SHARPEN_ATTR_S.stManual.OverShootThrMax",
+								"ISP_SHARPEN_ATTR_S.stManual.UnderShootThrMin",
+								"ISP_SHARPEN_ATTR_S.stAuto.OverShootThr",
+								"ISP_SHARPEN_ATTR_S.stAuto.UnderShootThr",
+								"ISP_SHARPEN_ATTR_S.stAuto.OverShootGain",
+								"ISP_SHARPEN_ATTR_S.stAuto.UnderShootGain",
+								"ISP_SHARPEN_ATTR_S.stAuto.OverShootThrMax",
+								"ISP_SHARPEN_ATTR_S.stAuto.UnderShootThrMin",
+								"ISP_SHARPEN_ATTR_S.SoftClampEnable",
+								"ISP_SHARPEN_ATTR_S.SoftClampLB",
+								"ISP_SHARPEN_ATTR_S.SoftClampUB"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "PreSharpen",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_PRESHARPEN_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_PRESHARPEN_ATTR_S.Enable",
+								"ISP_PRESHARPEN_ATTR_S.enOpType",
+								"ISP_PRESHARPEN_ATTR_S.UpdateInterval",
+								"ISP_PRESHARPEN_ATTR_S.TuningMode",
+								"ISP_PRESHARPEN_ATTR_S.NoiseSuppressEnable"
+							]
+						},
+						{
+							"TITLE": "Delta Coring&Blending",
+							"MEMBER": [
+								"ISP_PRESHARPEN_ATTR_S.stManual.LumaCorLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.LumaCorLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionCorLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionCorLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionCorWgtLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionCorWgtLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stManual.HFBlendWgt",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MFBlendWgt",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.LumaCorLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.LumaCorLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionCorLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionCorLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionCorWgtLutIn",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionCorWgtLutOut",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.HFBlendWgt",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MFBlendWgt"
+							]
+						},
+						{
+							"TITLE": "Delta Gain",
+							"MEMBER": [
+								"ISP_PRESHARPEN_ATTR_S.LumaAdpGainEn",
+								"ISP_PRESHARPEN_ATTR_S.DeltaAdpGainEn",
+								"ISP_PRESHARPEN_ATTR_S.DeltaAdpGain",
+								"ISP_PRESHARPEN_ATTR_S.SatShtCtrlEn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.GlobalGain",
+								"ISP_PRESHARPEN_ATTR_S.stManual.LumaAdpGain",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionShtGainIn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.MotionShtGainOut",
+								"ISP_PRESHARPEN_ATTR_S.stManual.HueShtCtrl",
+								"ISP_PRESHARPEN_ATTR_S.stManual.SatShtGainIn",
+								"ISP_PRESHARPEN_ATTR_S.stManual.SatShtGainOut",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.GlobalGain",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.LumaAdpGain",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionShtGainIn",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.MotionShtGainOut",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.HueShtCtrl",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.SatShtGainIn",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.SatShtGainOut"
+							],
+							"CURVE": [
+                                {
+                                    "ALIAS": "MotionShtGainCurve",
+                                    "POINTS": [
+                                        [
+                                            "ISP_PRESHARPEN_ATTR_S.stAuto.MotionShtGainIn",
+                                            "ISP_PRESHARPEN_ATTR_S.stAuto.MotionShtGainOut"
+                                        ]
+                                    ]
+                                }
+                            ]
+						},
+						{
+							"TITLE": "IOShoot",
+							"MEMBER": [
+								"ISP_PRESHARPEN_ATTR_S.stManual.OverShootThr",
+								"ISP_PRESHARPEN_ATTR_S.stManual.UnderShootThr",
+								"ISP_PRESHARPEN_ATTR_S.stManual.OverShootGain",
+								"ISP_PRESHARPEN_ATTR_S.stManual.UnderShootGain",
+								"ISP_PRESHARPEN_ATTR_S.stManual.OverShootThrMax",
+								"ISP_PRESHARPEN_ATTR_S.stManual.UnderShootThrMin",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.OverShootThr",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.UnderShootThr",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.OverShootGain",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.UnderShootGain",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.OverShootThrMax",
+								"ISP_PRESHARPEN_ATTR_S.stAuto.UnderShootThrMin",
+								"ISP_PRESHARPEN_ATTR_S.SoftClampEnable",
+								"ISP_PRESHARPEN_ATTR_S.SoftClampLB",
+								"ISP_PRESHARPEN_ATTR_S.SoftClampUB"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "AE Route",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"PQT_AE_ROUTE_S",
+						"PQT_AE_ROUTE_SF_S",
+						"PQT_AE_ROUTE_EX_S",
+						"PQT_AE_ROUTE_EX_SF_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "AE Route",
+							"MEMBER": [
+								"PQT_AE_ROUTE_S.ISP_AE_ROUTE_S.u32TotalNum",
+								"PQT_AE_ROUTE_S.ISP_AE_ROUTE_S.astRouteNode",
+								"HEADER:AE RouteSF",
+								"PQT_AE_ROUTE_SF_S.ISP_AE_ROUTE_S.u32TotalNum",
+								"PQT_AE_ROUTE_SF_S.ISP_AE_ROUTE_S.astRouteNode"
+							]
+						},
+						{
+							"TITLE": "AE RouteEx",
+							"MEMBER": [
+								"PQT_AE_ROUTE_EX_S.ISP_AE_ROUTE_EX_S.u32TotalNum",
+								"PQT_AE_ROUTE_EX_S.ISP_AE_ROUTE_EX_S.astRouteExNode",
+								"HEADER:AE RouteExSF",
+								"PQT_AE_ROUTE_EX_SF_S.ISP_AE_ROUTE_EX_S.u32TotalNum",
+								"PQT_AE_ROUTE_EX_SF_S.ISP_AE_ROUTE_EX_S.astRouteExNode"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CAC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CAC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_CAC_ATTR_S.Enable",
+								"ISP_CAC_ATTR_S.enOpType",
+								"ISP_CAC_ATTR_S.UpdateInterval",
+								"ISP_CAC_ATTR_S.TuningMode",
+								"ISP_CAC_ATTR_S.PurpleCb",
+								"ISP_CAC_ATTR_S.PurpleCr",
+								"ISP_CAC_ATTR_S.PurpleCb2",
+								"ISP_CAC_ATTR_S.PurpleCr2",
+								"ISP_CAC_ATTR_S.PurpleCb3",
+								"ISP_CAC_ATTR_S.PurpleCr3",
+								"ISP_CAC_ATTR_S.GreenCb",
+								"ISP_CAC_ATTR_S.GreenCr"
+							]
+						},
+						{
+							"TITLE": "Purple judge",
+							"MEMBER": [
+								"ISP_CAC_ATTR_S.PurpleDetRange",
+								"ISP_CAC_ATTR_S.stManual.DePurpleCbStr",
+								"ISP_CAC_ATTR_S.stManual.DePurpleCrStr",
+								"ISP_CAC_ATTR_S.stManual.DePurpleStr",
+								"ISP_CAC_ATTR_S.stManual.DePurpleStrMinRatio",
+								"ISP_CAC_ATTR_S.stManual.DePurpleStrMaxRatio",
+								"ISP_CAC_ATTR_S.stAuto.DePurpleCbStr",
+								"ISP_CAC_ATTR_S.stAuto.DePurpleCrStr",
+								"ISP_CAC_ATTR_S.stAuto.DePurpleStr",
+								"ISP_CAC_ATTR_S.stAuto.DePurpleStrMinRatio",
+								"ISP_CAC_ATTR_S.stAuto.DePurpleStrMaxRatio"
+							]
+						},
+						{
+							"TITLE": "Edge blending weight",
+							"MEMBER": [
+								"ISP_CAC_ATTR_S.stManual.EdgeCoring",
+								"ISP_CAC_ATTR_S.stManual.EdgeGlobalGain",
+								"ISP_CAC_ATTR_S.stManual.EdgeStrMin",
+								"ISP_CAC_ATTR_S.stManual.EdgeStrMax",
+								"ISP_CAC_ATTR_S.stAuto.EdgeCoring",
+								"ISP_CAC_ATTR_S.stAuto.EdgeGlobalGain",
+								"ISP_CAC_ATTR_S.stAuto.EdgeStrMin",
+								"ISP_CAC_ATTR_S.stAuto.EdgeStrMax",
+								"ISP_CAC_ATTR_S.EdgeGainIn",
+								"ISP_CAC_ATTR_S.EdgeGainOut"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "IRIS",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_IRIS_ATTR_S",
+						"ISP_DCIRIS_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "IrisAttr",
+							"MEMBER": [
+								"ISP_IRIS_ATTR_S.bEnable",
+								"ISP_IRIS_ATTR_S.enOpType",
+								"ISP_IRIS_ATTR_S.enIrisType",
+								"ISP_IRIS_ATTR_S.enIrisStatus",
+								"ISP_IRIS_ATTR_S.stMIAttr.u32HoldValue",
+								"ISP_IRIS_ATTR_S.stMIAttr.enIrisFNO"
+							]
+						},
+						{
+							"TITLE": "Dciris Attr",
+							"MEMBER": [
+								"ISP_DCIRIS_ATTR_S.s32Kp",
+								"ISP_DCIRIS_ATTR_S.s32Ki",
+								"ISP_DCIRIS_ATTR_S.s32Kd",
+								"ISP_DCIRIS_ATTR_S.u32MinPwmDuty",
+								"ISP_DCIRIS_ATTR_S.u32MaxPwmDuty",
+								"ISP_DCIRIS_ATTR_S.u32OpenPwmDuty"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Exposure attr",
+				"READY": true,
+				"PREFIX": false,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_EXPOSURE_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Exposure",
+							"MEMBER": [
+								"ISP_EXPOSURE_ATTR_S.bByPass",
+								"ISP_EXPOSURE_ATTR_S.enOpType",
+								"ISP_EXPOSURE_ATTR_S.u8AERunInterval",
+								"ISP_EXPOSURE_ATTR_S.bHistStatAdjust",
+								"ISP_EXPOSURE_ATTR_S.bAERouteExValid",
+								"ISP_EXPOSURE_ATTR_S.bAEGainSepCfg",
+								"ISP_EXPOSURE_ATTR_S.u8DebugMode",
+								"HEADER:Exposure Manual",
+								"ISP_EXPOSURE_ATTR_S.stManual.enExpTimeOpType",
+								"ISP_EXPOSURE_ATTR_S.stManual.enGainType",
+								"ISP_EXPOSURE_ATTR_S.stManual.enISONumOpType",
+								"ISP_EXPOSURE_ATTR_S.stManual.enAGainOpType",
+								"ISP_EXPOSURE_ATTR_S.stManual.enDGainOpType",
+								"ISP_EXPOSURE_ATTR_S.stManual.enISPDGainOpType",
+								"ISP_EXPOSURE_ATTR_S.stManual.u32ExpTime",
+								"ISP_EXPOSURE_ATTR_S.stManual.u32ISONum",
+								"ISP_EXPOSURE_ATTR_S.stManual.u32AGain",
+								"ISP_EXPOSURE_ATTR_S.stManual.u32DGain",
+								"ISP_EXPOSURE_ATTR_S.stManual.u32ISPDGain"
+							]
+						},
+						{
+							"TITLE": "Exposure Auto",
+							"MEMBER": [
+								"ISP_EXPOSURE_ATTR_S.stAuto.stExpTimeRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stExpTimeRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.enGainType",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stISONumRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stISONumRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAGainRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAGainRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stDGainRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stDGainRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stISPDGainRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stISPDGainRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stSysGainRange.u32Max",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stSysGainRange.u32Min",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u32GainThreshold",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8GridBvWeight",
+								"ISP_EXPOSURE_ATTR_S.stAuto.au32Reserve",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8HighLightLumaThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8HighLightBufLumaThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8LowLightLumaThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8LowLightBufLumaThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.bHistogramAssist"
+							]
+						},
+						{
+							"TITLE": "Exposure Auto",
+							"MEMBER": [
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8Speed",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16BlackSpeedBias",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8Tolerance",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8Compensation",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16EVBias",
+								"ISP_EXPOSURE_ATTR_S.stAuto.enAEStrategyMode",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16HistRatioSlope",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8MaxHistOffset",
+								"ISP_EXPOSURE_ATTR_S.stAuto.enAEMode",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAntiflicker.bEnable",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAntiflicker.enFrequency",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAntiflicker.enMode",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stSubflicker.bEnable",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stSubflicker.u8LumaDiff",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAEDelayAttr.u16BlackDelayFrame",
+								"ISP_EXPOSURE_ATTR_S.stAuto.stAEDelayAttr.u16WhiteDelayFrame",
+								"ISP_EXPOSURE_ATTR_S.stAuto.bManualExpValue",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u32ExpValue",
+								"ISP_EXPOSURE_ATTR_S.stAuto.enFSWDRMode",
+								"ISP_EXPOSURE_ATTR_S.stAuto.bWDRQuick",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16ISOCalCoef",
+								"ISP_EXPOSURE_ATTR_S.stAuto.au8AdjustTargetMin",
+								"ISP_EXPOSURE_ATTR_S.stAuto.au8AdjustTargetMax",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16LowBinThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u16HighBinThr",
+								"ISP_EXPOSURE_ATTR_S.stAuto.bEnableFaceAE",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8FaceTargetLuma",
+								"ISP_EXPOSURE_ATTR_S.stAuto.u8FaceWeight"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Smart Exposure Attr",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_SMART_EXPOSURE_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "SmartExposureAttr",
+							"MEMBER": [
+								"ISP_SMART_EXPOSURE_ATTR_S.bEnable",
+								"ISP_SMART_EXPOSURE_ATTR_S.bIRMode",
+								"ISP_SMART_EXPOSURE_ATTR_S.enSmartExpType",
+								"ISP_SMART_EXPOSURE_ATTR_S.u8LumaTarget",
+								"ISP_SMART_EXPOSURE_ATTR_S.u16ExpCoef",
+								"ISP_SMART_EXPOSURE_ATTR_S.u16ExpCoefMax",
+								"ISP_SMART_EXPOSURE_ATTR_S.u16ExpCoefMin",
+								"ISP_SMART_EXPOSURE_ATTR_S.u8SmartInterval",
+								"ISP_SMART_EXPOSURE_ATTR_S.u8SmartSpeed",
+								"ISP_SMART_EXPOSURE_ATTR_S.u16SmartDelayNum",
+								"ISP_SMART_EXPOSURE_ATTR_S.u8Weight",
+								"ISP_SMART_EXPOSURE_ATTR_S.u8NarrowRatio"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Exposure Info",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_EXP_INFO_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "ExposureInfo",
+							"MEMBER": [
+								"ISP_EXP_INFO_S.u32ExpTime",
+								"ISP_EXP_INFO_S.u32ShortExpTime",
+								"ISP_EXP_INFO_S.u32LongExpTime",
+								"ISP_EXP_INFO_S.u32WDRExpRatio",
+								"ISP_EXP_INFO_S.u32AGain",
+								"ISP_EXP_INFO_S.u32DGain",
+								"ISP_EXP_INFO_S.u32ISPDGain",
+								"ISP_EXP_INFO_S.u32AGainSF",
+								"ISP_EXP_INFO_S.u32DGainSF",
+								"ISP_EXP_INFO_S.u32ISPDGainSF",
+								"ISP_EXP_INFO_S.u32Exposure",
+								"ISP_EXP_INFO_S.bExposureIsMAX",
+								"ISP_EXP_INFO_S.s16HistError",
+								"ISP_EXP_INFO_S.au32AE_Hist256Value",
+								"ISP_EXP_INFO_S.u8AveLum",
+								"ISP_EXP_INFO_S.u32LinesPer500ms",
+								"ISP_EXP_INFO_S.u32PirisFNO",
+								"ISP_EXP_INFO_S.u32Fps",
+								"ISP_EXP_INFO_S.bGainSepStatus"
+							]
+						},
+						{
+							"TITLE": "ExposureInfo",
+							"MEMBER": [
+								"ISP_EXP_INFO_S.u32ISO",
+								"ISP_EXP_INFO_S.u32ISOSF",
+								"ISP_EXP_INFO_S.u32ISOCalibrate",
+								"ISP_EXP_INFO_S.u32RefExpRatio",
+								"ISP_EXP_INFO_S.u32FirstStableTime",
+								"ISP_EXP_INFO_S.stAERoute.u32TotalNum",
+								"ISP_EXP_INFO_S.stAERoute.astRouteNode",
+								"ISP_EXP_INFO_S.stAERouteEx.u32TotalNum",
+								"ISP_EXP_INFO_S.stAERouteEx.astRouteExNode",
+								"ISP_EXP_INFO_S.stAERouteSF.u32TotalNum",
+								"ISP_EXP_INFO_S.stAERouteSF.astRouteNode",
+								"ISP_EXP_INFO_S.stAERouteSFEx.u32TotalNum",
+								"ISP_EXP_INFO_S.stAERouteSFEx.astRouteExNode",
+								"ISP_EXP_INFO_S.u8WDRShortAveLuma",
+								"ISP_EXP_INFO_S.u8LEFrameAvgLuma",
+								"ISP_EXP_INFO_S.u8SEFrameAvgLuma",
+								"ISP_EXP_INFO_S.fLightValue"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Statistics Config",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_STATISTICS_CFG_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "AE Config",
+							"MEMBER": [
+								"ISP_STATISTICS_CFG_S.stAECfg.bHisStatisticsEnable",
+								"ISP_STATISTICS_CFG_S.stAECfg.stCrop[0].bEnable",
+								"ISP_STATISTICS_CFG_S.stAECfg.stCrop[0].u16X",
+								"ISP_STATISTICS_CFG_S.stAECfg.stCrop[0].u16Y",
+								"ISP_STATISTICS_CFG_S.stAECfg.stCrop[0].u16W",
+								"ISP_STATISTICS_CFG_S.stAECfg.stCrop[0].u16H",
+								"ISP_STATISTICS_CFG_S.stAECfg.u8StatisticsShiftBits",
+								"ISP_STATISTICS_CFG_S.stAECfg.u16RGain",
+								"ISP_STATISTICS_CFG_S.stAECfg.u16GGain",
+								"ISP_STATISTICS_CFG_S.stAECfg.u16BGain",
+								"ISP_STATISTICS_CFG_S.stAECfg.au8Weight"
+							]
+						},
+						{
+							"TITLE": "AF Config",
+							"MEMBER": [
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.bEnable",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u16Hwnd",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u16Vwnd",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stCrop.bEnable",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stCrop.u16X",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stCrop.u16Y",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stCrop.u16W",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stCrop.u16H",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stRawCfg.PreGammaEn",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stRawCfg.PreGammaTable",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.stPreFltCfg.PreFltEn",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8HFltShift",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u16HighLumaTh",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.s8HVFltLpCoeff",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stHParam_FIR0.s8HFltHpCoeff",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stHParam_FIR1.s8HFltHpCoeff",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stVParam_FIR.s8VFltHpCoeff",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8ThLow",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8ThHigh",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8GainLow",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8GainHigh",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8SlopLow",
+								"ISP_STATISTICS_CFG_S.stFocusCfg.stConfig.u8SlopHigh"
+							]
+						},
+						{
+							"TITLE": "AWB Config",
+							"MEMBER": [
+								"ISP_STATISTICS_CFG_S.stWBCfg.u16BlackLevel",
+								"ISP_STATISTICS_CFG_S.stWBCfg.u16WhiteLevel",
+								"ISP_STATISTICS_CFG_S.stWBCfg.stCrop.bEnable",
+								"ISP_STATISTICS_CFG_S.stWBCfg.stCrop.u16X",
+								"ISP_STATISTICS_CFG_S.stWBCfg.stCrop.u16Y",
+								"ISP_STATISTICS_CFG_S.stWBCfg.stCrop.u16W",
+								"ISP_STATISTICS_CFG_S.stWBCfg.stCrop.u16H"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "DIS",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_DIS_ATTR_S",
+						"ISP_DIS_CONFIG_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "DIS Attr",
+							"MEMBER": [
+								"ISP_DIS_ATTR_S.enable",
+								"ISP_DIS_ATTR_S.movingSubjectLevel",
+								"ISP_DIS_ATTR_S.horizontalLimit",
+								"ISP_DIS_ATTR_S.verticalLimit",
+								"ISP_DIS_ATTR_S.stillCrop"
+							]
+						},
+						{
+							"TITLE": "DIS Config",
+							"MEMBER": [
+								"ISP_DIS_CONFIG_S.mode",
+								"ISP_DIS_CONFIG_S.motionLevel",
+								"ISP_DIS_CONFIG_S.cropRatio"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Mono",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_MONO_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Mono",
+							"MEMBER": [
+								"ISP_MONO_ATTR_S.Enable",
+								"ISP_MONO_ATTR_S.UpdateInterval"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Y Contrast",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_YCONTRAST_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "YContrast Attr",
+							"MEMBER": [
+								"ISP_YCONTRAST_ATTR_S.Enable",
+								"ISP_YCONTRAST_ATTR_S.enOpType",
+								"ISP_YCONTRAST_ATTR_S.UpdateInterval",
+								"ISP_YCONTRAST_ATTR_S.stManual.ContrastLow",
+								"ISP_YCONTRAST_ATTR_S.stManual.ContrastHigh",
+								"ISP_YCONTRAST_ATTR_S.stManual.CenterLuma",
+								"ISP_YCONTRAST_ATTR_S.stAuto.ContrastLow",
+								"ISP_YCONTRAST_ATTR_S.stAuto.ContrastHigh",
+								"ISP_YCONTRAST_ATTR_S.stAuto.CenterLuma"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "Noise Profile",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CMOS_NOISE_CALIBRATION_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Noise Profile",
+							"MEMBER": [
+								"ISP_CMOS_NOISE_CALIBRATION_S.CalibrationCoef"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "RGBCAC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_RGBCAC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_RGBCAC_ATTR_S.Enable",
+								"ISP_RGBCAC_ATTR_S.enOpType",
+								"ISP_RGBCAC_ATTR_S.UpdateInterval",
+								"ISP_RGBCAC_ATTR_S.TuningMode",
+								"ISP_RGBCAC_ATTR_S.PurpleCb",
+								"ISP_RGBCAC_ATTR_S.PurpleCr",
+								"ISP_RGBCAC_ATTR_S.PurpleCb2",
+								"ISP_RGBCAC_ATTR_S.PurpleCr2",
+								"ISP_RGBCAC_ATTR_S.PurpleCb3",
+								"ISP_RGBCAC_ATTR_S.PurpleCr3",
+								"ISP_RGBCAC_ATTR_S.GreenCb",
+								"ISP_RGBCAC_ATTR_S.GreenCr"
+							]
+						},
+						{
+							"TITLE": "Ashing strength",
+							"MEMBER": [
+								"ISP_RGBCAC_ATTR_S.LumaBlendWgt",
+								"ISP_RGBCAC_ATTR_S.UserDefineLuma",
+								"ISP_RGBCAC_ATTR_S.LumaBlendWgt2",
+								"ISP_RGBCAC_ATTR_S.LumaScale",
+								"ISP_RGBCAC_ATTR_S.LumaBlendWgt3"
+							]
+						},
+						{
+							"TITLE": "Purple judge",
+							"MEMBER": [
+								"ISP_RGBCAC_ATTR_S.PurpleDetRange0",
+								"ISP_RGBCAC_ATTR_S.PurpleDetRange1",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleCbStr0",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleCrStr0",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleStr0",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleCbStr1",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleCrStr1",
+								"ISP_RGBCAC_ATTR_S.stManual.DePurpleStr1",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleCbStr0",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleCrStr0",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleStr0",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleCbStr1",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleCrStr1",
+								"ISP_RGBCAC_ATTR_S.stAuto.DePurpleStr1",
+								"ISP_RGBCAC_ATTR_S.DePurpleStrMin0",
+								"ISP_RGBCAC_ATTR_S.DePurpleStrMax0",
+								"ISP_RGBCAC_ATTR_S.DePurpleStrMin1",
+								"ISP_RGBCAC_ATTR_S.DePurpleStrMax1"
+							]
+						},
+						{
+							"TITLE": "Edge blending weight",
+							"MEMBER": [
+								"ISP_RGBCAC_ATTR_S.stManual.EdgeCoring",
+								"ISP_RGBCAC_ATTR_S.stAuto.EdgeCoring",
+								"ISP_RGBCAC_ATTR_S.EdgeGlobalGain",
+								"ISP_RGBCAC_ATTR_S.EdgeGainIn",
+								"ISP_RGBCAC_ATTR_S.EdgeGainOut"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "LCAC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_LCAC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+									"ISP_LCAC_ATTR_S.Enable",
+									"ISP_LCAC_ATTR_S.enOpType",
+									"ISP_LCAC_ATTR_S.UpdateInterval",
+									"ISP_LCAC_ATTR_S.TuningMode"
+								]
+						},
+						{
+							"TITLE": "Ashing strength - Base",
+							"MEMBER": [
+									"ISP_LCAC_ATTR_S.FilterTypeBase",
+									"ISP_LCAC_ATTR_S.DePurpleCrStr0",
+									"ISP_LCAC_ATTR_S.DePurpleCbStr0",
+									"ISP_LCAC_ATTR_S.DePurpleCrStr1",
+									"ISP_LCAC_ATTR_S.DePurpleCbStr1",
+									"ISP_LCAC_ATTR_S.stManual.DePurpleCrGain",
+									"ISP_LCAC_ATTR_S.stManual.DePurpleCbGain",
+									"ISP_LCAC_ATTR_S.stManual.DePurepleCrWgt0",
+									"ISP_LCAC_ATTR_S.stManual.DePurepleCbWgt0",
+									"ISP_LCAC_ATTR_S.stManual.DePurepleCrWgt1",
+									"ISP_LCAC_ATTR_S.stManual.DePurepleCbWgt1",
+									"ISP_LCAC_ATTR_S.stAuto.DePurpleCrGain",
+									"ISP_LCAC_ATTR_S.stAuto.DePurpleCbGain",
+									"ISP_LCAC_ATTR_S.stAuto.DePurepleCrWgt0",
+									"ISP_LCAC_ATTR_S.stAuto.DePurepleCbWgt0",
+									"ISP_LCAC_ATTR_S.stAuto.DePurepleCrWgt1",
+									"ISP_LCAC_ATTR_S.stAuto.DePurepleCbWgt1",
+									"HEADER:Edge blending weight - Base",
+									"ISP_LCAC_ATTR_S.EdgeGainBase0",
+									"ISP_LCAC_ATTR_S.EdgeGainBase1",
+									"ISP_LCAC_ATTR_S.stManual.EdgeCoringBase",
+									"ISP_LCAC_ATTR_S.stAuto.EdgeCoringBase",
+									"ISP_LCAC_ATTR_S.EdgeStrWgtBase",
+									"ISP_LCAC_ATTR_S.EdgeWgtBase.Wgt",
+									"ISP_LCAC_ATTR_S.EdgeWgtBase.Sigma",
+									"ISP_LCAC_ATTR_S.DePurpleStrMinBase",
+									"ISP_LCAC_ATTR_S.DePurpleStrMaxBase"
+								]
+						},
+						{
+							"TITLE": "Ashing strength - Adv",
+							"MEMBER": [
+									"ISP_LCAC_ATTR_S.FilterTypeAdv",
+									"ISP_LCAC_ATTR_S.FilterScaleAdv",
+									"HEADER:Edge blending weight - Adv",
+									"ISP_LCAC_ATTR_S.LumaWgt",
+									"ISP_LCAC_ATTR_S.EdgeGainAdv0",
+									"ISP_LCAC_ATTR_S.EdgeGainAdv1",
+									"ISP_LCAC_ATTR_S.stManual.EdgeCoringAdv",
+									"ISP_LCAC_ATTR_S.stAuto.EdgeCoringAdv",
+									"ISP_LCAC_ATTR_S.EdgeStrWgtAdvG",
+									"ISP_LCAC_ATTR_S.EdgeWgtAdv.Wgt",
+									"ISP_LCAC_ATTR_S.EdgeWgtAdv.Sigma",
+									"ISP_LCAC_ATTR_S.DePurpleStrMinAdv",
+									"ISP_LCAC_ATTR_S.DePurpleStrMaxAdv"
+								]
+						}
+					]
+				}
+			},
+			{
+				"ID": "LDCI",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_LDCI_ATTR_S" 
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Common",
+							"MEMBER": [
+								"ISP_LDCI_ATTR_S.Enable",
+								"ISP_LDCI_ATTR_S.enOpType",
+								"ISP_LDCI_ATTR_S.UpdateInterval",
+								"ISP_LDCI_ATTR_S.stManual.LdciStrength",
+								"ISP_LDCI_ATTR_S.stManual.UvGainMin",
+								"ISP_LDCI_ATTR_S.stManual.UvGainMax",
+								"ISP_LDCI_ATTR_S.stManual.LumaWgtMin",
+								"ISP_LDCI_ATTR_S.stManual.LumaWgtMax",
+								"ISP_LDCI_ATTR_S.stManual.LumaPosWgt.Wgt",
+								"ISP_LDCI_ATTR_S.stManual.LumaPosWgt.Sigma",
+								"ISP_LDCI_ATTR_S.stManual.LumaPosWgt.Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LdciStrength",
+								"ISP_LDCI_ATTR_S.stAuto.UvGainMin",
+								"ISP_LDCI_ATTR_S.stAuto.UvGainMax",
+								"ISP_LDCI_ATTR_S.stAuto.LumaWgtMin",
+								"ISP_LDCI_ATTR_S.stAuto.LumaWgtMax",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[0].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[0].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[0].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[1].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[1].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[1].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[2].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[2].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[2].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[3].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[3].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[3].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[4].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[4].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[4].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[5].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[5].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[5].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[6].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[6].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[6].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[7].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[7].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[7].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[8].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[8].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[8].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[9].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[9].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[9].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[10].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[10].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[10].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[11].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[11].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[11].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[12].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[12].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[12].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[13].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[13].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[13].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[14].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[14].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[14].Mean",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[15].Wgt",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[15].Sigma",
+								"ISP_LDCI_ATTR_S.stAuto.LumaPosWgt[15].Mean"
+							]
+						},
+						{
+							"TITLE": "Map Control",
+							"MEMBER": [
+								"ISP_LDCI_ATTR_S.GaussLPFSigma",
+								"ISP_LDCI_ATTR_S.stManual.TprCoef",
+								"ISP_LDCI_ATTR_S.stManual.EdgeCoring",
+								"ISP_LDCI_ATTR_S.stManual.LdciRange",
+								"ISP_LDCI_ATTR_S.stManual.VarMapMin",
+								"ISP_LDCI_ATTR_S.stManual.VarMapMax",
+								"ISP_LDCI_ATTR_S.stAuto.TprCoef",
+								"ISP_LDCI_ATTR_S.stAuto.EdgeCoring",
+								"ISP_LDCI_ATTR_S.stAuto.LdciRange",
+								"ISP_LDCI_ATTR_S.stAuto.VarMapMin",
+								"ISP_LDCI_ATTR_S.stAuto.VarMapMax"
+							]
+						},
+						{
+							"TITLE": "Curve Control",
+							"MEMBER": [
+								"ISP_LDCI_ATTR_S.stManual.DarkContrastLow",
+								"ISP_LDCI_ATTR_S.stManual.DarkContrastHigh",
+								"ISP_LDCI_ATTR_S.stManual.BrightContrastLow",
+								"ISP_LDCI_ATTR_S.stManual.BrightContrastHigh",
+								"ISP_LDCI_ATTR_S.stAuto.DarkContrastLow",
+								"ISP_LDCI_ATTR_S.stAuto.DarkContrastHigh",
+								"ISP_LDCI_ATTR_S.stAuto.BrightContrastLow",
+								"ISP_LDCI_ATTR_S.stAuto.BrightContrastHigh"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CA",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CA_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CA",
+							"MEMBER": [
+								"ISP_CA_ATTR_S.Enable",
+								"ISP_CA_ATTR_S.enOpType",
+								"ISP_CA_ATTR_S.UpdateInterval",
+								"ISP_CA_ATTR_S.CaCpMode",
+								"ISP_CA_ATTR_S.CPLutY",
+								"ISP_CA_ATTR_S.CPLutU",
+								"ISP_CA_ATTR_S.CPLutV",
+								"ISP_CA_ATTR_S.stManual.ISORatio",
+								"ISP_CA_ATTR_S.stManual.YRatioLut",
+								"ISP_CA_ATTR_S.stAuto.ISORatio",
+								"ISP_CA_ATTR_S.stAuto.YRatioLut"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CA Lite",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CA2_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CA Lite",
+							"MEMBER": [
+								"ISP_CA2_ATTR_S.Enable",
+								"ISP_CA2_ATTR_S.enOpType",
+								"ISP_CA2_ATTR_S.UpdateInterval",
+								"ISP_CA2_ATTR_S.stManual.Ca2In",
+								"ISP_CA2_ATTR_S.stManual.Ca2Out",
+								"ISP_CA2_ATTR_S.stAuto.Ca2In",
+								"ISP_CA2_ATTR_S.stAuto.Ca2Out"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CLUT",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CLUT_ATTR_S",
+						"ISP_CLUT_SATURATION_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CLUT",
+							"MEMBER": [
+								"ISP_CLUT_ATTR_S.Enable",
+								"ISP_CLUT_ATTR_S.UpdateInterval",
+								"ISP_CLUT_ATTR_S.ClutR",
+								"ISP_CLUT_ATTR_S.ClutG",
+								"ISP_CLUT_ATTR_S.ClutB"
+							]
+						},
+						{
+							"TITLE": "Saturation by Saturation",
+							"MEMBER": [
+								"ISP_CLUT_SATURATION_ATTR_S.Enable",
+								"ISP_CLUT_SATURATION_ATTR_S.enOpType",
+								"ISP_CLUT_SATURATION_ATTR_S.stManual.SatIn",
+								"ISP_CLUT_SATURATION_ATTR_S.stManual.SatOut",
+								"ISP_CLUT_SATURATION_ATTR_S.stAuto.SatIn",
+								"ISP_CLUT_SATURATION_ATTR_S.stAuto.SatOut"
+							],
+							"CURVE": [
+								{
+									"ALIAS": "SatCurve",
+									"POINTS": [
+										[
+											"ISP_CLUT_SATURATION_ATTR_S.stAuto.SatIn",
+											"ISP_CLUT_SATURATION_ATTR_S.stAuto.SatOut"
+										]
+									]
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "VPSS Adjustment",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"VPSS_ADJUSTMENT_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "VPSS Adjustment",
+							"MEMBER": [
+								"VPSS_ADJUSTMENT_ATTR_S.brightness",
+								"VPSS_ADJUSTMENT_ATTR_S.contrast",
+								"VPSS_ADJUSTMENT_ATTR_S.saturation",
+								"VPSS_ADJUSTMENT_ATTR_S.hue"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "CSC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_CSC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "CSC",
+							"MEMBER": [
+								"ISP_CSC_ATTR_S.Enable",
+								"ISP_CSC_ATTR_S.enColorGamut",
+								"ISP_CSC_ATTR_S.UpdateInterval",
+								"ISP_CSC_ATTR_S.Hue",
+								"ISP_CSC_ATTR_S.Luma",
+								"ISP_CSC_ATTR_S.Contrast",
+								"ISP_CSC_ATTR_S.Saturation",
+								"ISP_CSC_ATTR_S.stUserMatrx.userCscCoef",
+								"ISP_CSC_ATTR_S.stUserMatrx.userCscOffset"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "VO Gamma",
+				"READY": true,
+				"TYPE": "EXTERNAL",
+				"MODULE": "VO_GAMMA",
+				"CONTENTS": {
+					"CONTENT": [
+						"VO_GAMMA_INFO_S"
+					]
+				}
+			},
+			{
+				"ID": "ISPtoVC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_VC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "ISPtoVC",
+							"MEMBER": [
+								"ISP_VC_ATTR_S.UpdateInterval",
+								"ISP_VC_ATTR_S.MotionThreshold"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "LDC",
+				"READY": true,
+				"TYPE": "EXTERNAL",
+				"CONTENTS": {
+					"CONTENT": [
+						"VI_LDC_ATTR_S",
+						"VPSS_LDC_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "VI LDC",
+							"MEMBER": [
+								"VI_LDC_ATTR_S.bEnable",
+								"VI_LDC_ATTR_S.stAttr.bAspect",
+								"VI_LDC_ATTR_S.stAttr.s32XRatio",
+								"VI_LDC_ATTR_S.stAttr.s32YRatio",
+								"VI_LDC_ATTR_S.stAttr.s32XYRatio",
+								"VI_LDC_ATTR_S.stAttr.s32CenterXOffset",
+								"VI_LDC_ATTR_S.stAttr.s32CenterYOffset",
+								"VI_LDC_ATTR_S.stAttr.s32DistortionRatio"
+							]
+						},
+						{
+							"TITLE": "VPSS LDC",
+							"MEMBER": [
+								"VPSS_LDC_ATTR_S.bEnable",
+								"VPSS_LDC_ATTR_S.stAttr.bAspect",
+								"VPSS_LDC_ATTR_S.stAttr.s32XRatio",
+								"VPSS_LDC_ATTR_S.stAttr.s32YRatio",
+								"VPSS_LDC_ATTR_S.stAttr.s32XYRatio",
+								"VPSS_LDC_ATTR_S.stAttr.s32CenterXOffset",
+								"VPSS_LDC_ATTR_S.stAttr.s32CenterYOffset",
+								"VPSS_LDC_ATTR_S.stAttr.s32DistortionRatio"
+							]
+						}
+					]
+				}
+			}
+		]
+	}
+}

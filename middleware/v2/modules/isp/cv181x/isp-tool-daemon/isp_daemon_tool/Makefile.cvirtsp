@@ -1,0 +1,11 @@
+CVI_RTSP_PATH := ./prebuild
+CVI_RTSP_RELEASE_TARBALL := cvi_rtsp.tar.gz
+CVI_RTSP_OUT_PATH := tmp/cvi_rtsp
+CVI_RTSP_INC := $(CVI_RTSP_OUT_PATH)/include/cvi_rtsp
+CVI_RTSP_SERVICE_INC := $(CVI_RTSP_OUT_PATH)/include/cvi_rtsp_service
+CVI_RTSP_LIB_PATH := $(CVI_RTSP_OUT_PATH)/lib
+
+CVI_RTSP_TARBALL_PATH = $(CVI_RTSP_PATH)/$(CVI_RTSP_RELEASE_TARBALL)
+
+rtsp_lib_nonused += lib/*.a
+rtsp_lib_nonused += include

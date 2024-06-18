@@ -1,0 +1,37 @@
+SHELL = /bin/bash
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../../../$(shell echo $(MW_VER))/Makefile.param
+	include $(PARAM_FILE)
+endif
+
+ifeq ($(DESTDIR),)
+	DESTDIR := $(shell pwd)/install
+endif
+
+TARGET = isp_tool_daemon
+
+.PHONY: clean all install uninstall
+
+all:
+
+clean:
+
+install:
+	@mkdir -p $(DESTDIR)/usr/bin
+	@mkdir -p $(DESTDIR)/usr/lib
+	@cp -f install/$(TARGET) $(DESTDIR)/usr/bin
+	@cp -f install/CviIspTool.sh $(DESTDIR)/usr/bin
+	@cp -f install/config.ini $(DESTDIR)/usr/bin
+	@cp -f install/cfg_64M.json $(DESTDIR)/usr/bin
+	@cp -f install/cfg_128M.json $(DESTDIR)/usr/bin
+	@cp -f install/vc_param_64M.json $(DESTDIR)/usr/bin
+	@cp -f install/vc_param_128M.json $(DESTDIR)/usr/bin
+
+uninstall:
+	-@rm -f $(DESTDIR)/usr/bin/$(TARGET)
+	-@rm -f $(DESTDIR)/usr/bin/CviIspTool.sh
+	-@rm -f $(DESTDIR)/usr/bin/config.ini
+	-@rm -f $(DESTDIR)/usr/bin/cfg_64M.json
+	-@rm -f $(DESTDIR)/usr/bin/cfg_128M.json
+	-@rm -f $(DESTDIR)/usr/bin/vc_param_64M.json
+	-@rm -f $(DESTDIR)/usr/bin/vc_param_128M.json

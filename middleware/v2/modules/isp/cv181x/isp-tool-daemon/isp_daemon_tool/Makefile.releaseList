@@ -1,0 +1,41 @@
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../../../$(shell echo $(MW_VER))/Makefile.param
+	include $(PARAM_FILE)
+endif
+
+include ../../../isp.mk
+CVI_ISPD2_PATH = $(MW_PATH)/modules/isp/$(isp_chip_dir)/isp-daemon2/build
+
+# Defines the files that need to be packaged into isp_tool_daemon.tar.gz
+# isp-daemon2 dynamic library
+file += $(CVI_ISPD2_PATH)/libcvi_ispd2.so
+file += $(CVI_ISPD2_PATH)/libuv.so*
+file += $(CVI_ISPD2_PATH)/libjson-c.so*
+
+# mw dynamic library
+file += $(MW_LIB)/libawb.so
+file += $(MW_LIB)/libae.so
+file += $(MW_LIB)/libaf.so
+file += $(MW_LIB)/libisp.so
+file += $(MW_LIB)/libisp_algo.so
+file += $(MW_LIB)/libsample.so
+file += $(MW_LIB)/libcvi_bin.so
+file += $(MW_LIB)/libcvi_bin_isp.so
+file += $(MW_LIB)/libsns_full.so
+file += $(MW_LIB)/libsys.so
+file += $(MW_LIB)/libvdec.so
+file += $(MW_LIB)/libvenc.so
+file += $(MW_LIB)/libvpu.so
+file += $(MW_LIB)/libraw_replay.so
+file += $(MW_LIB)/libraw_dump.so
+file += $(MW_LIB)/3rd/libini.so
+
+# for middleware
+file += $(MW_LIB)/libcvi_audio.so
+file += $(MW_LIB)/libcvi_ive.so
+file += $(MW_LIB)/libcvi_vqe.so
+file += $(MW_LIB)/libcvi_VoiceEngine.so
+file += $(MW_LIB)/libcvi_RES1.so
+file += $(MW_LIB)/libtinyalsa.so
+file += $(MW_LIB)/libcvi_ssp.so
+file += $(MW_LIB)/libmisc.so

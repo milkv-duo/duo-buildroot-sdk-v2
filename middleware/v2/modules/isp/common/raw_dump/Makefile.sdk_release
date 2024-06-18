@@ -1,0 +1,19 @@
+SHELL = /bin/bash
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../../$(shell echo $(MW_VER))/Makefile.param
+	include $(PARAM_FILE)
+endif
+
+RELEASE_FOLDER = $(PWD)/bin
+
+TARGET_A = $(MW_LIB)/libraw_dump.a
+TARGET_SO = $(MW_LIB)/libraw_dump.so
+
+.PHONY: all clean
+.SILENT: all clean
+
+all:
+	@cp -f $(RELEASE_FOLDER)/* $(MW_LIB)
+
+clean:
+	@rm -f $(TARGET_A) $(TARGET_SO)
