@@ -12,3 +12,7 @@
 	};
 };
 
+&dac {
+	/delete-property/ mute-gpio-l;
+	/delete-property/ mute-gpio-r;
+};
