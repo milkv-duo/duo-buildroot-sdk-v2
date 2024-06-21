@@ -45,6 +45,7 @@ typedef enum
 	DSI_PANEL_ILI9881C,
 	DSI_PANEL_ILI9881D,
 	DSI_PANEL_JD9366AB,
+	DSI_PANEL_MILKV_8HD_800x1280,
 	DSI_PANEL_LT9611_1920x1080_60,
 	DSI_PANEL_LT9611_1920x1080_30,
 	DSI_PANEL_LT9611_1280x720_60,
@@ -107,6 +108,7 @@ static const char* s_panel_model_type_arr[] = {
 	"ILI9881C",
 	"ILI9881D",
 	"JD9366AB",
+	"MILKV_8HD",
 	"LT9611_1920x1080_60HZ",
 	"LT9611_1920x1080_30HZ",
 	"LT9611_1280x720_60HZ",
@@ -347,6 +349,13 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
 			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_jd9366ab_800x1280;
 			g_panel_desc.dsi_init_cmds = dsi_init_cmds_jd9366ab_800x1280;
 			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_jd9366ab_800x1280);
+			break;
+		case DSI_PANEL_MILKV_8HD_800x1280:
+			g_panel_desc.panel_name = "MILKV_8HD-800x1280";
+			g_panel_desc.dev_cfg = &dev_cfg_milkv_8hd_800x1280;
+			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_milkv_8hd_800x1280;
+			g_panel_desc.dsi_init_cmds = dsi_init_cmds_milkv_8hd_800x1280;
+			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_milkv_8hd_800x1280);
 			break;
 		case DSI_PANEL_NT35521:
 			g_panel_desc.panel_name = "NT35521-800x1280";
