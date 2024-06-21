@@ -23,6 +23,10 @@ case "$1" in
                 . $SYSTEMPATH/blink.sh &
         fi
 
+        if [ -f $SYSTEMPATH/usb.sh ]; then
+                . $SYSTEMPATH/usb.sh &
+        fi
+
         if [ -f $USERDATAPATH/auto.sh ]; then
                 usleep 30000
                 . $USERDATAPATH/auto.sh &
