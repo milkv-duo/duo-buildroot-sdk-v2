@@ -11,7 +11,7 @@ BR2_TOOLCHAIN_EXTERNAL_OPENMP=y
 BR2_TARGET_LDFLAGS="-march=rv64imafdcv0p7xthead -mcpu=c906fdv -mabi=lp64d -mcmodel=medany"
 BR2_OPTIMIZE_S=y
 BR2_TARGET_GENERIC_HOSTNAME="milkv-duo"
-BR2_TARGET_GENERIC_ISSUE="Welcome to Milk-V DuoS SD"
+BR2_TARGET_GENERIC_ISSUE="Welcome to Milk-V DuoS RISCV64 SD"
 BR2_TARGET_GENERIC_ROOT_PASSWD="milkv"
 BR2_ROOTFS_OVERLAY="board/milkv/milkv-duos-musl-riscv64-sd/overlay"
 BR2_PACKAGE_GDB=y
