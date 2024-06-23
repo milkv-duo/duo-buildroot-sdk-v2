@@ -6883,15 +6883,13 @@ int rwnx_cfg80211_init(struct rwnx_plat *rwnx_plat, void **platform_data)
 	tcp_ack_init(rwnx_hw);
 #endif
 
-#if 0
+	/* Set a default mac address with the last 2 bytes randomized */
+	memcpy(init_conf.mac_addr, dflt_mac, ETH_ALEN);
+
 	ret = rwnx_parse_configfile(rwnx_hw, RWNX_CONFIG_FW_NAME, &init_conf);
 	if (ret) {
-		wiphy_err(wiphy, "rwnx_parse_configfile failed\n");
-		goto err_config;
+		// do nothing
 	}
-#else
-	memcpy(init_conf.mac_addr, dflt_mac, ETH_ALEN);
-#endif
 
 	rwnx_hw->vif_started = 0;
 	rwnx_hw->monitor_vif = RWNX_INVALID_VIF;
@@ -7078,14 +7076,13 @@ int rwnx_cfg80211_init(struct rwnx_plat *rwnx_plat, void **platform_data)
 
 	if (mac_addr_efuse[0] | mac_addr_efuse[1] | mac_addr_efuse[2] | mac_addr_efuse[3]) {
 		memcpy(init_conf.mac_addr, mac_addr_efuse, ETH_ALEN);
-	}else{
-        memcpy(init_conf.mac_addr, dflt_mac, ETH_ALEN);
-    }
+	}
 
 
-	AICWFDBG(LOGINFO, "get macaddr: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+	AICWFDBG(LOGINFO, "efuse macaddr: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
 			mac_addr_efuse[0], mac_addr_efuse[1], mac_addr_efuse[2],
 			mac_addr_efuse[3], mac_addr_efuse[4], mac_addr_efuse[5]);
+
 	memcpy(wiphy->perm_addr, init_conf.mac_addr, ETH_ALEN);
 
 	/* Reset FW */

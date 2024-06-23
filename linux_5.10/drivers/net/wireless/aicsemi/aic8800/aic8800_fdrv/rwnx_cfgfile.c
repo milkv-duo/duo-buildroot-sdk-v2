@@ -13,6 +13,10 @@
 #include "rwnx_defs.h"
 #include "rwnx_cfgfile.h"
 
+int rwnx_request_firmware_common(struct rwnx_hw *rwnx_hw,
+	u32** buffer, const char *filename);
+void rwnx_release_firmware_common(u32** buffer);
+
 /**
  *
  */
@@ -52,36 +56,36 @@ static const char *rwnx_find_tag(const u8 *file_data, unsigned int file_size,
 int rwnx_parse_configfile(struct rwnx_hw *rwnx_hw, const char *filename,
 						  struct rwnx_conf_file *config)
 {
-	const struct firmware *config_fw;
-	u8 dflt_mac[ETH_ALEN] = { 0, 111, 111, 111, 111, 0 };
-	int ret;
+	u32 *config_fw=NULL;
+	int size;
 	const u8 *tag_ptr;
 
 	RWNX_DBG(RWNX_FN_ENTRY_STR);
 
-	ret = request_firmware(&config_fw, filename, rwnx_hw->dev);
-	if (ret) {
-		printk(KERN_CRIT "%s: Failed to get %s (%d)\n", __func__, filename, ret);
-		return ret;
+	size = rwnx_request_firmware_common(rwnx_hw, &config_fw, filename);
+	if (size <= 0) {
+		RWNX_DBG("%s: Failed to get %s (%d)\n", __func__, filename, size);
+		return -1;
 	}
 
 	/* Get MAC Address */
-	tag_ptr = rwnx_find_tag(config_fw->data, config_fw->size,
+	tag_ptr = rwnx_find_tag((u8*) config_fw, size,
 							"MAC_ADDR=", strlen("00:00:00:00:00:00"));
 	if (tag_ptr != NULL) {
 		u8 *addr = config->mac_addr;
 		if (sscanf(tag_ptr,
 				   "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
 				   addr + 0, addr + 1, addr + 2,
-				   addr + 3, addr + 4, addr + 5) != ETH_ALEN)
-			memcpy(config->mac_addr, dflt_mac, ETH_ALEN);
-	} else
-		memcpy(config->mac_addr, dflt_mac, ETH_ALEN);
-
-	RWNX_DBG("MAC Address is:\n%pM\n", config->mac_addr);
+				   addr + 3, addr + 4, addr + 5) != ETH_ALEN) {
+			printk(KERN_CRIT "%s: Invalid MAC_ADDR in %s\n", __func__, filename);
+            return -1;
+       }
+	}
 
 	/* Release the configuration file */
-	release_firmware(config_fw);
+	if (config_fw) {
+	    rwnx_release_firmware_common(&config_fw);
+	}
 
 	return 0;
 }
