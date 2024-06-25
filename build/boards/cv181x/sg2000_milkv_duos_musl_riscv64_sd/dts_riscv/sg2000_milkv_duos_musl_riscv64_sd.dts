@@ -13,6 +13,15 @@
 	/delete-property/ mute-gpio-r;
 };
 
+/* mipi dsi for u-boot */
+&vo {
+	compatible = "cvitek,vo";
+	reset-gpio = <&porte 2 GPIO_ACTIVE_LOW>;
+	pwm-gpio = <&porte 0 GPIO_ACTIVE_HIGH>;
+	power-ct-gpio = <&porte 1 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
 /* mipi dsi for kernel */
 &mipi_tx {
 	compatible = "cvitek,mipi_tx";
