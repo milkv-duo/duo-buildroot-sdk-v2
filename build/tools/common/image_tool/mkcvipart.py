@@ -137,7 +137,6 @@ def gen_cvipart_h(output, parser):
                 if p["label"] == "ROOTFS":
                     of.write('#define ROOTFS_DEV "/dev/mmcblk0p%d"\n' % (i+1))
                     break
-            of.write('#define PARTS_OFFSET ""\n')
 
         elif parser.getStorage() == "none":
             of.write('#define PART_LAYOUT ""\n')
@@ -160,10 +159,10 @@ def gen_cvipart_h(output, parser):
             )
 
         # Generintg PART_ENV
-        if parser.getStorage() == "emmc":
+        if parser.getStorage() == "emmc" or parser.getStorage() == "sd":
             LBA_SIZE = 512
 
-        if parser.getStorage() != "none" and parser.getStorage() != "sd":
+        if parser.getStorage() != "none":
             of.write("#define PARTS_OFFSET \\\n")
             for i, p in enumerate(parts):
                 of.write('"%s_PART_OFFSET=0x%x\\0" \\\n' % (p["label"], int(p["offset"] / LBA_SIZE)))
