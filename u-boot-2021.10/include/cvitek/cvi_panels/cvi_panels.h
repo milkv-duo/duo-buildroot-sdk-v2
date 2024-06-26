@@ -61,6 +61,15 @@ static struct panel_desc_s panel_desc = {
 	.dsi_init_cmds = dsi_init_cmds_jd9366ab_800x1280,
 	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_jd9366ab_800x1280)
 };
+#elif defined(MIPI_PANEL_MILKV_8HD)
+#include "dsi_milkv_8hd.h"
+static struct panel_desc_s panel_desc = {
+	.panel_name = "MILKV_8HD-800x1280",
+	.dev_cfg = &dev_cfg_milkv_8hd_800x1280,
+	.hs_timing_cfg = &hs_timing_cfg_milkv_8hd_800x1280,
+	.dsi_init_cmds = dsi_init_cmds_milkv_8hd_800x1280,
+	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_milkv_8hd_800x1280)
+};
 #elif defined(MIPI_PANEL_NT35521)
 #include "dsi_nt35521.h"
 static struct panel_desc_s panel_desc = {
