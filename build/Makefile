@@ -90,13 +90,6 @@ ifeq (${RELEASE_VERSION},1)
 uboot_release_action := ${Q}sed -i "s/CONFIG_BOOTDELAY=1/CONFIG_BOOTDELAY=-2/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
 endif
 
-# Set CONFIG_BOOTLOGO config in defconfig
-ifeq (${ENABLE_BOOTLOGO},1)
-uboot_bootlogo_action := ${Q}sed -i "s/CONFIG_BOOTLOGO=n/CONFIG_BOOTLOGO=y/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
-else
-uboot_bootlogo_action := ${Q}sed -i "s/CONFIG_BOOTLOGO=y/CONFIG_BOOTLOGO=n/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
-endif
-
 # Set CONFIG_USE_4K_ERASE_SIZE_FOR_JFFS2 config in defconfig
 ifeq (${CONFIG_USE_4K_ERASE_SIZE_FOR_JFFS2},y)
 uboot_erasesize_set := ${Q}sed -in "s/.*CONFIG_SPI_FLASH_USE_4K_SECTORS is not set/CONFIG_SPI_FLASH_USE_4K_SECTORS=y/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
@@ -140,7 +133,6 @@ ifeq ($(CONFIG_UBOOT_SPL_CUSTOM),y)
 		${Q}-cat ${UBOOT-SPL_DEFAULT_CONFIG_PATH} >> ${UBOOT_OUTPUT_CONFIG_PATH}
 endif
 	$(call uboot_release_action)
-	$(call uboot_bootlogo_action)
 ifeq ($(STORAGE_TYPE), spinor)
 	$(call uboot_erasesize_set)
 endif
