@@ -722,7 +722,7 @@ int cvifb_probe(struct platform_device *pdev)
 		sclr_disp_get_hw_timing(&timing);
 		info->var.xres = timing.hfde_end - timing.hfde_start + 1;
 		info->var.yres = timing.vfde_end - timing.vfde_start + 1;
-		info->var.bits_per_pixel = 16;
+		info->var.bits_per_pixel = 32;
 		info->var.xres_virtual = VXRES_SIZE(info->var.xres, info->var.bits_per_pixel);
 		info->var.yres_virtual =
 			double_buffer ? (info->var.yres * 2) : info->var.yres;
