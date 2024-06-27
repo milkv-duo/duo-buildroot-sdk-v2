@@ -58,7 +58,7 @@ class MemoryMap:
 
     # Boot logo is after the ION buffer
     # Framebuffer uses boot logo's reserved memory
-    BOOTLOGO_SIZE = 1800 * SIZE_1K
+    BOOTLOGO_SIZE = 8000 * SIZE_1K
     BOOTLOGO_ADDR = ION_ADDR - BOOTLOGO_SIZE
     FRAMEBUFFER_SIZE = BOOTLOGO_SIZE
     FRAMEBUFFER_ADDR = BOOTLOGO_ADDR
