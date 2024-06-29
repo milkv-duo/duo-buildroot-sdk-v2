@@ -8,6 +8,18 @@
 	model = "Milk-V DuoS";
 };
 
+&i2c4 {
+	status = "okay";
+
+	gt9xx: gt9xx@14 {
+		compatible = "goodix,gt9xx";
+		reg = <0x14>;
+		goodix,irq-gpio = <&porta 18 0>;
+		goodix,rst-gpio = <&porta 19 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+};
+
 &dac {
 	/delete-property/ mute-gpio-l;
 	/delete-property/ mute-gpio-r;
