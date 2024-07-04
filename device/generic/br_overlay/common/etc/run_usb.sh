@@ -10,15 +10,15 @@ ADB_VID=0x18D1
 ADB_PID=0x4EE0
 ADB_PID_M1=0x4EE2
 ADB_PID_M2=0x4EE4
-MANUFACTURER="Cvitek"
+MANUFACTURER="milkv"
 PRODUCT="USB Com Port"
 PRODUCT_NCM="NCM"
 PRODUCT_RNDIS="RNDIS"
 PRODUCT_UVC="UVC"
 PRODUCT_UAC="UAC"
-PRODUCT_ADB="ADB"
+PRODUCT_ADB="milkv-adb"
 ADBD_PATH=/usr/bin/
-SERIAL="0123456789"
+SERIAL="milkv-duo-series"
 MSC_FILE=$3
 CVI_DIR=/tmp/usb
 CVI_GADGET=$CVI_DIR/usb_gadget/cvitek
@@ -256,18 +256,21 @@ start() {
     mkdir /dev/usb-ffs/adb -p
     mount -t functionfs adb /dev/usb-ffs/adb
     if [ -f $ADBD_PATH/adbd ]; then
-	$ADBD_PATH/adbd &
+	    start-stop-daemon -S -q -m -b -p /var/run/adb.pid -x $ADBD_PATH/adbd
+      sleep 1
+      UDC=`ls /sys/class/udc/ | awk '{print $1}'`
+      echo ${UDC} >$CVI_GADGET/UDC
     fi
   else
-    # Start the gadget driver
-    UDC=`ls /sys/class/udc/ | awk '{print $1}'`
-    echo ${UDC} >$CVI_GADGET/UDC
+  # Start the gadget driver
+  UDC=`ls /sys/class/udc/ | awk '{print $1}'`
+  echo ${UDC} >$CVI_GADGET/UDC
   fi
 }
 
 stop() {
   if [ -d $CVI_GADGET/configs/c.1/ffs.adb ]; then
-    pkill adbd
+    start-stop-daemon -K -q -p /var/run/adb.pid -x $ADBD_PATH/adbd
     rm $CVI_GADGET/configs/c.1/ffs.adb
   else
     echo "" >$CVI_GADGET/UDC
