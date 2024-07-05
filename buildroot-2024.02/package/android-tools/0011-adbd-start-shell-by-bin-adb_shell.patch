@@ -1,0 +1,35 @@
+From 192a4b99a7d3f6776aa1583e82b533b634e0dfd8 Mon Sep 17 00:00:00 2001
+From: zheng1 <juping_zheng1@163.com.com>
+Date: Fri, 5 Jul 2024 14:59:40 +0800
+Subject: [PATCH] 1.adbd start shell by /bin/adb_shell
+
+Signed-off-by: zheng1 <juping_zheng1@163.com>
+---
+ core/adbd/services.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/core/adbd/services.c b/core/adbd/services.c
+index 5adcefe..e09cc93 100644
+--- a/core/adbd/services.c
++++ b/core/adbd/services.c
+@@ -377,10 +377,15 @@ static int create_subproc_thread(const char *name)
+     adb_thread_t t;
+     int ret_fd;
+     pid_t pid;
++    char *shell_cmd = "/bin/adb_shell";
++    if( access(shell_cmd, F_OK) != 0  ){
++        shell_cmd = SHELL_COMMAND;
++    }
++
+     if(name) {
+-        ret_fd = create_subprocess(SHELL_COMMAND, "-c", name, &pid);
++        ret_fd = create_subprocess(shell_cmd, "-c", name, &pid);
+     } else {
+-        ret_fd = create_subprocess(SHELL_COMMAND, "-", 0, &pid);
++        ret_fd = create_subprocess(shell_cmd, "-", 0, &pid);
+     }
+     D("create_subprocess() ret_fd=%d pid=%d\n", ret_fd, pid);
+ 
+-- 
+2.34.1
+

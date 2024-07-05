@@ -1,1 +1,1 @@
-usb-ncm.sh
+usb-adb.sh

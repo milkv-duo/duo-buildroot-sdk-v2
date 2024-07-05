@@ -1,0 +1,4 @@
+#!/bin/sh
+export ENV='/etc/profile'
+cd /root/
+exec /bin/sh
