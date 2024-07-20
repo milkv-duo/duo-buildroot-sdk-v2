@@ -455,6 +455,8 @@ static CVI_S32 isp_tnr_ctrl_preprocess(VI_PIPE ViPipe, ISP_ALGO_RESULT_S *algoRe
 			tmpRatio = (CVI_U16) ((CVI_FLOAT) u32RatioTNRbase * algoResult->afAEEVRatio[j]);
 			if (tmpRatio > tmpMaxThr || tmpRatio < tmpMinThr) {
 				runtime->GainCompensateRatio[j][i] = TNR_BASE_1X_GAIN;
+			} else {
+				runtime->GainCompensateRatio[j][i] = tmpRatio;
 			}
 		}
 	}

@@ -89,7 +89,7 @@ static CVI_S32 parse_handler(void *user, const char *section, const char *name, 
 static CVI_S32 parseIspToolDaemonIni(void)
 {
 	//0. init
-	CVI_S32 ret = 0;
+	CVI_S32 ret = CVI_SUCCESS;
 	ISP_CONFIG_ST stIspConfig;
 	SAMPLE_INI_CFG_S stIniCfg = {};
 
@@ -121,7 +121,7 @@ static CVI_S32 parseIspToolDaemonIni(void)
 		ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
 		if (stIspConfig.isEnableSetPQBin == 1) {
 			// read wdr mode from sensor_cfg.ini
-			if (ret) {
+			if (ret == CVI_SUCCESS) {
 				if (stIniCfg.enWDRMode[0] <= WDR_MODE_QUDRA) {
 					CVI_BIN_SetBinName(stIniCfg.enWDRMode[0], stIspConfig.SDR_PQBinName);
 					ISP_DAEMON_TOOL_LOG(LOG_INFO, "SdrMode[%d] Set SdrPqBin[%s] done",
@@ -152,12 +152,12 @@ static CVI_S32 parseIspToolDaemonIni(void)
 	}
 
 	//3. we call CVI_VI_SetDevNum because of isp_tool_daemon.tar.gz will rmmod & insmod ko file
-	if (ret) {
+	if (ret == CVI_SUCCESS) {
 		CVI_VI_SetDevNum(stIniCfg.devNum);
 		ISP_DAEMON_TOOL_LOG(LOG_INFO, "%s %d", "CVI_VI_SetDevNum:", stIniCfg.devNum);
 	} else {
 		ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
-		if (ret) {
+		if (ret == CVI_SUCCESS) {
 			CVI_VI_SetDevNum(stIniCfg.devNum);
 			ISP_DAEMON_TOOL_LOG(LOG_INFO, "%s %d", "CVI_VI_SetDevNum:", stIniCfg.devNum);
 		} else {
