@@ -55,7 +55,10 @@ CVI_S32 SAMPLE_VIO_TWO_DEV_VO(void)
 	CVI_LOG_SetLevelConf(&log_conf);
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
 
@@ -268,9 +271,13 @@ CVI_S32 SAMPLE_VIO_VoRotation(void)
 		.MipiDev[1] = 0xff,
 	};
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
+
 	if (stIniCfg.devNum > 1) {
 		SAMPLE_PRT("Only support 1 sensor device\n");
 		return CVI_FAILURE;
@@ -499,9 +506,13 @@ CVI_S32 SAMPLE_VIO_ViVpssAspectRatio(void)
 		.MipiDev[1] = 0xff,
 	};
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
+
 	if (stIniCfg.devNum > 1) {
 		SAMPLE_PRT("Only support 1 sensor device\n");
 		return CVI_FAILURE;
@@ -733,9 +744,13 @@ CVI_S32 SAMPLE_VIO_ViRotation(void)
 		.MipiDev[1] = 0xff,
 	};
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
+
 	if (stIniCfg.devNum > 1) {
 		SAMPLE_PRT("Only support 1 sensor device\n");
 		return CVI_FAILURE;
@@ -975,9 +990,13 @@ CVI_S32 SAMPLE_VIO_VpssRotation(void)
 		.MipiDev[1] = 0xff,
 	};
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
+
 	if (stIniCfg.devNum > 1) {
 		SAMPLE_PRT("Only support 1 sensor device\n");
 		return CVI_FAILURE;

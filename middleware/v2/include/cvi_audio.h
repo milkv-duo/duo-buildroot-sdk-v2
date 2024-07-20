@@ -65,6 +65,7 @@ CVI_S32  CVI_AUD_SYS_Bind(const MMF_CHN_S *pstSrcChn, const MMF_CHN_S *pstDestCh
  * @return CVI_S32 Return CVI_SUCCESS if succeed
  */
 CVI_S32  CVI_AUD_SYS_UnBind(const MMF_CHN_S *pstSrcChn, const MMF_CHN_S *pstDestChn);
+
 /* AI function api.  */
 
 /**
@@ -82,6 +83,22 @@ CVI_S32 CVI_AI_SetPubAttr(AUDIO_DEV AiDevId, const AIO_ATTR_S *pstAttr);
  * @return CVI_S32 Return CVI_SUCCESS if succeed
  */
 CVI_S32 CVI_AI_GetPubAttr(AUDIO_DEV AiDevId, AIO_ATTR_S *pstAttr);
+
+/**
+ * @brief Set the sound_card to audio
+ * @param AiDevId the number of audio device
+ * @param AiCardId the number of audio sound card
+*/
+CVI_S32 CVI_AI_SetCard(AUDIO_DEV AiDevId, CVI_S32 AiCardId);
+
+/**
+ * @brief Set the reference sound_card to audio
+ * @param AiDevId the number of audio device
+ * @param AiCardId the number of audio sound card
+*/
+#ifdef SUPPORT_PDM_AEC
+CVI_S32 CVI_AI_SetRefCard(AUDIO_DEV AiDevId, CVI_S32 AiCardId);
+#endif
 
 /**
  * @brief Create and initial ai device.
@@ -311,6 +328,13 @@ CVI_S32 CVI_AO_GetPubAttr(AUDIO_DEV AoDevId, AIO_ATTR_S *pstAttr);
  */
 
 CVI_S32 CVI_AO_ClrPubAttr(AUDIO_DEV AoDevId);
+
+/**
+ * @brief Set the sound_card to audio
+ * @param AoDevId the number of audio device
+ * @param AoCardId the number of audio sound card
+*/
+CVI_S32 CVI_AO_SetCard(AUDIO_DEV AoDevId, CVI_S32 AoCardId);
 
 /**
  * @brief Create and initial ao device.

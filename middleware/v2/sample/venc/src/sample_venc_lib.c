@@ -1181,7 +1181,10 @@ CVI_S32 vi_ut_plat_sys_init(void)
 	vi_ut_ctx.u32Align		 = DEFAULT_ALIGN;
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
 
@@ -3097,7 +3100,7 @@ RETRY_GET_STREAM:
 
 static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 {
-	uint64_t readBytes;
+	size_t readBytes;
 	chnInputCfg *pIc = &pvecc->chnIc;
 	VENC_CHN VencChn = pvecc->VencChn;
 	CVI_U32 ctbHeight, ctbStride;
@@ -3123,7 +3126,7 @@ static CVI_S32 _SAMPLE_VENC_SendFrame(vencChnCtx *pvecc, CVI_U32 i)
 
 		readBytes = fread(pvecc->pu8RoiBinMap, 1, ctbHeight * ctbStride, pIc->roiFile);
 		if (readBytes != ctbHeight * ctbStride) {
-			printf("fread error.readBytes:%lu\n", readBytes);
+			printf("fread error.readBytes:%zu\n", readBytes);
 			free(pvecc->pu8RoiBinMap);
 			fclose(pIc->roiFile);
 			return -1;

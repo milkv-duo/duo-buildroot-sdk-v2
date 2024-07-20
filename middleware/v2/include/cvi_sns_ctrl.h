@@ -19,34 +19,34 @@ typedef struct combo_dev_attr_s SNS_COMBO_DEV_ATTR_S;
 typedef struct mclk_pll_s SNS_MCLK_ATTR_S;
 
 typedef struct _SNS_ATTR_S {
-	CVI_U16	u16Min;
-	CVI_U16 u16Max;
-	CVI_U16 u16Def;
-	CVI_U16 u16Step;
+	CVI_U16	u16Min;			/* Current MIN exposure of sensor */
+	CVI_U16 u16Max;			/* Current MAX exposure of sensor */
+	CVI_U16 u16Def;			/* Current default setting exposure of sensor */
+	CVI_U16 u16Step;		/* Current exposure step of sensor */
 } SNS_ATTR_S;
 
 typedef struct _SNS_ATTR_LARGE_S {
-	CVI_U32	u32Min;
-	CVI_U32 u32Max;
-	CVI_U32 u32Def;
-	CVI_U32 u32Step;
+	CVI_U32	u32Min;			/* Current MIN gain of sensor */
+	CVI_U32 u32Max;			/* Current MAX gain of sensor */
+	CVI_U32 u32Def;			/* Current default setting gain of sensor */
+	CVI_U32 u32Step;		/* Current gain step of sensor */
 } SNS_ATTR_LARGE_S;
 
 typedef struct _ISP_SNS_STATE_S {
-	CVI_BOOL     bInit;                  /* CVI_TRUE: Sensor init */
-	CVI_BOOL     bSyncInit;              /* CVI_TRUE: Sync Reg init */
-	CVI_U8       u8ImgMode;
-	CVI_U8       u8Hdr;               /* CVI_TRUE: HDR enbale */
-	WDR_MODE_E  enWDRMode;
+	CVI_BOOL     bInit;					/* CVI_TRUE: Sensor init */
+	CVI_BOOL     bSyncInit;				/* CVI_TRUE: Sync Reg init */
+	CVI_U8       u8ImgMode;				/* Current image mode of sensor */
+	CVI_U8       u8Hdr;					/* CVI_TRUE: HDR enbale */
+	WDR_MODE_E  enWDRMode;				/* Current wdr mode of sensor */
 
-	ISP_SNS_SYNC_INFO_S astSyncInfo[2]; /* [0]: Sensor reg info of cur-frame; [1]: Sensor reg info of pre-frame ; */
+	ISP_SNS_SYNC_INFO_S astSyncInfo[2];	/* [0]: Sensor reg info of cur-frame; [1]: Sensor reg info of pre-frame ; */
 
-	CVI_U32      au32FL[2];              /* [0]: FullLines of cur-frame; [1]: Pre FullLines of pre-frame */
-	CVI_U32      u32FLStd;               /* FullLines std */
-	CVI_U32      au32WDRIntTime[4];
+	CVI_U32      au32FL[2];				/* [0]: FullLines of cur-frame; [1]: Pre FullLines of pre-frame */
+	CVI_U32      u32FLStd;				/* FullLines std */
+	CVI_U32      au32WDRIntTime[4];		/* Number of exposure lines under WDR */
 } ISP_SNS_STATE_S;
 
-typedef enum _ISP_SNS_MIRRORFLIP_TYPE_E {
+typedef enum _ISP_SNS_MIRRORFLIP_TYPE_E {	/* Flip mirror function of sensor */
 	ISP_SNS_NORMAL      = 0,
 	ISP_SNS_MIRROR      = 1,
 	ISP_SNS_FLIP        = 2,
@@ -56,29 +56,29 @@ typedef enum _ISP_SNS_MIRRORFLIP_TYPE_E {
 
 typedef enum _ISP_SNS_L2S_MODE_E {
 	SNS_L2S_MODE_AUTO = 0,	/* sensor l2s distance varies by the inttime of sef. */
-	SNS_L2S_MODE_FIX,	/* sensor l2s distance is fixed. */
+	SNS_L2S_MODE_FIX,		/* sensor l2s distance is fixed. */
 } ISP_SNS_INTTIME_MODE_E;
 
 typedef struct _MCLK_ATTR_S {
-	CVI_U8 u8Mclk;
-	CVI_BOOL bMclkEn;
+	CVI_U8 u8Mclk;			/* Select which mclk the Sensor uses. */
+	CVI_BOOL bMclkEn;		/* Select whether the Sensor uses the current mclk. */
 } MCLK_ATTR_S;
 
 typedef struct _RX_INIT_ATTR_S {
-	CVI_U32 MipiDev;
-	CVI_S16 as16LaneId[5];
-	CVI_S8  as8PNSwap[5];
-	MCLK_ATTR_S stMclkAttr;
+	CVI_U32 MipiDev;		/* Select which MAC the Sensor uses. */
+	CVI_S16 as16LaneId[5];	/* Select MIPI lane sequence the Sensor uses. */
+	CVI_S8  as8PNSwap[5];	/* Select whether MIPI lane swap the Sensor uses. */
+	MCLK_ATTR_S stMclkAttr;	/* Set MCLK information. */
 } RX_INIT_ATTR_S;
 
 typedef enum _SNS_BDG_MUX_MODE_E {
 	SNS_BDG_MUX_NONE = 0,	/* sensor bridge mux is disabled */
-	SNS_BDG_MUX_2,		/* sensor bridge mux 2 input */
-	SNS_BDG_MUX_3,		/* sensor bridge mux 3 input */
-	SNS_BDG_MUX_4,		/* sensor bridge mux 4 input */
+	SNS_BDG_MUX_2,			/* sensor bridge mux 2 input */
+	SNS_BDG_MUX_3,			/* sensor bridge mux 3 input */
+	SNS_BDG_MUX_4,			/* sensor bridge mux 4 input */
 } SNS_BDG_MUX_MODE_E;
 
-typedef struct _ISP_INIT_ATTR_S {
+typedef struct _ISP_INIT_ATTR_S {	/* Sensor exp ctrl info */
 	CVI_U32 u32ExpTime;
 	CVI_U32 u32AGain;
 	CVI_U32 u32DGain;
@@ -97,7 +97,7 @@ typedef struct _ISP_INIT_ATTR_S {
 	SNS_BDG_MUX_MODE_E enSnsBdgMuxMode;
 } ISP_INIT_ATTR_S;
 
-typedef struct _ISP_SNS_OBJ_S {
+typedef struct _ISP_SNS_OBJ_S {		/* Sensor callback object struct */
 	CVI_S32 (*pfnRegisterCallback)(VI_PIPE ViPipe, ALG_LIB_S *, ALG_LIB_S *);
 	CVI_S32 (*pfnUnRegisterCallback)(VI_PIPE ViPipe, ALG_LIB_S *, ALG_LIB_S *);
 	CVI_S32 (*pfnSetBusInfo)(VI_PIPE ViPipe, ISP_SNS_COMMBUS_U unSNSBusInfo);
@@ -119,6 +119,7 @@ typedef struct _ISP_SNS_OBJ_S {
 extern ISP_SNS_OBJ_S stSnsBG0808_Obj;
 extern ISP_SNS_OBJ_S stSnsBF2253L_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_Obj;
+extern ISP_SNS_OBJ_S stSnsCV2003_1L_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_1L_SLAVE_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_1L_SLAVE1_Obj;
 extern ISP_SNS_OBJ_S stSnsCV4001_Obj;
@@ -137,6 +138,7 @@ extern ISP_SNS_OBJ_S stSnsGc2083_Obj;
 extern ISP_SNS_OBJ_S stSnsGc2093_Obj;
 extern ISP_SNS_OBJ_S stSnsGc2093_Slave_Obj;
 extern ISP_SNS_OBJ_S stSnsGc2145_Obj;
+extern ISP_SNS_OBJ_S stSnsGc2385_1L_Obj;
 extern ISP_SNS_OBJ_S stSnsGc4023_Obj;
 extern ISP_SNS_OBJ_S stSnsGc4653_Obj;
 extern ISP_SNS_OBJ_S stSnsGc4653_Slave_Obj;
@@ -147,6 +149,7 @@ extern ISP_SNS_OBJ_S stSnsN6_Obj;
 extern ISP_SNS_OBJ_S stSnsOs02d10_Obj;
 extern ISP_SNS_OBJ_S stSnsOs02d10_Slave_Obj;
 extern ISP_SNS_OBJ_S stSnsOs02k10_Slave_Obj;
+extern ISP_SNS_OBJ_S stSnsOs02n10_1l_Obj;
 extern ISP_SNS_OBJ_S stSnsOs04a10_Obj;
 extern ISP_SNS_OBJ_S stSnsOs04c10_Obj;
 extern ISP_SNS_OBJ_S stSnsOs04c10_Slave_Obj;
@@ -224,6 +227,7 @@ extern ISP_SNS_OBJ_S stSnsImx334_Obj;
 extern ISP_SNS_OBJ_S stSnsImx335_Obj;
 extern ISP_SNS_OBJ_S stSnsImx347_Obj;
 extern ISP_SNS_OBJ_S stSnsImx385_Obj;
+extern ISP_SNS_OBJ_S stSnsImx675_Obj;
 extern ISP_SNS_OBJ_S stSnsTP2850_Obj;
 extern ISP_SNS_OBJ_S stSnsTP2825_Obj;
 extern ISP_SNS_OBJ_S stSnsTP2863_Obj;

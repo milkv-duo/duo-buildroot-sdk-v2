@@ -476,7 +476,7 @@ CVI_BOOL SAMPLE_COMM_FRAME_CompareWithFile(const CVI_CHAR *filename, VIDEO_FRAME
 		return false;
 	}
 
-	CVI_U8 buffer[stVbCalConfig.u32MainYSize];
+	CVI_U8 *buffer = (CVI_U8 *)malloc(stVbCalConfig.u32MainYSize * sizeof(CVI_U8));
 	CVI_U32 offset = 0;
 
 	for (int i = 0; i < stVbCalConfig.plane_num; ++i) {
@@ -513,6 +513,7 @@ CVI_BOOL SAMPLE_COMM_FRAME_CompareWithFile(const CVI_CHAR *filename, VIDEO_FRAME
 		CVI_SYS_Munmap(pstVideoFrame->stVFrame.pu8VirAddr[i], pstVideoFrame->stVFrame.u32Length[i]);
 	}
 
+	free(buffer);
 	fclose(fp);
 	return result;
 }

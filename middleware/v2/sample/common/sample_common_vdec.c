@@ -635,6 +635,13 @@ RETRY_GET_FRAME:
 				&stVFrame,
 				pstVdecThreadParam->s32MilliSec);
 		if (s32Ret == CVI_SUCCESS) {
+			for (int i = 0; i < 3; i++) {
+				if (stVFrame.stVFrame.pu8VirAddr[i])
+					CVI_SYS_IonInvalidateCache(stVFrame.stVFrame.u64PhyAddr[i],
+						stVFrame.stVFrame.pu8VirAddr[i],
+						stVFrame.stVFrame.u32Stride[i] * stVFrame.stVFrame.u32Height);
+			}
+
 			CVI_VDEC_DISP("PTS = %"PRId64", u32TimeRef = %d\n",
 					pstVFrame->u64PTS, pstVFrame->u32TimeRef);
 

@@ -26,7 +26,7 @@ TARGET = cvi_mp3player
 EXTRA_CFLAGS = $(INCS)
 EXTRA_LDFLAGS +=  -lcvi_audio
 EXTRA_LDFLAGS +=  -lm -lpthread  -ldl -lcvi_mp3 -lcvi_VoiceEngine -lmad
-EXTRA_LDFLAGS +=  -lcvi_vqe -ltinyalsa -lcvi_RES1 -lcli
+EXTRA_LDFLAGS +=  -lcvi_vqe -ltinyalsa -lcvi_RES1
 
 ifeq ($(SAMPLE_STATIC),1)
 LIB_DEP := $(MW_LIB)/libmad.a

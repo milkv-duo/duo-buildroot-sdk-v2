@@ -79,14 +79,21 @@ extern "C" {
 #define DNVQE_DRC_EXPANDER_COMPRESS	0x4
 #define DNVQE_DRC_LIMITER			0x8
 
-#define CVI_MAX_AI_DEVICE_ID_NUM 3
-#define CVI_MAX_AO_DEVICE_ID_NUM 3
+
+#define CVI_MAX_AI_DEVICE_ID_NUM 5
+#define CVI_MAX_AI_CARD_ID_NUM 5
+#define CVI_MAX_AO_DEVICE_ID_NUM 5
+#define CVI_MAX_AO_CARD_ID_NUM 5
 /* define macro */
 
 #define CHECK_AI_DEVID_VALID(x) \
 	((((x) > (CVI_MAX_AI_DEVICE_ID_NUM-1))) ? 1:0)
+#define CHECK_AI_CARD_VALID(x) \
+	((((x) > (CVI_MAX_AI_CARD_ID_NUM-1))) ? 1:0)
 #define CHECK_AO_DEVID_VALID(x) \
 	((((x) > (CVI_MAX_AO_DEVICE_ID_NUM-1))) ? 1:0)
+#define CHECK_AO_CARD_VALID(x) \
+	((((x) > (CVI_MAX_AO_CARD_ID_NUM-1))) ? 1:0)
 #define CHECK_AENC_DEVID_VALID(x) \
 	((((x) > (AENC_MAX_CHN_NUM-1))) ? 1:0)
 #define CHECK_ADEC_DEVID_VALID(x) \
@@ -598,6 +605,9 @@ extern ST_AudioUnitTestCfg  stAudTestCfg;
 #define CVI_ERR_AI_VQE_ERR       0xA0000010
 #define CVI_ERR_AI_VQE_BUF_FULL       0xA0000011
 #define CVI_ERR_AI_VQE_FILE_UNEXIST       0xA0000012
+/*invalid card ID*/
+#define CVI_ERR_AI_INVALID_CARDID    0xA100013
+
 /* invalid device ID */
 #define CVI_ERR_AO_INVALID_DEVID     0xA1000001
 /* invalid channel ID */
@@ -628,6 +638,8 @@ extern ST_AudioUnitTestCfg  stAudTestCfg;
 #define CVI_ERR_AO_BUSY              0xA100000E
 /* vqe  err */
 #define CVI_ERR_AO_VQE_ERR       0xA100000F
+/*invalid card ID*/
+#define CVI_ERR_AO_INVALID_CARDID    0xA100010
 
 
 #ifdef __cplusplus

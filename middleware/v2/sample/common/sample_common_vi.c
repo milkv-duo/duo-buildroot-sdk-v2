@@ -1145,7 +1145,10 @@ CVI_S32 SAMPLE_COMM_VI_DefaultConfig(CVI_VOID)
 	};
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
 

@@ -24,7 +24,7 @@ DEFINES += -DCVIAUDIO_STATIC
 DEFINES += -DSUPPORT_EXTERNAL_AAC
 
 INC = -I ./ -I$(MW_INC) -I$(KERNEL_INC) -I ../../aac_sample
-LIBS += -L$(MW_LIB) -lcvi_audio -lm -lpthread  -ldl -lcvi_VoiceEngine -lcvi_vqe -ltinyalsa -lcvi_RES1 -lcli -lcvi_ssp -lsys
+LIBS += -L$(MW_LIB) -lcvi_audio -lm -lpthread  -ldl -lcvi_VoiceEngine -lcvi_vqe -ltinyalsa -lcvi_RES1 -lcvi_ssp -lsys
 LIBS += -L$(MW_LIB)/3rd -lnanomsg
 LIBS += -laacdec2
 LIBS += -laacsbrdec2

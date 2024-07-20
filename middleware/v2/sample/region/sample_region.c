@@ -14,10 +14,10 @@
 #include "sample_comm.h"
 #include "fontmod.h"
 
-#define  colorbar_bmp  "colorbar.bmp"
-#define  dog_bmp    "dog.bmp"
-#define  tiger_bmp  "tiger.bmp"
-#define  tiger_8bitmode "tiger_8bitmode.bmp"
+#define  colorbar_bmp  "res/colorbar.bmp"
+#define  dog_bmp    "res/dog.bmp"
+#define  tiger_bmp  "res/tiger.bmp"
+#define  tiger_8bitmode "res/tiger_8bitmode.bmp"
 #define  test_bmp tiger_bmp
 #define IsASCII(a)				(((a) >= 0x00 && (a) <= 0x7F) ? 1 : 0)
 #define BYTE_BITS				8
@@ -43,6 +43,7 @@ void SAMPLE_REGION_Usage(char *sPrgNm)
 	printf("\t 7)VPSS OSD TIME.\n");
 	printf("\t 8)VPSS OSD MultiChn.\n");
 	printf("\t 9)VPSS OSD 8bit mode OVERLAY.\n");
+	printf("\t 10)VPSS OSD objects OVERLAY.\n");
 }
 
 void SAMPLE_REGION_HandleSig(CVI_S32 signo)
@@ -214,8 +215,12 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_START(CVI_VOID)
 	CVI_LOG_SetLevelConf(&log_conf);
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg))
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
+	}
 
 	/************************************************
 	 * step1:  Config VI
@@ -341,7 +346,7 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO(CVI_S32 HandleNum, RGN_TYPE_E enType, MMF_CHN_S
 		}
 	}
 
-	PAUSE();
+	usleep(10000 * 1000);
 EXIT2:
 	s32ExtRet = SAMPLE_COMM_REGION_DetachFrmChn(HandleNum, enType, pstChn);
 	if (s32ExtRet != CVI_SUCCESS)
@@ -425,7 +430,7 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_8BIT_MODE(CVI_S32 HandleNum, RGN_TYPE_E enType,
 		CVI_RGN_SetChnPalette(MinHandle, pstChn, &stPalette);
 	}
 
-	PAUSE();
+	usleep(10000 * 1000);
 EXIT2:
 	s32Ret = SAMPLE_COMM_REGION_DetachFrmChn(HandleNum, enType, pstChn);
 	if (s32Ret != CVI_SUCCESS)
@@ -588,8 +593,12 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_2LAYER(CVI_VOID)
 	CVI_LOG_SetLevelConf(&log_conf);
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg))
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
+	}
 
 	/************************************************
 	 * step1:  Config VI
@@ -737,13 +746,13 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_2LAYER(CVI_VOID)
 		goto EXIT1;
 	}
 
-	PAUSE();
+	usleep(1000 * 1000);
 
 	SAMPLE_PRT("Change cover to green!\n");
 	CVI_RGN_GetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
 	stRgnChnAttr.unChnAttr.stCoverChn.u32Color = 0x0000ff00;
 	CVI_RGN_SetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
-	PAUSE();
+	usleep(1000 * 1000);
 
 	SAMPLE_PRT("Change cover to blue and smaller size!\n");
 	CVI_RGN_GetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
@@ -751,14 +760,14 @@ CVI_S32 SAMPLE_REGION_VI_VPSS_VO_2LAYER(CVI_VOID)
 	stRgnChnAttr.unChnAttr.stCoverChn.stRect.u32Height = 50;
 	stRgnChnAttr.unChnAttr.stCoverChn.u32Color = 0x000000ff;
 	CVI_RGN_SetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
-	PAUSE();
+	usleep(1000 * 1000);
 
 	SAMPLE_PRT("Change cover size bigger!\n");
 	CVI_RGN_GetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
 	stRgnChnAttr.unChnAttr.stCoverChn.stRect.u32Width = 200;
 	stRgnChnAttr.unChnAttr.stCoverChn.stRect.u32Height = 200;
 	CVI_RGN_SetDisplayAttr(cover_hdl, &stChn0, &stRgnChnAttr);
-	PAUSE();
+	usleep(1000 * 1000);
 
 EXIT1:
 	s32ExtRet = SAMPLE_COMM_REGION_DetachFrmChn(1, OVERLAY_RGN, &stChn1);
@@ -873,6 +882,7 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 			stBitmap.u32Width = stRegion.unAttr.stOverlay.stSize.u32Width;
 			stBitmap.u32Height = stRegion.unAttr.stOverlay.stSize.u32Height;
 			stBitmap.enPixelFormat = stRegion.unAttr.stOverlay.enPixelFormat;
+			SAMPLE_REGION_GetTimeStr(NULL, szStr, MAX_STR_LEN);
 			s32Ret = SAMPLE_REGION_UpdateBitmap(i, szStr, &stBitmap, pu32Color);
 			if (s32Ret != CVI_SUCCESS) {
 				SAMPLE_PRT("SAMPLE_REGION_UpdateBitmap failed!\n");
@@ -928,8 +938,12 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_MULTICHN(CVI_VOID)
 	CVI_LOG_SetLevelConf(&log_conf);
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg))
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
+	}
 
 	/************************************************
 	 * step1:  Config VI
@@ -1188,7 +1202,7 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_MULTICHN(CVI_VOID)
 		}
 	}
 
-	PAUSE();
+	usleep(10000 * 1000);
 
 	for (j = 0; j < 4; j++) {
 		for (i = j * 8; i < (j + 1) * 8; i++) {
@@ -1220,6 +1234,215 @@ VI_BIND_VPSS_FAILED:
 	SAMPLE_COMM_VPSS_Stop(3, abChnEnable);
 	SAMPLE_COMM_VO_Exit();
 	SAMPLE_COMM_SYS_Exit();
+
+	return s32Ret;
+}
+
+CVI_S32 SAMPLE_REGION_VPSS_OSD_OBJECTS(CVI_VOID)
+{
+	CVI_S32 s32Ret;
+	CVI_S32 MinHandle;
+	RGN_TYPE_E enType;
+	MMF_CHN_S stChn;
+	RGN_ATTR_S stRegion;
+	RGN_CHN_ATTR_S stChnAttr;
+	BITMAP_S stBitmap;
+	CVI_U64 u64BitmapPhyAddr;
+	CVI_VOID *pBitmapVirAddr;
+
+	s32Ret = SAMPLE_REGION_VI_VPSS_VO_START();
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	VPSS_CHN_ATTR_S stVpssChnAttr;
+
+	CVI_VPSS_GetChnAttr(0, 0, &stVpssChnAttr);
+	stVpssChnAttr.bFlip = CVI_FALSE;
+	stVpssChnAttr.bMirror = CVI_FALSE;
+	CVI_VPSS_SetChnAttr(0, 0, &stVpssChnAttr);
+
+	enType = OVERLAY_RGN;
+	stChn.enModId = CVI_ID_VPSS;
+	stChn.s32DevId = 0;
+	stChn.s32ChnId = 0;
+
+	MinHandle = SAMPLE_COMM_REGION_GetMinHandle(enType);
+
+	stRegion.enType = OVERLAY_RGN;
+	stRegion.unAttr.stOverlay.enPixelFormat = PIXEL_FORMAT_ARGB_1555;
+	stRegion.unAttr.stOverlay.stSize.u32Width = 1280;
+	stRegion.unAttr.stOverlay.stSize.u32Height = 720;
+	stRegion.unAttr.stOverlay.u32BgColor = 0x00;
+	stRegion.unAttr.stOverlay.u32CanvasNum = 2;
+	stRegion.unAttr.stOverlay.stCompressInfo.enOSDCompressMode = OSD_COMPRESS_MODE_HW;
+	stRegion.unAttr.stOverlay.stCompressInfo.u32CompressedSize = RGN_CMPR_MIN_SIZE;
+	s32Ret = CVI_RGN_Create(MinHandle, &stRegion);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_RGN_Create failed with %#x!\n", s32Ret);
+		goto EXIT0;
+	}
+
+	stChnAttr.bShow = true;
+	stChnAttr.enType = OVERLAY_RGN;
+	stChnAttr.unChnAttr.stOverlayChn.stPoint.s32X = 0;
+	stChnAttr.unChnAttr.stOverlayChn.stPoint.s32Y = 0;
+	s32Ret = CVI_RGN_AttachToChn(MinHandle, &stChn, &stChnAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_RGN_AttachToChn failed with %#x!\n", s32Ret);
+		goto EXIT1;
+	}
+
+	RGN_CANVAS_CMPR_ATTR_S *pstCanvasCmprAttr;
+	RGN_CMPR_OBJ_ATTR_S *pstObjAttr;
+	RGN_CANVAS_INFO_S stCanvasInfo;
+
+	s32Ret = CVI_RGN_GetCanvasInfo(MinHandle, &stCanvasInfo);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_RGN_GetCanvasInfo failed with %#x!\n", s32Ret);
+		goto EXIT2;
+	}
+
+	pstCanvasCmprAttr = stCanvasInfo.pstCanvasCmprAttr;
+	pstObjAttr = stCanvasInfo.pstObjAttr;
+
+	pstCanvasCmprAttr->u32Width = stRegion.unAttr.stOverlay.stSize.u32Width;
+	pstCanvasCmprAttr->u32Height = stRegion.unAttr.stOverlay.stSize.u32Height;
+	pstCanvasCmprAttr->u32BgColor =  stRegion.unAttr.stOverlay.u32BgColor;
+	pstCanvasCmprAttr->enPixelFormat = stRegion.unAttr.stOverlay.enPixelFormat;
+	pstCanvasCmprAttr->u32BsSize = stRegion.unAttr.stOverlay.stCompressInfo.u32CompressedSize;
+	pstCanvasCmprAttr->u32ObjNum = 13;
+
+	pstObjAttr[0].stRgnRect.stRect.s32X = 0;
+	pstObjAttr[0].stRgnRect.stRect.s32Y = 0;
+	pstObjAttr[0].stRgnRect.stRect.u32Width = 50;
+	pstObjAttr[0].stRgnRect.stRect.u32Height = 50;
+	pstObjAttr[0].stRgnRect.u32Thick = 5;
+	pstObjAttr[0].stRgnRect.u32Color = 0x801f;
+	pstObjAttr[0].stRgnRect.u32IsFill = false;
+	pstObjAttr[0].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[1].stRgnRect.stRect.s32X = 100;
+	pstObjAttr[1].stRgnRect.stRect.s32Y = 100;
+	pstObjAttr[1].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[1].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[1].stRgnRect.u32Thick = 2;
+	pstObjAttr[1].stRgnRect.u32Color = 0x8000;
+	pstObjAttr[1].stRgnRect.u32IsFill = false;
+	pstObjAttr[1].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[2].stRgnRect.stRect.s32X = 200;
+	pstObjAttr[2].stRgnRect.stRect.s32Y = 200;
+	pstObjAttr[2].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[2].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[2].stRgnRect.u32Thick = 3;
+	pstObjAttr[2].stRgnRect.u32Color = 0x801f;
+	pstObjAttr[2].stRgnRect.u32IsFill = false;
+	pstObjAttr[2].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[3].stRgnRect.stRect.s32X = 300;
+	pstObjAttr[3].stRgnRect.stRect.s32Y = 300;
+	pstObjAttr[3].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[3].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[3].stRgnRect.u32Thick = 4;
+	pstObjAttr[3].stRgnRect.u32Color = 0x83e0;
+	pstObjAttr[3].stRgnRect.u32IsFill = false;
+	pstObjAttr[3].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[4].stRgnRect.stRect.s32X = 400;
+	pstObjAttr[4].stRgnRect.stRect.s32Y = 300;
+	pstObjAttr[4].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[4].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[4].stRgnRect.u32Thick = 5;
+	pstObjAttr[4].stRgnRect.u32Color = 0xfc00;
+	pstObjAttr[4].stRgnRect.u32IsFill = false;
+	pstObjAttr[4].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[5].stRgnRect.stRect.s32X = 500;
+	pstObjAttr[5].stRgnRect.stRect.s32Y = 200;
+	pstObjAttr[5].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[5].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[5].stRgnRect.u32Thick = 6;
+	pstObjAttr[5].stRgnRect.u32Color = 0xffe0;
+	pstObjAttr[5].stRgnRect.u32IsFill = false;
+	pstObjAttr[5].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[6].stRgnRect.stRect.s32X = 600;
+	pstObjAttr[6].stRgnRect.stRect.s32Y = 100;
+	pstObjAttr[6].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[6].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[6].stRgnRect.u32Thick = 7;
+	pstObjAttr[6].stRgnRect.u32Color = 0xfc1f;
+	pstObjAttr[6].stRgnRect.u32IsFill = false;
+	pstObjAttr[6].enObjType = RGN_CMPR_RECT;
+	pstObjAttr[7].stRgnRect.stRect.s32X = 700;
+	pstObjAttr[7].stRgnRect.stRect.s32Y = 000;
+	pstObjAttr[7].stRgnRect.stRect.u32Width = 200;
+	pstObjAttr[7].stRgnRect.stRect.u32Height = 200;
+	pstObjAttr[7].stRgnRect.u32Thick = 8;
+	pstObjAttr[7].stRgnRect.u32Color = 0x83ff;
+	pstObjAttr[7].stRgnRect.u32IsFill = false;
+	pstObjAttr[7].enObjType = RGN_CMPR_RECT;
+
+	pstObjAttr[8].stLine.stPointStart.s32X = 600;
+	pstObjAttr[8].stLine.stPointStart.s32Y = 200;
+	pstObjAttr[8].stLine.stPointEnd.s32X = 300;
+	pstObjAttr[8].stLine.stPointEnd.s32Y = 400;
+	pstObjAttr[8].stLine.u32Thick = 8;
+	pstObjAttr[8].stLine.u32Color = 0xfc10;
+	pstObjAttr[8].enObjType = RGN_CMPR_LINE;
+	pstObjAttr[9].stLine.stPointStart.s32X = 300;
+	pstObjAttr[9].stLine.stPointStart.s32Y = 400;
+	pstObjAttr[9].stLine.stPointEnd.s32X = 800;
+	pstObjAttr[9].stLine.stPointEnd.s32Y = 700;
+	pstObjAttr[9].stLine.u32Thick = 8;
+	pstObjAttr[9].stLine.u32Color = 0xfff0;
+	pstObjAttr[9].enObjType = RGN_CMPR_LINE;
+	pstObjAttr[10].stLine.stPointStart.s32X = 800;
+	pstObjAttr[10].stLine.stPointStart.s32Y = 700;
+	pstObjAttr[10].stLine.stPointEnd.s32X = 1100;
+	pstObjAttr[10].stLine.stPointEnd.s32Y = 600;
+	pstObjAttr[10].stLine.u32Thick = 8;
+	pstObjAttr[10].stLine.u32Color = 0xfc7f;
+	pstObjAttr[10].enObjType = RGN_CMPR_LINE;
+	pstObjAttr[11].stLine.stPointStart.s32X = 1100;
+	pstObjAttr[11].stLine.stPointStart.s32Y = 600;
+	pstObjAttr[11].stLine.stPointEnd.s32X = 600;
+	pstObjAttr[11].stLine.stPointEnd.s32Y = 200;
+	pstObjAttr[11].stLine.u32Thick = 8;
+	pstObjAttr[11].stLine.u32Color = 0x8fff;
+	pstObjAttr[11].enObjType = RGN_CMPR_LINE;
+
+	s32Ret = SAMPLE_COMM_REGION_MST_LoadBmp(tiger_bmp, &stBitmap, CVI_FALSE, 0x00,
+		pstCanvasCmprAttr->enPixelFormat);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("SAMPLE_COMM_REGION_MST_LoadBmp failed with %#x!\n", s32Ret);
+		goto EXIT2;
+	}
+	s32Ret = CVI_SYS_IonAlloc(&u64BitmapPhyAddr, (CVI_VOID **)&pBitmapVirAddr, "rgn_cmpr_bitmap1",
+			stBitmap.u32Width * stBitmap.u32Height * 2);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_SYS_IonAlloc failed with %#x!\n", s32Ret);
+		goto EXIT3;
+	}
+	memcpy(pBitmapVirAddr, stBitmap.pData, stBitmap.u32Width * stBitmap.u32Height * 2);
+	pstObjAttr[12].stBitmap.stRect.s32X = 20;
+	pstObjAttr[12].stBitmap.stRect.s32Y = 100;
+	pstObjAttr[12].stBitmap.stRect.u32Width = stBitmap.u32Width;
+	pstObjAttr[12].stBitmap.stRect.u32Height = stBitmap.u32Height;
+	pstObjAttr[12].stBitmap.u32BitmapPAddr = (CVI_U32)u64BitmapPhyAddr;
+	pstObjAttr[12].enObjType = RGN_CMPR_BIT_MAP;
+
+	s32Ret = CVI_RGN_UpdateCanvas(MinHandle);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_RGN_UpdateCanvas failed with %#x!\n", s32Ret);
+		goto EXIT4;
+	}
+
+	usleep(10000 * 1000);
+EXIT4:
+	CVI_SYS_IonFree(u64BitmapPhyAddr, pBitmapVirAddr);
+EXIT3:
+	free(stBitmap.pData);
+EXIT2:
+	CVI_RGN_DetachFromChn(MinHandle, &stChn);
+EXIT1:
+	CVI_RGN_Destroy(MinHandle);
+EXIT0:
+	SAMPLE_REGION_VI_VPSS_VO_END();
 
 	return s32Ret;
 }
@@ -1273,6 +1496,9 @@ int main(int argc, char *argv[])
 		break;
 	case 9:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_8BIT_MODE();
+		break;
+	case 10:
+		s32Ret = SAMPLE_REGION_VPSS_OSD_OBJECTS();
 		break;
 	default:
 		SAMPLE_PRT("option, %d, is invaild!\n", s32Index);
