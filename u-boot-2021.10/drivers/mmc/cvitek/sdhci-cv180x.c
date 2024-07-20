@@ -221,6 +221,7 @@ static void cvi_mmc_set_tap(struct sdhci_host *host, u16 tap)
 	sdhci_writel(host, 0, CVI_SDHCI_PHY_CONFIG);
 	// Set sd_clk_en(0x2c[2]) to 1
 	sdhci_writew(host, sdhci_readw(host, SDHCI_CLOCK_CONTROL) | (0x1 << 2), SDHCI_CLOCK_CONTROL);
+	mdelay(1);
 }
 
 static inline uint32_t CHECK_MASK_BIT(void *_mask, uint32_t bit)
