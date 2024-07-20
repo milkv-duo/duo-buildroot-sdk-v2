@@ -12,6 +12,11 @@
 
 #include <sbi/sbi_types.h>
 
+extern const struct platform_override sifive_fu540;
+extern const struct platform_override cvitek_riscv;
+extern u8 suspend_sram_entry[];
+extern u8 suspend_sram_end[];
+
 struct platform_override {
 	const struct fdt_match *match_table;
 	u64 (*features)(const struct fdt_match *match);

@@ -28,6 +28,7 @@
 #define SBI_EXT_RFENCE				0x52464E43
 #define SBI_EXT_HSM				0x48534D
 #define SBI_EXT_SRST				0x53525354
+#define SBI_EXT_SUSP				0x53555350
 
 /* SBI function IDs for BASE extension*/
 #define SBI_EXT_BASE_GET_SPEC_VERSION		0x0
@@ -110,6 +111,13 @@
 #define SBI_ERR_DENIED				-4
 #define SBI_ERR_INVALID_ADDRESS			-5
 #define SBI_ERR_ALREADY_AVAILABLE		-6
+
+/* SBI function IDs for SUSP extension */
+#define SBI_EXT_SUSP_SUSPEND                   0x0
+
+#define SBI_SUSP_SLEEP_TYPE_SUSPEND            0x0
+#define SBI_SUSP_SLEEP_TYPE_LAST               SBI_SUSP_SLEEP_TYPE_SUSPEND
+#define SBI_SUSP_PLATFORM_SLEEP_START          0x80000000
 
 #define SBI_LAST_ERR				SBI_ERR_ALREADY_AVAILABLE
 
