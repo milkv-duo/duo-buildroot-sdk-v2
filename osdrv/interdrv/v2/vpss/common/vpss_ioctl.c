@@ -524,6 +524,18 @@ long vpss_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		break;
 	}
 
+	case CVI_VPSS_SUSPEND:
+	{
+		ret = vpss_suspend();
+		break;
+	}
+
+	case CVI_VPSS_RESUME:
+	{
+		ret = vpss_resume();
+		break;
+	}
+
 	default:
 		CVI_TRACE_VPSS(CVI_DBG_DEBUG, "unknown cmd(0x%x)\n", cmd);
 		break;

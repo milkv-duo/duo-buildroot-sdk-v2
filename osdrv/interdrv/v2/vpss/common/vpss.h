@@ -116,6 +116,9 @@ CVI_S32 vpss_overflow_check(VPSS_GRP VpssGrp, struct cvi_vpss_info *vpss_info, s
 CVI_VOID vpss_print_vb_info(CVI_U8 grp_id, CVI_U8 sc_idx);
 CVI_S32 vpss_sbm_notify_venc(VPSS_GRP VpssGrp, CVI_U8 sc_idx);
 CVI_VOID set_fb_on_vpss(CVI_BOOL is_fb_on_vpss);
+CVI_S32 vpss_suspend(void);
+CVI_S32 vpss_resume(void);
+CVI_BOOL is_handler_suspended(CVI_U32 ctx_id);
 
 //Check GRP and CHN VALID, CREATED and FMT
 #define VPSS_GRP_SUPPORT_FMT(fmt) \

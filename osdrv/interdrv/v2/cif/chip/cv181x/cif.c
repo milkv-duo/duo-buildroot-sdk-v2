@@ -3321,6 +3321,81 @@ static int cvi_cif_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_PM_SLEEP
+static int cvi_cif_suspend(struct platform_device *pdev)
+{
+	struct cvi_cif_dev *dev;
+	int i;
+
+	if (!pdev) {
+		dev_err(&pdev->dev, "invalid param");
+		return -EINVAL;
+	}
+
+	dev = dev_get_drvdata(&pdev->dev);
+
+	if (!dev) {
+		dev_err(&pdev->dev, "Can not get cvi_cif drvdata");
+		return 0;
+	}
+
+	for (i = 0; i < MAX_LINK_NUM; i++) {
+		dev->is_mac_on[i] = dev->link[i].is_on;
+		if (dev->is_mac_on[i]) {
+			memcpy(&dev->cif_combo_dev_attr[i], &dev->link[i].attr, sizeof(struct combo_dev_attr_s));
+			cif_reset_mipi(dev, i);
+		}
+	}
+	proc_remove(cif_proc_entry);
+	dev_info(&pdev->dev, "cif suspend end");
+	return 0;
+}
+
+static int cvi_cif_resume(struct platform_device *pdev)
+{
+	struct cvi_cif_dev *dev;
+	int i;
+
+	if (!pdev) {
+		dev_err(&pdev->dev, "invalid param");
+		return -EINVAL;
+	}
+
+	dev = dev_get_drvdata(&pdev->dev);
+
+	if (!dev) {
+		dev_err(&pdev->dev, "Can not get cvi_cif drvdata");
+		return 0;
+	}
+
+	cif_proc_entry = proc_create_data("mipi-rx", 0, NULL, &cif_proc_fops, dev);
+	for (i = 0; i < MAX_LINK_NUM; i++) {
+		if (dev->is_mac_on[i]) {
+			cif_set_dev_attr(dev, &dev->cif_combo_dev_attr[i]);
+		}
+	}
+	dev_info(&pdev->dev, "cif resume end");
+	return 0;
+}
+
+static int cif_pm_suspend(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	cvi_cif_suspend(pdev);
+	return 0;
+}
+
+static int cif_pm_resume(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	cvi_cif_resume(pdev);
+	return 0;
+}
+#endif
+
+static SIMPLE_DEV_PM_OPS(cvi_cif_pm_ops, cif_pm_suspend,
+				cif_pm_resume);
+
 static const struct of_device_id cvi_cif_dt_match[] = {
 	{.compatible = "cvitek,cif"},
 	{}
@@ -3346,6 +3421,7 @@ static struct platform_driver cvi_cif_pdrv = {
 #if (DEVICE_FROM_DTS)
 		.of_match_table	= cvi_cif_dt_match,
 #endif
+		.pm = &cvi_cif_pm_ops,
 	},
 };
 

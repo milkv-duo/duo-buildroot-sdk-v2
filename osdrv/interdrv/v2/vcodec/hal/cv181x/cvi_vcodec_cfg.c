@@ -97,7 +97,7 @@ static void vpu_cfg_clk_enable(struct cvi_vpu_device *vdev, int mask)
 	WARN_ON(!vdev->clk_axi_video_codec);
 
 	if ((mask & BIT(H264_CORE_IDX)) && (mask & BIT(H265_CORE_IDX))) {
-		VCODEC_DBG_ERR("not supported mask in 182x\n");
+		VCODEC_DBG_WARN("not supported mask\n");
 		return;
 	}
 
@@ -130,7 +130,7 @@ static void vpu_cfg_clk_disable(struct cvi_vpu_device *vdev, int mask)
 	}
 
 	if ((mask & BIT(H264_CORE_IDX)) && (mask & BIT(H265_CORE_IDX))) {
-		VCODEC_DBG_ERR("not supported mask in 182x\n");
+		VCODEC_DBG_WARN("not supported mask\n");
 		return;
 	}
 

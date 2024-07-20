@@ -1,4 +1,5 @@
 #include <linux/slab.h>
+#include <linux/clk.h>
 
 #include <vo_sdk_layer.h>
 
@@ -12,6 +13,8 @@
 #include "scaler.h"
 #include "sys.h"
 #include "vo.h"
+
+extern bool __clk_is_enabled(struct clk *clk);
 
 /****************************************************************************
  * Global parameters
@@ -437,12 +440,13 @@ CVI_S32 vo_get_panelstatus(VO_LAYER VoLayer, VO_CHN VoChn, CVI_U32 *is_init)
 }
 CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 {
-	struct cvi_disp_intf_cfg cfg;
+	struct cvi_disp_intf_cfg *cfg;
 
-	struct vo_dv_timings dv_timings;
+	struct vo_dv_timings *dv_timings;
 	CVI_U16 rgb[3], i;
 	CVI_U32  panel_status = 0;
 	CVI_S32 ret = CVI_FAILURE;
+	CVI_U64 tmp;
 
 	ret = MOD_CHECK_NULL_PTR(CVI_ID_VO, pstPubAttr);
 	if (ret != CVI_SUCCESS)
@@ -457,101 +461,114 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		return CVI_ERR_VO_DEV_HAS_ENABLED;
 	}
 
-	memset(&cfg, 0, sizeof(cfg));
+	dv_timings = kmalloc(sizeof(struct vo_dv_timings), GFP_KERNEL);
+	cfg = kmalloc(sizeof(struct cvi_disp_intf_cfg), GFP_KERNEL);
+	memset(dv_timings, 0, sizeof(struct vo_dv_timings));
+	memset(cfg, 0, sizeof(struct cvi_disp_intf_cfg));
 
 	if (pstPubAttr->enIntfSync == VO_OUTPUT_USER) {
 		//vo_get_dv_timings(d->fd, &dv_timings);
-		dv_timings.bt.interlaced = !pstPubAttr->stSyncInfo.bIop;
-		dv_timings.bt.height = pstPubAttr->stSyncInfo.u16Vact << dv_timings.bt.interlaced;
-		dv_timings.bt.vbackporch = pstPubAttr->stSyncInfo.u16Vbb;
-		dv_timings.bt.vfrontporch = pstPubAttr->stSyncInfo.u16Vfb;
-		dv_timings.bt.width = pstPubAttr->stSyncInfo.u16Hact;
-		dv_timings.bt.hbackporch = pstPubAttr->stSyncInfo.u16Hbb;
-		dv_timings.bt.hfrontporch = pstPubAttr->stSyncInfo.u16Hfb;
-		dv_timings.bt.il_vbackporch = 0;
-		dv_timings.bt.il_vfrontporch = 0;
-		dv_timings.bt.il_vsync = 0;
-		dv_timings.bt.hsync = pstPubAttr->stSyncInfo.u16Hpw;
-		dv_timings.bt.vsync = pstPubAttr->stSyncInfo.u16Vpw;
-		dv_timings.bt.polarities = ((pstPubAttr->stSyncInfo.bIvs) ? 0 : 0x1)
+		dv_timings->bt.interlaced = !pstPubAttr->stSyncInfo.bIop;
+		dv_timings->bt.height = pstPubAttr->stSyncInfo.u16Vact << dv_timings->bt.interlaced;
+		dv_timings->bt.vbackporch = pstPubAttr->stSyncInfo.u16Vbb;
+		dv_timings->bt.vfrontporch = pstPubAttr->stSyncInfo.u16Vfb;
+		dv_timings->bt.width = pstPubAttr->stSyncInfo.u16Hact;
+		dv_timings->bt.hbackporch = pstPubAttr->stSyncInfo.u16Hbb;
+		dv_timings->bt.hfrontporch = pstPubAttr->stSyncInfo.u16Hfb;
+		dv_timings->bt.il_vbackporch = 0;
+		dv_timings->bt.il_vfrontporch = 0;
+		dv_timings->bt.il_vsync = 0;
+		dv_timings->bt.hsync = pstPubAttr->stSyncInfo.u16Hpw;
+		dv_timings->bt.vsync = pstPubAttr->stSyncInfo.u16Vpw;
+		dv_timings->bt.polarities = ((pstPubAttr->stSyncInfo.bIvs) ? 0 : 0x1)
 					| ((pstPubAttr->stSyncInfo.bIhs) ? 0 : 0x2);
-		dv_timings.bt.pixelclock = pstPubAttr->stSyncInfo.u16FrameRate
-					* (dv_timings.bt.vbackporch + dv_timings.bt.height
-					   + dv_timings.bt.vfrontporch + dv_timings.bt.vsync)
-					* (dv_timings.bt.hbackporch + dv_timings.bt.width
-					   + dv_timings.bt.hfrontporch + dv_timings.bt.hsync);
+		dv_timings->bt.pixelclock = pstPubAttr->stSyncInfo.u16FrameRate
+					* (dv_timings->bt.vbackporch + dv_timings->bt.height
+					   + dv_timings->bt.vfrontporch + dv_timings->bt.vsync)
+					* (dv_timings->bt.hbackporch + dv_timings->bt.width
+					   + dv_timings->bt.hfrontporch + dv_timings->bt.hsync);
 	} else if (pstPubAttr->enIntfSync < VO_OUTPUT_USER) {
-		dv_timings.bt.interlaced = !stSyncInfo[pstPubAttr->enIntfSync].bIop;
-		dv_timings.bt.height = stSyncInfo[pstPubAttr->enIntfSync].u16Vact << dv_timings.bt.interlaced;
-		dv_timings.bt.vbackporch = stSyncInfo[pstPubAttr->enIntfSync].u16Vbb;
-		dv_timings.bt.vfrontporch = stSyncInfo[pstPubAttr->enIntfSync].u16Vfb;
-		dv_timings.bt.width = stSyncInfo[pstPubAttr->enIntfSync].u16Hact;
-		dv_timings.bt.hbackporch = stSyncInfo[pstPubAttr->enIntfSync].u16Hbb;
-		dv_timings.bt.hfrontporch = stSyncInfo[pstPubAttr->enIntfSync].u16Hfb;
-		dv_timings.bt.il_vbackporch = 0;
-		dv_timings.bt.il_vfrontporch = 0;
-		dv_timings.bt.il_vsync = 0;
-		dv_timings.bt.hsync = stSyncInfo[pstPubAttr->enIntfSync].u16Hpw;
-		dv_timings.bt.vsync = stSyncInfo[pstPubAttr->enIntfSync].u16Vpw;
-		dv_timings.bt.polarities = ((stSyncInfo[pstPubAttr->enIntfSync].bIvs) ? 0 : 0x1)
+		dv_timings->bt.interlaced = !stSyncInfo[pstPubAttr->enIntfSync].bIop;
+		dv_timings->bt.height = stSyncInfo[pstPubAttr->enIntfSync].u16Vact << dv_timings->bt.interlaced;
+		dv_timings->bt.vbackporch = stSyncInfo[pstPubAttr->enIntfSync].u16Vbb;
+		dv_timings->bt.vfrontporch = stSyncInfo[pstPubAttr->enIntfSync].u16Vfb;
+		dv_timings->bt.width = stSyncInfo[pstPubAttr->enIntfSync].u16Hact;
+		dv_timings->bt.hbackporch = stSyncInfo[pstPubAttr->enIntfSync].u16Hbb;
+		dv_timings->bt.hfrontporch = stSyncInfo[pstPubAttr->enIntfSync].u16Hfb;
+		dv_timings->bt.il_vbackporch = 0;
+		dv_timings->bt.il_vfrontporch = 0;
+		dv_timings->bt.il_vsync = 0;
+		dv_timings->bt.hsync = stSyncInfo[pstPubAttr->enIntfSync].u16Hpw;
+		dv_timings->bt.vsync = stSyncInfo[pstPubAttr->enIntfSync].u16Vpw;
+		dv_timings->bt.polarities = ((stSyncInfo[pstPubAttr->enIntfSync].bIvs) ? 0 : 0x1)
 					| ((stSyncInfo[pstPubAttr->enIntfSync].bIhs) ? 0 : 0x2);
-		dv_timings.bt.pixelclock = stSyncInfo[pstPubAttr->enIntfSync].u16FrameRate
-					* (dv_timings.bt.vbackporch + dv_timings.bt.height
-					   + dv_timings.bt.vfrontporch + dv_timings.bt.vsync)
-					* (dv_timings.bt.hbackporch + dv_timings.bt.width
-					   + dv_timings.bt.hfrontporch + dv_timings.bt.hsync);
+		dv_timings->bt.pixelclock = stSyncInfo[pstPubAttr->enIntfSync].u16FrameRate
+					* (dv_timings->bt.vbackporch + dv_timings->bt.height
+					   + dv_timings->bt.vfrontporch + dv_timings->bt.vsync)
+					* (dv_timings->bt.hbackporch + dv_timings->bt.width
+					   + dv_timings->bt.hfrontporch + dv_timings->bt.hsync);
 	} else {
 		CVI_TRACE_VO(CVI_DBG_ERR, "VO Sync Info(%d) invalid.\n", pstPubAttr->enIntfSync);
+		kfree(dv_timings);
+		kfree(cfg);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 
-	if (dv_timings.bt.interlaced) {
+	if (dv_timings->bt.interlaced) {
 		CVI_TRACE_VO(CVI_DBG_ERR, "VO not support interlaced timing.\n");
+		kfree(dv_timings);
+		kfree(cfg);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
-	if ((dv_timings.bt.pixelclock == 0) || (dv_timings.bt.height == 0) || (dv_timings.bt.width == 0)) {
+	if ((dv_timings->bt.pixelclock == 0) || (dv_timings->bt.height == 0) || (dv_timings->bt.width == 0)) {
 		CVI_TRACE_VO(CVI_DBG_ERR, "VO Sync timing) invalid. width(%d) height(%d) pixelclock(%llu)\n"
-			, dv_timings.bt.width, dv_timings.bt.height, dv_timings.bt.pixelclock);
+			, dv_timings->bt.width, dv_timings->bt.height, dv_timings->bt.pixelclock);
+		kfree(dv_timings);
+		kfree(cfg);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 
 	if ((pstPubAttr->enIntfType >= VO_INTF_LCD_18BIT) && (pstPubAttr->enIntfType <= VO_INTF_LCD_30BIT)) {
-		cfg.intf_type = CVI_VIP_DISP_INTF_LVDS;
+		cfg->intf_type = CVI_VIP_DISP_INTF_LVDS;
 		if (pstPubAttr->enIntfType == VO_INTF_LCD_18BIT)
-			cfg.lvds_cfg.out_bits = LVDS_OUT_6BIT;
+			cfg->lvds_cfg.out_bits = LVDS_OUT_6BIT;
 		else if (pstPubAttr->enIntfType == VO_INTF_LCD_24BIT)
-			cfg.lvds_cfg.out_bits = LVDS_OUT_8BIT;
+			cfg->lvds_cfg.out_bits = LVDS_OUT_8BIT;
 		else if (pstPubAttr->enIntfType == VO_INTF_LCD_30BIT)
-			cfg.lvds_cfg.out_bits = LVDS_OUT_10BIT;
+			cfg->lvds_cfg.out_bits = LVDS_OUT_10BIT;
 		else
-			cfg.lvds_cfg.out_bits = LVDS_OUT_8BIT;
+			cfg->lvds_cfg.out_bits = LVDS_OUT_8BIT;
 
-		cfg.lvds_cfg.mode = (enum LVDS_MODE)pstPubAttr->stLvdsAttr.mode;
-		cfg.lvds_cfg.chn_num = pstPubAttr->stLvdsAttr.chn_num;
-		cfg.lvds_cfg.chn_num = 1;
-		cfg.lvds_cfg.vs_out_en = 1;
-		cfg.lvds_cfg.hs_out_en = 1;
-		cfg.lvds_cfg.hs_blk_en = 1;
-		cfg.lvds_cfg.msb_lsb_data_swap = 1;
-		cfg.lvds_cfg.serial_msb_first = pstPubAttr->stLvdsAttr.data_big_endian;
-		cfg.lvds_cfg.even_odd_link_swap = 0;
-		cfg.lvds_cfg.enable = 1;
-		cfg.lvds_cfg.pixelclock = pstPubAttr->stLvdsAttr.pixelclock;
+		cfg->lvds_cfg.mode = (enum LVDS_MODE)pstPubAttr->stLvdsAttr.mode;
+		cfg->lvds_cfg.chn_num = pstPubAttr->stLvdsAttr.chn_num;
+		cfg->lvds_cfg.chn_num = 1;
+		cfg->lvds_cfg.vs_out_en = 1;
+		cfg->lvds_cfg.hs_out_en = 1;
+		cfg->lvds_cfg.hs_blk_en = 1;
+		cfg->lvds_cfg.msb_lsb_data_swap = 1;
+		cfg->lvds_cfg.serial_msb_first = pstPubAttr->stLvdsAttr.data_big_endian;
+		cfg->lvds_cfg.even_odd_link_swap = 0;
+		cfg->lvds_cfg.enable = 1;
+		cfg->lvds_cfg.pixelclock = pstPubAttr->stLvdsAttr.pixelclock;
 		//skip u64 devide
-		cfg.lvds_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
-		cfg.lvds_cfg.backlight_gpio_num = pstPubAttr->stLvdsAttr.backlight_pin.gpio_num;
+		tmp = dv_timings->bt.pixelclock;
+		do_div(tmp, 1000);
+		cfg->lvds_cfg.pixelclock = tmp;
+		cfg->lvds_cfg.backlight_gpio_num = pstPubAttr->stLvdsAttr.backlight_pin.gpio_num;
 
 		for (i = 0; i < VO_LVDS_LANE_MAX; ++i) {
-			cfg.lvds_cfg.lane_id[i] = pstPubAttr->stLvdsAttr.lane_id[i];
-			cfg.lvds_cfg.lane_pn_swap[i] = pstPubAttr->stLvdsAttr.lane_pn_swap[i];
+			cfg->lvds_cfg.lane_id[i] = pstPubAttr->stLvdsAttr.lane_id[i];
+			cfg->lvds_cfg.lane_pn_swap[i] = pstPubAttr->stLvdsAttr.lane_pn_swap[i];
 		}
 
-		if (vo_set_interface(gvdev, &cfg) != 0) {
+		if (vo_set_interface(gvdev, cfg) != 0) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO INTF configure failured.\n");
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_FAILURE;
 		}
 	} else if ((pstPubAttr->enIntfType == VO_INTF_MIPI) || (pstPubAttr->enIntfType == VO_INTF_MIPI_SLAVE)) {
-		cfg.intf_type = CVI_VIP_DISP_INTF_DSI;
+		cfg->intf_type = CVI_VIP_DISP_INTF_DSI;
 		CVI_TRACE_VO(CVI_DBG_DEBUG, "MIPI-DSI should be setup by mipi-tx.\n");
 	} else if (pstPubAttr->enIntfType == VO_INTF_I80) {
 		const VO_I80_CFG_S *psti80Cfg = &pstPubAttr->sti80Cfg;
@@ -562,6 +579,8 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 			CVI_TRACE_VO(CVI_DBG_ERR, "CS(%d) RS(%d) WR(%d) RD(%d).\n",
 				     psti80Cfg->lane_s.CS, psti80Cfg->lane_s.RS,
 				     psti80Cfg->lane_s.WR, psti80Cfg->lane_s.RD);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if ((psti80Cfg->lane_s.CS == psti80Cfg->lane_s.RS) || (psti80Cfg->lane_s.CS == psti80Cfg->lane_s.WR) ||
@@ -570,16 +589,22 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) I80 lane can't duplicate CS(%d) RS(%d) WR(%d) RD(%d).\n",
 				     VoDev, psti80Cfg->lane_s.CS, psti80Cfg->lane_s.RS,
 				     psti80Cfg->lane_s.WR, psti80Cfg->lane_s.RD);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if (psti80Cfg->cycle_time > 250) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) cycle time %d > 250.\n",
 				     VoDev, psti80Cfg->cycle_time);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if (psti80Cfg->fmt >= VO_I80_FORMAT_MAX) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) invalid I80 Format(%d).\n",
 				     VoDev, psti80Cfg->fmt);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 #if 0//I80
@@ -604,6 +629,8 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		d = get_dev_info(VDEV_TYPE_DISP, 0);
 		if (vo_set_clk(d->fd, 1000000 / (psti80Cfg->cycle_time / 2)) != 0) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO I80 update cycle_time(%d) fail\n", psti80Cfg->cycle_time);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_FAILURE;
 		}
 #endif
@@ -612,55 +639,73 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		if (McuCfg->mode >= VO_MCU_MODE_MAX) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) invalid MCU Format(%d).\n",
 				     VoDev, McuCfg->mode);
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 
-		cfg.intf_type = CVI_VIP_DISP_INTF_HW_MCU;
-		cfg.mcu_cfg.mode = (enum MCU_MODE)McuCfg->mode;
-		cfg.mcu_cfg.lcd_power_gpio_num = McuCfg->lcd_power_gpio_num;
-		cfg.mcu_cfg.lcd_power_avtive = McuCfg->lcd_power_avtive;
-		cfg.mcu_cfg.backlight_gpio_num = McuCfg->backlight_gpio_num;
-		cfg.mcu_cfg.backlight_avtive = McuCfg->backlight_avtive;
-		cfg.mcu_cfg.reset_gpio_num = McuCfg->reset_gpio_num;
-		cfg.mcu_cfg.reset_avtive = McuCfg->reset_avtive;
-		cfg.mcu_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
-		memcpy(&cfg.mcu_cfg.pins, &pstPubAttr->stMcuCfg.pins, sizeof(struct vo_pins));
-		memcpy(&cfg.mcu_cfg.instrs, &pstPubAttr->stMcuCfg.instrs, sizeof(struct VO_MCU_INSTRS));
-		if (vo_set_interface(gvdev, &cfg) != 0) {
+		cfg->intf_type = CVI_VIP_DISP_INTF_HW_MCU;
+		cfg->mcu_cfg.mode = (enum MCU_MODE)McuCfg->mode;
+		cfg->mcu_cfg.lcd_power_gpio_num = McuCfg->lcd_power_gpio_num;
+		cfg->mcu_cfg.lcd_power_avtive = McuCfg->lcd_power_avtive;
+		cfg->mcu_cfg.backlight_gpio_num = McuCfg->backlight_gpio_num;
+		cfg->mcu_cfg.backlight_avtive = McuCfg->backlight_avtive;
+		cfg->mcu_cfg.reset_gpio_num = McuCfg->reset_gpio_num;
+		cfg->mcu_cfg.reset_avtive = McuCfg->reset_avtive;
+		tmp = dv_timings->bt.pixelclock;
+		do_div(tmp, 1000);
+		cfg->mcu_cfg.pixelclock = tmp;
+		memcpy(&cfg->mcu_cfg.pins, &pstPubAttr->stMcuCfg.pins, sizeof(struct vo_pins));
+		memcpy(&cfg->mcu_cfg.instrs, &pstPubAttr->stMcuCfg.instrs, sizeof(struct VO_MCU_INSTRS));
+		if (vo_set_interface(gvdev, cfg) != 0) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO INTF configure failured.\n");
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_FAILURE;
 		}
 	} else if (pstPubAttr->enIntfType == VO_INTF_BT656) {
-		cfg.intf_type = CVI_VIP_DISP_INTF_BT;
-		cfg.bt_cfg.mode = BT_MODE_656;
-		cfg.bt_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
-		memcpy(&cfg.bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
+		cfg->intf_type = CVI_VIP_DISP_INTF_BT;
+		cfg->bt_cfg.mode = BT_MODE_656;
+		tmp = dv_timings->bt.pixelclock;
+		do_div(tmp, 1000);
+		cfg->bt_cfg.pixelclock = tmp;
+		// cfg->bt_cfg.pixelclock = dv_timings->bt.pixelclock / 1000;
+		memcpy(&cfg->bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
 
-		if (vo_set_interface(gvdev, &cfg) != 0) {
+		if (vo_set_interface(gvdev, cfg) != 0) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO BT656 configure failured.\n");
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_FAILURE;
 		}
 	} else if (pstPubAttr->enIntfType == VO_INTF_BT1120) {
-		cfg.intf_type = CVI_VIP_DISP_INTF_BT;
-		cfg.bt_cfg.mode = BT_MODE_1120;
-		cfg.bt_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
-		memcpy(&cfg.bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
+		cfg->intf_type = CVI_VIP_DISP_INTF_BT;
+		cfg->bt_cfg.mode = BT_MODE_1120;
+		tmp = dv_timings->bt.pixelclock;
+		do_div(tmp, 1000);
+		cfg->bt_cfg.pixelclock = tmp;
+		// cfg->bt_cfg.pixelclock = dv_timings->bt.pixelclock / 1000;
+		memcpy(&cfg->bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
 
-		if (vo_set_interface(gvdev, &cfg) != 0) {
+		if (vo_set_interface(gvdev, cfg) != 0) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "VO BT1120 configure failured.\n");
+			kfree(dv_timings);
+			kfree(cfg);
 			return CVI_FAILURE;
 		}
 	} else {
 		CVI_TRACE_VO(CVI_DBG_ERR, "VO invalid INTF type(0x%x)\n", pstPubAttr->enIntfType);
+		kfree(dv_timings);
+		kfree(cfg);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 	vo_get_panelstatus(0, 0, &panel_status);
 
-	CVI_TRACE_VO(CVI_DBG_INFO, "panel_status[%d], intf_type[%d]\n", panel_status, cfg.intf_type);
-	if ((cfg.intf_type != CVI_VIP_DISP_INTF_DSI) && !panel_status) {
+	CVI_TRACE_VO(CVI_DBG_INFO, "panel_status[%d], intf_type[%d]\n", panel_status, cfg->intf_type);
+	if ((cfg->intf_type != CVI_VIP_DISP_INTF_DSI) && !panel_status) {
 		struct sclr_disp_timing timing;
 
-		vo_fill_disp_timing(&timing, &dv_timings.bt);
+		vo_fill_disp_timing(&timing, &dv_timings->bt);
 		sclr_disp_set_timing(&timing);
 	}
 
@@ -672,6 +717,8 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 
 	memcpy(&gVoCtx->stPubAttr, pstPubAttr, sizeof(*pstPubAttr));
 
+	kfree(dv_timings);
+	kfree(cfg);
 	return CVI_SUCCESS;
 }
 CVI_S32 vo_get_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
@@ -1121,7 +1168,6 @@ int _vo_sdk_setfmt(CVI_S32 width, CVI_S32 height, CVI_U32 pxlfmt)
 
 		if (fmt.fmt.pix_mp.plane_fmt[p].bytesperline < bytesperline)
 			fmt.fmt.pix_mp.plane_fmt[p].bytesperline = bytesperline;
-
 		fmt.fmt.pix_mp.plane_fmt[p].sizeimage = fmt.fmt.pix_mp.plane_fmt[p].bytesperline
 		* mp->height / plane_sub_v;
 
@@ -1201,57 +1247,56 @@ static int vo_set_chnrotation(VO_LAYER VoLayer, VO_CHN VoChn, ROTATION_E enRotat
 
 CVI_S32 vo_resume(void)
 {
-	VO_CHN VoChn = 0;
-	VO_LAYER VoLayer = 0;
 	CVI_S32 ret = CVI_FAILURE;
 	MMF_CHN_S chn = {.enModId = CVI_ID_VO, .s32DevId = 0, .s32ChnId = 0};
 
-	CVI_TRACE_VO(CVI_DBG_DEBUG, "vo resume DispBufLen[%d]\n", gVoCtx->u32DisBufLen);
+	if (gvdev->clk_disp && (!__clk_is_enabled(gvdev->clk_disp)) )
+		clk_prepare_enable(gvdev->clk_disp);
 
-	if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		base_mod_jobs_init(chn, CHN_TYPE_OUT, gVoCtx->u32DisBufLen - 1, 2, 0);
+	if (gvdev->clk_bt && (!__clk_is_enabled(gvdev->clk_bt)) )
+		clk_prepare_enable(gvdev->clk_bt);
 
-		ret = vo_start_streaming(gvdev);
-		if (ret) {
-			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo start streaming\n");
-			return -EAGAIN;
-		}
+	base_mod_jobs_init(chn, CHN_TYPE_OUT, gVoCtx->u32DisBufLen - 1, 2, 0);
 
-		ret = vo_create_thread(gvdev, E_VO_TH_DISP);
-		if (ret) {
-			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create E_VO_TH_DISP thread\n");
-		}
-
-		vo_set_chnrotation(VoLayer, VoChn, gVoCtx->enRotation);
+	ret = vo_create_thread(gvdev, E_VO_TH_DISP);
+	if (ret) {
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create E_VO_TH_DISP thread\n");
 	}
+
+	ret = vo_start_streaming(gvdev);
+	if (ret) {
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo start streaming\n");
+		return -EAGAIN;
+	}
+
 	return ret;
+
 }
 
 CVI_S32 vo_suspend(void)
 {
-	VO_CHN VoChn = 0;
-	VO_LAYER VoLayer = 0;
 	CVI_S32 ret = CVI_FAILURE;
 	MMF_CHN_S chn = {.enModId = CVI_ID_VO, .s32DevId = 0, .s32ChnId = 0};
 
-	if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		gVoCtx->is_chn_enable[VoLayer][VoChn] = CVI_FALSE;
-		ret = vo_stop_streaming(gvdev);
-		if (ret) {
-			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo stop streaming\n");
-			return -EAGAIN;
-		}
-
-		ret = vo_destroy_thread(gvdev, E_VO_TH_DISP);
-		if (ret) {
-			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo destory thread\n");
-			return -EAGAIN;
-		}
-
-		gVoCtx->is_chn_enable[VoLayer][VoChn] = CVI_TRUE;
-
-		base_mod_jobs_exit(chn, CHN_TYPE_OUT);
+	ret = vo_destroy_thread(gvdev, E_VO_TH_DISP);
+	if (ret) {
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo destory thread\n");
+		return -EAGAIN;
 	}
+
+	ret = vo_stop_streaming(gvdev);
+	if (ret) {
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo stop streaming\n");
+		return -EAGAIN;
+	}
+
+	base_mod_jobs_exit(chn, CHN_TYPE_OUT);
+
+	if (gvdev->clk_disp && __clk_is_enabled(gvdev->clk_disp))
+		clk_disable_unprepare(gvdev->clk_disp);
+
+	if (gvdev->clk_bt && __clk_is_enabled(gvdev->clk_bt))
+		clk_disable_unprepare(gvdev->clk_bt);
 
 	return ret;
 }
@@ -1471,41 +1516,35 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 {
 	u32 id = p->sdk_id;
 	long rc = -EINVAL;
+	struct vo_ctrl_cfg cfg;
+
 
 	gvdev = vdev;
 
 	switch (id) {
 	case VO_SDK_SET_CHNATTR:
 	{
-		struct vo_chn_attr_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
+		if (copy_from_user(&cfg.chn_attr, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_set_chn_attr(cfg->VoLayer, cfg->VoChn, &cfg->pstChnAttr);
+		rc = vo_set_chn_attr(cfg.chn_attr.VoLayer, cfg.chn_attr.VoChn, &cfg.chn_attr.pstChnAttr);
 
 		break;
 	}
 	case VO_SDK_GET_CHNATTR:
 	{
-		struct vo_chn_attr_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
+		if (copy_from_user(&cfg.chn_attr, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_get_chn_attr(cfg->VoLayer, cfg->VoChn, &cfg->pstChnAttr);
+		rc = vo_get_chn_attr(cfg.chn_attr.VoLayer, cfg.chn_attr.VoChn, &cfg.chn_attr.pstChnAttr);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_chn_attr_cfg))) {
+		if (copy_to_user(p->ptr, &cfg.chn_attr, sizeof(struct vo_chn_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
@@ -1514,44 +1553,49 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	}
 	case VO_SDK_GET_PUBATTR:
 	{
-		struct vo_pub_attr_cfg *cfg, _cfg_;
+		struct vo_pub_attr_cfg *pub_attr;
 
-		cfg = &_cfg_;
+		pub_attr = kmalloc(sizeof(struct vo_pub_attr_cfg), GFP_ATOMIC);
+		memset(pub_attr, 0 , sizeof(struct vo_pub_attr_cfg));
 
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
+		if (copy_from_user(pub_attr, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
+			kfree(pub_attr);
 			break;
 		}
 
-		rc = vo_get_pub_attr(cfg->VoDev, &cfg->pstPubAttr);
+		rc = vo_get_pub_attr(pub_attr->VoDev, &pub_attr->pstPubAttr);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_pub_attr_cfg))) {
+		if (copy_to_user(p->ptr, pub_attr, sizeof(struct vo_pub_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
-
+		kfree(pub_attr);
 		break;
 	}
 
 	case VO_SDK_SET_PUBATTR:
 	{
-		struct vo_pub_attr_cfg *cfg, _cfg_;
+		struct vo_pub_attr_cfg *pub_attr;
 
-		cfg = &_cfg_;
+		pub_attr = kmalloc(sizeof(struct vo_pub_attr_cfg), GFP_ATOMIC);
+		memset(pub_attr, 0 , sizeof(struct vo_pub_attr_cfg));
 
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
+		if (copy_from_user(pub_attr, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
+			kfree(pub_attr);
 			break;
 		}
 
-		rc = vo_set_pub_attr(cfg->VoDev, &cfg->pstPubAttr);
+		rc = vo_set_pub_attr(pub_attr->VoDev, &pub_attr->pstPubAttr);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_pub_attr_cfg))) {
+		if (copy_to_user(p->ptr, pub_attr, sizeof(struct vo_pub_attr_cfg))) {
+			kfree(pub_attr);
 			break;
 		}
-
+		kfree(pub_attr);
 		break;
 	}
 
@@ -1571,150 +1615,118 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 	case VO_SDK_GET_PANELSTATUE:
 	{
-		struct vo_panel_status_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_panel_status_cfg))) {
+		if (copy_from_user(&cfg.panel_status, p->ptr, sizeof(struct vo_panel_status_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_get_panelstatus(cfg->VoLayer, cfg->VoChn, &cfg->is_init);
+		rc = vo_get_panelstatus(cfg.panel_status.VoLayer, cfg.panel_status.VoChn,
+								&cfg.panel_status.is_init);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_chn_cfg)))
+		if (copy_to_user(p->ptr, &cfg.panel_status, sizeof(struct vo_chn_cfg)))
 			break;
 
 		break;
 	}
 	case VO_SDK_ENABLE_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_enable_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_enable_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 
 		break;
 	}
 	case VO_SDK_DISABLE_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_disable_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_disable_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 
 		break;
 	}
 	case VO_SDK_ENABLE:
 	{
-		struct vo_dev_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_dev_cfg))) {
+		if (copy_from_user(&cfg.dev, p->ptr, sizeof(struct vo_dev_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_enable(cfg->VoDev);
+		rc = vo_enable(cfg.dev.VoDev);
 
 		break;
 	}
 
 	case VO_SDK_DISABLE:
 	{
-		struct vo_dev_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_dev_cfg))) {
+		if (copy_from_user(&cfg.dev, p->ptr, sizeof(struct vo_dev_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_disable(cfg->VoDev);
+		rc = vo_disable(cfg.dev.VoDev);
 
 		break;
 	}
 
 	case VO_SDK_SEND_FRAME:
 	{
-		struct vo_snd_frm_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_snd_frm_cfg))) {
+		if (copy_from_user(&cfg.snd_frm, p->ptr, sizeof(struct vo_snd_frm_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
-		rc = vo_send_frame(cfg->VoLayer, cfg->VoChn, &cfg->stVideoFrame, cfg->s32MilliSec);
+		rc = vo_send_frame(cfg.snd_frm.VoLayer, cfg.snd_frm.VoChn,
+							&cfg.snd_frm.stVideoFrame, cfg.snd_frm.s32MilliSec);
 		break;
 	}
 
 	case VO_SDK_CLEAR_CHNBUF:
 	{
-		struct vo_clear_chn_buf_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_clear_chn_buf_cfg))) {
+		if (copy_from_user(&cfg.clr_chn_buf, p->ptr, sizeof(struct vo_clear_chn_buf_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
-		rc = vo_clear_chnbuf(cfg->VoLayer, cfg->VoChn, cfg->bClrAll);
+		rc = vo_clear_chnbuf(cfg.clr_chn_buf.VoLayer, cfg.clr_chn_buf.VoChn,
+							cfg.clr_chn_buf.bClrAll);
 		break;
 	}
 
 	case VO_SDK_SET_DISPLAYBUFLEN:
 	{
-		struct vo_display_buflen_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
+		if (copy_from_user(&cfg.dis_buflen, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_set_displaybuflen(cfg->VoLayer, cfg->u32BufLen);
+		rc = vo_set_displaybuflen(cfg.dis_buflen.VoLayer,cfg.dis_buflen.u32BufLen);
 
 		break;
 	}
 
 	case VO_SDK_GET_DISPLAYBUFLEN:
 	{
-		struct vo_display_buflen_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
+		if (copy_from_user(&cfg.dis_buflen, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_get_displaybuflen(cfg->VoLayer, &cfg->u32BufLen);
+		rc = vo_get_displaybuflen(cfg.dis_buflen.VoLayer, &cfg.dis_buflen.u32BufLen);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_display_buflen_cfg))) {
+		if (copy_to_user(p->ptr, &cfg.dis_buflen, sizeof(struct vo_display_buflen_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
@@ -1723,19 +1735,16 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 	case VO_SDK_GET_CHNROTATION:
 	{
-		struct vo_chn_rotation_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
+		if (copy_from_user(&cfg.chn_rot, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_get_chnrotation(cfg->VoLayer, cfg->VoChn, &cfg->enRotation);
+		rc = vo_get_chnrotation(cfg.chn_rot.VoLayer, cfg.chn_rot.VoChn,
+								&cfg.chn_rot.enRotation);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_display_buflen_cfg))) {
+		if (copy_to_user(p->ptr, &cfg.chn_rot, sizeof(struct vo_display_buflen_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
@@ -1744,52 +1753,44 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 	case VO_SDK_SET_CHNROTATION:
 	{
-		struct vo_chn_rotation_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
+		if (copy_from_user(&cfg.chn_rot, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_set_chnrotation(cfg->VoLayer, cfg->VoChn, cfg->enRotation);
+		rc = vo_set_chnrotation(cfg.chn_rot.VoLayer, cfg.chn_rot.VoChn,
+								cfg.chn_rot.enRotation);
 
 		break;
 	}
 
 	case VO_SDK_SET_VIDEOLAYERATTR:
 	{
-		struct vo_video_layer_attr_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
+		if (copy_from_user(&cfg.video_layer_attr, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_set_videolayerattr(cfg->VoLayer, &cfg->pstLayerAttr);
+		rc = vo_set_videolayerattr(cfg.video_layer_attr.VoLayer,
+									&cfg.video_layer_attr.pstLayerAttr);
 
 		break;
 	}
 
 	case VO_SDK_GET_VIDEOLAYERATTR:
 	{
-		struct vo_video_layer_attr_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
+		if (copy_from_user(&cfg.video_layer_attr, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_get_videolayerattr(cfg->VoLayer, &cfg->pstLayerAttr);
+		rc = vo_get_videolayerattr(cfg.video_layer_attr.VoLayer,
+									&cfg.video_layer_attr.pstLayerAttr);
 
-		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_video_layer_attr_cfg))) {
+		if (copy_to_user(p->ptr, &cfg.video_layer_attr, sizeof(struct vo_video_layer_attr_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 
@@ -1800,98 +1801,74 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 	case VO_SDK_ENABLE_VIDEOLAYER:
 	{
-		struct vo_video_layer_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_cfg))) {
+		if (copy_from_user(&cfg.video_layer, p->ptr, sizeof(struct vo_video_layer_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_enablevideolayer(cfg->VoLayer);
+		rc = vo_enablevideolayer(cfg.video_layer.VoLayer);
 
 		break;
 	}
 
 	case VO_SDK_DISABLE_VIDEOLAYER:
 	{
-		struct vo_video_layer_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_cfg))) {
+		if (copy_from_user(&cfg.video_layer, p->ptr, sizeof(struct vo_video_layer_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_disablevideolayer(cfg->VoLayer);
+		rc = vo_disablevideolayer(cfg.video_layer.VoLayer);
 
 		break;
 	}
 
 	case VO_SDK_SHOW_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_show_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_show_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 		break;
 	}
 	case VO_SDK_HIDE_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_hide_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_hide_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 		break;
 	}
 	case VO_SDK_PAUSE_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_pause_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_pause_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 
 		break;
 	}
 
 	case VO_SDK_RESUME_CHN:
 	{
-		struct vo_chn_cfg *cfg, _cfg_;
-
-		cfg = &_cfg_;
-
-		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
+		if (copy_from_user(&cfg.chn, p->ptr, sizeof(struct vo_chn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
 
-		rc = vo_resume_chn(cfg->VoLayer, cfg->VoChn);
+		rc = vo_resume_chn(cfg.chn.VoLayer, cfg.chn.VoChn);
 
 		break;
 	}

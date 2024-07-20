@@ -932,7 +932,7 @@ static int cvi_ive_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#if 0
+#ifdef CONFIG_PM_SLEEP
 static int cvi_ive_suspend(struct device *dev)
 {
 	//[TODO]

@@ -4289,6 +4289,26 @@ EXPORT_SYMBOL_GPL(sclr_i80_run);
 /****************************************************************************
  * SCALER CTRL
  ****************************************************************************/
+
+/**
+ * sclr_prepare - setup all img & sc instances.
+ *
+ */
+void sclr_prepare(void)
+{
+	int i = 0;
+
+	sclr_img_reg_shadow_sel(SCL_IMG_V, false);
+	sclr_img_reg_shadow_sel(SCL_IMG_D, false);
+
+	for (i = 0; i < SCL_MAX_INST; i++) {
+		sclr_reg_shadow_sel(i, false);
+		sclr_init(i);
+		sclr_set_cfg(i, false, false, true, false);
+		sclr_reg_force_up(i);
+	}
+}
+
 /**
  * sclr_ctrl_init - setup all sc instances.
  *
@@ -4297,6 +4317,7 @@ void sclr_ctrl_init(bool is_resume)
 {
 	union sclr_intr intr_mask;
 	union sclr_rt_cfg rt_cfg;
+	struct sclr_img_cfg *cfg;
 	bool disp_from_sc = false;
 	unsigned int i = 0;
 	u8 layer;
@@ -4366,6 +4387,12 @@ void sclr_ctrl_init(bool is_resume)
 	} else {
 		for (i = 0; i < SCL_MAX_INST; ++i)
 			g_sc_cfg[i].coef = SCL_COEF_MAX;
+		sclr_prepare();
+
+		for (i = SCL_IMG_V; i < SCL_IMG_MAX; ++i) {
+			cfg = sclr_img_get_cfg(i);
+			sclr_ctrl_set_input(i, cfg->src, cfg->fmt, cfg->csc, cfg->src == SCL_INPUT_ISP);
+		}
 	}
 
 	// get current hw-timings

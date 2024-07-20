@@ -3719,13 +3719,13 @@ CVI_S32 CVI_VENC_DestroyChn(VENC_CHN VeChn)
 	chn.s32ChnId = pChnHandle->VeChn;
 	base_mod_jobs_exit(chn, CHN_TYPE_IN);
 
-	pChnHandle->sbm_state = VENC_SBM_STATE_CHN_CLOSED;
 
-	if (pSbmHandle->pSBMSendFrameThread) {
+	if (pChnHandle->sbm_state != VENC_SBM_STATE_IDLE && pSbmHandle->pSBMSendFrameThread) {
 		VENC_CHN_STATUS_S stStat;
 		VENC_STREAM_S stStream = {0};
 		CVI_S32 s32IsNotNeedSkip;
 
+		pChnHandle->sbm_state = VENC_SBM_STATE_CHN_CLOSED;
 		s32IsNotNeedSkip = _cviVEncSbGetSkipFrmStatus(&pChnHandle->stSbSetting);
 
 		if (!s32IsNotNeedSkip) {
@@ -3743,9 +3743,10 @@ CVI_S32 CVI_VENC_DestroyChn(VENC_CHN VeChn)
 					MEM_FREE(stStream.pstPack);
 			}
 		}
+
+		cviSetSBMEnable(pChnHandle, CVI_FALSE);
 	}
 
-	cviSetSBMEnable(pChnHandle, CVI_FALSE);
 	s32Ret = pEncCtx->base.close(pEncCtx);
 
 	SEMA_DESTROY(&pChnVars->sem_send);

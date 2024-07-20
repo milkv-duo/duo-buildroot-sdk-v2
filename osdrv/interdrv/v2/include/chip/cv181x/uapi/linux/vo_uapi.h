@@ -323,6 +323,22 @@ struct vo_video_format {
 	} fmt;
 };
 
+struct vo_ctrl_cfg{
+	union {
+		struct vo_chn_attr_cfg chn_attr;
+		struct vo_panel_status_cfg panel_status;
+		struct vo_chn_cfg	chn;
+		struct vo_dev_cfg	dev;
+		struct vo_snd_frm_cfg snd_frm;
+		struct vo_clear_chn_buf_cfg clr_chn_buf;
+		struct vo_display_buflen_cfg dis_buflen;
+		struct vo_chn_rotation_cfg chn_rot;
+		struct vo_video_layer_attr_cfg video_layer_attr;
+		struct vo_video_layer_cfg video_layer;
+	};
+};
+
+
 #ifdef __cplusplus
 	}
 #endif

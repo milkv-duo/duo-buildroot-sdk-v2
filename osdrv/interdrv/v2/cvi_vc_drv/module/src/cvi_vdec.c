@@ -795,10 +795,7 @@ CVI_S32 CVI_VDEC_CreateChn(VDEC_CHN VdChn, const VDEC_CHN_ATTR_S *pstAttr)
 			return s32Ret;
 		}
 
-		if (vdec_handle->g_stModParam.enVdecVBSource !=
-		    VB_SOURCE_COMMON) {
-			cviVDecAttachCallBack(_cvi_vdec_CallbackFunc);
-		}
+		cviVDecAttachCallBack(_cvi_vdec_CallbackFunc);
 	}
 
 #if 0

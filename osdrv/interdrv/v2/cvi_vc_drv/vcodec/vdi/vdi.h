@@ -183,7 +183,6 @@ typedef struct _cviCapability_ {
 #if defined(__cplusplus)
 extern "C" {
 #endif
-void cvi_vdi_init(void);
 
 int vdi_init(unsigned long core_idx, BOOL bCountTaskNum);
 int vdi_get_single_core(unsigned long core_idx);

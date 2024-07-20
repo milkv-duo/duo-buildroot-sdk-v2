@@ -963,6 +963,34 @@ bool cvi_vip_job_is_queued(struct cvi_img_vdev *idev)
 	return (idev->job_flags & TRANS_QUEUED);
 }
 
+void open_clk(struct cvi_vip_dev *pdev)
+{
+	int i;
+
+	if (pdev->clk_sys[1])
+		clk_prepare_enable(pdev->clk_sys[1]);
+	if (pdev->clk_sc_top)
+		clk_prepare_enable(pdev->clk_sc_top);
+	for (i = 0; i < SCL_IMG_MAX; ++i)
+		clk_prepare_enable(pdev->img_vdev[i].clk);
+	for (i = 0; i < SCL_MAX_INST; ++i)
+		clk_prepare_enable(pdev->sc_vdev[i].clk);
+}
+
+void close_clk(struct cvi_vip_dev *pdev)
+{
+	int i;
+
+	if (pdev->clk_sys[1])
+		clk_disable_unprepare(pdev->clk_sys[1]);
+	if (pdev->clk_sc_top)
+		clk_disable_unprepare(pdev->clk_sc_top);
+	for (i = 0; i < SCL_IMG_MAX; ++i)
+		clk_disable_unprepare(pdev->img_vdev[i].clk);
+	for (i = 0; i < SCL_MAX_INST; ++i)
+		clk_disable_unprepare(pdev->sc_vdev[i].clk);
+}
+
 u32 cvi_sc_cfg_cb(struct sc_cfg_cb *post_para, struct cvi_vip_dev *dev)
 {
 	u32 ret = -1;
@@ -978,6 +1006,12 @@ u32 cvi_sc_cfg_cb(struct sc_cfg_cb *post_para, struct cvi_vip_dev *dev)
 				CVI_TRACE_VPSS(CVI_DBG_ERR, "post_para->snr_num error\n");
 				break;
 			}
+
+			if (is_handler_suspended(i)) {
+				CVI_TRACE_VPSS(CVI_DBG_ERR, "HANDLER_STATE_SUSPEND, only handle_frame_done allowed\n");
+				break;
+			}
+
 			CVI_TRACE_VPSS(CVI_DBG_WARN, "online trig for snr-%d. img(%d:%d:%d)\n",
 				grp_id, i, dev->img_vdev[i].img_type, dev->img_vdev[i].input_type);
 			//CVI_TRACE_VPSS(CVI_DBG_DEBUG, "post_para: is_tile:%d is_left_tile:%d\n",
@@ -1702,29 +1736,26 @@ static int cvi_vpss_remove(struct platform_device *pdev)
 }
 
 #ifdef CONFIG_PM_SLEEP
-static int vpss_suspend(struct device *dev)
+static int vpss_core_suspend(struct device *dev)
 {
-	dev_info(dev, "%s\n", __func__);
+	struct platform_device *pdev = to_platform_device(dev);
+	struct cvi_vip_dev *vdev = dev_get_drvdata(&pdev->dev);
+	vpss_suspend();
+	devm_free_irq(&pdev->dev, vdev->irq_num_scl, vdev);
 	return 0;
 }
 
-static int vpss_resume(struct device *dev)
+static int vpss_core_resume(struct device *dev)
 {
-	dev_info(dev, "%s\n", __func__);
-
-	sclr_ctrl_init(true);
-	//VIP_CLK_RATIO_CONFIG(ISP_TOP, 0x10);
-	//VIP_CLK_RATIO_CONFIG(LDC, 0x10);
-	//VIP_CLK_RATIO_CONFIG(IMG_D, 0x10);
-	//VIP_CLK_RATIO_CONFIG(IMG_V, 0x10);
-	//VIP_CLK_RATIO_CONFIG(SC_D, 0x10);
-	//VIP_CLK_RATIO_CONFIG(SC_V1, 0x10);
-	//VIP_CLK_RATIO_CONFIG(SC_V2, 0x10);
-
-	vip_sys_set_offline(VIP_SYS_AXI_BUS_SC_TOP, true);
-	vip_sys_set_offline(VIP_SYS_AXI_BUS_ISP_RAW, true);
-	vip_sys_set_offline(VIP_SYS_AXI_BUS_ISP_YUV, true);
-
+	struct platform_device *pdev = to_platform_device(dev);
+	struct cvi_vip_dev *vdev = dev_get_drvdata(&pdev->dev);
+	if (devm_request_irq(&pdev->dev, vdev->irq_num_scl, scl_isr, IRQF_SHARED,
+		 "CVI_VIP_SCL", vdev)) {
+		dev_err(&pdev->dev, "Unable to request scl IRQ(%d)\n",
+				vdev->irq_num_scl);
+		return -EINVAL;
+	}
+	vpss_resume();
 	return 0;
 }
 #endif
@@ -1734,8 +1765,12 @@ static const struct of_device_id cvi_vpss_dt_match[] = {
 	{}
 };
 
-static SIMPLE_DEV_PM_OPS(vpss_pm_ops, vpss_suspend,
-				vpss_resume);
+/*static SIMPLE_DEV_PM_OPS(vpss_pm_ops, vpss_core_suspend,
+				vpss_core_resume);*/
+
+static const struct dev_pm_ops vpss_pm_ops = {
+SET_LATE_SYSTEM_SLEEP_PM_OPS(vpss_core_suspend, vpss_core_resume)
+};
 
 #if (!DEVICE_FROM_DTS)
 static void cvi_vpss_pdev_release(struct device *dev)
@@ -1752,12 +1787,12 @@ static struct platform_driver cvi_vpss_pdrv = {
 	.probe      = cvi_vpss_probe,
 	.remove     = cvi_vpss_remove,
 	.driver     = {
-		.name		= "vpss",
-		.owner		= THIS_MODULE,
+		.name           = "vpss",
+		.owner          = THIS_MODULE,
 #if (DEVICE_FROM_DTS)
 		.of_match_table	= cvi_vpss_dt_match,
 #endif
-		.pm		= &vpss_pm_ops,
+		.pm             = &vpss_pm_ops,
 	},
 };
 

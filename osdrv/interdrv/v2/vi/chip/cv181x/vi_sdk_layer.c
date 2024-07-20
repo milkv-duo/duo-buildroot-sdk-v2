@@ -11,10 +11,14 @@
 #include <vi_raw_dump.h>
 #include "sys.h"
 
+
 /****************************************************************************
  * Global parameters
  ****************************************************************************/
 
+extern VI_DEV_ATTR_S tmp_dev_attr;
+extern VI_PIPE_ATTR_S tmp_pipe_attr;
+extern VI_CHN_ATTR_S tmp_chn_attr;
 extern struct cvi_vi_ctx *gViCtx;
 extern struct cvi_gdc_mesh g_vi_mesh[VI_MAX_CHN_NUM];
 static struct cvi_vi_dev *gvdev;
@@ -1150,6 +1154,8 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 			break;
 		}
 
+		memcpy(&tmp_dev_attr, &dev_attr, sizeof(VI_DEV_ATTR_S));
+
 		rc = vi_set_dev_attr(p->sdk_cfg.dev, &dev_attr);
 		break;
 	}
@@ -1185,6 +1191,8 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 			break;
 		}
 
+		memcpy(&tmp_pipe_attr, &pipe_attr, sizeof(VI_PIPE_ATTR_S));
+
 		rc = vi_create_pipe(p->sdk_cfg.pipe, &pipe_attr);
 		break;
 	}
@@ -1211,6 +1219,8 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 			vi_pr(VI_ERR, "VI_CHN_ATTR_S copy from user fail.\n");
 			break;
 		}
+
+		memcpy(&tmp_chn_attr, &chn_attr, sizeof(VI_CHN_ATTR_S));
 
 		rc = vi_set_chn_attr(p->sdk_cfg.pipe, p->sdk_cfg.chn, &chn_attr);
 		break;
@@ -1263,7 +1273,7 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 		struct mlv_info_s *mlv_i = kzalloc(sizeof(struct mlv_info_s), GFP_KERNEL);
 
 		if (!mlv_i) {
-			vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct mlv_info_s));
+			vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct mlv_info_s));
 			break;
 		}
 

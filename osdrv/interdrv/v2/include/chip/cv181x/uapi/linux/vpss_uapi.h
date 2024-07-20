@@ -248,6 +248,8 @@ struct vpss_scene {
 #define CVI_VPSS_GET_AMP_CFG _IOWR('S', 0x7b, struct vpss_proc_amp_cfg)
 #define CVI_VPSS_GET_ALL_AMP _IOWR('S', 0x7c, struct vpss_all_proc_amp_cfg)
 #define CVI_VPSS_GET_SCENE _IOWR('S', 0x7d, struct vpss_scene)
+#define CVI_VPSS_SUSPEND _IO('S', 0x7e)
+#define CVI_VPSS_RESUME _IO('S', 0x7f)
 
 #ifdef __cplusplus
 }

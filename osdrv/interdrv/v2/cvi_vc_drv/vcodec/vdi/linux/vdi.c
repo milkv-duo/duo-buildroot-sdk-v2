@@ -39,6 +39,8 @@ typedef struct mutex MUTEX_HANDLE;
 #ifndef CVI_H26X_USE_ION_FW_BUFFER
 extern int vpu_get_common_memory(vpudrv_buffer_t *vdb);
 extern int vpu_release_common_memory(vpudrv_buffer_t *p_vdb);
+#else
+void vpu_set_common_memory(unsigned long core, vpudrv_buffer_t *p_vdb);
 #endif
 extern int vpu_wait_interrupt(vpudrv_intr_info_t *p_intr_info);
 extern int vpu_set_clock_gate_ext(struct clk_ctrl_info *p_info);
@@ -53,6 +55,10 @@ extern int vpu_get_clock_frequency(unsigned long *p_clk_rate);
 extern int vpu_get_single_core_config(int *pSingleCoreConfig);
 extern int vpu_op_write(vpu_bit_firmware_info_t *p_bit_firmware_info,
 			size_t len);
+extern void vcodec_lock(void);
+extern void vcodec_unlock(void);
+extern int vcodec_trylock(void);
+extern int vcodec_is_locked(void);
 
 #define SUPPORT_INTERRUPT
 #define VPU_BIT_REG_SIZE (0x4000 * MAX_NUM_VPU_CORE)
@@ -140,7 +146,6 @@ static void cviGetSysTime(vdi_timeval_t *pstTimeval)
 #endif
 }
 
-struct mutex vcodecLock[MAX_NUM_VPU_CORE];
 vdi_info_t *s_vdi_info[MAX_NUM_VPU_CORE] = { 0 };
 
 static int cviVdiCfgReg(vdi_info_t *vdi, int core_idx);
@@ -154,15 +159,6 @@ static BOOL vdi_is_share_single_es_buf(unsigned long core_idx,
 				       unsigned int single_es_buf_size,
 				       vdi_info_t **ppVdiSwitch);
 #endif
-
-void cvi_vdi_init(void)
-{
-	unsigned long core_idx;
-
-	for (core_idx = 0; core_idx < MAX_NUM_VPU_CORE; core_idx++) {
-		MUTEX_INIT(&vcodecLock[core_idx], NULL);
-	}
-}
 
 static int vdi_get_size_common(unsigned long core_idx, int SingleCore)
 {
@@ -586,7 +582,6 @@ int vdi_release(unsigned long core_idx)
 		vdi_set_clock_gate(core_idx, CLK_DISABLE);
 		vdi->vpu_fd = -1;
 	}
-	MUTEX_DESTROY(&vcodecLock[core_idx]);
 
 #ifdef ARCH_CV182X
 	do {
@@ -664,7 +659,6 @@ int allocate_common_memory(unsigned long core_idx)
 	CVI_VC_MEM("common mem vdb.sizesize=0x%x\n", vdb.size);
 
 #ifdef CVI_H26X_USE_ION_FW_BUFFER
-
 	if (vdi->vpu_common_memory.base == 0) {
 		vpu_buffer_t vb = { 0x0 };
 		char ionName[MAX_VPU_ION_BUFFER_NAME];
@@ -687,6 +681,8 @@ int allocate_common_memory(unsigned long core_idx)
 		vdb.base = vdi->vpu_common_memory.base;
 		vdb.virt_addr = vdi->vpu_common_memory.virt_addr;
 	}
+
+	vpu_set_common_memory(core_idx, &vdb);
 #else
 	if (vpu_get_common_memory(&vdb) < 0) {
 		CVI_VC_ERR("[VDI] fail to allocate_common_memory size=%d\n",
@@ -1098,7 +1094,7 @@ int vdi_vcodec_trylock(unsigned long core_idx)
 #else
 	core_idx = 0;
 #endif
-	if (mutex_trylock(&vcodecLock[core_idx]) == 1) {
+	if (vcodec_trylock() == 1) {
 		// mutex_trylock returns 1 if the mutex has been acquired successfully,
 		// and 0 on contention.
 		return 0;
@@ -1119,7 +1115,7 @@ int vdi_vcodec_timelock(unsigned long core_idx, int timeout_ms)
 	do {
 		int wait_cnt_ms = 1;
 
-		while (mutex_is_locked(&vcodecLock[core_idx])) {
+		while (vcodec_is_locked()) {
 			set_current_state(TASK_INTERRUPTIBLE);
 			schedule_timeout(usecs_to_jiffies(1000));
 			if (wait_cnt_ms >= timeout_ms) {
@@ -1129,7 +1125,7 @@ int vdi_vcodec_timelock(unsigned long core_idx, int timeout_ms)
 		}
 	} while (0);
 
-	ret = mutex_trylock(&vcodecLock[core_idx]);
+	ret = vcodec_trylock();
 	// mutex_trylock returns 1 if the mutex has been acquired successfully,
 	// and 0 on contention.
 	if (ret == 1) {
@@ -1162,7 +1158,7 @@ void vdi_vcodec_lock(unsigned long core_idx)
 #else
 	core_idx = 0;
 #endif
-	MUTEX_LOCK(&vcodecLock[core_idx]);
+	vcodec_lock();
 }
 
 void vdi_vcodec_unlock(unsigned long core_idx)
@@ -1171,7 +1167,7 @@ void vdi_vcodec_unlock(unsigned long core_idx)
 #else
 	core_idx = 0;
 #endif
-	MUTEX_UNLOCK(&vcodecLock[core_idx]);
+	vcodec_unlock();
 }
 
 static vdi_info_t *vdi_get_vdi_info(unsigned long core_idx)

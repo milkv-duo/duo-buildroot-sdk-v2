@@ -2841,7 +2841,7 @@ void cviCopyMotionMap(void *handle, cviEncOnePicCfg *pPicCfg, void *phandle)
 
 	mlv_info = kzalloc(sizeof(*mlv_info), GFP_ATOMIC);
 	if (!mlv_info) {
-		CVI_VC_ERR("fail to kzalloc(%lu)\n", sizeof(struct vpss_grp_mlv_info));
+		CVI_VC_ERR("fail to kzalloc(%zu)\n", sizeof(struct vpss_grp_mlv_info));
 		return;
 	}
 	if (pCodecInst->CodecInfo->encInfo.bSbmEn) {
@@ -3330,7 +3330,7 @@ int cviVEncReleaseStream(void *handle, cviVEncStreamInfo *pStreamInfo)
 
 static int cviVEncSetRequestIDR(stTestEncoder *pTestEnc, void *arg)
 {
-	unsigned int *resetGop = (unsigned int *)arg;
+	unsigned char *resetGop = (unsigned char *)arg;
 	int ret = 0;
 
 	CVI_VC_IF("\n");

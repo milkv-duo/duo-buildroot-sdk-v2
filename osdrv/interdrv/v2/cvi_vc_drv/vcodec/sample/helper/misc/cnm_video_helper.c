@@ -1865,8 +1865,19 @@ Uint32 seiEncode(CodStd format, Uint8 *pSrc, Uint32 srcLen, Uint8 *pBuffer,
 		spp_enc_put_nal_byte(spp, code, 2);
 	}
 
-	// put payload data which include
-	// payload type, size, and bytes
+	// put payload type
+	spp_enc_put_nal_byte(spp, 0x05, 1);
+
+	// put payload size
+	for (i = 0; i < (srcLen + 16) / 0xff; i++)
+		spp_enc_put_nal_byte(spp, 0xff, 1);
+	spp_enc_put_nal_byte(spp, (srcLen + 16) % 0xff, 1);
+
+	// put uuid(16 byte nouse)
+	for (i = 0; i < 8; i++)
+		spp_enc_put_nal_byte(spp, 0x03, 2);
+
+	//put userdata
 	for (i = 0; i < srcLen; i++)
 		spp_enc_put_bits(spp, pSrc[i], 8);
 

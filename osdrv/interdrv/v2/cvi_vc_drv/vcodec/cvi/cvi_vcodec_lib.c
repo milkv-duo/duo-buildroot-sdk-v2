@@ -40,8 +40,6 @@ int cviVcodecInit(void)
 	vcodec_register_cmd();
 #endif
 
-	cvi_vdi_init();
-
 	cviVcodecMask();
 
 	return 0;
