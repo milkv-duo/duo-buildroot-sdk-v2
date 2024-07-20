@@ -42,7 +42,7 @@
 			};
 		};
 
-		cpu@0 {
+		cpu0: cpu@0 {
 			device_type = "cpu";
 			reg = <0x00>;
 			status = "okay";
@@ -146,6 +146,11 @@
 
 	watchdog0: cv-wd@0x3010000 {
 		interrupts = <58 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	spacc: cvi_spacc@02060000 {
+		interrupts = <91 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-parent = <&plic0>;
 	};
 
 	spinand:cv-spinf@4060000 {

@@ -6,9 +6,7 @@ SIZE_1K = 1024
 class MemoryMap:
     # No prefix "CVIMMAP_" for the items in _no_prefix[]
     _no_prefix = [
-        "CONFIG_SYS_TEXT_BASE",  # u-boot's CONFIG_SYS_TEXT_BASE is used without CPP.
-        "CONFIG_SPL_SIZE_LIMIT",
-        "CONFIG_SPL_TEXT_BASE",
+        "CONFIG_SYS_TEXT_BASE"  # u-boot's CONFIG_SYS_TEXT_BASE is used without CPP.
     ]
 
     DRAM_BASE = 0x80000000
