@@ -41,6 +41,7 @@ config RISCV
 	select CLINT_TIMER if !MMU
 	select COMMON_CLK
 	select COMPAT_BINFMT_ELF if BINFMT_ELF && COMPAT
+	select CPU_PM if SUSPEND
 	select EDAC_SUPPORT
 	select DMA_DIRECT_REMAP
 	select GENERIC_ALLOCATOR
@@ -516,6 +517,11 @@ config BUILTIN_DTB
 	def_bool n
 	depends on RISCV_M_MODE
 	depends on OF
+
+config ARCH_SUSPEND_POSSIBLE
+	def_bool y
+        help
+          Enable riscv deep sleep to RAM
 
 menu "Power management options"
 

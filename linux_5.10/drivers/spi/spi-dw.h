@@ -185,6 +185,10 @@ struct dw_spi {
 	const struct dw_spi_dma_ops *dma_ops;
 	struct completion	dma_completion;
 
+#ifdef CONFIG_PM_SLEEP
+	u32			dw_spi_div;
+#endif
+
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debugfs;
 	struct debugfs_regset32 regset;

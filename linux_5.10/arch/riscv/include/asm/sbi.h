@@ -27,6 +27,7 @@ enum sbi_ext_id {
 	SBI_EXT_IPI = 0x735049,
 	SBI_EXT_RFENCE = 0x52464E43,
 	SBI_EXT_HSM = 0x48534D,
+	SBI_EXT_SUSP = 0x53555350,
 };
 
 enum sbi_ext_base_fid {
@@ -71,6 +72,14 @@ enum sbi_hsm_hart_status {
 	SBI_HSM_HART_STATUS_STOPPED,
 	SBI_HSM_HART_STATUS_START_PENDING,
 	SBI_HSM_HART_STATUS_STOP_PENDING,
+};
+
+enum sbi_ext_susp_fid {
+	SBI_EXT_SUSP_SYSTEM_SUSPEND = 0,
+};
+
+enum sbi_ext_susp_sleep_type {
+	SBI_SUSP_SLEEP_TYPE_SUSPEND_TO_RAM = 0,
 };
 
 #define SBI_SPEC_VERSION_DEFAULT	0x1

@@ -76,6 +76,9 @@ enum power_event {
 #define LPI_CTRL_STATUS_TLPIEN	0x00000001	/* Transmit LPI Entry */
 
 /* GMAC HW ADDR regs */
+#define GMAC_MAC_ADDR0_HIGH	0x00000040
+#define GMAC_MAC_ADDR0_LOW	0x00000044
+
 #define GMAC_ADDR_HIGH(reg)	(((reg > 15) ? 0x00000800 : 0x00000040) + \
 				(reg * 8))
 #define GMAC_ADDR_LOW(reg)	(((reg > 15) ? 0x00000804 : 0x00000044) + \
@@ -326,6 +329,9 @@ enum rtc_control {
 #define GMAC_MMC_CTRL      0x100
 #define GMAC_MMC_RX_INTR   0x104
 #define GMAC_MMC_TX_INTR   0x108
+#define GMAC_MMC_RX_INTR_MASK	0x10c
+#define GMAC_MMC_TX_INTR_MASK	0x110
+#define GMAC_MMC_IPC_RX_INTR_MASK	0x200
 #define GMAC_MMC_RX_CSUM_OFFLOAD   0x208
 #define GMAC_EXTHASH_BASE  0x500
 

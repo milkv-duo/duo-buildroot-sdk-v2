@@ -347,6 +347,27 @@ static const struct acpi_device_id dw_spi_mmio_acpi_match[] = {
 MODULE_DEVICE_TABLE(acpi, dw_spi_mmio_acpi_match);
 #endif
 
+#ifdef CONFIG_PM_SLEEP
+static int dw_spi_suspend(struct device *dev)
+{
+	struct dw_spi *dws = dev_get_drvdata(dev);
+
+	dws->dw_spi_div = dw_readl(dws, DW_SPI_BAUDR);
+	dw_spi_remove_host(dws);
+	return 0;
+}
+
+static int dw_spi_resume(struct device *dev)
+{
+	struct dw_spi *dws = dev_get_drvdata(dev);
+
+	spi_set_clk(dws, dws->dw_spi_div);
+	return dw_spi_add_host(dev, dws);
+}
+#endif
+
+static SIMPLE_DEV_PM_OPS(dw_spi_pm_ops, dw_spi_suspend, dw_spi_resume);
+
 static struct platform_driver dw_spi_mmio_driver = {
 	.probe		= dw_spi_mmio_probe,
 	.remove		= dw_spi_mmio_remove,
@@ -354,6 +375,7 @@ static struct platform_driver dw_spi_mmio_driver = {
 		.name	= DRIVER_NAME,
 		.of_match_table = dw_spi_mmio_of_match,
 		.acpi_match_table = ACPI_PTR(dw_spi_mmio_acpi_match),
+		.pm = &dw_spi_pm_ops,
 	},
 };
 module_platform_driver(dw_spi_mmio_driver);

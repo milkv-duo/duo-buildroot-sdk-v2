@@ -128,6 +128,41 @@ struct stmmac_pps_cfg {
 	struct timespec64 period;
 };
 
+#ifdef CONFIG_PM_SLEEP
+#if defined(CONFIG_ARCH_CV180X) || defined(CONFIG_ARCH_CV181X)
+struct stmmac_reg_context {
+	u32 ctrl;
+	u32 frame_filter;
+	u32 hash_high;
+	u32 hash_low;
+	u32 mii_addr;
+	u32 mii_data;
+	u32 flow_ctrl;
+	u32 vlan_tag;
+	u32 debug;
+	u32 wakeup_fileter;
+	u32 lpi_ctrl_status;
+	u32 lpi_timer_ctrl;
+	u32 int_mask;
+	u32 mac_addr0_high;
+	u32 mac_addr0_low;
+	u32 pcs_base;
+	u32 mmc_ctrl;
+	u32 mmc_rx_intr_mask;
+	u32 mmc_tx_intr_mask;
+	u32 mmc_ipc_rx_intr_mask;
+	u32 mmc_rx_csum_offload;
+	u32 exthash_base;
+	u32 dma_bus_mode;
+	u32 dma_rx_base_addr;
+	u32 dma_tx_base_addr;
+	u32 dma_ctrl;
+	u32 dma_intr_ena;
+	u32 dma_rx_watchdog;
+	u32 dma_axi_bus_mode;
+};
+#endif
+#endif
 struct stmmac_rss {
 	int enable;
 	u8 key[STMMAC_RSS_HASH_KEY_SIZE];
@@ -244,12 +279,15 @@ struct stmmac_priv {
 
 	/* Receive Side Scaling */
 	struct stmmac_rss rss;
+#ifdef CONFIG_PM_SLEEP
+	struct stmmac_reg_context *reg_ctx;
+#endif
 };
 
 enum stmmac_state {
 	STMMAC_DOWN,
 	STMMAC_RESET_REQUESTED,
-	STMMAC_RESETING,
+	STMMAC_RESETTING,
 	STMMAC_SERVICE_SCHED,
 };
 

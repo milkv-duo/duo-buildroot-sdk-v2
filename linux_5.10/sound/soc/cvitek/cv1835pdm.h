@@ -12,17 +12,32 @@
 
 #include <linux/clk.h>
 #include <linux/miscdevice.h>
+
+// #define PDM_AEC
+
 /* register offset */
 #define PDM_EN_REG	        0x30
 #define PDM_EN				0x1
 #define PDM_OFF				0x0
 
+#ifdef PDM_AEC
+//for 16384M audio clk
+#define PDM_48K						2
+#define PDM_44_1K					2
+#define PDM_32K 					3
+#define PDM_22_05K					4
+#define PDM_16K						7
+#define PDM_11_025K					10
+#define PDM_8K						15
+#else
+//for 24576M audio clk
 #define PDM_48K						3
 #define PDM_44_1K					3
 #define PDM_22_05K					7
 #define PDM_16K						11
 #define PDM_11_025K					15
 #define PDM_8K						23
+#endif
 
 #define PDM_SETTING_REG		        0x34
 #define PDM_CLK_DIV_MASK    0xFFFFFFE0
@@ -34,13 +49,26 @@
 #define PDM_BOND_SEL_0      (0 << 24)
 #define PDM_BOND_SEL_1      (1 << 24)
 
-
+#ifdef PDM_AEC
+//for 16384M audio clk
+#define I2S_48K						4
+#define I2S_44_1K					4
+#define I2S_32K 					7
+#define I2S_22_05K					10
+#define I2S_16K						15
+#define I2S_11_025K					20
+#define I2S_8K						31
+#else
+//for 24576M audio clk
 #define I2S_48K						7
 #define I2S_44_1K					7
 #define I2S_22_05K					15
 #define I2S_16K						23
 #define I2S_11_025K					31
 #define I2S_8K						47
+#endif
+
+
 #define I2S_SETTING_REG		        0x38
 #define I2S_CLK_DIV_MASK            0xFFFFFF00
 #define I2S_CLK_DIV(v)              (v << 0)
