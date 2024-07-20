@@ -24,7 +24,7 @@
 
 static void sc2331_1L_slave1_linear_1080p30_init(VI_PIPE ViPipe);
 
-const CVI_U8 sc2331_1L_slave1_i2c_addr = 0x30;        /* I2C Address of SC2331_1L */
+const CVI_U8 sc2331_1L_slave1_i2c_addr = 0x32;        /* I2C Address of SC2331_1L */
 const CVI_U32 sc2331_1L_slave1_addr_byte = 2;
 const CVI_U32 sc2331_1L_slave1_data_byte = 1;
 static int g_fd[VI_MAX_PIPE_NUM] = {[0 ... (VI_MAX_PIPE_NUM - 1)] = -1};
@@ -257,7 +257,6 @@ static void sc2331_1L_slave1_linear_1080p30_init(VI_PIPE ViPipe)
 	sc2331_1L_slave1_write_register(ViPipe, 0x3018, 0x1a);
 	sc2331_1L_slave1_write_register(ViPipe, 0x3019, 0x0e);
 	sc2331_1L_slave1_write_register(ViPipe, 0x301f, 0x20);
-	printf("awei 22 hao 14:15 sc2331_1L_slave1\n");
 	// sc2331_1L_slave1_write_register(ViPipe, 0x320e, 0x04);
 	// sc2331_1L_slave1_write_register(ViPipe, 0x320f, 0x65);
 

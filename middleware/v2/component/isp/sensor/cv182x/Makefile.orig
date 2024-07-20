@@ -113,9 +113,6 @@ nextchip_n5:
 nextchip_n6:
 	$(call MAKE_SENSOR, ${@})
 
-ov_os02n10_1L:
-	$(call MAKE_SENSOR, ${@})
-
 ov_os04a10:
 	$(call MAKE_SENSOR, ${@})
 

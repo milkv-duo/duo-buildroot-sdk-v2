@@ -82,7 +82,6 @@ sensor-$(CONFIG_SENSOR_IMGDS_MIS2008)        += imgds_mis2008
 sensor-$(CONFIG_SENSOR_IMGDS_MIS2008_1L)     += imgds_mis2008_1L
 sensor-$(CONFIG_SENSOR_NEXTCHIP_N5)          += nextchip_n5
 sensor-$(CONFIG_SENSOR_NEXTCHIP_N6)          += nextchip_n6
-sensor-$(CONFIG_SENSOR_OV_OS02N10_1L)        += ov_os02n10_1L
 sensor-$(CONFIG_SENSOR_OV_OS04A10)           += ov_os04a10
 sensor-$(CONFIG_SENSOR_OV_OS04C10)           += ov_os04c10
 sensor-$(CONFIG_SENSOR_OV_OS08A20)           += ov_os08a20
