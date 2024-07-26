@@ -23,14 +23,6 @@ endif
 
 ldflags-y = -lsys
 
-
-ifeq ($(CLI_DEBUG_SUPPORT), 1)
-DEFS += -DCLI_DEBUG_SUPPORT
-ldflags-y += -lcli
-LIB_A_FLAGS += $(MW_3RD_LIB)/libcli.a
-LIB_SO_FLAGS += $(MW_3RD_LIB)/libcli.so
-endif
-
 TMP_INC = $(MW_INC)/cvi_jpg* $(MW_INC)/cvi_h265*
 
 .PHONY : clean all

@@ -97,6 +97,7 @@ short ECC_1bits_remap[4] = {0, 1, -1, -1};
 short ECC_GD_4bit_remap[16] = {0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff};
 short ECC_GD_8bit_remap[16] = {0, 0, 0, 0, 4, 5, 6, 7, 0, 0, 0, 0, 8, 8, 8, 8};
 short ECC_HYF2G_remap[4] = {0, 1, -1, 14};
+short ECC_HYF1G_remap[4] = {0, 1, -1, 4};
 
 struct cvsnfc_chip_info nand_flash_cvitek_supported_ids[] = {
 	{
@@ -1267,6 +1268,32 @@ struct cvsnfc_chip_info nand_flash_cvitek_supported_ids[] = {
 			.ecc_bit_shift = 4,
 			.uncorr_val = 0x2,
 			.remap = ECC_HYF2G_remap
+		},
+		.driver = &spi_nand_driver_gd,
+		.flags = 0
+	},
+
+	{
+		{	.name = "HYF1GQ4UDACAE",
+			.id = {0xC9, 0x21},
+			.pagesize = SZ_2K,
+			.chipsize = SZ_128,
+			.erasesize = SZ_128K,
+			.options = 0,
+			.id_len = 2,
+			.oobsize = SZ_64,
+			{	.strength_ds = 4,
+				.step_ds = SZ_512
+			},
+		},
+
+		{	.ecc_sr_addr = 0xc0,
+			.ecc_mbf_addr = 0x0,
+			.read_ecc_opcode = 0,
+			.ecc_bits = 2,
+			.ecc_bit_shift = 4,
+			.uncorr_val = 0x2,
+			.remap = ECC_HYF1G_remap
 		},
 		.driver = &spi_nand_driver_gd,
 		.flags = 0

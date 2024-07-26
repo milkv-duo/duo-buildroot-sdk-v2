@@ -250,6 +250,8 @@ bool cvi_vip_job_is_queued(struct cvi_img_vdev *idev);
 int cvi_vip_set_rgn_cfg(const u8 inst, u8 layer, const struct cvi_rgn_cfg *cfg, const struct sclr_size *size);
 
 extern bool __clk_is_enabled(struct clk *clk);
+void open_clk(struct cvi_vip_dev *pdev);
+void close_clk(struct cvi_vip_dev *pdev);
 extern int debug;
 
 void cvi_sc_frm_done_cb(struct cvi_vip_dev *dev);

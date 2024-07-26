@@ -292,6 +292,7 @@ CVI_S32 _update_Aenc_setting(AIO_ATTR_S *pstAioAttr,
 {
 
 	CVI_S32 s32Ret;
+	SMP_AUD_UNUSED_REF(bVqe);
 
 	s32Ret = _update_aenc_params(pstAencAttr, pstAioAttr, enType);
 	if (s32Ret != CVI_SUCCESS) {
@@ -312,8 +313,7 @@ CVI_S32 _update_Aenc_setting(AIO_ATTR_S *pstAioAttr,
 		       __LINE__,
 		       pstAencAac->enSmpRate);
 
-		pstAencAac->enSoundMode = bVqe ? AUDIO_SOUND_MODE_MONO :
-					  pstAioAttr->enSoundmode;
+		pstAencAac->enSoundMode = pstAioAttr->enSoundmode;
 		pstAencAac->enTransType = gs_enAacTransType;
 		pstAencAac->s16BandWidth = 0;
 		pstAencAttr->pValue = pstAencAac;

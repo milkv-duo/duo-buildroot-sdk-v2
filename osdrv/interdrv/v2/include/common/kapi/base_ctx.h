@@ -80,6 +80,16 @@ typedef uint64_t VB_BLK;
 
 #define MO_TBL_SIZE 2048
 
+union vb_ctrl_cfg {
+	struct cvi_vb_blk_info 	vb_blk_info;
+	struct cvi_vb_blk_cfg 	vb_blk_cfg;
+	struct cvi_vb_cfg 		vb_cfg;
+	// struct cvi_vb_pool_ex_cfg 	pool_ex_cfg;
+	struct cvi_vb_pool_cfg		pool_cfg;
+	VB_POOL					pool;
+	VB_BLK					blk;
+};
+
 struct mlv_i_s {
 	u8 mlv_i_level;
 	u8 mlv_i_table[MO_TBL_SIZE];
@@ -398,6 +408,7 @@ CVI_S32 base_fill_videoframe2buffer(MMF_CHN_S chn, const VIDEO_FRAME_INFO_S *pst
 void base_mod_jobs_init(MMF_CHN_S chn, enum CHN_TYPE_E chn_type,
 		uint8_t waitq_depth, uint8_t workq_depth, uint8_t doneq_depth);
 void base_mod_jobs_exit(MMF_CHN_S chn, enum CHN_TYPE_E chn_type);
+void base_mod_jobs_clear(MMF_CHN_S chn, enum CHN_TYPE_E chn_type);
 struct cvi_buffer *base_mod_jobs_enque_work(MMF_CHN_S chn, enum CHN_TYPE_E chn_type);
 bool base_mod_jobs_waitq_empty(MMF_CHN_S chn, enum CHN_TYPE_E chn_type);
 bool base_mod_jobs_workq_empty(MMF_CHN_S chn, enum CHN_TYPE_E chn_type);

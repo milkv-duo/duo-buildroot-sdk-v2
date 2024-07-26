@@ -311,6 +311,37 @@ static void mipi_tx_disable(void)
 	} while ((ret != 0) && (count++ < 20));
 }
 
+static int mipi_tx_suspend(void)
+{
+	u8 cmd = 0x28;
+
+	mipi_tx_disable();
+	sclr_dsi_dcs_write_buffer(0x05, &cmd, 1, debug & 0x01);
+	mipi_tx_enable();
+
+	if (mipi_tx_dev_ctx.clk_dsi && (__clk_is_enabled(mipi_tx_dev_ctx.clk_dsi)))
+		clk_disable_unprepare(mipi_tx_dev_ctx.clk_dsi);
+
+	CVI_VIP_MIPI_TX_ERR("mipi_tx_suspend OK\n");
+	return 0;
+}
+
+static int mipi_tx_resume(void)
+{
+	u8 cmd = 0x29;
+
+	if (mipi_tx_dev_ctx.clk_dsi && (!__clk_is_enabled(mipi_tx_dev_ctx.clk_dsi)))
+		clk_prepare_enable(mipi_tx_dev_ctx.clk_dsi);
+
+	mipi_tx_disable();
+	sclr_dsi_dcs_write_buffer(0x05, &cmd, 1, debug & 0x01);
+	mipi_tx_enable();
+
+	CVI_VIP_MIPI_TX_ERR("mipi_tx_resume OK\n");
+
+	return 0;
+}
+
 static long mipi_tx_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct cvi_vip_mipi_tx_dev *tdev = file_mipi_tx_dev(file);
@@ -503,6 +534,14 @@ static long mipi_tx_ioctl(struct file *file, unsigned int cmd, unsigned long arg
 	}
 	break;
 
+	case CVI_VIP_MIPI_TX_SUSPEND:
+		mipi_tx_suspend();
+	break;
+
+	case CVI_VIP_MIPI_TX_RESUME:
+		mipi_tx_resume();
+	break;
+
 	default: {
 		CVI_VIP_MIPI_TX_ERR("invalid mipi_tx ioctl cmd\n");
 		rc = -EINVAL;
@@ -576,13 +615,16 @@ static int _init_resources(struct platform_device *pdev)
 
 	// clk
 	tdev->clk_disp = devm_clk_get(&pdev->dev, CLK_DISP_NAME);
+	mipi_tx_dev_ctx.clk_disp = tdev->clk_disp;
 	if (IS_ERR(tdev->clk_disp)) {
 		pr_err("Cannot get clk for clk_disp\n");
 		tdev->clk_disp = NULL;
 	}
 	if (tdev->clk_disp)
 		clk_prepare_enable(tdev->clk_disp);
+
 	tdev->clk_dsi = devm_clk_get(&pdev->dev, CLK_DSI_NAME);
+	mipi_tx_dev_ctx.clk_dsi = tdev->clk_dsi;
 	if (IS_ERR(tdev->clk_dsi)) {
 		pr_err("Cannot get clk for clk_dsi\n");
 		tdev->clk_dsi = NULL;
@@ -797,6 +839,38 @@ static int cvi_mipi_tx_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#if defined(CONFIG_PM)
+static int vo_mipi_tx_suspend(struct platform_device *pdev, pm_message_t state)
+{
+	//display off
+	u8 cmd = 0x28;
+
+	mipi_tx_disable();
+	sclr_dsi_dcs_write_buffer(0x05, &cmd, 1, debug & 0x01);
+	mipi_tx_enable();
+
+	if (mipi_tx_dev_ctx.clk_dsi && __clk_is_enabled(mipi_tx_dev_ctx.clk_dsi))
+		clk_disable_unprepare(mipi_tx_dev_ctx.clk_dsi);
+
+	return 0;
+}
+
+static int vo_mipi_tx_resume(struct platform_device *pdev)
+{
+	//display on
+	u8 cmd = 0x29;
+
+	if (mipi_tx_dev_ctx.clk_dsi && (!__clk_is_enabled(mipi_tx_dev_ctx.clk_dsi)))
+		clk_prepare_enable(mipi_tx_dev_ctx.clk_dsi);
+
+	mipi_tx_disable();
+	sclr_dsi_dcs_write_buffer(0x05, &cmd, 1, debug & 0x01);
+	mipi_tx_enable();
+
+	return 0;
+}
+#endif
+
 static const struct of_device_id cvi_mipi_tx_dt_match[] = { { .compatible = "cvitek,mipi_tx" }, {} };
 
 static struct platform_driver cvi_mipi_tx_pdrv = {
@@ -807,6 +881,10 @@ static struct platform_driver cvi_mipi_tx_pdrv = {
 		.owner = THIS_MODULE,
 		.of_match_table = cvi_mipi_tx_dt_match,
 	},
+#if defined(CONFIG_PM)
+	.suspend = vo_mipi_tx_suspend,
+	.resume = vo_mipi_tx_resume,
+#endif
 };
 
 static int __init mipi_tx_init(void)

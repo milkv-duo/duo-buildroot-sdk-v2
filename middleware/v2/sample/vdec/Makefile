@@ -38,11 +38,6 @@ DEFS += -DRPC_MULTI_PROCESS
 LIBS += -lnanomsg
 endif
 
-ifeq ($(CLI_DEBUG_SUPPORT), 1)
-DEFS += -DCLI_DEBUG_SUPPORT
-LIBS += -lcli
-endif
-
 EXTRA_CFLAGS = $(DEFS) $(INCS)
 EXTRA_LDFLAGS = $(LIBS) -lini -lm -lpthread
 
@@ -61,7 +56,7 @@ $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 	@echo [$(notdir $(CC))] $(notdir $@)
 
-$(TARGET): $(VDEC_OBJS) $(OBJS) $(MW_LIB)/libvdec.a $(MW_LIB)/libvpu.a $(MW_LIB)/libsys.a
+$(TARGET): $(VDEC_OBJS) $(OBJS) $(MW_LIB)/libvdec.a $(MW_LIB)/libsys.a
 	@$(CXX) -o $@ -Wl,--start-group $(OBJS) $(VDEC_OBJS) -Wl,--end-group $(ELFFLAGS) $(EXTRA_LDFLAGS)
 	@echo -e $(BLUE)[LINK]$(END)[$(notdir $(CXX))] $(notdir $@)
 

@@ -10,7 +10,7 @@ opensbi-kernel: export CROSS_COMPILE=$(patsubst "%",%,$(CONFIG_CROSS_COMPILE_KER
 opensbi-kernel: export ARCH=$(patsubst "%",%,$(CONFIG_ARCH))
 opensbi-kernel:
 	$(call print_target)
-	${Q}$(MAKE) -C ${OPENSBI_PATH} PLATFORM=generic \
+	${Q}$(MAKE) -C ${OPENSBI_PATH} PLATFORM=generic CHIP_ARCH=$(CHIP_ARCH) \
 	    FW_PAYLOAD_PATH=${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER}/arch/${ARCH}/boot/Image \
 	    FW_FDT_PATH=${RAMDISK_PATH}/${RAMDISK_OUTPUT_FOLDER}/${CHIP}_${BOARD}.dtb
 	${Q}mkdir -p ${OUTPUT_DIR}/elf

@@ -190,7 +190,7 @@ typedef struct _cviBufInfo {
 	int size;
 } cviBufInfo;
 
-#define MAX_NUM_PACKS 8
+#define MAX_NUM_PACKS 12
 #define H26X_BLOCK_MODE (-1)
 #define RET_VDEC_LOCK_TIMEOUT (-2)
 

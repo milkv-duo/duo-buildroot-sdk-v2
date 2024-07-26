@@ -26,7 +26,6 @@ extern "C" {
 #define NOISE_PROFILE_ISO_NUM 16
 #define USE_USER_SEN_DRIVER 1
 
-
 typedef struct _ISP_CMOS_SENSOR_IMAGE_MODE_S {
 	CVI_U16 u16Width;
 	CVI_U16 u16Height;
@@ -52,15 +51,22 @@ typedef struct _ISP_CMOS_DEFAULT_S {
 } ISP_CMOS_DEFAULT_S;
 
 typedef struct _ISP_SENSOR_EXP_FUNC_S {
+	/* Callback for init sensor IIC and register. */
 	CVI_VOID (*pfn_cmos_sensor_init)(VI_PIPE ViPipe);
+	/* Callback for exit sensor. */
 	CVI_VOID (*pfn_cmos_sensor_exit)(VI_PIPE ViPipe);
+	/* Callback for init sensor image mode. */
 	CVI_VOID (*pfn_cmos_sensor_global_init)(VI_PIPE ViPipe);
+	/* Callback for set sensor image mode. */
 	CVI_S32 (*pfn_cmos_set_image_mode)(VI_PIPE ViPipe, ISP_CMOS_SENSOR_IMAGE_MODE_S *pstSensorImageMode);
+	/* Callback for set sensor wdr mode. */
 	CVI_S32 (*pfn_cmos_set_wdr_mode)(VI_PIPE ViPipe, CVI_U8 u8Mode);
 
 	/* the algs get data which is associated with sensor, except 3a */
 	CVI_S32 (*pfn_cmos_get_isp_default)(VI_PIPE ViPipe, ISP_CMOS_DEFAULT_S *pstDef);
+	/* Callback for get sensor blc level. */
 	CVI_S32 (*pfn_cmos_get_isp_black_level)(VI_PIPE ViPipe, ISP_CMOS_BLACK_LEVEL_S *pstBlackLevel);
+	/* Callback for get current sensor register info. */
 	CVI_S32 (*pfn_cmos_get_sns_reg_info)(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSnsRegsInfo);
 
 	/* the function of sensor set pixel detect */

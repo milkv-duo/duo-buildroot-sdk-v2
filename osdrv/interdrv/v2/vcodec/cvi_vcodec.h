@@ -138,7 +138,7 @@ extern int vcodec_mask;
 #define VCODEC_DBG_ERR(msg, ...)                                                  \
 	do {                                                                   \
 		if (vcodec_mask & VCODEC_MASK_ERR)                                \
-			pr_info("[ERR] %s = %d, " msg, __func__, __LINE__, \
+			pr_err("[ERR] %s = %d, " msg, __func__, __LINE__, \
 				##__VA_ARGS__);                                \
 	} while (0)
 #define VCODEC_DBG_WARN(msg, ...)                                                 \

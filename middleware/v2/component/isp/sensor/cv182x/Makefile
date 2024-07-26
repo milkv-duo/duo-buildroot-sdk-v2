@@ -35,6 +35,9 @@ chipup_xs9922b:
 cvsens_cv2003:
 	$(call MAKE_SENSOR, ${@})
 
+cvsens_cv2003_1L:
+	$(call MAKE_SENSOR, ${@})
+
 cvsens_cv2003_1L_slave:
 	$(call MAKE_SENSOR, ${@})
 
@@ -86,6 +89,9 @@ gcore_gc2093:
 gcore_gc2145:
 	$(call MAKE_SENSOR, ${@})
 
+gcore_gc2385_1L:
+	$(call MAKE_SENSOR, ${@})
+
 gcore_gc4023:
 	$(call MAKE_SENSOR, ${@})
 
@@ -105,6 +111,9 @@ nextchip_n5:
 	$(call MAKE_SENSOR, ${@})
 
 nextchip_n6:
+	$(call MAKE_SENSOR, ${@})
+
+ov_os02n10_1L:
 	$(call MAKE_SENSOR, ${@})
 
 ov_os04a10:
@@ -291,6 +300,9 @@ sony_imx327_sublvds:
 	$(call MAKE_SENSOR, ${@})
 
 sony_imx335:
+	$(call MAKE_SENSOR, ${@})
+
+sony_imx675:
 	$(call MAKE_SENSOR, ${@})
 
 techpoint_tp2825:

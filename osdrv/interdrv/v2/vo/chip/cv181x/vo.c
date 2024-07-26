@@ -1084,8 +1084,15 @@ static int _vo_disp_thread(void *arg)
 			continue;
 		}
 
+		blk = base_mod_jobs_waitq_pop(chn, CHN_TYPE_IN);
+		if (blk == VB_INVALID_HANDLE) {
+			CVI_TRACE_VO(CVI_DBG_INFO, "No more vb for dequeue.\n");
+			continue;
+		}
+
 		if (gVoCtx->pause) {
 			CVI_TRACE_VO(CVI_DBG_INFO, "pause and skip update.\n");
+			vb_release_block(blk);
 			continue;
 		}
 
@@ -1094,11 +1101,6 @@ static int _vo_disp_thread(void *arg)
 			sclr_disp_set_pattern(patterns[CVI_VIP_PAT_OFF].type, patterns[CVI_VIP_PAT_OFF].color, rgb);
 		}
 
-		blk = base_mod_jobs_waitq_pop(chn, CHN_TYPE_IN);
-		if (blk == VB_INVALID_HANDLE) {
-			CVI_TRACE_VO(CVI_DBG_INFO, "No more vb for dequeue.\n");
-			continue;
-		}
 		vb = (struct vb_s *)blk;
 		CVI_TRACE_VO(CVI_DBG_INFO, "Pool[%d] vb paddr(%#llx) usr_cnt(%d)\n",
 					vb->vb_pool, vb->phy_addr, vb->usr_cnt.counter);
@@ -1434,16 +1436,19 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 	case VO_IOCTL_SET_DV_TIMINGS:
 	{
-		struct vo_dv_timings *timings, _timings_;
+		struct vo_dv_timings *timings;
 		struct sclr_disp_timing timing;
 
-		timings = &_timings_;
+		timings = kmalloc(sizeof(struct vo_dv_timings), GFP_KERNEL);
+		memset(timings, 0, sizeof(struct vo_dv_timings));
 		if (copy_from_user(timings, (void *)p->ptr, sizeof(struct vo_dv_timings))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "Set DV timing copy_from_user failed.\n");
+			kfree(timings);
 			break;
 		}
 #if 0//TODO
 		if (!list_empty(&vdev->rdy_queue))
+			kfree(timings);
 			return -EBUSY;
 #endif
 		vdev->dv_timings = *timings;
@@ -1456,6 +1461,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		sclr_disp_set_timing(&timing);
 
 		rc = 0;
+		kfree(timings);
 		break;
 	}
 	case VO_IOCTL_SEL_TGT_COMPOSE:
@@ -1521,17 +1527,22 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	{
 		struct sclr_disp_timing *timing = sclr_disp_get_timing();
 		struct sclr_size size;
-		struct cvi_rgn_cfg cfg;
+		struct cvi_rgn_cfg *cfg;
 
-		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_rgn_cfg))) {
+		cfg = kmalloc(sizeof(struct cvi_rgn_cfg), GFP_KERNEL);
+		memset(cfg, 0, sizeof(struct cvi_rgn_cfg));
+
+		if (copy_from_user(cfg, p->ptr, sizeof(struct cvi_rgn_cfg))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			kfree(cfg);
 			break;
 		}
 		size.w = timing->hfde_end - timing->hfde_start + 1;
 		size.h = timing->vfde_end - timing->vfde_start + 1;
-		vo_set_rgn_cfg(SCL_GOP_DISP, &cfg, &size);
+		vo_set_rgn_cfg(SCL_GOP_DISP, cfg, &size);
 
 		rc = 0;
+		kfree(cfg);
 		break;
 	}
 	case VO_IOCTL_I80_SW_MODE:
@@ -1667,11 +1678,14 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	}
 	case VO_IOCTL_INTF:
 	{
-		struct cvi_disp_intf_cfg *cfg, _cfg_;
+		struct cvi_disp_intf_cfg *cfg;
 
-		cfg = &_cfg_;
+		cfg = kmalloc(sizeof(struct cvi_disp_intf_cfg), GFP_KERNEL);
+		memset(cfg, 0, sizeof(struct cvi_disp_intf_cfg));
+
 		if (copy_from_user(cfg, p->ptr, sizeof(struct cvi_disp_intf_cfg))) {
 			//CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			kfree(cfg);
 			break;
 		}
 
@@ -1680,17 +1694,20 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 			sclr_disp_reg_force_up();
 			vdev->disp_interface = cfg->intf_type;
 			rc = 0;
+			kfree(cfg);
 			break;
 		}
 
 #if 0//TODO
 		if (vb2_is_streaming(&ddev->vb_q)) {
 			dprintk(VIP_ERR, "V4L2_CID_DV_VIP_DISP_INTF can't be control if streaming.\n");
+			kfree(cfg);
 			break;
 		}
 #endif
 		if (atomic_read(&vdev->disp_streamon) == 1) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
+			kfree(cfg);
 			break;
 		}
 
@@ -1836,6 +1853,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		vdev->disp_interface = cfg->intf_type;
 
 		rc = 0;
+		kfree(cfg);
 		break;
 	}
 	case VO_IOCTL_ENABLE_WIN_BGCOLOR:
@@ -1849,22 +1867,27 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_GAMMA_LUT_UPDATE:
 	{
 		int i = 0;
-		VO_GAMMA_INFO_S gamma_attr;
+		VO_GAMMA_INFO_S *gamma_attr;
 
-		if (copy_from_user(&gamma_attr, (void *)p->ptr, sizeof(gamma_attr))) {
+		gamma_attr = kmalloc(sizeof(VO_GAMMA_INFO_S), GFP_KERNEL);
+		memset(gamma_attr, 0, sizeof(VO_GAMMA_INFO_S));
+
+		if (copy_from_user(gamma_attr, (void *)p->ptr, sizeof(VO_GAMMA_INFO_S))) {
 			CVI_TRACE_VO(CVI_DBG_ERR, "gamma lut update copy_from_user failed.\n");
+			kfree(gamma_attr);
 			break;
 		}
 
-		disp_gamma_attr.enable = gamma_attr.enable;
-		disp_gamma_attr.pre_osd = gamma_attr.osd_apply;
+		disp_gamma_attr.enable = gamma_attr->enable;
+		disp_gamma_attr.pre_osd = gamma_attr->osd_apply;
 
 		for (i = 0; i < SCL_DISP_GAMMA_NODE; ++i) {
-			disp_gamma_attr.table[i] = gamma_attr.value[i];
+			disp_gamma_attr.table[i] = gamma_attr->value[i];
 		}
 		gamma_update = true;
 
 		rc = 0;
+		kfree(gamma_attr);
 		break;
 	}
 

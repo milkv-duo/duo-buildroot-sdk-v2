@@ -41,7 +41,12 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p);
 int vi_sdk_qbuf(MMF_CHN_S chn);
 void vi_fill_mlv_info(struct vb_s *blk, u8 dev, struct mlv_i_s *m_lv_i, u8 is_vpss_offline);
 void vi_fill_dis_info(struct vb_s *blk);
-
+CVI_S32 vi_set_dev_attr(VI_DEV ViDev, const VI_DEV_ATTR_S *pstDevAttr);
+CVI_S32 vi_enable_dev(VI_DEV ViDev);
+CVI_S32 vi_create_pipe(VI_PIPE ViPipe, VI_PIPE_ATTR_S *pstPipeAttr);
+CVI_S32 vi_start_pipe(VI_PIPE ViPipe);
+CVI_S32 vi_set_chn_attr(VI_PIPE ViPipe, VI_CHN ViChn, VI_CHN_ATTR_S *pstChnAttr);
+CVI_S32 vi_enable_chn(VI_CHN ViChn);
 #ifdef __cplusplus
 }
 #endif

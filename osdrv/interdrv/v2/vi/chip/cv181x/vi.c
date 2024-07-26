@@ -55,6 +55,7 @@
 u32 vi_log_lv = VI_ERR | VI_WARN | VI_NOTICE | VI_INFO | VI_DBG;
 module_param(vi_log_lv, int, 0644);
 
+
 #ifdef PORTING_TEST //test only
 int stop_stream_en;
 module_param(stop_stream_en, int, 0644);
@@ -63,6 +64,9 @@ module_param(stop_stream_en, int, 0644);
 bool ctrl_flow = false;
 module_param(ctrl_flow, bool, 0644);
 
+VI_DEV_ATTR_S tmp_dev_attr;
+VI_PIPE_ATTR_S tmp_pipe_attr;
+VI_CHN_ATTR_S tmp_chn_attr;
 struct cvi_vi_ctx *gViCtx;
 struct cvi_overflow_info *gOverflowInfo;
 struct _vi_gdc_cb_param {
@@ -2589,7 +2593,7 @@ void _vi_scene_ctrl(struct cvi_vi_dev *vdev, enum cvi_isp_raw *raw_max)
 					// yuv: fe->dram
 					ctx->is_offline_be = false;
 					ctx->is_offline_postraw = true;
-					ctx->is_slice_buf_on = true;
+					ctx->is_slice_buf_on = !(gViCtx->devAttr[ISP_PRERAW_A].disEnableSbm);
 					RGBMAP_BUF_IDX = 2;
 
 					// if 422to420, chnAttr must be NV21
@@ -2639,7 +2643,7 @@ void _vi_scene_ctrl(struct cvi_vi_dev *vdev, enum cvi_isp_raw *raw_max)
 		} else {
 			//Only single sensor with non-tile can use two rgbmap buf
 			RGBMAP_BUF_IDX = 2;
-			ctx->is_slice_buf_on = true;
+			ctx->is_slice_buf_on = !(gViCtx->devAttr[ISP_PRERAW_A].disEnableSbm);
 		}
 
 		//Currently don't support single yuv sensor online to scaler or on-the-fly
@@ -2702,39 +2706,6 @@ void _vi_scene_ctrl(struct cvi_vi_dev *vdev, enum cvi_isp_raw *raw_max)
 
 	vi_pr(VI_INFO, "Total_chn_num=%d, rawb_chnstr_num=%d\n",
 			ctx->total_chn_num, ctx->rawb_chnstr_num);
-}
-
-static void _vi_suspend(struct cvi_vi_dev *vdev)
-{
-	struct cvi_vi_ctx *pviProcCtx = NULL;
-	enum cvi_isp_raw raw_num = ISP_PRERAW_A;
-
-	pviProcCtx = (struct cvi_vi_ctx *)(vdev->shared_mem);
-
-	if (pviProcCtx->vi_stt == VI_SUSPEND) {
-		for (raw_num = ISP_PRERAW_A; raw_num < gViCtx->total_dev_num; raw_num++)
-			isp_streaming(&vdev->ctx, false, raw_num);
-		_vi_sw_init(vdev);
-#ifndef FPGA_PORTING
-		_vi_clk_ctrl(vdev, false);
-#endif
-	}
-}
-
-static int _vi_resume(struct cvi_vi_dev *vdev)
-{
-	struct cvi_vi_ctx *pviProcCtx = NULL;
-
-	pviProcCtx = (struct cvi_vi_ctx *)(vdev->shared_mem);
-
-	if (pviProcCtx->vi_stt == VI_SUSPEND) {
-		//_vi_mempool_reset();
-		//cvi_isp_sw_init(vdev);
-
-		pviProcCtx->vi_stt = VI_RUNNING;
-	}
-
-	return 0;
 }
 
 void _viBWCalSet(struct cvi_vi_dev *vdev)
@@ -2857,16 +2828,12 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 
 	vi_pr(VI_DBG, "+\n");
 
-	if (_vi_resume(vdev) != 0) {
-		vi_pr(VI_ERR, "vi resume failed\n");
-		return -1;
-	}
-
 	_vi_mempool_reset();
 
 	vi_tuning_buf_setup(ctx);
 	vi_tuning_buf_clear(ctx);
 
+	isp_reset(&vdev->ctx);
 	_vi_scene_ctrl(vdev, &raw_max);
 
 	//SW workaround to disable csibdg enable first due to csibdg enable is on as default.
@@ -2968,6 +2935,7 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 	_vi_postraw_ctrl_setup(vdev);
 	_vi_dma_setup(ctx, raw_max);
 	_vi_dma_set_sw_mode(ctx);
+	vi_tuning_resume(ctx, ISP_PRERAW_MAX);
 
 	vi_pr(VI_INFO, "ISP scene path, be_off=%d, post_off=%d, slice_buff_on=%d\n",
 			ctx->is_offline_be, ctx->is_offline_postraw, ctx->is_slice_buf_on);
@@ -2984,7 +2952,7 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_KERNEL);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				return CVI_FAILURE;
 			}
 			/* VI Online VPSS sc cb trigger */
@@ -3022,7 +2990,7 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_KERNEL);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				return CVI_FAILURE;
 			}
 			/* VI Online VPSS sc cb trigger */
@@ -3237,7 +3205,6 @@ int vi_stop_streaming(struct cvi_vi_dev *vdev)
 #ifdef PORTING_TEST
 	vi_ip_test_cases_uninit(&vdev->ctx);
 #endif
-	_vi_suspend(vdev);
 
 	return rc;
 }
@@ -3634,6 +3601,12 @@ void _pre_hw_enque(
 	struct isp_ctx *ctx = &vdev->ctx;
 	enum cvi_isp_raw hw_raw = raw_num;
 
+	//singel frame low power mode only handle 1 frame
+	if (ctx->is_pre_trig_first && ctx->suspend_resume_en) {
+		vi_pr(VI_INFO, "already pre_hw_enque first\n");
+		return;
+	}
+
 	// virt_raw and raw use the same state
 	hw_raw = find_hw_raw_num(raw_num);
 
@@ -4000,6 +3973,15 @@ static inline void _post_ctrl_update(struct cvi_vi_dev *vdev, const enum cvi_isp
 	} else {
 		isp_first_frm_reset(ctx, 0);
 	}
+
+	if (ctx->suspend_resume_en) {
+		if (vdev->preraw_first_frm[raw_num]) {
+			vdev->preraw_first_frm[raw_num] = false;
+			isp_first_frm_reset(ctx, 1);
+		} else {
+			isp_first_frm_reset(ctx, 0);
+		}
+	}
 }
 
 static uint8_t _pre_be_sts_in_use_chk(struct cvi_vi_dev *vdev, const enum cvi_isp_raw raw_num, const u8 chn_num)
@@ -4106,6 +4088,12 @@ static void _post_hw_enque(
 	enum cvi_isp_chn_num chn_num = ISP_CHN0;
 	bool is_bypass = false;
 
+	//singel frame low power mode only handle 1 frame
+	if (ctx->is_post_trig_first && ctx->suspend_resume_en) {
+		vi_pr(VI_INFO, "already post_hw_enque first\n");
+		return;
+	}
+
 	if (atomic_read(&vdev->isp_streamoff) == 1 && !ctx->is_slice_buf_on) {
 		vi_pr(VI_DBG, "stop streaming\n");
 		return;
@@ -4131,7 +4119,7 @@ static void _post_hw_enque(
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
 			}
@@ -4204,7 +4192,7 @@ YUV_POSTRAW_TILE:
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
@@ -4274,7 +4262,7 @@ YUV_POSTRAW:
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
 			}
@@ -4337,7 +4325,7 @@ YUV_POSTRAW:
 					struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 					if (!post_para) {
-						vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+						vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 						atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
 						return;
 					}
@@ -4436,6 +4424,41 @@ static void _pre_fe_rgbmap_update(
 			else if (raw == ISP_PRERAW_B)
 				ispblk_dma_setaddr(ctx, ISP_BLK_ID_DMA_CTL17, rgbmap_buf);
 		}
+	}
+}
+
+void vi_suspend(struct cvi_vi_dev *vdev)
+{
+	vi_disable_chn(0);
+	// atomic_set(&vdev->isp_dbg_flag, 0);
+}
+
+void vi_resume(struct cvi_vi_dev *vdev)
+{
+
+	union vip_sys_reset isp_rst;
+
+	isp_rst.raw = 0;
+	isp_rst.b.isp_top = 1;
+	isp_rst.b.isp_top_apb = 1;
+	vip_toggle_reset(isp_rst);
+	vdev->ctx.is_pre_trig_first = false;
+	vdev->ctx.is_post_trig_first = false;
+	vdev->ctx.tuning_update_en = true;
+
+	if (vdev && atomic_read(&vdev->isp_streamoff)) {
+		atomic_set(&vdev->isp_streamon, 1);
+		atomic_set(&vdev->isp_streamoff, 0);
+
+		isp_first_frm_reset(&vdev->ctx, 1);
+		vdev->preraw_first_frm[0] = true;
+
+		vi_set_dev_attr(0, &tmp_dev_attr);
+		vi_enable_dev(0);
+		vi_create_pipe(0, &tmp_pipe_attr);
+		vi_start_pipe(0);
+		vi_set_chn_attr(0, 0, &tmp_chn_attr);
+		vi_enable_chn(0);
 	}
 }
 
@@ -4543,6 +4566,10 @@ static void _vi_sw_init(struct cvi_vi_dev *vdev)
 	ctx->is_slice_buf_on		= true;
 	ctx->is_rgbmap_sbm_on		= false;
 	ctx->is_synthetic_hdr_on	= false;
+	ctx->is_post_trig_first		= false;
+	ctx->is_pre_trig_first		= false;
+	ctx->suspend_resume_en	= false;
+	ctx->tuning_update_en		= false;
 	ctx->rgbmap_prebuf_idx		= 1;
 	ctx->cam_id			= 0;
 	ctx->rawb_chnstr_num		= 1;
@@ -4737,6 +4764,8 @@ static int _vi_mempool_setup(void)
 
 	_vi_mempool_reset();
 
+	ret = vi_tuning_backup_setup();
+
 	return ret;
 }
 
@@ -4906,6 +4935,17 @@ static long _vi_s_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 	struct isp_ctx *ctx = &vdev->ctx;
 
 	switch (id) {
+	case VI_SINGEL_FRAME_ENABLE:
+	{
+		if (p->value) {
+			ctx->suspend_resume_en = true;
+		} else {
+			ctx->suspend_resume_en = false;
+		}
+
+		rc = 0;
+		break;
+	}
 	case VI_IOCTL_SDK_CTRL:
 	{
 		rc = vi_sdk_ctrl(vdev, p);
@@ -6226,10 +6266,13 @@ static int _vi_event_handler_thread(void * arg)
 
 			vi_pr(VI_DBG, "dqbuf chn_id=%d, frm_num=%d\n", b.chnId, b.sequence);
 
-			if (gViCtx->bypass_frm[chn.s32ChnId] >= b.sequence) {
-				//Release buffer if bypass_frm is not zero
-				vb_release_block(blk);
-				goto QBUF;
+			//singel frame low power mode do not bypass frm
+			if (!vdev->ctx.suspend_resume_en) {
+				if (gViCtx->bypass_frm[chn.s32ChnId] >= b.sequence) {
+					//Release buffer if bypass_frm is not zero
+					vb_release_block(blk);
+					goto QBUF;
+				}
 			}
 
 			if (!gViCtx->pipeAttr[chn.s32ChnId].bYuvBypassPath) {
@@ -7295,6 +7338,16 @@ static void _isp_sof_handler(struct cvi_vi_dev *vdev, const enum cvi_isp_raw raw
 	enum VI_EVENT type = VI_EVENT_PRE0_SOF + raw_num;
 	struct _isp_dqbuf_n *n = NULL;
 	unsigned long flags;
+	union REG_ISP_TOP_INT_EVENT2_EN ev2_en;
+	uintptr_t isptopb = vdev->ctx.phys_regs[ISP_BLK_ID_ISPTOP];
+
+	if (ctx->suspend_resume_en) {
+		ev2_en.raw = 0;
+		ev2_en.bits.FRAME_START_ENABLE_FE0	= 0;
+		ev2_en.bits.FRAME_START_ENABLE_FE1	= 0;
+		ev2_en.bits.FRAME_START_ENABLE_FE2	= 0;
+		ISP_WR_REG(isptopb, REG_ISP_TOP_T, INT_EVENT2_EN, ev2_en.raw);
+	}
 
 	if (atomic_read(&vdev->isp_streamoff) == 1)
 		return;

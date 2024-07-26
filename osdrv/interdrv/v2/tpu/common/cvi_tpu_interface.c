@@ -1268,6 +1268,8 @@ static int cvi_tpu_remove(struct platform_device *pdev)
 	class_destroy(npu_class);
 
 	platform_set_drvdata(pdev, NULL);
+	pdev->dev.dma_mask = NULL;
+	pdev->dev.coherent_dma_mask = 0;
 	pr_debug("===cvi_tpu_remove\n");
 
 	//remove tpu proc

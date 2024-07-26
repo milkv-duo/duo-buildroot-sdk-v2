@@ -409,6 +409,13 @@ void isp_pre_trig(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, const u8 chn_nu
 	u8 trig_chn_num = chn_num;
 	enum cvi_isp_raw raw = raw_num;
 
+	//singel frame low power mode only handle 1 frame
+	if (ctx->is_pre_trig_first && ctx->suspend_resume_en) {
+		vi_pr(VI_INFO, "already trig first preraw\n");
+		return;
+	}
+	ctx->is_pre_trig_first = true;
+
 	raw = find_hw_raw_num(raw_num);
 
 	if (raw == ISP_PRERAW_A)
@@ -521,6 +528,13 @@ void isp_post_trig(struct isp_ctx *ctx, enum cvi_isp_raw raw_num)
 	union REG_ISP_TOP_SW_CTRL_1 sw_ctrl_1;
 
 	sw_ctrl_0.raw = sw_ctrl_1.raw = 0;
+
+	//single frame low power mode only handle 1 frame
+	if (ctx->is_post_trig_first && ctx->suspend_resume_en) {
+		vi_pr(VI_DBG, "already trig first postraw\n");
+		return;
+	}
+	ctx->is_post_trig_first = true;
 
 	if (_is_fe_be_online(ctx) && !ctx->is_slice_buf_on) { //fe->be->dram->post
 		vi_pr(VI_DBG, "dram->post trig raw_num(%d), is_slice_buf_on(%d)\n",
@@ -1689,7 +1703,11 @@ void _ispblk_yuvtop_cfg_update(struct isp_ctx *ctx, const enum cvi_isp_raw raw_n
 		}
 	} else { //RGB sensor
 		//Enable 3DNR dma
+#ifdef CONFIG_PM_SLEEP
+		ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_8, FORCE_DMA_DISABLE, 0x3f);
+#else
 		ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_8, FORCE_DMA_DISABLE, 0);
+#endif
 		ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_4, REG_422_444, 0);
 		ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_5, TDNR_ENABLE, 1);
 		ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_4, SWAP, 0);

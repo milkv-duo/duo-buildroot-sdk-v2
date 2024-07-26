@@ -10,7 +10,7 @@ ISP_BASE_PATH = $(PWD)/../../$(isp_chip_name)
 SDIR = $(PWD)
 SRCS = $(wildcard $(SDIR)/*.c)
 
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(VPU_INC) -I../../algo
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC)  -I../../algo
 
 # SOC Architecture
 ifeq ($(CHIP_ARCH), CV183X)
@@ -21,9 +21,19 @@ else ifeq ($(CHIP_ARCH), CV182X)
 	DEFS += -DCHIP_ARCH_CV182X
 else ifeq ($(CHIP_ARCH), CV181X)
 	INCS += -I$(ISP_BASE_PATH)/isp/inc
+	INCS += -I$(VI_INC)
+	INCS += -I$(VPSS_INC)
+	INCS += -I$(VO_INC)
+	INCS += -I$(GDC_INC)
+	INCS += -I$(RGN_INC)
 	DEFS += -DCHIP_ARCH_CV181X
 else ifeq ($(CHIP_ARCH), CV180X)
 	INCS += -I$(ISP_BASE_PATH)/isp/inc
+	INCS += -I$(VI_INC)
+	INCS += -I$(VPSS_INC)
+	INCS += -I$(VO_INC)
+	INCS += -I$(GDC_INC)
+	INCS += -I$(RGN_INC)
 	DEFS += -DCHIP_ARCH_CV180X
 else
 	$(error Un-support SOC Architecture)

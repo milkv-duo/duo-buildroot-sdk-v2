@@ -29,6 +29,7 @@
 #include <vi_defines.h>
 #include <vi_sdk_layer.h>
 #include <reg_vip_sys.h>
+#include <vip_common.h>
 
 #include <vi_raw_dump.h>
 

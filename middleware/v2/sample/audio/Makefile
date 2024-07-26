@@ -137,7 +137,7 @@ ifeq ($(USE_TINYALSA), yes)
 LDLIBS += -ltinyalsa
 endif
 ifeq ($(USE_SYS_GLOBAL_LOG), yes)
-LDLIBS += -lvpu -lsys
+LDLIBS += -lvi -lvo -lvpss -lrgn -lgdc -lsys
 endif
 
 ifeq ($(SUPPORT_EXTERNAL_AAC), yes)
@@ -159,9 +159,6 @@ EXTRA_CFLAGS = -fPIC $(OPT_LEVEL) -Wno-implicit-function-declaration -I. $(INCS)
 EXTRA_LDFLAGS = $(LDLIBS) -lm -lpthread -ldl
 
 MP3_EXTRA_LDFLAGS = -lcvi_mp3 -lmad -lcvi_audio -lm -lpthread  -ldl -lcvi_VoiceEngine -lcvi_vqe -ltinyalsa -lcvi_RES1
-
-EXTRA_CFLAGS += -DCLI_DEBUG_SUPPORT
-EXTRA_LDFLAGS += -lcli
 
 ifeq ($(MULTI_PROCESS_SUPPORT_AUDIO), yes)
 DEFINES += -DRPC_MULTI_PROCESS

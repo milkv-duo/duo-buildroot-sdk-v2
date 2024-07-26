@@ -364,6 +364,8 @@ typedef struct _VI_DEV_ATTR_S {
 	CVI_U32 switchGpioPin; /*switch pin*/
 
 	CVI_U8 switchGPioPol; /*switch pol*/
+
+	CVI_BOOL disEnableSbm; /*Sns timing support SBM or not*/
 } VI_DEV_ATTR_S;
 
 /* Information of pipe binded to device */

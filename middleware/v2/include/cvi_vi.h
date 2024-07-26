@@ -579,16 +579,93 @@ CVI_S32 CVI_VI_RegPmCallBack(VI_DEV ViDev, VI_PM_OPS_S *pstPmOps, void *pvData);
 CVI_S32 CVI_VI_UnRegPmCallBack(VI_DEV ViDev);
 
 /**
- * @deprecated
+ * @brief Function to trig frame_vld.
+ *
+ * @param ViPipe(In), Pipe ID.
+ * @param u8AHDSignal(In), Is need trig(0/1).
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
  */
 CVI_S32 CVI_VI_Trig_AHD(VI_PIPE ViPipe, CVI_U8 u8AHDSignal);
+
+/**
+ * @brief Set bind dev to pipe.
+ *
+ * @param ViDev(In), Device ID.
+ * @param pstDevBindPipe(In), Bind info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_SetDevBindPipe(VI_DEV ViDev, const VI_DEV_BIND_PIPE_S *pstDevBindPipe);
+
+/**
+ * @brief Get bind dev to pipe.
+ *
+ * @param ViDev(In), Device ID.
+ * @param pstDevBindPipe(Out), Bind info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_GetDevBindPipe(VI_DEV ViDev, VI_DEV_BIND_PIPE_S *pstDevBindPipe);
+
+/**
+ * @brief Set chn info to fish_eye.
+ *
+ * @param ViPipe(In), Pipe ID.
+ * @param ViChn(In), Channel ID.
+ * @param pstFishEyeAttr(In), Fisheye info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_SetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, const FISHEYE_ATTR_S *pstFishEyeAttr);
+
+/**
+ * @brief Get chn info to fish_eye.
+ *
+ * @param ViPipe(In), Pipe ID.
+ * @param ViChn(In), Channel ID.
+ * @param pstFishEyeAttr(Out), Fisheye info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_GetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, FISHEYE_ATTR_S *pstFishEyeAttr);
+
+/**
+ * @brief Set chn info to ldc or fisheye.
+ *
+ * @param ViPipe(In), Pipe ID.
+ * @param ViChn(In), Channel ID.
+ * @param pstExtChnAttr(In), Ext chn info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_SetExtChnAttr(VI_PIPE ViPipe, VI_CHN ViChn, const VI_EXT_CHN_ATTR_S *pstExtChnAttr);
+
+/**
+ * @brief Get chn info to ldc or fisheye.
+ *
+ * @param ViPipe(In), Pipe ID.
+ * @param ViChn(In), Channel ID.
+ * @param pstExtChnAttr(Out), Ext chn info.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_VI_GetExtChnAttr(VI_PIPE ViPipe, VI_CHN ViChn, VI_EXT_CHN_ATTR_S *pstExtChnAttr);
-// for fpga test
+
+/**
+ * @brief Next, only one frame of function control is received, used by sleep and wake up the scene.
+ *
+ * @param flag(In), Control for single frame(1/0).
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
+CVI_S32 CVI_VI_SINGEL_FRAME_ENABLE(bool flag);
+
+/**
+ * @brief Single function test, for fpga, customers don't need it.
+ *
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 _CVI_VI_CFG_CTRL_TEST(void);
 
 #ifdef __cplusplus

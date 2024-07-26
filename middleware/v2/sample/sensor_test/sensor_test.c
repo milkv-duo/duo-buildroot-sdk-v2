@@ -45,7 +45,10 @@ static int sys_vi_init(void)
 	CVI_LOG_SetLevelConf(&log_conf);
 
 	// Get config from ini if found.
-	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+	s32Ret = SAMPLE_COMM_VI_ParseIni(&stIniCfg);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("Parse fail\n");
+	} else {
 		SAMPLE_PRT("Parse complete\n");
 	}
 
@@ -452,16 +455,16 @@ int sensor_dump(void)
 	char img_name[128] = {0, };
 
 	CVI_TRACE_LOG(CVI_DBG_WARN, "dump addr:\n");
-	scanf("%lx", &addr);
+	scanf("%"PRIx64"", &addr);
 	CVI_TRACE_LOG(CVI_DBG_WARN, "dump size(0\1):\n");
 	scanf("%x", &size);
 
-	snprintf(img_name, sizeof(img_name), "register_%lx.bin", addr);
+	snprintf(img_name, sizeof(img_name), "register_%"PRIx64".bin", addr);
 
 	output = fopen(img_name, "wb");
 	if (output == NULL) {
 		memset(img_name, 0x0, sizeof(img_name));
-		snprintf(img_name, sizeof(img_name), "register_%lx.bin", addr);
+		snprintf(img_name, sizeof(img_name), "register_%"PRIx64".bin", addr);
 		output = fopen(img_name, "wb");
 		if (output == NULL) {
 			CVI_TRACE_LOG(CVI_DBG_ERR, "fopen fail\n");

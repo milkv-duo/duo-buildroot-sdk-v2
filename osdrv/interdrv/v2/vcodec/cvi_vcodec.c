@@ -267,6 +267,12 @@ static u32 s_vpu_reg_store[MAX_NUM_VPU_CORE][64];
 #define WritSbmRegister(addr, val)	\
 			(writel((val), vcodec_dev.sbm_register.virt_addr + \
 					(addr)))
+#define ReadCtrlRegister(addr)	\
+			(readl(vcodec_dev.ctrl_register.virt_addr + \
+				(addr)))
+#define WritCtrlRegister(addr, val)	\
+				(writel((val), vcodec_dev.ctrl_register.virt_addr + \
+					(addr)))
 
 
 static int bSingleCore;
@@ -622,6 +628,12 @@ int vpu_get_common_memory(vpudrv_buffer_t *p_vdb)
 	return ret;
 }
 EXPORT_SYMBOL(vpu_get_common_memory);
+#else
+void vpu_set_common_memory(unsigned long core, vpudrv_buffer_t *p_vdb)
+{
+	memcpy(&vcodec_dev.s_common_memory[core], p_vdb, sizeof(vpudrv_buffer_t));
+}
+EXPORT_SYMBOL(vpu_set_common_memory);
 #endif
 
 // VDI_IOCTL_OPEN_INSTANCE
@@ -1316,7 +1328,7 @@ static int cviGetRegResource(struct cvi_vpu_device *vdev, struct platform_device
 #endif
 			pReg->size = res->end - res->start;
 			VCODEC_DBG_INFO("idx = %d, reg base, pa = 0x%llX, va = 0x%p\n",
-				     idx, pReg->phys_addr, pReg->virt_addr);
+				idx, pReg->phys_addr, pReg->virt_addr);
 		} else
 			return -ENXIO;
 	}
@@ -1429,8 +1441,7 @@ static int cviCfgIrq(struct platform_device *pdev)
 			return -ENODEV;
 		}
 
-		VCODEC_DBG_INFO("core = %d, s_vcodec_irq = %d\n",
-				core, pvctx->s_vcodec_irq);
+		VCODEC_DBG_INFO("core = %d, s_vcodec_irq = %d\n", core, pvctx->s_vcodec_irq);
 
 		err = request_irq(pvctx->s_vcodec_irq, vpu_irq_handler, 0, irq_name[core],
 				(void *)pvctx);
@@ -1441,7 +1452,6 @@ static int cviCfgIrq(struct platform_device *pdev)
 	}
 
 	pr_info("[INFO] Register SBM IRQ ###################################");
-
 	pvctx->s_sbm_irq = platform_get_irq_byname(pdev, irq_name[2]);
 	if (pvctx->s_sbm_irq < 0) {
 		VCODEC_DBG_ERR("No IRQ resource for %s\n", irq_name[2]);
@@ -1449,9 +1459,7 @@ static int cviCfgIrq(struct platform_device *pdev)
 	}
 
 	pr_info("[INFO] pvctx->s_sbm_irq = %d", pvctx->s_sbm_irq);
-
-	err = request_irq(pvctx->s_sbm_irq, sbm_irq_handler, 0, irq_name[2],
-			(void *)&vcodec_dev);
+	err = request_irq(pvctx->s_sbm_irq, sbm_irq_handler, 0, irq_name[2], (void *)&vcodec_dev);
 	if (err) {
 		VCODEC_DBG_ERR("fail to register interrupt handler\n");
 		return -1;
@@ -1471,6 +1479,9 @@ static void cviFreeIrq(void)
 		VCODEC_DBG_INFO("core = %d, s_vcodec_irq = %d\n", core, pvctx->s_vcodec_irq);
 		free_irq(pvctx->s_vcodec_irq, (void *)pvctx);
 	}
+
+	VCODEC_DBG_INFO("free sbm irq, s_sbm_irq = %d\n", pvctx->s_sbm_irq);
+	free_irq(pvctx->s_sbm_irq, (void *)&vcodec_dev);
 }
 
 static void cviReleaseRegResource(struct cvi_vpu_device *vdev)
@@ -1600,13 +1611,88 @@ static int vpu_remove(struct platform_device *pdev)
 	return 0;
 }
 
+struct mutex vcodec_mutex;
+
+void vcodec_lock(void)
+{
+	mutex_lock_interruptible(&vcodec_mutex);
+}
+EXPORT_SYMBOL(vcodec_lock);
+
+void vcodec_unlock(void)
+{
+	mutex_unlock(&vcodec_mutex);
+}
+EXPORT_SYMBOL(vcodec_unlock);
+
+int vcodec_trylock(void)
+{
+	return mutex_trylock(&vcodec_mutex);
+}
+EXPORT_SYMBOL(vcodec_trylock);
+
+int vcodec_is_locked(void)
+{
+	return mutex_is_locked(&vcodec_mutex);
+
+}
+EXPORT_SYMBOL(vcodec_is_locked);
+
 #ifdef CONFIG_PM
-#define W4_MAX_CODE_BUF_SIZE (512 * 1024)
+int sbm_reg_00;
+int sbm_reg[16];
+int ctrl_reg10;
+int ctrl_reg28;
+int ctrl_reg40;
+
+#define W4_MAX_CODE_BUF_SIZE (256 * 1024)
 #define W4_CMD_INIT_VPU (0x0001)
 #define W4_CMD_SLEEP_VPU (0x0400)
 #define W4_CMD_WAKEUP_VPU (0x0800)
 #define W5_CMD_SLEEP_VPU (0x0004)
 #define W5_CMD_WAKEUP_VPU (0x0002)
+
+void dump_sbm_reg(void)
+{
+      int i = 0;
+
+      sbm_reg_00 = ReadSbmRegister(0x00);
+
+      for(i = 0; i < 16; i++) {
+              sbm_reg[i] = ReadSbmRegister(0x20 + i * 4);
+      }
+}
+
+void write_sbm_reg(void)
+{
+      int i = 0;
+
+      WritSbmRegister(0x00, sbm_reg_00);
+
+      for (i = 0; i < 16; i++) {
+              WritSbmRegister(0x20 + i * 4, sbm_reg[i]);
+      }
+}
+
+void dump_ctrl_reg(void)
+{
+	ctrl_reg10 = ReadCtrlRegister(0x10);
+#if defined(__CV180X__)
+	ctrl_reg28 = ReadCtrlRegister(0x28);
+#endif
+	ctrl_reg40 = ReadCtrlRegister(0x40);
+}
+
+void write_ctrl_reg(void)
+{
+	WritCtrlRegister(0x10, ctrl_reg10);
+#if defined(__CV180X__)
+	/* disable cpu access vc sram for 180x  romcode use vc sram*/
+	WritCtrlRegister(0x28, ctrl_reg28);
+#endif
+	/* codec MMU config */
+	WritCtrlRegister(0x40, ctrl_reg40);
+}
 
 static void Wave4BitIssueCommand(int core, u32 cmd)
 {
@@ -1630,60 +1716,64 @@ static int vpu_suspend(struct platform_device *pdev, pm_message_t state)
 	int product_code;
 	struct cvi_vpu_device *vdev = platform_get_drvdata(pdev);
 
+	vcodec_lock();
+	cviFreeIrq();
+	dump_ctrl_reg();
+	dump_sbm_reg();
 	set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H264_CORE_IDX) | BIT(H265_CORE_IDX));
 
 	if (s_vpu_open_ref_count > 0) {
 		for (core = 0; core < MAX_NUM_VPU_CORE; core++) {
 			pvctx = &vcodec_dev.vcodec_ctx[core];
+
 			if (pvctx->s_bit_firmware_info.size == 0)
 				continue;
-			product_code =
-				ReadVpuRegister(VPU_PRODUCT_CODE_REGISTER);
+
+			product_code = ReadVpuRegister(VPU_PRODUCT_CODE_REGISTER);
 
 			if (PRODUCT_CODE_W_SERIES(product_code)) {
 				unsigned long cmd_reg = W4_CMD_SLEEP_VPU;
 				unsigned long suc_reg = W4_RET_SUCCESS;
 
+				set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H265_CORE_IDX));
+
 				while (ReadVpuRegister(W4_VPU_BUSY_STATUS)) {
 					if (time_after(jiffies, timeout)) {
-						VCODEC_DBG_ERR("SLEEP_VPU BUSY timeout");
+						VCODEC_DBG_ERR("W4_VPU_BUSY_STATUS timeout");
 						goto DONE_SUSPEND;
 					}
 				}
 
-				if (product_code == WAVE512_CODE ||
-				    product_code == WAVE520_CODE) {
-					cmd_reg = W5_CMD_SLEEP_VPU;
-					suc_reg = W5_RET_SUCCESS;
-				}
 				Wave4BitIssueCommand(core, cmd_reg);
 
 				while (ReadVpuRegister(W4_VPU_BUSY_STATUS)) {
 					if (time_after(jiffies, timeout)) {
-						VCODEC_DBG_ERR("SLEEP_VPU BUSY timeout");
+						VCODEC_DBG_ERR("W4_VPU_BUSY_STATUS timeout");
 						goto DONE_SUSPEND;
 					}
 				}
 				if (ReadVpuRegister(suc_reg) == 0) {
-					VCODEC_DBG_ERR("SLEEP_VPU failed [0x%x]",
-						ReadVpuRegister(
-							W4_RET_FAIL_REASON));
+					VCODEC_DBG_ERR("SLEEP_VPU failed [0x%x]", ReadVpuRegister(W4_RET_FAIL_REASON));
 					goto DONE_SUSPEND;
 				}
+
+				set_clock_enable(vdev, VCODEC_CLK_DISABLE, BIT(H265_CORE_IDX));
 			} else if (PRODUCT_CODE_NOT_W_SERIES(product_code)) {
+				set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H264_CORE_IDX));
+
 				while (ReadVpuRegister(BIT_BUSY_FLAG)) {
-					if (time_after(jiffies, timeout))
+					if (time_after(jiffies, timeout)) {
+						VCODEC_DBG_ERR("BIT_BUSY_FLAG timrout\n");
 						goto DONE_SUSPEND;
+					}
 				}
 
 				for (i = 0; i < 64; i++)
-					s_vpu_reg_store[core][i] =
-						ReadVpuRegister(
-							BIT_BASE +
-							(0x100 + (i * 4)));
+					s_vpu_reg_store[core][i] = ReadVpuRegister(BIT_BASE + (0x100 + (i * 4)));
+
+				set_clock_enable(vdev, VCODEC_CLK_DISABLE, BIT(H264_CORE_IDX));
 			} else {
-				VCODEC_DBG_ERR("Unknown product id : %08x\n",
-					product_code);
+				VCODEC_DBG_ERR("Unknown product id : %08x\n", product_code);
 				goto DONE_SUSPEND;
 			}
 		}
@@ -1702,22 +1792,28 @@ DONE_SUSPEND:
 
 static int vpu_resume(struct platform_device *pdev)
 {
+#if 0
 	struct cvi_vcodec_context *pvctx;
 	int i;
 	int core;
-	u32 val;
 	unsigned long timeout = jiffies + HZ; /* vpu wait timeout to 1sec */
 	int product_code;
-	struct cvi_vpu_device *vdev = platform_get_drvdata(pdev);
 
 	unsigned long code_base;
 	u32 code_size;
 	u32 remap_size;
 	int regVal;
-	u32 hwOption = 0;
+#endif
+	struct cvi_vpu_device *vdev = platform_get_drvdata(pdev);
 
+	// resume IN CoreSleepWake, just recover ctrl & sbm
+	// w4 & coda9 all STATUS_AWAKE has something wrong
+	cviCfgIrq(pdev);
 	set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H264_CORE_IDX) | BIT(H265_CORE_IDX));
-
+	write_ctrl_reg();
+	write_sbm_reg();
+	cvi_VENC_SBM_IrqEnable();
+#if 0
 	for (core = 0; core < MAX_NUM_VPU_CORE; core++) {
 		pvctx = &vcodec_dev.vcodec_ctx[core];
 		if (pvctx->s_bit_firmware_info.size == 0) {
@@ -1726,25 +1822,9 @@ static int vpu_resume(struct platform_device *pdev)
 
 		product_code = ReadVpuRegister(VPU_PRODUCT_CODE_REGISTER);
 		if (PRODUCT_CODE_W_SERIES(product_code)) {
-			unsigned long addr_code_base_reg = W4_ADDR_CODE_BASE;
-			unsigned long code_size_reg = W4_CODE_SIZE;
-			unsigned long code_param_reg = W4_CODE_PARAM;
-			unsigned long timeout_cnt_reg =
-				W4_INIT_VPU_TIME_OUT_CNT;
-			unsigned long hw_opt_reg = W4_HW_OPTION;
-			unsigned long suc_reg = W4_RET_SUCCESS;
+			set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H265_CORE_IDX));
 
-			if (product_code == WAVE512_CODE ||
-			    product_code == WAVE520_CODE) {
-				addr_code_base_reg = W5_ADDR_CODE_BASE;
-				code_size_reg = W5_CODE_SIZE;
-				code_param_reg = W5_CODE_PARAM;
-				timeout_cnt_reg = W5_INIT_VPU_TIME_OUT_CNT;
-				hw_opt_reg = W5_HW_OPTION;
-				suc_reg = W5_RET_SUCCESS;
-			}
-
-			code_base = vcodec_dev.s_common_memory.phys_addr;
+			code_base = vcodec_dev.s_common_memory[core].phys_addr;
 			/* ALIGN TO 4KB */
 			code_size = (W4_MAX_CODE_BUF_SIZE & ~0xfff);
 			if (code_size < pvctx->s_bit_firmware_info.size * 2) {
@@ -1756,13 +1836,14 @@ static int vpu_resume(struct platform_device *pdev)
 
 			/* Reset All blocks */
 			regVal = 0x7ffffff;
-			WriteVpuRegister(W4_VPU_RESET_REQ,
-					 regVal); /*Reset All blocks*/
+			WriteVpuRegister(W4_VPU_RESET_REQ, regVal); /*Reset All blocks*/
 
 			/* Waiting reset done */
 			while (ReadVpuRegister(W4_VPU_RESET_STATUS)) {
-				if (time_after(jiffies, timeout))
+				if (time_after(jiffies, timeout)) {
+					VCODEC_DBG_ERR("W4_VPU_RESET_STATUS timrout\n");
 					goto DONE_WAKEUP;
+				}
 			}
 
 			WriteVpuRegister(W4_VPU_RESET_REQ, 0);
@@ -1772,74 +1853,76 @@ static int vpu_resume(struct platform_device *pdev)
 			regVal = 0x80000000 | (W4_REMAP_CODE_INDEX << 12) |
 				 (0 << 16) | (1 << 11) | remap_size;
 			WriteVpuRegister(W4_VPU_REMAP_CTRL, regVal);
-			WriteVpuRegister(W4_VPU_REMAP_VADDR,
-					 0x00000000); /* DO NOT CHANGE! */
+			WriteVpuRegister(W4_VPU_REMAP_VADDR, 0x00000000); /* DO NOT CHANGE! */
 			WriteVpuRegister(W4_VPU_REMAP_PADDR, code_base);
-			WriteVpuRegister(addr_code_base_reg, code_base);
-			WriteVpuRegister(code_size_reg, code_size);
-			WriteVpuRegister(code_param_reg, 0);
-			WriteVpuRegister(timeout_cnt_reg, timeout);
+			WriteVpuRegister(W4_ADDR_CODE_BASE, code_base);
+			WriteVpuRegister(W4_CODE_SIZE, code_size);
+			WriteVpuRegister(W4_CODE_PARAM, 0x0);
+			WriteVpuRegister(W4_INIT_VPU_TIME_OUT_CNT, 0xffffffff);
 
-			WriteVpuRegister(hw_opt_reg, hwOption);
+			WriteVpuRegister(W4_HW_OPTION, 0x0);
 
 			/* Interrupt */
-			if (product_code == WAVE512_CODE) {
-				// decoder
-				regVal = (1 << W5_INT_INIT_SEQ);
-				regVal |= (1 << W5_INT_DEC_PIC);
-				regVal |= (1 << W5_INT_BSBUF_EMPTY);
-			} else if (product_code == WAVE520_CODE) {
-				regVal = (1 << W5_INT_ENC_SET_PARAM);
-				regVal |= (1 << W5_INT_ENC_PIC);
-			} else {
-				regVal = (1 << W4_INT_DEC_PIC_HDR);
-				regVal |= (1 << W4_INT_DEC_PIC);
-				regVal |= (1 << W4_INT_QUERY_DEC);
-				regVal |= (1 << W4_INT_SLEEP_VPU);
-				regVal |= (1 << W4_INT_BSBUF_EMPTY);
-			}
+			// for encoder interrupt
+			regVal = (1 << W4_INT_ENC_PIC);
+			regVal |= (1 << W4_INT_SET_PARAM);
+			// for decoder interrupt
+			regVal |= (1 << W4_INT_DEC_PIC_HDR);
+			regVal |= (1 << W4_INT_DEC_PIC);
+			regVal |= (1 << W4_INT_QUERY_DEC);
+			regVal |= (1 << W4_INT_BSBUF_EMPTY);
 
 			WriteVpuRegister(W4_VPU_VINT_ENABLE, regVal);
 
 			Wave4BitIssueCommand(core, W4_CMD_INIT_VPU);
 			WriteVpuRegister(W4_VPU_REMAP_CORE_START, 1);
 
+			WriteVpuRegister(W4_VPU_REMAP_CORE_START, 0x1);
+
 			while (ReadVpuRegister(W4_VPU_BUSY_STATUS)) {
-				if (time_after(jiffies, timeout))
+				if (time_after(jiffies, timeout)) {
+					VCODEC_DBG_ERR("W4_VPU_RESET_STATUS timrout\n");
 					goto DONE_WAKEUP;
+				}
 			}
 
-			if (ReadVpuRegister(suc_reg) == 0) {
-				VCODEC_DBG_ERR("WAKEUP_VPU failed [0x%x]",
-					ReadVpuRegister(W4_RET_FAIL_REASON));
+			if (ReadVpuRegister(W4_RET_SUCCESS) == 0) {
+				VCODEC_DBG_ERR("WAKEUP_VPU failed [0x%x]", ReadVpuRegister(W4_RET_FAIL_REASON));
 				goto DONE_WAKEUP;
 			}
 		} else if (PRODUCT_CODE_NOT_W_SERIES(product_code)) {
+			u64 code_val;
+			u16 *code_word = (u16 *)&pvctx->s_bit_firmware_info.bit_code[0];
+
+			set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H264_CORE_IDX));
+
 			WriteVpuRegister(BIT_CODE_RUN, 0);
 
 			/*---- LOAD BOOT CODE*/
-			for (i = 0; i < 512; i++) {
-				val = pvctx->s_bit_firmware_info.bit_code[i];
-				WriteVpuRegister(BIT_CODE_DOWN,
-						 ((i << 16) | val));
+			for (i = 0; i < 512; i += 4) {
+				code_val = *(u64 *)&code_word[i];
+
+				WriteVpuRegister(BIT_CODE_DOWN, (i << 16) | ((code_val >> 48) & 0xFFFF));
+				WriteVpuRegister(BIT_CODE_DOWN, ((i + 1) << 16) | ((code_val >> 32) & 0xFFFF));
+				WriteVpuRegister(BIT_CODE_DOWN, ((i + 2) << 16) | ((code_val >> 16) & 0xFFFF));
+				WriteVpuRegister(BIT_CODE_DOWN, ((i + 3) << 16) | (code_val & 0xFFFF));
 			}
 
 			for (i = 0; i < 64; i++)
-				WriteVpuRegister(BIT_BASE + (0x100 + (i * 4)),
-						 s_vpu_reg_store[core][i]);
+				WriteVpuRegister(BIT_BASE + (0x100 + (i * 4)),  s_vpu_reg_store[core][i]);
 
 			WriteVpuRegister(BIT_BUSY_FLAG, 1);
 			WriteVpuRegister(BIT_CODE_RESET, 1);
 			WriteVpuRegister(BIT_CODE_RUN, 1);
 
 			while (ReadVpuRegister(BIT_BUSY_FLAG)) {
-				if (time_after(jiffies, timeout))
+				if (time_after(jiffies, timeout)) {
+					VCODEC_DBG_ERR("BIT_BUSY_FLAG timrout\n");
 					goto DONE_WAKEUP;
+				}
 			}
-
 		} else {
-			VCODEC_DBG_ERR("Unknown product id : %08x\n",
-				product_code);
+			VCODEC_DBG_ERR("Unknown product id : %08x\n", product_code);
 			goto DONE_WAKEUP;
 		}
 	}
@@ -1851,6 +1934,8 @@ DONE_WAKEUP:
 
 	if (s_vpu_open_ref_count > 0)
 		set_clock_enable(vdev, VCODEC_CLK_ENABLE, BIT(H264_CORE_IDX) | BIT(H265_CORE_IDX));
+#endif
+	vcodec_unlock();
 
 	return 0;
 }
@@ -1878,6 +1963,7 @@ static int __init vpu_init(void)
 
 	for (core = 0; core < MAX_NUM_VPU_CORE; core++) {
 		pvctx = &vcodec_dev.vcodec_ctx[core];
+		vcodec_dev.s_common_memory[core].base = 0;
 		init_waitqueue_head(&pvctx->s_interrupt_wait_q);
 		init_waitqueue_head(&pvctx->s_sbm_interrupt_wait_q);
 	}
@@ -1886,9 +1972,10 @@ static int __init vpu_init(void)
 		init_waitqueue_head(&tWaitQueue[i]);
 	}
 
-	vcodec_dev.s_common_memory.base = 0;
 	vcodec_dev.s_instance_pool.base = 0;
 	res = platform_driver_register(&vpu_driver);
+
+	mutex_init(&vcodec_mutex);
 
 	return res;
 }
@@ -1896,6 +1983,7 @@ static int __init vpu_init(void)
 static void __exit vpu_exit(void)
 {
 	platform_driver_unregister(&vpu_driver);
+	mutex_destroy(&vcodec_mutex);
 }
 
 MODULE_AUTHOR("CVITEKVPU Inc.");

@@ -289,6 +289,10 @@ kernel-setconfig: ${KERNEL_OUTPUT_CONFIG_PATH}
 kernel-build: ${KERNEL_OUTPUT_CONFIG_PATH}
 	$(call print_target)
 	${Q}echo LOCALVERSION=${LOCALVERSION}
+ifneq (${CONFIG_KERNEL_SUSPEND},y)
+	${Q}$(MAKE) -j${NPROC} -C ${KERNEL_PATH} O=${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER} setconfig 'SCRIPT_ARG="SUSPEND=n"'
+	${Q}$(MAKE) -j${NPROC} -C ${KERNEL_PATH} O=${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER} savedefconfig
+endif
 	${Q}$(MAKE) -j${NPROC} -C ${KERNEL_PATH} O=${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER} olddefconfig
 	${Q}$(MAKE) -j${NPROC} -C ${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER} Image modules
 	${Q}$(MAKE) -j${NPROC} -C ${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER} modules_install headers_install INSTALL_HDR_PATH=${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER}/$(ARCH)/usr
@@ -326,6 +330,7 @@ ifeq ($(patsubst "%",%,$(CONFIG_ARCH)),arm64)
 	# Since we will support aarch32 user space even if the kernel is aarch64, install aarch32 headers also
 	$(call copy_header_action, ${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER}/arm/usr/include)
 endif
+	${Q}rm -rf ${KERNEL_PATH}/build/kernel_output
 	${Q}ln -sf ${KERNEL_PATH}/${KERNEL_OUTPUT_FOLDER}  ${KERNEL_PATH}/build/kernel_output
 
 ifeq ($(CONFIG_TOOLCHAIN_GLIBC_ARM64),y)

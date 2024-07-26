@@ -21,9 +21,38 @@ extern __attribute__((weak)) void *__dso_handle;
 #endif
 #endif /* End of #ifdef __cplusplus */
 
+/**
+ * @brief Compare Ive Image.
+ * @param pstImage1 Ive Image1.
+ * @param pstImage2 Ive Image2.
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_IVE_CompareIveImage(IVE_IMAGE_S *pstImage1, IVE_IMAGE_S *pstImage2);
+
+/**
+ * @brief Compare Ive Memrory.
+ * @param pstMem1 Ive Memrory1.
+ * @param pstMem2 Ive Memrory2.
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_IVE_CompareIveMem(IVE_MEM_INFO_S *pstMem1, IVE_MEM_INFO_S *pstMem2);
+
+/**
+ * @brief Compare Ive Data.
+ * @param pstData1 Ive Data1.
+ * @param pstData2 Ive Data2.
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_IVE_CompareIveData(IVE_DATA_S *pstData1, IVE_DATA_S *pstData2);
+
+/**
+ * @brief Compare Ive SAD Image.
+ * @param pstImage1 Ive Image1.
+ * @param pstImage2 Ive Image1.
+ * @param mode SAD case out mode.
+ * @param isDMAhalf DMAhalf flag.
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
 CVI_S32 CVI_IVE_CompareSADImage(IVE_IMAGE_S *pstImage1, IVE_IMAGE_S *pstImage2,
 				IVE_SAD_MODE_E mode, CVI_BOOL isDMAhalf);
 
@@ -777,20 +806,6 @@ CVI_S32 CVI_IVE_OrdStatFilter(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 			      IVE_DST_IMAGE_S *pstDst,
 			      IVE_ORD_STAT_FILTER_CTRL_S *pstCtrl,
 			      CVI_BOOL bInstant);
-
-/**
- * @brief CannyEdge one input image and output the result.
- *
- * @param pIveHandle Ive instance handler.
- * @param pstSrc Input image.
- * @param pstEdge Output result.
- * @param pstCtrl CannyHysEdge parameter
- * @param bInstant Dummy variable.
- * @return CVI_S32 CVI_S32 Return CVI_SUCCESS if succeed.
- */
-//CVI_S32 CVI_IVE_CannyEdge(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
-//			  IVE_DST_IMAGE_S *pstEdge,
-//			  IVE_CANNY_HYS_EDGE_CTRL_S *pstCtrl, CVI_BOOL bInstant);
 
 /**
  * @brief CannyEdge one input image and output the result.

@@ -44,7 +44,7 @@ REQUIRES = cvi_common cvi_sample cvi_vdec cvi_misc
 MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
 
 LIBS += $(MW_LIBS) -latomic
-LIBS += -lsys -lvenc -lvdec -lvpu -lisp -lisp_algo -lawb -lae -laf -lsample -lcvi_bin -lcvi_bin_isp -lsns_full -lini
+LIBS += -lsys -lvenc -lvdec -lvi -lvpss -lvo -lrgn -lgdc -lisp -lisp_algo -lawb -lae -laf -lsample -lcvi_bin -lcvi_bin_isp -lsns_full -lini
 LIBS += -ljson-c -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2
@@ -159,7 +159,7 @@ uninstall:
 	-@rm -f $(DESTDIR)/usr/bin/cfg_64M.json
 	-@rm -f $(DESTDIR)/usr/bin/cfg_128M.json
 	-@rm -f $(DESTDIR)/usr/bin/vc_param_64M.json
-	-@rm -f $(DESTDIR)/usr/bin/vc_param_128M.json	
+	-@rm -f $(DESTDIR)/usr/bin/vc_param_128M.json
 	-@rm -f $(DESTDIR)/usr/bin/pqtool_definition.json
 
 sdk_release: package

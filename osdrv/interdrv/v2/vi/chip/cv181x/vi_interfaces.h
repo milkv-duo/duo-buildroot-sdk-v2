@@ -34,7 +34,8 @@ int vi_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg);
 void vi_irq_handler(struct cvi_vi_dev *vdev);
 int vi_create_instance(struct platform_device *pdev);
 int vi_destroy_instance(struct platform_device *pdev);
-
+void vi_suspend(struct cvi_vi_dev *vdev);
+void vi_resume(struct cvi_vi_dev *vdev);
 #ifdef __cplusplus
 }
 #endif

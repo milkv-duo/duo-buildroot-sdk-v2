@@ -8,6 +8,7 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
+/* #define DEBUG */
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/sched.h>
@@ -34,15 +35,22 @@
 #include <linux/sched.h>
 #include <linux/delay.h>
 #include <linux/of.h>
+#include <linux/io.h>
 
 #include "cvi_saradc.h"
 #include "cvi_saradc_ioctl.h"
 
 #define CVI_SARADC_CDEV_NAME "cvi-saradc"
 #define CVI_SARADC_CLASS_NAME "cvi-saradc"
+#define EFUSE_ADC_TRIM_REG 0x18
+#define TOP_ADC_TRIM_MASK 0xf0000000
+#define TOP_ADC_TRIM_OFFSET 28
+#define RTC_ADC_TRIM_MASK 0x0f000000
+#define RTC_ADC_TRIM_OFFSET 24
 
 struct class *saradc_class;
 static dev_t saradc_cdev_id;
+extern int64_t cvi_efuse_read_from_shadow(uint32_t addr);
 
 static char flag = 'n';
 
@@ -364,6 +372,27 @@ int cvi_saradc_register_cdev(struct cvi_saradc_device *ndev)
 	return 0;
 }
 
+static void cvi_saradc_trim(struct cvi_saradc_device *ndev)
+{
+	u32 top_trim, rtc_trim;
+	u64 efuse_value;
+
+	efuse_value = cvi_efuse_read_from_shadow(EFUSE_ADC_TRIM_REG);
+
+	top_trim = (efuse_value & TOP_ADC_TRIM_MASK) >> TOP_ADC_TRIM_OFFSET;
+	rtc_trim = (efuse_value & RTC_ADC_TRIM_MASK) >> RTC_ADC_TRIM_OFFSET;
+
+	platform_saradc_clk_init(ndev);
+	pr_debug("Setting top_trim: 0x%x, rtc_trim: 0x%x\n", top_trim,
+		 rtc_trim);
+	writel(top_trim, ndev->top_saradc_base_addr + SARADC_TRIM);
+	writel(rtc_trim, ndev->rtcsys_saradc_base_addr + SARADC_TRIM);
+	pr_debug("Getting top_trim: 0x%x, rtc_trim: 0x%x\n",
+		 readl(ndev->top_saradc_base_addr + SARADC_TRIM) & 0xf,
+		 readl(ndev->rtcsys_saradc_base_addr + SARADC_TRIM) & 0xf);
+	platform_saradc_clk_deinit(ndev);
+}
+
 static int cvi_saradc_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -419,6 +448,8 @@ static int cvi_saradc_probe(struct platform_device *pdev)
 		ndev->clk_saradc = NULL;
 	}
 
+	cvi_saradc_trim(ndev);
+
 	ndev->rst_saradc = devm_reset_control_get(&pdev->dev, "res_saradc");
 	if (IS_ERR(ndev->rst_saradc)) {
 		dev_err(dev, "failed to retrieve res_saradc\n");
@@ -469,7 +500,7 @@ MODULE_DEVICE_TABLE(of, cvi_saradc_match);
 #ifdef CONFIG_PM_SLEEP
 static int saradc_cv_suspend(struct	device *dev)
 {
-	struct cvi_saradc_device *ndev = iio_priv(dev_get_drvdata(dev));
+	struct cvi_saradc_device *ndev = dev_get_drvdata(dev);
 
 	memcpy_fromio(ndev->saradc_saved_top_regs, ndev->top_saradc_base_addr, SARADC_REGS_SIZE);
 	memcpy_fromio(ndev->saradc_saved_rtc_regs, ndev->rtcsys_saradc_base_addr, SARADC_REGS_SIZE);
@@ -480,7 +511,7 @@ static int saradc_cv_suspend(struct	device *dev)
 
 static int saradc_cv_resume(struct device *dev)
 {
-	struct cvi_saradc_device *ndev = iio_priv(dev_get_drvdata(dev));
+	struct cvi_saradc_device *ndev = dev_get_drvdata(dev);
 
 	platform_saradc_clk_init(ndev);
 

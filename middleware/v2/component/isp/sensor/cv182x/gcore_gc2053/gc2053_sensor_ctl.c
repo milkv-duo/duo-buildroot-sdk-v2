@@ -385,7 +385,7 @@ static void gc2053_linear_1080p30_init(VI_PIPE ViPipe)
 	gc2053_write_register(ViPipe, 0x03, 0x8e);
 	gc2053_write_register(ViPipe, 0x12, 0x80);
 	gc2053_write_register(ViPipe, 0x13, 0x07);
-	gc2053_write_register(ViPipe, 0x15, 0x12);
+	gc2053_write_register(ViPipe, 0x15, 0x10);
 	gc2053_write_register(ViPipe, 0xfe, 0x00);
 	gc2053_write_register(ViPipe, 0x3e, 0x91);
 

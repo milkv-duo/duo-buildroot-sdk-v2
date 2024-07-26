@@ -277,7 +277,7 @@ static int32_t _vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 	vbPool[poolId].poolID = poolId;
 	vbPool[poolId].ownerID = POOL_OWNER_PRIVATE;
 	vbPool[poolId].memBase = config->au64PhyAddr[0][0];
-	vbPool[poolId].vmemBase = (void *)config->au64PhyAddr[0][0];
+	vbPool[poolId].vmemBase = 0;
 	vbPool[poolId].blk_cnt = config->blk_cnt;
 	vbPool[poolId].blk_size = 0xffffffff;
 	vbPool[poolId].remap_mode = 0;
@@ -292,7 +292,7 @@ static int32_t _vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 	for (i = 0; i < vbPool[poolId].blk_cnt; ++i) {
 		p = vzalloc(sizeof(*p));
 		p->phy_addr = config->au64PhyAddr[i][0];
-		p->vir_addr = (void *)config->au64PhyAddr[i][0];
+		p->vir_addr = 0;
 		p->vb_pool = poolId;
 		atomic_set(&p->usr_cnt, 0);
 		p->magic = CVI_VB_MAGIC;
@@ -738,6 +738,11 @@ int32_t vb_release_block(VB_BLK blk)
 	bool bReq = false;
 	struct vb_req *req, *tmp;
 
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return -1;
+	}
+
 	CHECK_VB_HANDLE_NULL(vb);
 	CHECK_VB_HANDLE_VALID(vb);
 	CHECK_VB_POOL_VALID_WEAK(vb->vb_pool);
@@ -829,6 +834,11 @@ VB_BLK vb_physAddr2Handle(uint64_t u64PhyAddr)
 {
 	struct vb_s *vb = NULL;
 
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return VB_INVALID_HANDLE;
+	}
+
 	if (!_vb_hash_find(u64PhyAddr, &vb, false)) {
 		CVI_TRACE_BASE(CVI_BASE_DBG_DEBUG, "Cannot find vb corresponding to phyAddr:%#llx\n", u64PhyAddr);
 		return VB_INVALID_HANDLE;
@@ -841,6 +851,11 @@ uint64_t vb_handle2PhysAddr(VB_BLK blk)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
 
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return -1;
+	}
+
 	if ((vb == NULL) || (vb->magic != CVI_VB_MAGIC))
 		return 0;
 	return vb->phy_addr;
@@ -851,6 +866,11 @@ void *vb_handle2VirtAddr(VB_BLK blk)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
 
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return NULL;
+	}
+
 	if ((vb == NULL) || (vb->magic != CVI_VB_MAGIC))
 		return NULL;
 	return vb->vir_addr;
@@ -860,6 +880,11 @@ EXPORT_SYMBOL_GPL(vb_handle2VirtAddr);
 VB_POOL vb_handle2PoolId(VB_BLK blk)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
+
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return VB_INVALID_POOLID;
+	}
 
 	if ((vb == NULL) || (vb->magic != CVI_VB_MAGIC))
 		return VB_INVALID_POOLID;
@@ -889,6 +914,11 @@ void vb_acquire_block(vb_acquire_fp fp, MMF_CHN_S chn,
 	uint32_t u32BlkSize, VB_POOL VbPool)
 {
 	struct vb_req *req = NULL;
+
+	if (atomic_read(&ref_count) == 0) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already exited\n");
+		return;
+	}
 
 	if (VbPool == VB_INVALID_POOLID) {
 		VbPool = find_vb_pool(u32BlkSize);
@@ -962,23 +992,23 @@ long vb_ctrl(struct vb_ext_control *p)
 {
 	long ret = 0;
 	u32 id = p->id;
+	union vb_ctrl_cfg ctrl_cfg;
 
 	switch (id) {
 	case VB_IOCTL_SET_CONFIG: {
-		struct cvi_vb_cfg cfg;
 
 		if (atomic_read(&ref_count)) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb has already inited, set_config cmd has no effect\n");
 			break;
 		}
 
-		memset(&cfg, 0, sizeof(struct cvi_vb_cfg));
-		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_vb_cfg))) {
+		memset(&ctrl_cfg.vb_cfg, 0, sizeof(struct cvi_vb_cfg));
+		if (copy_from_user(&ctrl_cfg.vb_cfg, p->ptr, sizeof(struct cvi_vb_cfg))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_SET_CONFIG copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
-		ret = _vb_set_config(&cfg);
+		ret = _vb_set_config(&ctrl_cfg.vb_cfg);
 		break;
 	}
 
@@ -999,18 +1029,17 @@ long vb_ctrl(struct vb_ext_control *p)
 		break;
 
 	case VB_IOCTL_CREATE_POOL: {
-		struct cvi_vb_pool_cfg cfg;
 
-		memset(&cfg, 0, sizeof(struct cvi_vb_pool_cfg));
-		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_vb_pool_cfg))) {
+		memset(&ctrl_cfg.pool_cfg, 0, sizeof(struct cvi_vb_pool_cfg));
+		if (copy_from_user(&ctrl_cfg.pool_cfg, p->ptr, sizeof(struct cvi_vb_pool_cfg))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_CREATE_POOL copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
 
-		ret = vb_create_pool(&cfg);
+		ret = vb_create_pool(&ctrl_cfg.pool_cfg);
 		if (ret == 0) {
-			if (copy_to_user(p->ptr, &cfg, sizeof(struct cvi_vb_pool_cfg))) {
+			if (copy_to_user(p->ptr, &ctrl_cfg.pool_cfg, sizeof(struct cvi_vb_pool_cfg))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_CREATE_POOL copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
@@ -1019,50 +1048,51 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_CREATE_EX_POOL: {
-		struct cvi_vb_pool_ex_cfg cfg;
+		struct cvi_vb_pool_ex_cfg *cfg;
 
-		memset(&cfg, 0, sizeof(struct cvi_vb_pool_ex_cfg));
-		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_vb_pool_ex_cfg))) {
+		cfg = (struct cvi_vb_pool_ex_cfg *)kmalloc(sizeof(struct cvi_vb_pool_ex_cfg), GFP_KERNEL);
+		memset(cfg, 0, sizeof(struct cvi_vb_pool_ex_cfg));
+		if (copy_from_user(cfg, p->ptr, sizeof(struct cvi_vb_pool_ex_cfg))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_CREATE_EX_POOL copy_from_user failed.\n");
 			ret = -ENOMEM;
+			kfree(cfg);
 			break;
 		}
 
-		ret = vb_create_ex_pool(&cfg);
+		ret = vb_create_ex_pool(cfg);
 		if (ret == 0) {
-			if (copy_to_user(p->ptr, &cfg, sizeof(struct cvi_vb_pool_ex_cfg))) {
+			if (copy_to_user(p->ptr, cfg, sizeof(struct cvi_vb_pool_ex_cfg))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_CREATE_EX_POOL copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
 		}
+		kfree(cfg);
 		break;
 	}
 
 	case VB_IOCTL_DESTROY_POOL: {
-		VB_POOL pool;
 
-		pool = (VB_POOL)p->value;
-		ret = vb_destroy_pool(pool);
+		ctrl_cfg.pool = (VB_POOL)p->value;
+		ret = vb_destroy_pool(ctrl_cfg.pool);
 		break;
 	}
 
 	case VB_IOCTL_GET_BLOCK: {
-		struct cvi_vb_blk_cfg cfg;
 		VB_BLK block;
 
-		memset(&cfg, 0, sizeof(struct cvi_vb_blk_cfg));
-		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_vb_blk_cfg))) {
+		memset(&ctrl_cfg.vb_blk_cfg, 0, sizeof(struct cvi_vb_blk_cfg));
+		if (copy_from_user(&ctrl_cfg.vb_blk_cfg, p->ptr, sizeof(struct cvi_vb_blk_cfg))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_BLOCK copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
 
-		block = vb_get_block_with_id(cfg.pool_id, cfg.blk_size, CVI_ID_USER);
+		block = vb_get_block_with_id(ctrl_cfg.vb_blk_cfg.pool_id, ctrl_cfg.vb_blk_cfg.blk_size, CVI_ID_USER);
 		if (block == VB_INVALID_HANDLE)
 			ret = -ENOMEM;
 		else {
-			cfg.blk = (uint64_t)block;
-			if (copy_to_user(p->ptr, &cfg, sizeof(struct cvi_vb_blk_cfg))) {
+			ctrl_cfg.vb_blk_cfg.blk = (uint64_t)block;
+			if (copy_to_user(p->ptr, &ctrl_cfg.vb_blk_cfg, sizeof(struct cvi_vb_blk_cfg))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_BLOCK copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
@@ -1071,29 +1101,28 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_RELEASE_BLOCK: {
-		VB_BLK blk = (VB_BLK)p->value64;
+		ctrl_cfg.blk = (VB_BLK)p->value64;
 
-		ret = vb_release_block(blk);
+		ret = vb_release_block(ctrl_cfg.blk);
 		break;
 	}
 
 	case VB_IOCTL_PHYS_TO_HANDLE: {
-		struct cvi_vb_blk_info blk_info;
 		VB_BLK block;
 
-		memset(&blk_info, 0, sizeof(struct cvi_vb_blk_info));
-		if (copy_from_user(&blk_info, p->ptr, sizeof(struct cvi_vb_blk_info))) {
+		memset(&ctrl_cfg.vb_blk_info, 0, sizeof(struct cvi_vb_blk_info));
+		if (copy_from_user(&ctrl_cfg.vb_blk_info, p->ptr, sizeof(struct cvi_vb_blk_info))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_PHYS_TO_HANDLE copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
 
-		block = vb_physAddr2Handle(blk_info.phy_addr);
+		block = vb_physAddr2Handle(ctrl_cfg.vb_blk_info.phy_addr);
 		if (block == VB_INVALID_HANDLE)
 			ret = -EINVAL;
 		else {
-			blk_info.blk = (uint64_t)block;
-			if (copy_to_user(p->ptr, &blk_info, sizeof(struct cvi_vb_blk_info))) {
+			ctrl_cfg.vb_blk_info.blk = (uint64_t)block;
+			if (copy_to_user(p->ptr, &ctrl_cfg.vb_blk_info, sizeof(struct cvi_vb_blk_info))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_PHYS_TO_HANDLE copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
@@ -1102,18 +1131,17 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_GET_BLK_INFO: {
-		struct cvi_vb_blk_info blk_info;
 
-		memset(&blk_info, 0, sizeof(struct cvi_vb_blk_info));
-		if (copy_from_user(&blk_info, p->ptr, sizeof(struct cvi_vb_blk_info))) {
+		memset(&ctrl_cfg.vb_blk_info, 0, sizeof(struct cvi_vb_blk_info));
+		if (copy_from_user(&ctrl_cfg.vb_blk_info, p->ptr, sizeof(struct cvi_vb_blk_info))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_BLK_INFO copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
 
-		ret = _vb_get_blk_info(&blk_info);
+		ret = _vb_get_blk_info(&ctrl_cfg.vb_blk_info);
 		if (ret == 0) {
-			if (copy_to_user(p->ptr, &blk_info, sizeof(struct cvi_vb_blk_info))) {
+			if (copy_to_user(p->ptr, &ctrl_cfg.vb_blk_info, sizeof(struct cvi_vb_blk_info))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_BLK_INFO copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
@@ -1122,18 +1150,17 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_GET_POOL_CFG: {
-		struct cvi_vb_pool_cfg pool_cfg;
 
-		memset(&pool_cfg, 0, sizeof(struct cvi_vb_pool_cfg));
-		if (copy_from_user(&pool_cfg, p->ptr, sizeof(struct cvi_vb_pool_cfg))) {
+		memset(&ctrl_cfg.pool_cfg, 0, sizeof(struct cvi_vb_pool_cfg));
+		if (copy_from_user(&ctrl_cfg.pool_cfg, p->ptr, sizeof(struct cvi_vb_pool_cfg))) {
 			CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_POOL_CFG copy_from_user failed.\n");
 			ret = -ENOMEM;
 			break;
 		}
 
-		ret = _vb_get_pool_cfg(&pool_cfg);
+		ret = _vb_get_pool_cfg(&ctrl_cfg.pool_cfg);
 		if (ret == 0) {
-			if (copy_to_user(p->ptr, &pool_cfg, sizeof(struct cvi_vb_pool_cfg))) {
+			if (copy_to_user(p->ptr, &ctrl_cfg.pool_cfg, sizeof(struct cvi_vb_pool_cfg))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_POOL_CFG copy_to_user failed.\n");
 				ret = -ENOMEM;
 			}
@@ -1147,10 +1174,9 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_PRINT_POOL: {
-		VB_POOL pool;
 
-		pool = (VB_POOL)p->value;
-		ret = vb_print_pool(pool);
+		ctrl_cfg.pool = (VB_POOL)p->value;
+		ret = vb_print_pool(ctrl_cfg.pool);
 		break;
 	}
 

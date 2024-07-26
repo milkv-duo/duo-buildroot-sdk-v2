@@ -22,10 +22,9 @@
 #include <sbi_utils/ipi/fdt_ipi.h>
 #include <sbi_utils/reset/fdt_reset.h>
 
-extern const struct platform_override sifive_fu540;
-
 static const struct platform_override *special_platforms[] = {
 	&sifive_fu540,
+	&cvitek_riscv,
 };
 
 static const struct platform_override *generic_plat = NULL;

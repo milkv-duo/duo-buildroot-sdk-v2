@@ -66,17 +66,17 @@ CVI_S32 SAMPLE_PLAT_SYS_INIT(SIZE_S stSize)
 #if !defined(DDR_64MB_SIZE)
 	stVbConf.astCommPool[0].u32BlkCnt	= 8;
 #else
-	stVbConf.astCommPool[0].u32BlkCnt	= 2;
+	stVbConf.astCommPool[0].u32BlkCnt	= 3;
 #endif
 	stVbConf.astCommPool[0].enRemapMode	= VB_REMAP_MODE_CACHED;
 	SAMPLE_PRT("common pool[0] BlkSize %d\n", u32BlkSize);
+	SAMPLE_PRT("common pool[0] u32BlkCnt %d\n", stVbConf.astCommPool[0].u32BlkCnt);
 
 	s32Ret = SAMPLE_COMM_SYS_Init(&stVbConf);
 	if (s32Ret != CVI_SUCCESS) {
 		CVI_TRACE_LOG(CVI_DBG_ERR, "system init failed with %#x\n", s32Ret);
 		goto error;
 	}
-
 	return s32Ret;
 error:
 	_SAMPLE_PLAT_ERR_Exit();

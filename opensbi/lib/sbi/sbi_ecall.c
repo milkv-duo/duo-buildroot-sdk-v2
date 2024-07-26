@@ -170,6 +170,9 @@ int sbi_ecall_init(void)
 	ret = sbi_ecall_register_extension(&ecall_vendor);
 	if (ret)
 		return ret;
+	ret = sbi_ecall_register_extension(&ecall_susp);
+	if (ret)
+		return ret;
 
 	return 0;
 }

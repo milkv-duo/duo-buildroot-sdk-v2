@@ -482,6 +482,12 @@ config KERNEL_COMPRESS
 	default "none" if KERNEL_UNCOMPRESSED
 	help
 	  Set kernel source code.
+
+config KERNEL_SUSPEND
+	bool "Enable RISCV Kernel Suspend"
+	default n
+	help
+	  Enable kernel power management to support STR
 endmenu
 
 menu "ROOTFS options"

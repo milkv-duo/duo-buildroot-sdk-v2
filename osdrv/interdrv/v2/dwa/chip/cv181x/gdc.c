@@ -583,11 +583,13 @@ void gdc_job_worker(struct kthread_work *work)
 		wdev->job_done = true;
 		spin_unlock_irqrestore(&wdev->lock, flags);
 
-		if (job->sync_io)
-			wake_up_interruptible(&wdev->cond_queue);
-
 		gdc_proc_record_job_end(job);
-		kfree(job);
+		if (job->sync_io) {
+			wake_up_interruptible(&wdev->cond_queue);
+		} else {
+			kfree(job);
+			job = NULL;
+		}
 		CVI_TRACE_DWA(CVI_DBG_DEBUG, "jobq del a job\n");
 	}
 
@@ -713,6 +715,7 @@ s32 gdc_end_job(struct cvi_dwa_vdev *wdev, u64 hHandle)
 	s32 ret = CVI_SUCCESS;
 	struct cvi_dwa_job *job = (struct cvi_dwa_job *)(uintptr_t)hHandle;
 	unsigned long flags;
+	bool sync_io = job->sync_io;
 
 	if (gdc_proc_ctx)
 		gdc_proc_ctx->stJobStatus.u32BeginNum--;
@@ -731,9 +734,12 @@ s32 gdc_end_job(struct cvi_dwa_vdev *wdev, u64 hHandle)
 
 	kthread_queue_work(&wdev->worker, &wdev->work);
 
-	if (job->sync_io)
+	if (sync_io) {
 		/* request from user space, block until finished */
 		ret = wait_event_interruptible(wdev->cond_queue, wdev->job_done);
+		kfree(job);
+		job = NULL;
+	}
 
 	CVI_TRACE_DWA(CVI_DBG_DEBUG, "job sync_io=%d, ret=%d\n", job->sync_io, ret);
 

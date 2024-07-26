@@ -1381,6 +1381,30 @@ struct cvsnfc_chip_info cvsnfc_spi_nand_flash_table[] = {
 	},
 
 	{
+		.name      = "HYF1GQ4UDACAE",
+		.id        = {0xC9, 0x21},
+		.id_len    = 2,
+		.chipsize  = _128M,
+		.erasesize = _128K,
+		.pagesize  = _2K,
+		.oobsize   = 64,
+		.badblock_pos = BBP_FIRST_PAGE,
+		.driver    = &spi_nand_driver_gd,
+		.flags = FLAGS_SET_QE_BIT | FLAGS_ENABLE_X2_BIT | FLAGS_ENABLE_X4_BIT,
+		.ecc_en_feature_offset = 0xb0, /* Configuration register */
+		.ecc_en_mask = 1 << 4, /* bit 4 */
+		.ecc_status_offset = 0xc0, /* Status register */
+		.ecc_status_mask = 0x30, /* bit 4 & 5 */
+		.ecc_status_shift = 4,
+		.ecc_status_uncorr_val = 0x2,
+		.sck_l = 1,
+		.sck_h = 1,
+		.max_freq = SPI_NAND_FREQ_62MHz,
+		.sample_param = 0x40001000,
+		.xtal_switch = 1,
+	},
+
+	{
 		.name      = "FM25S01A",
 		.id        = {0xA1, 0xE4},
 		.id_len    = 2,

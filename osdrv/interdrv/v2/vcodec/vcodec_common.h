@@ -44,7 +44,7 @@ struct cvi_vcodec_context {
 struct cvi_vcodec_device {
 	struct cvi_vcodec_context vcodec_ctx[MAX_NUM_VPU_CORE];
 	vpudrv_buffer_t s_instance_pool;
-	vpudrv_buffer_t s_common_memory;
+	vpudrv_buffer_t s_common_memory[MAX_NUM_VPU_CORE];
 	vpudrv_buffer_t ctrl_register;
 	vpudrv_buffer_t remap_register;
 	vpudrv_buffer_t sbm_register;

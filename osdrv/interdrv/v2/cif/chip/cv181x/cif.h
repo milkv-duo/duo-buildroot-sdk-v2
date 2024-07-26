@@ -60,6 +60,8 @@ struct cvi_cif_dev {
 	struct cvi_cam_clk	clk_fpll; /* fpll */
 	unsigned int		max_mac_clk;
 	void			*pad_ctrl;
+	struct combo_dev_attr_s cif_combo_dev_attr[MAX_LINK_NUM];
+	bool is_mac_on[MAX_LINK_NUM];
 };
 
 #endif

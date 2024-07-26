@@ -293,6 +293,31 @@ err_destroy_instance:
 	return ret;
 }
 
+#ifdef CONFIG_PM_SLEEP
+static int vi_pm_suspend(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct cvi_vi_dev *vdev = dev_get_drvdata(&pdev->dev);
+	dev_info(&pdev->dev, "vi suspend start\n");
+	vi_suspend(vdev);
+	dev_info(&pdev->dev, "vi suspend end\n");
+	return 0;
+}
+
+static int vi_pm_resume(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct cvi_vi_dev *vdev = dev_get_drvdata(&pdev->dev);
+	dev_info(&pdev->dev, "vi resume start\n");
+	vi_resume(vdev);
+	dev_info(&pdev->dev, "vi resume end\n");
+	return 0;
+}
+#endif
+
+static SIMPLE_DEV_PM_OPS(cvi_vi_pm_ops, vi_pm_suspend,
+				vi_pm_resume);
+
 static const struct of_device_id vi_core_match[] = {
 	{
 		.compatible = "cvitek,vi",
@@ -309,6 +334,7 @@ static struct platform_driver vi_core_driver = {
 	.driver = {
 		.name = CVI_VI_DEV_NAME,
 		.of_match_table = vi_core_match,
+		.pm = &cvi_vi_pm_ops,
 	},
 };
 

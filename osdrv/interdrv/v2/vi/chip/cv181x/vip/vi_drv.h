@@ -459,6 +459,10 @@ struct isp_ctx {
 	uint32_t		is_slice_buf_on     : 1;
 	uint32_t		is_rgbmap_sbm_on    : 1;
 	uint32_t		is_synthetic_hdr_on : 1;
+	uint32_t		is_post_trig_first	: 1;
+	uint32_t		is_pre_trig_first	: 1;
+	uint32_t		suspend_resume_en	: 1;
+	uint32_t		tuning_update_en	: 1;
 };
 
 struct vi_fbc_cfg {
@@ -728,6 +732,8 @@ void vi_tuning_clut_update(
 int vi_tuning_get_clut_tbl_idx(enum cvi_isp_raw raw_num, int tun_idx);
 int vi_tuning_sw_init(void);
 int vi_tuning_buf_setup(struct isp_ctx *ctx);
+int vi_tuning_backup_setup(void);
+void vi_tuning_resume(struct isp_ctx *ctx, enum cvi_isp_raw raw_max);
 void vi_tuning_buf_release(struct isp_ctx *ctx);
 void *vi_get_tuning_buf_addr(u32 *size);
 void vi_tuning_buf_clear(struct isp_ctx *ctx);

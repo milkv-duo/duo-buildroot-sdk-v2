@@ -123,5 +123,7 @@ struct hs_settle_s {
 #define CVI_VIP_MIPI_TX_DISABLE                  _IO(CVI_VIP_MIPI_TX_IOC_MAGIC, 0x05)
 #define CVI_VIP_MIPI_TX_SET_HS_SETTLE            _IOW(CVI_VIP_MIPI_TX_IOC_MAGIC, 0x06, struct hs_settle_s)
 #define CVI_VIP_MIPI_TX_GET_HS_SETTLE            _IOWR(CVI_VIP_MIPI_TX_IOC_MAGIC, 0x06, struct hs_settle_s)
+#define CVI_VIP_MIPI_TX_SUSPEND                  _IO(CVI_VIP_MIPI_TX_IOC_MAGIC, 0x07)
+#define CVI_VIP_MIPI_TX_RESUME                   _IO(CVI_VIP_MIPI_TX_IOC_MAGIC, 0x08)
 
 #endif // __U_CVI_VIP_DSI__

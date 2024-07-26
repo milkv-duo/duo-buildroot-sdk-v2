@@ -17,7 +17,7 @@ ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
 TARGET = sample_panel_asan
 endif
 
-LIBS = -lvpu -lsys -lmipi_tx -lmisc
+LIBS = -lvo -lsys -lmipi_tx -lmisc
 
 ifeq ($(MULTI_PROCESS_SUPPORT), 1)
 DEFS += -DRPC_MULTI_PROCESS
@@ -36,7 +36,7 @@ $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 	@echo [$(notdir $(CC))] $(notdir $@)
 
-$(TARGET): $(OBJS) $(MW_LIB)/libvpu.a $(MW_LIB)/libsys.a $(MW_LIB)/libmipi_tx.a
+$(TARGET): $(OBJS) $(MW_LIB)/libvo.a $(MW_LIB)/libsys.a $(MW_LIB)/libmipi_tx.a
 	@$(CXX) -o $@ $(OBJS) $(ELFFLAGS) $(EXTRA_LDFLAGS)
 	@echo -e $(BLUE)[LINK]$(END)[$(notdir $(CC))] $(notdir $@)
 

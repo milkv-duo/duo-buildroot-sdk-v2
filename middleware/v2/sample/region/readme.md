@@ -14,5 +14,6 @@
 | VPSS OSD TIME              | ./sample_region 7    | The implementation of the overlay function on VPSS to superimpose timestamps    | NULL               |
 | VPSS OSD MultiChn          | ./sample_region 8    | Implement the overlay and cover function on VPSS, which has four groups         | dog.bmp            |
 | VPSS OSD 8bit mode OVERLAY | ./sample_region 9    | The implementation of the overlay function on VPSS, superimposing 8-bit images  | tiger_8bitmode.bmp |
+| VPSS OSD objects OVERLAY   | ./sample_region 10   | Implement drawing line and rect function on VPSS                                | NULL               |
 |                            |                      |                                                                                 |                    |
 

@@ -2410,8 +2410,7 @@ int _cviH264_GetDecodedData(cviVideoDecoder *pvdec)
 			return CVI_DECODE_BREAK;
 		}
 		pvdec->seqChangedStreamEndFlag = pdoi->streamEndFlag;
-		VPU_DecUpdateBitstreamBuffer(pvdec->decHandle,
-					     1); // let f/w to know
+		// let f/w to know
 		// stream end condition
 		// in bitstream buffer.
 		// force to know that

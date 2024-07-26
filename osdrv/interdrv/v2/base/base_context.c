@@ -357,6 +357,52 @@ void base_mod_jobs_exit(MMF_CHN_S chn, enum CHN_TYPE_E chn_type)
 }
 EXPORT_SYMBOL_GPL(base_mod_jobs_exit);
 
+/* base_mod_jobs_clear: clear the jobs and release all resources.
+ *
+ * @param chn: the channel to be cleared.
+ * @param chn_type: the chn is input(read) or output(write)
+ */
+void base_mod_jobs_clear(MMF_CHN_S chn, enum CHN_TYPE_E chn_type)
+{
+	struct vb_s *vb;
+	struct snap_s *s, *s_tmp;
+	struct vb_jobs_t *jobs = base_get_jobs_by_chn(chn, chn_type);
+
+	if (jobs == NULL) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "mod(%s) job exit fail, Null parameter\n",
+			sys_get_modname(chn.enModId));
+		return;
+	}
+
+	if (!jobs->inited) {
+		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "mod(%s) job exit fail, not inited yet\n",
+			sys_get_modname(chn.enModId));
+		return;
+	}
+
+	mutex_lock(&jobs->lock);
+	while (!FIFO_EMPTY(&jobs->waitq)) {
+		FIFO_POP(&jobs->waitq, &vb);
+		vb_release_block((VB_BLK)vb);
+	}
+	/*while (!FIFO_EMPTY(&jobs->workq)) {
+		FIFO_POP(&jobs->workq, &vb);
+		vb_release_block((VB_BLK)vb);
+	}*/
+	mutex_unlock(&jobs->lock);
+
+	mutex_lock(&jobs->dlock);
+	while (!FIFO_EMPTY(&jobs->doneq)) {
+		FIFO_POP(&jobs->doneq, &vb);
+		vb_release_block((VB_BLK)vb);
+	}
+
+	TAILQ_FOREACH_SAFE(s, &jobs->snap_jobs, tailq, s_tmp)
+	TAILQ_REMOVE(&jobs->snap_jobs, s, tailq);
+	mutex_unlock(&jobs->dlock);
+}
+EXPORT_SYMBOL_GPL(base_mod_jobs_clear);
+
 /* mod_jobs_enque_work: Put job into work.
  *     Move vb from waitq into workq and put into driver.
  *

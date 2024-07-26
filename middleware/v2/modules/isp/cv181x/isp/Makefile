@@ -6,7 +6,8 @@ endif
 
 TMP_FOLDER = $(PWD)/tmp
 SDIR = $(PWD)/src
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(VPU_INC) -Iinc -Isrc -I../isp_algo/inc
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(VI_INC) -I$(VPSS_INC) -I$(VO_INC) \
+	   -I$(GDC_INC) -I$(RGN_INC) -Iinc -Isrc -I../isp_algo/inc
 INCS += -I../../common/clog
 INCS += -I$(TOP_DIR)/osdrv/interdrv/v2/rtos_cmdqu
 

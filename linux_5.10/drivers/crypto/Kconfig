@@ -901,4 +901,12 @@ config CRYPTO_DEV_SA2UL
 	  used for crypto offload.  Select this if you want to use hardware
 	  acceleration for cryptographic algorithms on these devices.
 
+config CRYPTO_DEV_CVITEK_SPACC
+	tristate "Support for cvitek spacc"
+	depends on ARCH_CVITEK
+	help
+	  This driver provides support for SPACC devices that are part of the CVITEK SoCs.
+	  It handles cryptographic operations and provides a generic interface for SPACC devices.
+	  To compile this driver as a module, choose M here: the module will be called spacc-cvitek.
+
 endif # CRYPTO_HW

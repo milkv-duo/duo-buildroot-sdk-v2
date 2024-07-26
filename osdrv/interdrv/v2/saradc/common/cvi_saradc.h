@@ -16,6 +16,7 @@
 #define SARADC_INTR_CLR		0x024	// interrupt clear register
 #define SARADC_INTR_STA		0x028	// interrupt status register
 #define SARADC_INTR_RAW		0x02c	// interrupt raw status register
+#define SARADC_TRIM		0x34	// trim register
 
 #define SARADC_EN_SHIFT		0x0
 #define SARADC_SEL_SHIFT	0x4

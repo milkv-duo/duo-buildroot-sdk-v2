@@ -233,7 +233,7 @@ CVI_VOID vpss_notify_isr_evt(CVI_U8 img_idx)
 			idev->dev_idx, idev->img_type, idev->input_type);
 
 	for (i = 0; i < VPSS_IP_NUM; i++) {
-		if (handler_ctx[i].enHdlState == HANDLER_STATE_RUN &&
+		if ((handler_ctx[i].enHdlState == HANDLER_STATE_RUN || handler_ctx[i].enHdlState == HANDLER_STATE_SUSPEND) &&
 			handler_ctx[i].img_idx == img_idx) {
 
 			atomic_fetch_or(CTX_EVENT_EOF, &handler_ctx[i].events);
@@ -270,7 +270,7 @@ CVI_VOID vpss_notify_vi_err_evt(CVI_U8 img_idx)
 			idev->dev_idx, idev->img_type, idev->input_type);
 
 	for (i = 0; i < VPSS_IP_NUM; i++) {
-		if (handler_ctx[i].enHdlState == HANDLER_STATE_RUN &&
+		if ((handler_ctx[i].enHdlState == HANDLER_STATE_RUN || handler_ctx[i].enHdlState == HANDLER_STATE_SUSPEND) &&
 			handler_ctx[i].img_idx == img_idx) {
 			ctx = &handler_ctx[i];
 		}
@@ -812,7 +812,7 @@ static CVI_S32 vpss_sb_qbuf(struct cvi_vpss_ctx *ctx, MMF_CHN_S chn, CVI_BOOL sb
 
 	buf = kzalloc(sizeof(struct cvi_buffer), GFP_ATOMIC);
 	if (!buf) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct cvi_buffer));
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%zu)\n", sizeof(struct cvi_buffer));
 		return CVI_FAILURE;
 	}
 
@@ -952,7 +952,7 @@ static CVI_S32 fill_buffers(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx, bool onl
 		struct cvi_buffer *buf = kzalloc(sizeof(struct cvi_buffer), GFP_ATOMIC);
 
 		if (!buf) {
-			CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct cvi_buffer));
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%zu)\n", sizeof(struct cvi_buffer));
 			goto ERR_FILL_BUF;
 		}
 
@@ -1859,7 +1859,7 @@ static CVI_S32 commitHWSettings(VPSS_GRP VpssGrp, bool online_from_isp, struct c
 	struct VPSS_GRP_HW_CFG *vpss_hw_cfgs = (struct VPSS_GRP_HW_CFG *)ctx->hw_cfgs;
 	struct VPSS_CHN_HW_CFG *pstHwCfg;
 	MMF_CHN_S chn = {.enModId = CVI_ID_VPSS, .s32DevId = VpssGrp, .s32ChnId = 0};
-	MMF_BIND_DEST_S stBindDest;
+	MMF_BIND_DEST_S *stBindDest;
 	struct cvi_vpss_chn_cfg chn_cfg;
 	struct cvi_vpss_grp_cfg grp_cfg;
 	struct vb_s *vb_in = NULL;
@@ -1870,6 +1870,9 @@ static CVI_S32 commitHWSettings(VPSS_GRP VpssGrp, bool online_from_isp, struct c
 	CVI_BOOL bind_fb = CVI_FALSE;
 
 	stGrpAttr = &ctx->stGrpAttr;
+
+	stBindDest = (MMF_BIND_DEST_S *)kmalloc(sizeof(MMF_BIND_DEST_S), GFP_KERNEL);
+	memset(stBindDest, 0, sizeof(MMF_BIND_DEST_S));
 
 	if (_is_frame_crop_changed(VpssGrp, ctx))
 		ctx->is_cfg_changed = CVI_TRUE;
@@ -1967,9 +1970,9 @@ static CVI_S32 commitHWSettings(VPSS_GRP VpssGrp, bool online_from_isp, struct c
 				chn_cfg.sb_cfg.sb_nb);
 
 		if (fb_on_vpss)
-			if (sys_get_bindbysrc(&chn, &stBindDest) == CVI_SUCCESS) {
-				for (i = 0; i < stBindDest.u32Num; ++i)
-					if (stBindDest.astMmfChn[i].enModId == CVI_ID_VO) {
+			if (sys_get_bindbysrc(&chn, stBindDest) == CVI_SUCCESS) {
+				for (i = 0; i < stBindDest->u32Num; ++i)
+					if (stBindDest->astMmfChn[i].enModId == CVI_ID_VO) {
 						bind_fb = CVI_TRUE;
 						CVI_TRACE_VPSS(CVI_DBG_INFO,
 							"grp(%d) chn(%d) use fb's gop. fb_on_vpss(%d)\n",
@@ -1980,6 +1983,7 @@ static CVI_S32 commitHWSettings(VPSS_GRP VpssGrp, bool online_from_isp, struct c
 		sc_set_vpss_chn_bind_fb(&vip_dev->sc_vdev[dev_idx], bind_fb);
 
 	}
+	kfree(stBindDest);
 	return CVI_SUCCESS;
 }
 
@@ -2240,18 +2244,6 @@ static CVI_BOOL _is_vc_sbm_enabled(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx)
 	return CVI_FALSE;
 }
 
-static CVI_U32 _get_enabled_channels(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx)
-{
-	VPSS_CHN VpssChn;
-	CVI_U32 num = 0;
-
-	for (VpssChn = 0; VpssChn < ctx->chnNum; ++VpssChn)
-		if (ctx->stChnCfgs[VpssChn].isEnabled)
-			num++;
-
-	return num;
-}
-
 static CVI_S32 IS_VENC_BIND_VPSS(MMF_CHN_S *pchn)
 {
 	MMF_BIND_DEST_S stBindDest;
@@ -2305,7 +2297,7 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 
 	send_frm = kzalloc(sizeof(struct venc_send_frm_info), GFP_ATOMIC);
 	if (!send_frm) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct venc_send_frm_info));
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%zu)\n", sizeof(struct venc_send_frm_info));
 		return CVI_ERR_VPSS_NOMEM;
 	}
 
@@ -2709,8 +2701,6 @@ static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 	struct timespec64 time;
 	CVI_U32 state;
 	CVI_U32 events;
-	CVI_BOOL vc_sbm_enabled;
-	CVI_U32 enabled_chnls;
 	unsigned long flags_job;
 	CVI_U32 i;
 
@@ -2754,19 +2744,7 @@ static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 			atomic_fetch_and(~CTX_EVENT_EOF, &ctx->events);
 			spin_unlock_irqrestore(&ctx->lock, flags_job);
 			vpss_handle_online_frame_done(ctx, workingGrp);
-
-			vc_sbm_enabled = _is_vc_sbm_enabled(workingGrp, vpss_ctx);
-			enabled_chnls = _get_enabled_channels(workingGrp, vpss_ctx);
-			if (vc_sbm_enabled && enabled_chnls == 1) {
-				// Keep current state
-				spin_lock_irqsave(&ctx->lock, flags_job);
-				atomic_set(&ctx->events, 0);
-				spin_unlock_irqrestore(&ctx->lock, flags_job);
-				ktime_get_ts64(&ctx->time);
-			} else {
-				// H/W starts once and continues to receive a frame
-				vpssExtCtx[workingGrp].grp_state &= ~GRP_STATE_BUF_FILLED;
-			}
+			vpssExtCtx[workingGrp].grp_state &= ~GRP_STATE_BUF_FILLED;
 		}
 	}
 
@@ -2797,8 +2775,12 @@ static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 
 	for (i = 0; i < VPSS_ONLINE_NUM; i++) {
 		if (vpssCtx[i] && vpssCtx[i]->isStarted && !(vpssExtCtx[i].grp_state & GRP_STATE_BUF_FILLED)) {
-			vpss_try_schedule_online(ctx);
-			ktime_get_ts64(&ctx->time);
+			if (ctx->enHdlState == HANDLER_STATE_SUSPEND)
+				CVI_TRACE_VPSS(CVI_DBG_ERR, "HANDLER_STATE_SUSPEND, only handle_frame_done allowed\n");
+			else {
+				vpss_try_schedule_online(ctx);
+				ktime_get_ts64(&ctx->time);
+			}
 			break;
 		}
 	}
@@ -3038,7 +3020,10 @@ static void vpss_handle_offline(struct vpss_handler_ctx *ctx)
 
 	if (vpssExtCtx[workingGrp].grp_state == GRP_STATE_IDLE) {
 		atomic_set(&ctx->events, 0);
-		vpss_try_schedule_offline(ctx);
+		if (ctx->enHdlState == HANDLER_STATE_SUSPEND)
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "HANDLER_STATE_SUSPEND, only handle_frame_done allowed\n");
+		else
+			vpss_try_schedule_offline(ctx);
 	} else if (vpssExtCtx[workingGrp].grp_state == GRP_STATE_HW_STARTED) {
 		ktime_get_ts64(&time);
 		duration64 = get_diff_in_us(ctx->time, time);
@@ -3114,7 +3099,7 @@ static int vpss_event_handler(void *arg)
 
 		atomic_fetch_and(~CTX_EVENT_WKUP, &ctx->events);
 
-		if (ctx->enHdlState != HANDLER_STATE_RUN) {
+		if (ctx->enHdlState != HANDLER_STATE_RUN && ctx->enHdlState != HANDLER_STATE_SUSPEND) {
 			atomic_set(&ctx->events, 0);
 			continue;
 		}
@@ -5133,6 +5118,7 @@ static void vpss_start_handler(void)
 		ret = sched_setscheduler(handler_ctx[u8VpssDev].thread, SCHED_FIFO, &tsk);
 		if (ret)
 			pr_warn("vpss thread priority update failed: %d\n", ret);
+		CVI_TRACE_VPSS(CVI_DBG_WARN, "handler for dev(%d) started", u8VpssDev);
 	}
 }
 
@@ -5512,4 +5498,125 @@ CVI_S32 vpss_sbm_notify_venc(VPSS_GRP VpssGrp, CVI_U8 sc_idx)
 CVI_VOID set_fb_on_vpss(CVI_BOOL is_fb_on_vpss)
 {
 	fb_on_vpss = is_fb_on_vpss;
+}
+
+CVI_BOOL is_handler_suspended(CVI_U32 ctx_id)
+{
+	return handler_ctx[ctx_id].enHdlState == HANDLER_STATE_SUSPEND;
+}
+
+static CVI_VOID vpss_suspend_handler(void)
+{
+	vpss_stop_handler();
+}
+
+static CVI_VOID vpss_resume_handler(void)
+{
+	CVI_U32 u8VpssDev = 0;
+	unsigned long flags_job;
+
+	vpss_start_handler();
+	for (u8VpssDev = 0; u8VpssDev < VPSS_IP_NUM; u8VpssDev++)
+	{
+		if (handler_ctx[u8VpssDev].enHdlState != HANDLER_STATE_RUN) {
+			spin_lock_irqsave(&handler_ctx[u8VpssDev].lock, flags_job);
+			handler_ctx[u8VpssDev].enHdlState = HANDLER_STATE_RUN;
+			spin_unlock_irqrestore(&handler_ctx[u8VpssDev].lock, flags_job);
+		}
+	}
+}
+
+static CVI_VOID vpss_clear_jobs(void)
+{
+	VPSS_GRP vpss_grp;
+	VPSS_CHN vpss_chn;
+	MMF_CHN_S chn;
+
+	chn.enModId = CVI_ID_VPSS;
+
+	for (vpss_grp = 0; vpss_grp < VPSS_MAX_GRP_NUM; ++vpss_grp) {
+		if (vpssCtx[vpss_grp] != NULL && vpssCtx[vpss_grp]->isStarted) {
+			chn.s32DevId = vpss_grp;
+			chn.s32ChnId = 0;
+
+			base_mod_jobs_clear(chn, CHN_TYPE_IN);
+
+			for (vpss_chn = 0; vpss_chn < vpssCtx[vpss_grp]->chnNum; ++vpss_chn)
+			{
+				if (vpssCtx[vpss_grp]->stChnCfgs[vpss_chn].isEnabled) {
+					chn.s32ChnId = vpss_chn;
+					base_mod_jobs_clear(chn, CHN_TYPE_OUT);
+				}
+			}
+		}
+	}
+}
+
+CVI_S32 vpss_suspend(void)
+{
+	VPSS_GRP grp_id;
+	struct cvi_vpss_ctx *ctx;
+	int count;
+	CVI_U32 u8VpssDev = 0;
+	unsigned long flags_job;
+
+	/*step 1 wait for all frames done*/
+	for (u8VpssDev = 0; u8VpssDev < VPSS_IP_NUM; u8VpssDev++)
+	{
+		if (handler_ctx[u8VpssDev].enHdlState != HANDLER_STATE_SUSPEND) {
+			spin_lock_irqsave(&handler_ctx[u8VpssDev].lock, flags_job);
+			handler_ctx[u8VpssDev].enHdlState = HANDLER_STATE_SUSPEND;
+			spin_unlock_irqrestore(&handler_ctx[u8VpssDev].lock, flags_job);
+		}
+	}
+
+	for (grp_id = 0; grp_id < VPSS_MAX_GRP_NUM; ++grp_id) {
+		if (!vpssCtx[grp_id])
+			continue;
+
+		ctx = vpssCtx[grp_id];
+		//wait frame done
+		count = 20;
+		while (--count > 0) {
+			if (handler_ctx[ctx->u8DevId].online_from_isp) {
+				if (handler_ctx[ctx->u8DevId].isr_evt[grp_id] == 0)
+					break;
+			} else {
+				if (vpssExtCtx[grp_id].grp_state != GRP_STATE_HW_STARTED)
+					break;
+			}
+			usleep_range(1000, 2000);
+		}
+
+		if (count == 0) {
+			//CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Wait timeout, HW hang.\n", grp_id);
+			//TODO: reset dev and job
+		}
+	}
+
+	/*step 2 stop all envent_handlers*/
+	vpss_suspend_handler();
+
+	/*step 3 turn off clock*/
+	close_clk(vip_dev);
+
+	CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss suspended\n");
+	return CVI_SUCCESS;
+}
+
+CVI_S32 vpss_resume(void)
+{
+	vpss_clear_jobs();
+
+	/*step 1 turn on clock*/
+	open_clk(vip_dev);
+
+	/*step 2 register reset*/
+	sclr_ctrl_init(true);
+
+	/*step 3 start all envent_handlers*/
+	vpss_resume_handler();
+
+	CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss resumed\n");
+	return CVI_SUCCESS;
 }
