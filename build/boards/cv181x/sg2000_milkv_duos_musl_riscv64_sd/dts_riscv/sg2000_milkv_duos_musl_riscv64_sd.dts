@@ -8,6 +8,10 @@
 	model = "Milk-V DuoS";
 };
 
+&mipi_rx {
+	snsr-reset = <&porta 2 GPIO_ACTIVE_LOW>, <&porta 2 GPIO_ACTIVE_LOW>, <&porta 2 GPIO_ACTIVE_LOW>;
+};
+
 &i2c4 {
 	status = "okay";
 

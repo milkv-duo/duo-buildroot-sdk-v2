@@ -8,6 +8,10 @@
 	model = "Milk-V Duo256M";
 };
 
+&mipi_rx {
+	snsr-reset = <&portc 17 GPIO_ACTIVE_LOW>, <&portc 17 GPIO_ACTIVE_LOW>, <&portc 17 GPIO_ACTIVE_LOW>;
+};
+
 &dac {
 	mute-gpio-r = <&porte 1 GPIO_ACTIVE_LOW>;
 };
