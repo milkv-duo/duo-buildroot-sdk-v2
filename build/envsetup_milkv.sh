@@ -867,12 +867,23 @@ function cvi_setup_env()
     print_error "No MV_VENDOR specified!"
     return 1
   fi
+
+  if [[ ${MV_BOARD} == *"-duo256m-"* ]]; then
+    MV_BOARD_TYPE="duo256m"
+  elif [[ ${MV_BOARD} == *"-duos-"* ]]; then
+    MV_BOARD_TYPE="duos"
+  else
+    print_error "Unknown MV_BOARD_TYPE!"
+    return 1
+  fi
+
   export BR_DIR="$TOP_DIR"/buildroot-2024.02
   export BR_BOARD=${MV_BOARD}
   export BR_OVERLAY_DIR=${BR_DIR}/board/${MV_VENDOR}/${MV_BOARD}/overlay
   export BR_DEFCONFIG=${BR_BOARD}_defconfig
   export BR_ROOTFS_DIR="$OUTPUT_DIR"/tmp-rootfs
   export BR_MV_VENDOR_DIR=${BR_DIR}/board/${MV_VENDOR}
+  export BR_BOARD_TYPE=${MV_BOARD_TYPE}
 
   # Check if bootlogo is enabled in the u-boot defconfig
   UBOOT_DEFCONFIG="${BUILD_PATH}/boards/${CHIP_ARCH,,}/${PROJECT_FULLNAME}/u-boot/${BRAND}_${PROJECT_FULLNAME}_defconfig"
@@ -890,6 +901,7 @@ cvi_print_env()
   echo -e "  PROJECT: \e[34m$PROJECT_FULLNAME\e[0m, DDR_CFG=\e[34m$DDR_CFG\e[0m"
   echo -e "  CHIP_ARCH: \e[34m$CHIP_ARCH\e[0m, DEBUG=\e[34m$DEBUG\e[0m"
   echo -e "  SDK VERSION: \e[34m$SDK_VER\e[0m, RPC=\e[34m$MULTI_PROCESS_SUPPORT\e[0m"
+  echo -e "  BOARD TYPE: \e[34m$BR_BOARD_TYPE\e[0m"
   echo -e "  ATF options: ATF_KEY_SEL=\e[34m$ATF_KEY_SEL\e[0m, BL32=\e[34m$ATF_BL32\e[0m"
   echo -e "  Linux source folder:\e[34m$KERNEL_SRC\e[0m, Uboot source folder: \e[34m$UBOOT_SRC\e[0m"
   echo -e "  CROSS_COMPILE_PREFIX: \e[34m$CROSS_COMPILE\e[0m"

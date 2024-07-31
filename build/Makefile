@@ -563,6 +563,9 @@ endif
 ifneq ($(wildcard $(TOP_DIR)/device/generic/rootfs_overlay/$(SDK_VER)),)
 	${Q}cp -arf $(TOP_DIR)/device/generic/rootfs_overlay/$(SDK_VER)/* $(BR_ROOTFS_DIR)/
 endif
+ifneq ($(wildcard $(TOP_DIR)/device/generic/rootfs_overlay/$(BR_BOARD_TYPE)),)
+	${Q}cp -arf $(TOP_DIR)/device/generic/rootfs_overlay/$(BR_BOARD_TYPE)/* $(BR_ROOTFS_DIR)/
+endif
 
 	# copy milkv board overlay files
 	${Q}cp -arf $(TOP_DIR)/device/$(MV_BOARD)/overlay/* $(BR_ROOTFS_DIR)/
