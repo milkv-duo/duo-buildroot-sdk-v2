@@ -568,7 +568,9 @@ ifneq ($(wildcard $(TOP_DIR)/device/generic/rootfs_overlay/$(BR_BOARD_TYPE)),)
 endif
 
 	# copy milkv board overlay files
+ifneq ($(wildcard $(TOP_DIR)/device/$(MV_BOARD)/overlay),)
 	${Q}cp -arf $(TOP_DIR)/device/$(MV_BOARD)/overlay/* $(BR_ROOTFS_DIR)/
+endif
 
 	# clean this directory for multiple targets
 	${Q}rm -rf $(BR_OVERLAY_DIR)
