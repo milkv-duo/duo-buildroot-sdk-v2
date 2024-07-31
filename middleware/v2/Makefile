@@ -63,21 +63,21 @@ install:
 	@mkdir -p $(DESTDIR)/usr/lib/3rd
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy sample_xxx
-	@cp -f sample/mipi_tx/sample_dsi $(DESTDIR)/usr/bin
-	@cp -f sample/cipher/sample_cipher $(DESTDIR)/usr/bin
-	@cp -f sample/cvg/sample_cvg $(DESTDIR)/usr/bin
+	@cp -f sample/audio/sample_audio $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_vcodec $(DESTDIR)/usr/bin
 	@cp -f sample/vdec/sample_vdec $(DESTDIR)/usr/bin
+	@cp -f sample/sample_panel/sample_panel $(DESTDIR)/usr/bin
+	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
+	@cp -f sample/scene_auto/sample_scene_auto $(DESTDIR)/usr/bin
 endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
-	# copy venc
-	@cp -f modules/venc/vc_lib/bin/cvi_h265_enc_test $(DESTDIR)/usr/bin
-	@cp -f modules/venc/vc_lib/bin/cvi_h265_dec $(DESTDIR)/usr/bin
-	@cp -f modules/venc/vc_lib/bin/cvi_h264_dec $(DESTDIR)/usr/bin
-	@cp -f modules/venc/vc_lib/bin/cvi_jpg_codec $(DESTDIR)/usr/bin
+	# copy others
+	@cp -f sample/sensor_test/sensor_test $(DESTDIR)/usr/bin
+	@cp -f sample/ir_auto/ir_auto $(DESTDIR)/usr/bin
 endif
+
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy audio libs and elf
