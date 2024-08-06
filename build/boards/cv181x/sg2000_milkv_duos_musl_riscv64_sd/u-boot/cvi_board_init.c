@@ -35,6 +35,9 @@ int cvi_board_init(void)
 	PINMUX_CONFIG(CAM_MCLK1, CAM_MCLK1); // Sensor1 MCLK
 	PINMUX_CONFIG(CAM_PD1, XGPIOA_4);    // Sensor1 RESET
 
+	// WIFI/BT
+	PINMUX_CONFIG(CLK32K, PWR_GPIO_10);
+
 	set_rtc_register_for_power();
 
 	return 0;
