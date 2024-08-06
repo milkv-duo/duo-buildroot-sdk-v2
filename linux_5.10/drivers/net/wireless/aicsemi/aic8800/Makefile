@@ -1,10 +1,10 @@
 CONFIG_AIC8800_BTLPM_SUPPORT := m
 CONFIG_AIC8800_WLAN_SUPPORT := m
-CONFIG_AIC_WLAN_SUPPORT := m
+CONFIG_AIC8800 := m
 
 obj-$(CONFIG_AIC8800_BTLPM_SUPPORT) += aic8800_btlpm/
 obj-$(CONFIG_AIC8800_WLAN_SUPPORT) += aic8800_fdrv/
-obj-$(CONFIG_AIC_WLAN_SUPPORT) += aic8800_bsp/
+obj-$(CONFIG_AIC8800) += aic8800_bsp/
 
 MAKEFLAGS +=-j$(shell nproc)
 
@@ -22,7 +22,8 @@ export CONFIG_PLATFORM_ROCKCHIP = n
 export CONFIG_PLATFORM_ROCKCHIP2 = n
 export CONFIG_PLATFORM_ALLWINNER = n
 export CONFIG_PLATFORM_AMLOGIC = n
-export CONFIG_PLATFORM_UBUNTU = y
+export CONFIG_PLATFORM_UBUNTU = n
+export CONFIG_PLATFORM_CVITEK = y
 
 ifeq ($(CONFIG_PLATFORM_ROCKCHIP), y)
 ARCH = arm64
@@ -65,6 +66,11 @@ ARCH = x86_64
 CROSS_COMPILE ?=
 endif
 ###########################################
+
+ifeq ($(CONFIG_PLATFORM_CVITEK), y)
+$(info ARCH: $(ARCH))
+$(info CROSS_COMPILE: $(CROSS_COMPILE))
+endif
 
 all: modules
 modules:

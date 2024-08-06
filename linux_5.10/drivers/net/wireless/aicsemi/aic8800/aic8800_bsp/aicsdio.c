@@ -15,6 +15,7 @@
 #include <linux/semaphore.h>
 #include <linux/debugfs.h>
 #include <linux/kthread.h>
+#include <linux/gpio.h>
 #include "aicsdio_txrxif.h"
 #include "aicsdio.h"
 #include "aic_bsp_driver.h"
@@ -42,6 +43,11 @@ extern void extern_wifi_set_enable(int is_on);
 extern void set_power_control_lock(int lock);
 #endif//for AML
 
+#ifdef CONFIG_PLATFORM_CVITEK
+extern int cvi_get_wifi_pwr_on_gpio(void);
+extern int cvi_sdio_rescan(void);
+static int cvi_wifi_power_gpio = -1;
+#endif //CONFIG_PLATFORM_CVITEK
 
 static int aicbsp_platform_power_on(void);
 static void aicbsp_platform_power_off(void);
@@ -492,6 +498,28 @@ static int aicbsp_platform_power_on(void)
             rockchip_wifi_set_carddetect(1);
 #endif /*CONFIG_PLATFORM_ROCKCHIP2*/
 
+#ifdef CONFIG_PLATFORM_CVITEK
+	printk("======== CVITEK WLAN_POWER_ON ========\n");
+	cvi_wifi_power_gpio = cvi_get_wifi_pwr_on_gpio();
+	if (cvi_wifi_power_gpio >= 0) {
+		ret = gpio_request(cvi_wifi_power_gpio, "WLAN_POWER");
+		if (ret < 0) {
+			printk("%s: gpio_request(%d) for WLAN_POWER failed\n",
+				__func__, cvi_wifi_power_gpio);
+			cvi_wifi_power_gpio = -1;
+		}
+	}
+
+	if (cvi_wifi_power_gpio >= 0) {
+		ret = gpio_direction_output(cvi_wifi_power_gpio, 1);
+		if (ret) {
+			printk("%s: WLAN_POWER output high failed!\n", __func__);
+			return -EIO;
+		}
+		mdelay(50);
+	}
+#endif //CONFIG_PLATFORM_CVITEK
+
 	sema_init(&aic_chipup_sem, 0);
 	ret = aicbsp_reg_sdio_notify(&aic_chipup_sem);
 	if (ret) {
@@ -506,6 +534,12 @@ static int aicbsp_platform_power_on(void)
 	mdelay(50);
 	sunxi_mmc_rescan_card(aicbsp_bus_index);
 #endif //CONFIG_PLATFORM_ALLWINNER
+
+#ifdef CONFIG_PLATFORM_CVITEK
+	printk("%s,%d: cvi_sdio_rescan\n", __func__, __LINE__);
+	cvi_sdio_rescan();
+	//udelay(1000);
+#endif
 
 	if (down_timeout(&aic_chipup_sem, msecs_to_jiffies(2000)) == 0) {
 		aicbsp_unreg_sdio_notify();
@@ -529,6 +563,15 @@ static int aicbsp_platform_power_on(void)
 #ifdef CONFIG_PLATFORM_ROCKCHIP2
 	rockchip_wifi_power(0);
 #endif /*CONFIG_PLATFORM_ROCKCHIP2*/
+
+#ifdef CONFIG_PLATFORM_CVITEK
+	if (cvi_wifi_power_gpio >= 0) {
+		ret = gpio_direction_output(cvi_wifi_power_gpio, 0);
+		if (ret) {
+			printk("%s: WLAN_POWER output low failed!\n", __func__);
+		}
+	}
+#endif //CONFIG_PLATFORM_CVITEK
 
 	return -1;
 }
@@ -558,6 +601,14 @@ static void aicbsp_platform_power_off(void)
 	extern_wifi_set_enable(0);
 #endif
 
+#ifdef CONFIG_PLATFORM_CVITEK
+	printk("======== CVITEK WLAN_POWER_OFF ========\n");
+	if (cvi_wifi_power_gpio >= 0) {
+		if(gpio_direction_output(cvi_wifi_power_gpio, 0)) {
+			printk("%s: WLAN_POWER output low failed!\n", __func__);
+		}
+	}
+#endif //CONFIG_PLATFORM_CVITEK
 
 	sdio_dbg("%s\n", __func__);
 }

@@ -311,7 +311,8 @@ CONFIG_PLATFORM_ROCKCHIP2 ?= n
 CONFIG_PLATFORM_ALLWINNER ?= n
 CONFIG_PLATFORM_INGENIC_T20 ?= n
 CONFIG_PLATFORM_AMLOGIC ?= n
-CONFIG_PLATFORM_UBUNTU ?= y
+CONFIG_PLATFORM_UBUNTU ?= n
+CONFIG_PLATFORM_CVITEK ?= y
 
 ifeq ($(CONFIG_PLATFORM_ROCKCHIP), y)
 ARCH := arm64
@@ -358,8 +359,12 @@ MODDESTDIR ?= /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 ARCH ?= x86_64
 CROSS_COMPILE ?=
 endif
-###########################################
 
+ifeq ($(CONFIG_PLATFORM_CVITEK), y)
+$(info ARCH: $(ARCH))
+$(info CROSS_COMPILE: $(CROSS_COMPILE))
+endif
+###########################################
 
 all: modules
 modules:
