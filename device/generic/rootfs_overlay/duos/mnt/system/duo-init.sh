@@ -21,6 +21,15 @@ function set_gpio()
 gpio_b17=465
 set_gpio ${gpio_b17} 0
 
+# Host Wake BT
+host_wake_bt=362
+set_gpio ${host_wake_bt} 1
+
+# WIFI/BT Module
+insmod /mnt/system/ko/aic8800_bsp.ko
+sleep 0.5
+insmod /mnt/system/ko/aic8800_fdrv.ko
+
 # Insmod PWM Module
 insmod /mnt/system/ko/cv181x_pwm.ko
 
