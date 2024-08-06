@@ -238,18 +238,18 @@ endef
 
 ifeq ($(CHIP_ARCH),$(filter $(CHIP_ARCH),CV181X CV180X ATHENA2))
 define copy_header_action
-	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/linux/* ${1}/linux/
-	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/common/uapi/linux/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/include/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/linux/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/include/common/uapi/linux/* ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion_cvitek.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/include/uapi/linux/dma-buf.h ${1}/linux/
 endef
 else
 define copy_header_action
-	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/vip/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/* ${1}/linux/
-	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/base/uapi/* ${1}/linux/
-	${Q}cp -r ${OSDRV_PATH}/interdrv/${MW_VER}/include/uapi/* ${1}/linux/
-	${Q}cp ${OSDRV_PATH}/interdrv/${MW_VER}/usb/gadget/function/f_cvg.h ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/vip/chip/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/uapi/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/base/uapi/* ${1}/linux/
+	${Q}cp -r ${OSDRV_PATH}/interdrv/include/uapi/* ${1}/linux/
+	${Q}cp ${OSDRV_PATH}/interdrv/usb/gadget/function/f_cvg.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/drivers/staging/android/uapi/ion_cvitek.h ${1}/linux/
 	${Q}cp ${KERNEL_PATH}/include/uapi/linux/dma-buf.h ${1}/linux/

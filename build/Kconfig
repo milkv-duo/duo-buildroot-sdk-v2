@@ -181,13 +181,6 @@ config CROSS_COMPILE_SDK
 	  Cross compile toolchain prefix for middleware.
 	  This will modify by TOOLCHAN_XLIBC
 
-config MW_VER
-	string
-	default "v1" if CHIP_ARCH_cv183x || CHIP_ARCH_cv182x
-	default "v2" if CHIP_ARCH_cv181x || CHIP_ARCH_cv180x
-	help
-	  Set middleware version.
-
 config SDK_VER
 	string
 	default "64bit" if TOOLCHAIN_GLIBC_ARM64
