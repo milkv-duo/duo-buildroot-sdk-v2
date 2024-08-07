@@ -1,0 +1,26 @@
+From 027658db506ccc0097ad9c1d2cd4f7c9d8210edb Mon Sep 17 00:00:00 2001
+From: carbon <carbon@milkv.io>
+Date: Wed, 17 Apr 2024 15:09:26 +0800
+Subject: [PATCH] fix time_t
+
+---
+ src/wiringx.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/wiringx.c b/src/wiringx.c
+index 034674a..4171a75 100644
+--- a/src/wiringx.c
++++ b/src/wiringx.c
+@@ -113,6 +113,9 @@ static struct spi_t spi[2] = {
+ 	} while(0)
+ #endif
+ 
++typedef time_t __time_t;
++typedef suseconds_t __suseconds_t;
++
+ /* Both the delayMicroseconds and the delayMicrosecondsHard
+    are taken from wiringPi */
+ static void delayMicrosecondsHard(unsigned int howLong) {
+-- 
+2.25.1
+
