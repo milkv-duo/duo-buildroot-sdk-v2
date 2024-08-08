@@ -475,22 +475,6 @@ long vpss_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		break;
 	}
 
-	case CVI_VPSS_SET_BLD_CFG:
-	{
-		struct vpss_bld_cfg *cfg = (struct vpss_bld_cfg *)kdata;
-		struct sclr_bld_cfg bld_cfg;
-
-		bld_cfg.ctrl.raw = 0;
-		bld_cfg.ctrl.b.enable = cfg->enable;
-		bld_cfg.ctrl.b.fix_alpha = cfg->fix_alpha;
-		bld_cfg.ctrl.b.blend_y = cfg->blend_y;
-		bld_cfg.ctrl.b.y2r_enable = cfg->y2r_enable;
-		bld_cfg.ctrl.b.alpha_factor = cfg->alpha_factor;
-		bld_cfg.width = cfg->wd;
-		sclr_top_bld_set_cfg(&bld_cfg);
-		break;
-	}
-
 	case CVI_VPSS_GET_AMP_CTRL:
 	{
 		struct vpss_proc_amp_ctrl_cfg *cfg = (struct vpss_proc_amp_ctrl_cfg *)kdata;

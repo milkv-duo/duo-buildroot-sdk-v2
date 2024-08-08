@@ -1,10 +1,10 @@
 #include <linux/cvi_base_ctx.h>
 #include <linux/cvi_vi_ctx.h>
-#include <linux/cvi_vpss_ctx.h>
 #include <linux/cvi_vo_ctx.h>
 #include <linux/cvi_buffer.h>
 #include <linux/slab.h>
 
+#include <vpss_ctx.h>
 #include "base_ctx.h"
 #include "base_cb.h"
 #include "sys_context.h"

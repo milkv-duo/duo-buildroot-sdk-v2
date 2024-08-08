@@ -1099,6 +1099,9 @@ void sclr_top_bld_set_cfg(struct sclr_bld_cfg *cfg);
 void sclr_top_get_sb_default(struct sclr_top_sb_cfg *cfg);
 void sclr_top_set_sb(struct sclr_top_sb_cfg *cfg);
 void sclr_top_vo_mux_sel(int vo_sel, int vo_mux);
+#ifdef __CV181X__
+void ext_vo_pinmux_set(int vo_sel);
+#endif
 void sclr_disp_mux_sel(enum sclr_vo_sel sel);
 void sclr_disp_bt_en(u8 vo_intf);
 int hw_mcu_cmd_send(void *cmds, int size);

@@ -1738,12 +1738,6 @@ void _vpss_chn_hw_cfg_update(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, struct cvi_vpss
 	case VPSS_SCALE_COEF_NEAREST:
 		pstHwCfg->coef = CVI_SC_SCALING_COEF_NEAREST;
 		break;
-	case VPSS_SCALE_COEF_Z2:
-		pstHwCfg->coef = CVI_SC_SCALING_COEF_Z2;
-		break;
-	case VPSS_SCALE_COEF_Z3:
-		pstHwCfg->coef = CVI_SC_SCALING_COEF_Z3;
-		break;
 	case VPSS_SCALE_COEF_DOWNSCALE_SMOOTH:
 		pstHwCfg->coef = CVI_SC_SCALING_COEF_DOWNSCALE_SMOOTH;
 		break;

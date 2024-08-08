@@ -4,11 +4,11 @@
 #include <linux/cvi_base_ctx.h>
 #include <linux/cvi_defines.h>
 #include <linux/cvi_common.h>
-#include <linux/cvi_vpss_ctx.h>
 #include <linux/cvi_vip.h>
 #include <linux/cvi_buffer.h>
 
 #include <vpss_cb.h>
+#include <vpss_ctx.h>
 #include "vpss_debug.h"
 #include "vpss.h"
 #include "vpss_core.h"

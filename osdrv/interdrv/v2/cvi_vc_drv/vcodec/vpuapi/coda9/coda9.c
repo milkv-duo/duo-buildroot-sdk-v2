@@ -4550,7 +4550,7 @@ RetCode Coda9VpuEncode(CodecInst *pCodecInst, EncParam *param)
 			      hrd_buf_level, hrd_buf_size));
 
 #ifdef AUTO_FRM_SKIP_DROP
-	pEncInfo->frm_rc.rc_pic.frame_skip |= param->skipPicture;
+	pEncInfo->frm_rc.rc_pic.frame_skip = 0;// param->skipPicture;
 #ifdef CLIP_PIC_DELTA_QP
 	if (param->coda9RoiEnable) {
 		row_max_dqp_plus = pEncInfo->openParam.roi_max_delta_qp_plus;

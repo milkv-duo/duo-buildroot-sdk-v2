@@ -342,48 +342,49 @@ extern pthread_t gs_VencTask[VENC_MAX_CHN_NUM];
 #define ENUM_ERR_VENC_VENC_INIT \
 	((CVI_S32)(0xC0000000L | ((CVI_ID_VENC) << 16) | ((4) << 13) | (64)))
 
+/* Return Error Code for venc */
 typedef enum {
-	CVI_ERR_VENC_INVALID_CHNID = ENUM_ERR_VENC_INVALID_CHNID,
-	CVI_ERR_VENC_ILLEGAL_PARAM,
-	CVI_ERR_VENC_EXIST,
-	CVI_ERR_VENC_UNEXIST,
-	CVI_ERR_VENC_NULL_PTR,
-	CVI_ERR_VENC_NOT_CONFIG,
-	CVI_ERR_VENC_NOT_SUPPORT,
-	CVI_ERR_VENC_NOT_PERM,
-	CVI_ERR_VENC_INVALID_PIPEID,
-	CVI_ERR_VENC_INVALID_GRPID,
-	CVI_ERR_VENC_NOMEM,
-	CVI_ERR_VENC_NOBUF,
-	CVI_ERR_VENC_BUF_EMPTY,
-	CVI_ERR_VENC_BUF_FULL,
-	CVI_ERR_VENC_SYS_NOTREADY,
-	CVI_ERR_VENC_BADADDR,
-	CVI_ERR_VENC_BUSY,
-	CVI_ERR_VENC_SIZE_NOT_ENOUGH,
-	CVI_ERR_VENC_INVALID_VB,
+	CVI_ERR_VENC_INVALID_CHNID = ENUM_ERR_VENC_INVALID_CHNID,	/* invalid channel ID */
+	CVI_ERR_VENC_ILLEGAL_PARAM,			/* Illegal parameters */
+	CVI_ERR_VENC_EXIST,					/* Attempting to request or create a device, channel, or resource that already exists */
+	CVI_ERR_VENC_UNEXIST,				/* channel not exist */
+	CVI_ERR_VENC_NULL_PTR,				/* null pointer */
+	CVI_ERR_VENC_NOT_CONFIG,			/* Not configured before use */
+	CVI_ERR_VENC_NOT_SUPPORT,			/* operation not supported */
+	CVI_ERR_VENC_NOT_PERM,				/* operation is not allowed */
+	CVI_ERR_VENC_INVALID_PIPEID,		/* Invalid PipeID */
+	CVI_ERR_VENC_INVALID_GRPID,			/* Invalid group id */
+	CVI_ERR_VENC_NOMEM,					/* Memory configuration failure */
+	CVI_ERR_VENC_NOBUF,					/* Image Buffer configuration failure */
+	CVI_ERR_VENC_BUF_EMPTY,				/* buffer is empty */
+	CVI_ERR_VENC_BUF_FULL,				/* buffer is full */
+	CVI_ERR_VENC_SYS_NOTREADY,			/* System not ready */
+	CVI_ERR_VENC_BADADDR,				/* illegal address */
+	CVI_ERR_VENC_BUSY,					/* Device in use. */
+	CVI_ERR_VENC_SIZE_NOT_ENOUGH,		/* buffer size not enough */
+	CVI_ERR_VENC_INVALID_VB,			/* invalid vb */
     ///========//
-	CVI_ERR_VENC_INIT = ENUM_ERR_VENC_VENC_INIT,
-	CVI_ERR_VENC_FRC_NO_ENC,
-	CVI_ERR_VENC_STAT_VFPS_CHANGE,
-	CVI_ERR_VENC_EMPTY_STREAM_FRAME,
-	CVI_ERR_VENC_EMPTY_PACK,
-	CVI_ERR_VENC_JPEG_MARKER_ORDER,
-	CVI_ERR_VENC_CU_PREDICTION,
-	CVI_ERR_VENC_RC_PARAM,
-	CVI_ERR_VENC_H264_ENTROPY,
-	CVI_ERR_VENC_H264_TRANS,
-	CVI_ERR_VENC_H265_TRANS,
-	CVI_ERR_VENC_MUTEX_ERROR,
-	CVI_ERR_VENC_INVALILD_RET,
-	CVI_ERR_VENC_H264_VUI,
-	CVI_ERR_VENC_H265_VUI,
-	CVI_ERR_VENC_GOP_ATTR,
-	CVI_ERR_VENC_FRAME_PARAM,
-	CVI_ERR_VENC_H264_SPLIT,
-	CVI_ERR_VENC_H265_SPLIT,
-	CVI_ERR_VENC_H264_INTRA_PRED,
-	CVI_ERR_VENC_SVC_PARAM,
+	CVI_ERR_VENC_INIT = ENUM_ERR_VENC_VENC_INIT,	/* Initializing */
+	CVI_ERR_VENC_FRC_NO_ENC,					/* Frc actively does not encode the current frame */
+	CVI_ERR_VENC_STAT_VFPS_CHANGE,				/* The frame rate has changed */
+	CVI_ERR_VENC_EMPTY_STREAM_FRAME,			/* EMPTY STREAM FRAME */
+	CVI_ERR_VENC_EMPTY_PACK,					/* EMPTY PACK */
+	CVI_ERR_VENC_JPEG_MARKER_ORDER,				/* Unsupported Format */
+	CVI_ERR_VENC_CU_PREDICTION,					/* fail to set CU prediction */
+	CVI_ERR_VENC_RC_PARAM,						/* fail to set RC parameter */
+	CVI_ERR_VENC_H264_ENTROPY,					/* fail to set h264 entropy mode */
+	CVI_ERR_VENC_H264_TRANS,					/* fail to set h264 transform */
+	CVI_ERR_VENC_H265_TRANS,					/* fail to set h265 transform */
+	CVI_ERR_VENC_MUTEX_ERROR,					/* error in mutex */
+	CVI_ERR_VENC_INVALILD_RET,					/* illegal return values */
+	CVI_ERR_VENC_H264_VUI,						/* fail to set h264 vui */
+	CVI_ERR_VENC_H265_VUI,						/* fail to set h265 vui */
+	CVI_ERR_VENC_GOP_ATTR,						/* fail to set GOP attr */
+	CVI_ERR_VENC_FRAME_PARAM,					/* fail to set frame parameter */
+	CVI_ERR_VENC_H264_SPLIT,					/* fail to set h264 split */
+	CVI_ERR_VENC_H265_SPLIT,					/* fail to set h265 split */
+	CVI_ERR_VENC_H264_INTRA_PRED,				/* fail to set h264 intra-prediction */
+	CVI_ERR_VENC_SVC_PARAM,						/* fail to set svc parameter */
 	CVI_ERR_VENC_BUTT
 } VENC_RECODE_E_ERRTYPE;
 
@@ -430,15 +431,15 @@ typedef enum _H264E_REFSLICE_TYPE_E {
 
 /* the entropy mode of H264E */
 typedef enum _H264E_ENTROPY {
-	H264E_ENTROPY_CAVLC = 0,
-	H264E_ENTROPY_CABAC,
+	H264E_ENTROPY_CAVLC = 0,	/* entropy mode: CAVLC */
+	H264E_ENTROPY_CABAC,		/* entropy mode: CABAC */
 } H264E_ENTROPY;
 
 /* the profile of H264E */
 typedef enum _H264E_PROFILE {
-	H264E_PROFILE_BASELINE = 0,
-	H264E_PROFILE_MAIN,
-	H264E_PROFILE_HIGH,
+	H264E_PROFILE_BASELINE = 0,		/* Baseline Profile: only support I/P slice and CAVLC */
+	H264E_PROFILE_MAIN,				/* Main profile: support I/P/B slice, CAVLC and CABAC */
+	H264E_PROFILE_HIGH,				/* High profile: support more prediction mode and yuv format */
 	H264E_PROFILE_BUTT
 } H264E_PROFILE;
 
@@ -686,7 +687,7 @@ typedef enum _VENC_PIC_RECEIVE_MODE_E {
 	VENC_PIC_RECEIVE_SINGLE = 0,
 	VENC_PIC_RECEIVE_MULTI,
 	VENC_PIC_RECEIVE_BUTT
-} VENC_PIC_RECEIVE_MODE_E;
+} VENC_PIC_RECEIVE_MODE_E;	///< TODO VENC
 
 /**
  * @brief Define the attributes of JPEG Encoder.
@@ -714,34 +715,34 @@ typedef struct _VENC_ATTR_H265_S {
 /*the frame rate of PRORES*/
 typedef enum _PRORES_FRAMERATE {
 	PRORES_FR_UNKNOWN = 0,
-	PRORES_FR_23_976,
-	PRORES_FR_24,
-	PRORES_FR_25,
-	PRORES_FR_29_97,
-	PRORES_FR_30,
-	PRORES_FR_50,
-	PRORES_FR_59_94,
-	PRORES_FR_60,
-	PRORES_FR_100,
-	PRORES_FR_119_88,
-	PRORES_FR_120,
+	PRORES_FR_23_976,		/* frame rate: 23.976  */
+	PRORES_FR_24,			/* frame rate: 24      */
+	PRORES_FR_25,			/* frame rate: 25      */
+	PRORES_FR_29_97,		/* frame rate: 29.97   */
+	PRORES_FR_30,			/* frame rate: 30      */
+	PRORES_FR_50,			/* frame rate: 50      */
+	PRORES_FR_59_94,		/* frame rate: 59.94   */
+	PRORES_FR_60,			/* frame rate: 60      */
+	PRORES_FR_100,			/* frame rate: 100     */
+	PRORES_FR_119_88,		/* frame rate: 119.88  */
+	PRORES_FR_120,			/* frame rate: 120     */
 	PRORES_FR_BUTT
 } PRORES_FRAMERATE;
 
 /*the aspect ratio of PRORES*/
 typedef enum _PRORES_ASPECT_RATIO {
 	PRORES_ASPECT_RATIO_UNKNOWN = 0,
-	PRORES_ASPECT_RATIO_SQUARE,
-	PRORES_ASPECT_RATIO_4_3,
-	PRORES_ASPECT_RATIO_16_9,
+	PRORES_ASPECT_RATIO_SQUARE,		/* aspect ratio: 1:1  */
+	PRORES_ASPECT_RATIO_4_3,		/* aspect ratio: 4:3  */
+	PRORES_ASPECT_RATIO_16_9,		/* aspect ratio: 16:9 */
 	PRORES_ASPECT_RATIO_BUTT
 } PRORES_ASPECT_RATIO;
 
 /*the attribute of PRORES*/
 typedef struct _VENC_ATTR_PRORES_S {
-	char cIdentifier[4];
-	PRORES_FRAMERATE enFrameRateCode;
-	PRORES_ASPECT_RATIO enAspectRatio;
+	char cIdentifier[4];					/* name */
+	PRORES_FRAMERATE enFrameRateCode;		/* frame rate */
+	PRORES_ASPECT_RATIO enAspectRatio;		/* aspect ratio */
 } VENC_ATTR_PRORES_S;
 
 /**
@@ -939,17 +940,17 @@ typedef struct _VENC_VUI_VIDEO_SIGNAL_S {
 	CVI_U8 matrix_coefficients; /* RO; Range:[0,255]; see the protocol for themeaning. */
 } VENC_VUI_VIDEO_SIGNAL_S;
 
-/* the param of the vui video signal*/
+/* the param of the vui video bitstream_restriction_flag */
 typedef struct _VENC_VUI_BITSTREAM_RESTRIC_S {
 	CVI_U8 bitstream_restriction_flag; /* RW; Range: {0,1}; see the protocol for the meaning.*/
 } VENC_VUI_BITSTREAM_RESTRIC_S;
 
 /* the param of the h264e vui */
 typedef struct _VENC_H264_VUI_S {
-	VENC_VUI_ASPECT_RATIO_S stVuiAspectRatio;
-	VENC_VUI_H264_TIME_INFO_S stVuiTimeInfo;
-	VENC_VUI_VIDEO_SIGNAL_S stVuiVideoSignal;
-	VENC_VUI_BITSTREAM_RESTRIC_S stVuiBitstreamRestric;
+	VENC_VUI_ASPECT_RATIO_S stVuiAspectRatio;				/* the param of the vui aspct ratio*/
+	VENC_VUI_H264_TIME_INFO_S stVuiTimeInfo;				/* the param of the h264e vui timing info*/
+	VENC_VUI_VIDEO_SIGNAL_S stVuiVideoSignal;				/* the param of the vui video signal*/
+	VENC_VUI_BITSTREAM_RESTRIC_S stVuiBitstreamRestric;		/* the param of the vui video bitstream_restriction_flag */
 } VENC_H264_VUI_S;
 
 /* the param of the h265e vui timing info*/
@@ -962,10 +963,10 @@ typedef struct _VENC_VUI_H265_TIME_INFO_S {
 
 /* the param of the h265e vui */
 typedef struct _VENC_H265_VUI_S {
-	VENC_VUI_ASPECT_RATIO_S stVuiAspectRatio;
-	VENC_VUI_H265_TIME_INFO_S stVuiTimeInfo;
-	VENC_VUI_VIDEO_SIGNAL_S stVuiVideoSignal;
-	VENC_VUI_BITSTREAM_RESTRIC_S stVuiBitstreamRestric;
+	VENC_VUI_ASPECT_RATIO_S stVuiAspectRatio;				/* the param of the vui aspct ratio*/
+	VENC_VUI_H265_TIME_INFO_S stVuiTimeInfo;				/* the param of the h265e vui timing info*/
+	VENC_VUI_VIDEO_SIGNAL_S stVuiVideoSignal;				/* the param of the vui video signal*/
+	VENC_VUI_BITSTREAM_RESTRIC_S stVuiBitstreamRestric;		/* the param of the vui video bitstream_restriction_flag */
 } VENC_H265_VUI_S;
 
 /* the param of the jpege */
@@ -1164,7 +1165,8 @@ typedef struct _VENC_MOD_JPEGE_S {
 
 typedef struct _VENC_MOD_RC_S {
 	CVI_U32 u32ClrStatAfterSetBr;
-} VENC_MOD_RC_S;
+} VENC_MOD_RC_S;			///< TODO VENC
+
 /* the param of the venc mod */
 typedef struct _VENC_MOD_VENC_S {
 	CVI_U32 u32VencBufferCache; /* RW; Range:[0,1]; VencBufferCache*/
@@ -1175,17 +1177,17 @@ typedef struct _VENC_MOD_VENC_S {
 typedef struct _VENC_MODPARAM_S {
 	VENC_MODTYPE_E enVencModType; /* RW; VencModType*/
 	union {
-		VENC_MOD_VENC_S stVencModParam;
-		VENC_MOD_H264E_S stH264eModParam;
-		VENC_MOD_H265E_S stH265eModParam;
-		VENC_MOD_JPEGE_S stJpegeModParam;
-		VENC_MOD_RC_S stRcModParam;
+		VENC_MOD_VENC_S stVencModParam;		/* the param of the venc mod */
+		VENC_MOD_H264E_S stH264eModParam;	/* the param of the h264e mod */
+		VENC_MOD_H265E_S stH265eModParam;	/* the param of the h265e mod */
+		VENC_MOD_JPEGE_S stJpegeModParam;	/* the param of the jpege mod */
+		VENC_MOD_RC_S stRcModParam;			/* the param of the rc */
 	};
 } VENC_PARAM_MOD_S;
 
 typedef enum _VENC_FRAME_TYPE_E {
 	VENC_FRAME_TYPE_NONE = 1,
-	VENC_FRAME_TYPE_IDR,
+	VENC_FRAME_TYPE_IDR,	/* frame type: IDR */
 	VENC_FRAME_TYPE_BUTT
 } VENC_FRAME_TYPE_E;
 
@@ -1204,8 +1206,8 @@ typedef struct _USER_RC_INFO_S {
 
 /* the information of the user frame*/
 typedef struct _USER_FRAME_INFO_S {
-	VIDEO_FRAME_INFO_S stUserFrame;
-	USER_RC_INFO_S stUserRcInfo;
+	VIDEO_FRAME_INFO_S stUserFrame;		/* the information of video frame */
+	USER_RC_INFO_S stUserRcInfo;		/* the information of the user rc*/
 } USER_FRAME_INFO_S;
 
 /* the config of the sse*/
@@ -1266,18 +1268,18 @@ typedef struct _VENC_DEBREATHEFFECT_S {
 } VENC_DEBREATHEFFECT_S;
 
 typedef struct _VENC_CU_PREDICTION_S {
-	OPERATION_MODE_E enPredMode;
+	OPERATION_MODE_E enPredMode;	/* prediction mode */
 
-	CVI_U32 u32IntraCost;
-	CVI_U32 u32Intra32Cost;
-	CVI_U32 u32Intra16Cost;
-	CVI_U32 u32Intra8Cost;
-	CVI_U32 u32Intra4Cost;
+	CVI_U32 u32IntraCost;			/* cost of Intra-prediction */
+	CVI_U32 u32Intra32Cost;			/* cost of 32x32 block Intra-prediction */
+	CVI_U32 u32Intra16Cost;			/* cost of 16x16 block Intra-prediction */
+	CVI_U32 u32Intra8Cost;			/* cost of 8x8   block Intra-prediction */
+	CVI_U32 u32Intra4Cost;			/* cost of 4x4   block Intra-prediction */
 
-	CVI_U32 u32Inter64Cost;
-	CVI_U32 u32Inter32Cost;
-	CVI_U32 u32Inter16Cost;
-	CVI_U32 u32Inter8Cost;
+	CVI_U32 u32Inter64Cost;			/* cost of 64x64 block Inter-prediction */
+	CVI_U32 u32Inter32Cost;			/* cost of 32x32 block Inter-prediction */
+	CVI_U32 u32Inter16Cost;			/* cost of 16x16 block Inter-prediction */
+	CVI_U32 u32Inter8Cost;			/* cost of 8x8   block Inter-prediction */
 } VENC_CU_PREDICTION_S;
 
 typedef struct _VENC_SKIP_BIAS_S {
@@ -1286,13 +1288,13 @@ typedef struct _VENC_SKIP_BIAS_S {
 	CVI_U32 u32SkipThreshOffset;
 	CVI_U32 u32SkipBackgroundCost;
 	CVI_U32 u32SkipForegroundCost;
-} VENC_SKIP_BIAS_S;
+} VENC_SKIP_BIAS_S;		///< TODO VENC
 
 typedef struct _VENC_HIERARCHICAL_QP_S {
 	CVI_BOOL bHierarchicalQpEn;
 	CVI_S32 s32HierarchicalQpDelta[4];
 	CVI_S32 s32HierarchicalFrameNum[4];
-} VENC_HIERARCHICAL_QP_S;
+} VENC_HIERARCHICAL_QP_S;		///< TODO VENC
 
 typedef struct _VENC_CHN_POOL_S {
 	VB_POOL hPicVbPool; /* RW;  vb pool id for pic buffer */
@@ -1301,11 +1303,11 @@ typedef struct _VENC_CHN_POOL_S {
 
 typedef struct _VENC_RC_ADVPARAM_S {
 	CVI_U32 u32ClearStatAfterSetAttr;
-} VENC_RC_ADVPARAM_S;
+} VENC_RC_ADVPARAM_S;	///< TODO VENC
 
 typedef struct _VENC_FRAME_PARAM_S {
-	CVI_U32 u32FrameQp;
-	CVI_U32 u32FrameBits;
+	CVI_U32 u32FrameQp;		/* frame qp */
+	CVI_U32 u32FrameBits;	/* frame bits */
 } VENC_FRAME_PARAM_S;
 
 typedef struct _VENC_SVC_PARAM_S {

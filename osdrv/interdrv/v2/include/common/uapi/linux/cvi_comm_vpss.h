@@ -37,6 +37,11 @@ typedef enum _VPSS_CROP_COORDINATE_E {
 	VPSS_CROP_ABS_COOR,
 } VPSS_CROP_COORDINATE_E;
 
+/**
+ * VPSS_ROUNDING_TO_EVEN: Round off, refer to the table below.
+ * VPSS_ROUNDING_AWAY_FROM_ZERO: Round off, refer to the table below.
+ * VPSS_ROUNDING_TRUNCATE: Unconditional rounding, see table below.
+*/
 typedef enum _VPSS_ROUNDING_E {
 	VPSS_ROUNDING_TO_EVEN = 0,
 	VPSS_ROUNDING_AWAY_FROM_ZERO,
@@ -48,6 +53,7 @@ typedef enum _VPSS_ROUNDING_E {
  * bEnable: Whether Normalize is enabled.
  * factor: scaling factors for 3 planes.
  * mean: minus means for 3 planes.
+ * rounding: the pattern of rounding mode during Normalize.
  */
 typedef struct _VPSS_NORMALIZE_S {
 	CVI_BOOL bEnable;
@@ -117,22 +123,36 @@ typedef struct _VPSS_LDC_ATTR_S {
 } VPSS_LDC_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
+/**
+ * u32VpssVbSource: Video memory block pool type.
+ * u32VpssSplitNodeNum: Number of block nodes.
+*/
 typedef struct _VPSS_PARAM_MOD_S {
 	CVI_U32 u32VpssVbSource;
 	CVI_U32 u32VpssSplitNodeNum;
 } VPSS_MOD_PARAM_S;
 
+/**
+ * VPSS_SCALE_COEF_BICUBIC: bicubic algorithm.
+ * VPSS_SCALE_COEF_BILINEAR: bilinear algorithm.
+ * VPSS_SCALE_COEF_NEAREST: nearest algorithm.
+ * VPSS_SCALE_COEF_DOWNSCALE_SMOOTH: downscale algorithm.
+ * VPSS_SCALE_COEF_OPENCV_BILINEAR: opencv bilinear algorithm.
+*/
 typedef enum _VPSS_SCALE_COEF_E {
 	VPSS_SCALE_COEF_BICUBIC = 0,
 	VPSS_SCALE_COEF_BILINEAR,
 	VPSS_SCALE_COEF_NEAREST,
-	VPSS_SCALE_COEF_Z2,
-	VPSS_SCALE_COEF_Z3,
 	VPSS_SCALE_COEF_DOWNSCALE_SMOOTH,
 	VPSS_SCALE_COEF_OPENCV_BILINEAR,
 	VPSS_SCALE_COEF_MAX,
 } VPSS_SCALE_COEF_E;
 
+/**
+ * bEnable: switch for enable chn buffer wrap.
+ * u32BufLine: wrap buffer row height.
+ * u32WrapBufferSize: wrap buffer size.
+*/
 typedef struct _VPSS_CHN_BUF_WRAP_S {
 	CVI_BOOL bEnable;
 	CVI_U32 u32BufLine;	// 64, 128

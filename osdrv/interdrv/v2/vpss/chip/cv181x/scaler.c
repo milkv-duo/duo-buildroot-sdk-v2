@@ -887,6 +887,17 @@ void sclr_disp_bt_en(u8 vo_intf)
 }
 EXPORT_SYMBOL_GPL(sclr_disp_bt_en);
 
+#ifdef __CV181X__
+void ext_vo_pinmux_set(int vo_sel)
+{
+	void __iomem *ext_pin_addr;
+	ext_pin_addr = ioremap(0x050270e4, 4);
+	_reg_write_mask((uintptr_t)ext_pin_addr, 1 << (vo_sel - SCLR_VO_D32), 1 << (vo_sel - SCLR_VO_D32));
+	iounmap(ext_pin_addr);
+}
+EXPORT_SYMBOL_GPL(ext_vo_pinmux_set);
+#endif
+
 /**
  * sclr_top_vo_mux_sel - remap vo mux
  * @param vo_mux_sel: origin vo mux
@@ -895,8 +906,15 @@ EXPORT_SYMBOL_GPL(sclr_disp_bt_en);
 void sclr_top_vo_mux_sel(int vo_sel, int vo_mux)
 {
 	u32 value = 0;
-	u32 reg_addr = REG_SCL_TOP_VO_MUX0 + (vo_sel / 4) * 4;
-	u32 offset = (vo_sel % 4) * 8;
+	u32 offset = 0;
+	u32 reg_addr;
+
+#ifdef __CV181X__
+	if (vo_sel >= SCLR_VO_D28)
+		vo_sel += 2;
+#endif
+	reg_addr = REG_SCL_TOP_VO_MUX0 + (vo_sel / 4) * 4;
+	offset = (vo_sel % 4) * 8;
 
 	if (vo_sel == 0) {
 		_reg_write_mask(reg_base + REG_SCL_TOP_VO_MUX7, BIT(20), BIT(20));

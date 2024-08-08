@@ -166,16 +166,6 @@ struct vpss_snap_cfg {
 	__u32 frame_cnt;
 };
 
-struct vpss_bld_cfg {
-	__u8 enable;
-	__u8 fix_alpha;
-	__u8 blend_y;
-	__u8 y2r_enable;
-	__u16 alpha_factor;
-	__u16 alpha_stp;
-	__u16 wd;
-};
-
 struct vpss_proc_amp_ctrl_cfg {
 	PROC_AMP_E type;
 	PROC_AMP_CTRL_S ctrl;
@@ -239,11 +229,7 @@ struct vpss_scene {
 #define CVI_VPSS_TRIGGER_SNAP_FRAME _IOW('S', 0x39, struct vpss_snap_cfg)
 
 /* Internal use */
-#define CVI_VPSS_SET_MODE _IOW('S', 0x75, __u32)
-#define CVI_VPSS_SET_MODE_EX _IOW('S', 0x76, VPSS_MODE_S)
-
 #define CVI_VPSS_SET_GRP_CSC_CFG _IOW('S', 0x78, struct vpss_grp_csc_cfg)
-#define CVI_VPSS_SET_BLD_CFG _IOW('S', 0x79, struct vpss_bld_cfg)
 #define CVI_VPSS_GET_AMP_CTRL _IOWR('S', 0x7a, struct vpss_proc_amp_ctrl_cfg)
 #define CVI_VPSS_GET_AMP_CFG _IOWR('S', 0x7b, struct vpss_proc_amp_cfg)
 #define CVI_VPSS_GET_ALL_AMP _IOWR('S', 0x7c, struct vpss_all_proc_amp_cfg)

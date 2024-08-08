@@ -2014,20 +2014,12 @@ static inline void _vi_clear_mmap_fbc_ring_base(struct cvi_vi_dev *vdev, const e
 	}
 }
 
-static void _usr_pic_timer_handler(unsigned long data)
+int user_pic_trig(struct cvi_vi_dev *vdev)
 {
-	struct cvi_vi_dev *vdev = (struct cvi_vi_dev *)usr_pic_timer.data;
 	struct isp_ctx *ctx = &vdev->ctx;
 	enum cvi_isp_raw raw_num = ISP_PRERAW_A;
 
-	if (!ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw) {
-#if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
-		mod_timer(&usr_pic_timer.t, jiffies + vdev->usr_pic_delay);
-#else
-		mod_timer(&usr_pic_timer, jiffies + vdev->usr_pic_delay);
-#endif
-		return;
-	}
+	vi_pr(VI_INFO, "RAW_%d start replay trig\n", raw_num);
 
 	if (atomic_read(&vdev->pre_be_state[ISP_BE_CH0]) == ISP_PRE_BE_IDLE &&
 		(atomic_read(&vdev->isp_streamoff) == 0) && ctx->is_ctrl_inited) {
@@ -2039,7 +2031,7 @@ static void _usr_pic_timer_handler(unsigned long data)
 			b = isp_next_buf(&pre_be_out_se_q);
 			if (!b) {
 				vi_pr(VI_DBG, "pre_be chn_num_%d outbuf is empty\n", ISP_FE_CH1);
-				return;
+				return 1;
 			}
 
 			ispblk_dma_setaddr(ctx, ISP_BLK_ID_DMA_CTL23, b->addr);
@@ -2064,7 +2056,7 @@ static void _usr_pic_timer_handler(unsigned long data)
 		n = kmalloc(sizeof(*n), GFP_ATOMIC);
 		if (n == NULL) {
 			vi_pr(VI_ERR, "pre_raw_num_q kmalloc size(%zu) fail\n", sizeof(*n));
-			return;
+			return 1;
 		}
 		n->raw_num = raw_num;
 		pre_raw_num_enq(&pre_raw_num_q, n);
@@ -2077,10 +2069,34 @@ static void _usr_pic_timer_handler(unsigned long data)
 		//	tasklet_hi_schedule(&vdev->job_work);
 	}
 
+	return 0;
+
+}
+
+static void _usr_pic_timer_handler(long unsigned int flag)
+{
+	struct cvi_vi_dev *vdev = (struct cvi_vi_dev *)usr_pic_timer.data;
+	struct isp_ctx *ctx = &vdev->ctx;
+
+	if (!ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw) {
 #if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
-	mod_timer(&usr_pic_timer.t, jiffies + vdev->usr_pic_delay);
+		add_timer(&usr_pic_timer.t);
 #else
-	mod_timer(&usr_pic_timer, jiffies + vdev->usr_pic_delay);
+		add_timer(&usr_pic_timer);
+#endif
+		return;
+	}
+
+	if (user_pic_trig(vdev)) {
+		vi_pr(VI_ERR, "user_pic_trig fail\n");
+		return;
+	}
+
+
+#if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
+	mod_timer(&usr_pic_timer.t, jiffies + msecs_to_jiffies(vdev->usr_pic_delay));
+#else
+	mod_timer(&usr_pic_timer, jiffies + msecs_to_jiffies(vdev->usr_pic_delay));
 #endif
 }
 
@@ -2104,10 +2120,10 @@ int usr_pic_timer_init(struct cvi_vi_dev *vdev)
 	usr_pic_timer.function = _usr_pic_timer_handler;
 	usr_pic_timer.data = (uintptr_t)vdev;
 #if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
-	usr_pic_timer.t.expires = jiffies + vdev->usr_pic_delay;
+	usr_pic_timer.t.expires = jiffies + msecs_to_jiffies(vdev->usr_pic_delay);
 	add_timer(&usr_pic_timer.t);
 #else
-	usr_pic_timer.expires = jiffies + vdev->usr_pic_delay;
+	usr_pic_timer.expires = jiffies + msecs_to_jiffies(vdev->usr_pic_delay);
 	add_timer(&usr_pic_timer);
 #endif
 
@@ -2150,7 +2166,7 @@ void vi_event_queue(struct cvi_vi_dev *vdev, const u32 type, const u32 frm_num)
 	wake_up(&vdev->isp_event_wait_q);
 }
 
-void cvi_isp_dqbuf_list(struct cvi_vi_dev *vdev, const u32 frm_num, const u8 chn_id)
+void cvi_isp_dqbuf_list(struct cvi_vi_dev *vdev, const u32 frm_num, const u8 raw_id, const u8 chn_id)
 {
 	unsigned long flags;
 	struct _isp_dqbuf_n *n;
@@ -2160,6 +2176,7 @@ void cvi_isp_dqbuf_list(struct cvi_vi_dev *vdev, const u32 frm_num, const u8 chn
 		vi_pr(VI_ERR, "DQbuf kmalloc size(%zu) fail\n", sizeof(struct _isp_dqbuf_n));
 		return;
 	}
+	n->raw_id	= raw_id;
 	n->chn_id	= chn_id;
 	n->frm_num	= frm_num;
 	n->timestamp	= ktime_to_timespec64(ktime_get());
@@ -2178,6 +2195,7 @@ int vi_dqbuf(struct _vi_buffer *b)
 	spin_lock_irqsave(&dq_lock, flags);
 	if (!list_empty(&dqbuf_q.list)) {
 		n = list_first_entry(&dqbuf_q.list, struct _isp_dqbuf_n, list);
+		b->raw_id 	= n->raw_id;
 		b->chnId	= n->chn_id;
 		b->sequence	= n->frm_num;
 		b->timestamp	= n->timestamp;
@@ -2880,7 +2898,9 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 			vi_pr(VI_WARN, "patgen enable, w_h(%d:%d), color mode(%d)\n",
 					vdev->usr_fmt.width, vdev->usr_fmt.height, vdev->usr_fmt.code);
 		}
-
+		if (ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw) {
+			gViCtx->bypass_frm[ISP_PRERAW_A] = 0;
+		}
 		_vi_ctrl_init(raw_num, vdev);
 		if (!ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw)
 			_vi_pre_fe_ctrl_setup(raw_num, vdev);
@@ -3543,15 +3563,11 @@ static void _postraw_outbuf_enque(struct cvi_vi_dev *vdev, const enum cvi_isp_ra
 
 	//Get the buffer for postraw output buffer
 	b = _cvi_isp_next_buf(vdev, chn_num);
-	if (b == NULL)
-		return;
-
-	vb2_buf = &b->buf;
-
-	if (vb2_buf == NULL) {
-		vi_pr(VI_DBG, "fail\n");
+	if (b == NULL) {
+		vi_pr(VI_ERR, "fail\n");
 		return;
 	}
+	vb2_buf = &b->buf;
 	vi_pr(VI_DBG, "update isp-buf: 0x%llx-0x%llx\n",
 		vb2_buf->planes[0].addr, vb2_buf->planes[1].addr);
 
@@ -6231,6 +6247,8 @@ static int _vi_event_handler_thread(void * arg)
 		}
 
 		if (!ret) {
+			if (!vdev->usr_pic_delay)
+				continue;
 			vi_pr(VI_ERR, "vi_event_handler timeout(%d)ms\n", timeout);
 			_vi_timeout_chk(vdev);
 			continue;
@@ -6276,8 +6294,8 @@ static int _vi_event_handler_thread(void * arg)
 			}
 
 			if (!gViCtx->pipeAttr[chn.s32ChnId].bYuvBypassPath) {
-				vi_motion_level_calc(vdev, b.chnId, vb->buf.motion_table, &vb->buf.motion_lv);
-				vi_dci_calc(vdev, b.chnId, &vb->buf.dci_lv);
+				vi_motion_level_calc(vdev, b.raw_id, vb->buf.motion_table, &vb->buf.motion_lv);
+				vi_dci_calc(vdev, b.raw_id, &vb->buf.dci_lv);
 				//vi_fill_mlv_info((struct vb_s *)blk, 0, NULL, true);
 				vi_fill_dis_info(vb);
 				vi_motion_dbg(vdev, vb);
@@ -7298,7 +7316,7 @@ static void _isp_yuv_bypass_handler(struct cvi_vi_dev *vdev, const enum cvi_isp_
 
 	cvi_isp_rdy_buf_remove(vdev, buf_chn);
 
-	cvi_isp_dqbuf_list(vdev, vdev->pre_fe_frm_num[raw_num][hw_chn_num], buf_chn);
+	cvi_isp_dqbuf_list(vdev, vdev->pre_fe_frm_num[raw_num][hw_chn_num], raw_num, buf_chn);
 
 	vdev->vi_th[E_VI_TH_EVENT_HANDLER].flag = raw_num + 1;
 
@@ -7873,7 +7891,7 @@ static void _isp_postraw_done_handler(struct cvi_vi_dev *vdev)
 
 		cvi_isp_rdy_buf_remove(vdev, chn_num);
 
-		cvi_isp_dqbuf_list(vdev, vdev->postraw_frame_number[raw_num], chn_num);
+		cvi_isp_dqbuf_list(vdev, vdev->postraw_frame_number[raw_num], raw_num, chn_num);
 
 		vdev->vi_th[E_VI_TH_EVENT_HANDLER].flag = raw_num + 1;
 

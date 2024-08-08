@@ -65,100 +65,35 @@ extern "C" {
 #define SEG_CMP_LENGTH               256
 
 /* For VENC */
-#define VENC_MAX_NAME_LEN            16
-#define VENC_MAX_CHN_NUM             16
-#define VEDU_IP_NUM                  1
-#define H264E_MAX_WIDTH              4096
-#define H264E_MAX_HEIGHT             4096
-#define H264E_MIN_WIDTH              114
-#define H264E_MIN_HEIGHT             114
-#define H265E_MAX_WIDTH              4096
-#define H265E_MAX_HEIGHT             4096
-#define H265E_MIN_WIDTH              114
-#define H265E_MIN_HEIGHT             114
-#define JPEGE_MAX_WIDTH              8192
-#define JPEGE_MAX_HEIGHT             8192
-#define JPEGE_MIN_WIDTH              32
-#define JPEGE_MIN_HEIGHT             32
-#define JPGE_MAX_NUM                 1
-#define VENC_MAX_ROI_NUM             8
-#define H264E_MIN_HW_INDEX           0
-#define H264E_MAX_HW_INDEX           11
-#define H264E_MIN_VW_INDEX           0
-#define H264E_MAX_VW_INDEX           3
-#define VENC_QP_HISGRM_NUM           52
-#define MAX_TILE_NUM                 1
-#define H265E_ADAPTIVE_FRAME_TYPE    4
-#define H265E_ADAPTIVE_QP_TYPE       5
-
-#define VENC_MIN_INPUT_FRAME_RATE    1
-#define VENC_MAX_INPUT_FRAME_RATE    240
-
-#define VENC_MAX_RECEIVE_SOURCE  4
-
-#define VENC_PIC_RECEIVE_SOURCE0 0
-#define VENC_PIC_RECEIVE_SOURCE1 1
-#define VENC_PIC_RECEIVE_SOURCE2 2
-#define VENC_PIC_RECEIVE_SOURCE3 3
-
-#define VENC_ALIGN_W             32
-#define VENC_ALIGN_H             16
+#define VENC_MAX_CHN_NUM             16		/* Maximum number of channels */
+#define VENC_MAX_ROI_NUM             8		/* Maximum number of roi region */
+#define MAX_TILE_NUM                 1		/* Maximum number of tile */
+#define VENC_ALIGN_W             32			/* VENC width alignment */
+#define VENC_ALIGN_H             16			/* VENC height alignment */
 
 /* For RC */
-#define RC_TEXTURE_THR_SIZE          16
-#define MIN_BITRATE         2
-#define MAX_BITRATE         (100*1024)
+#define RC_TEXTURE_THR_SIZE          16		/* Number of thresholds for texture rate control */
 
 /* For VDEC */
-#define VDEC_MAX_CHN_NUM        64
-#define VDH_MAX_CHN_NUM         0
-#define VEDU_CHN_START          VDH_MAX_CHN_NUM
-#define VEDU_H264D_ERRRATE      10
-#define VEDU_H264D_FULLERR      100
+#define VDEC_MAX_CHN_NUM        64           /* vdec max channel number */
 
-#define H264D_ALIGN_W           64
-#define H264D_ALIGN_H           64
-#define H265D_ALIGN_W           64
-#define H265D_ALIGN_H           64
-#define JPEGD_ALIGN_W           64
-#define JPEGD_ALIGN_H           16
-#define JPEGD_RGB_ALIGN         16
+#define H264D_ALIGN_W           64           /* h264 decode align width  */
+#define H264D_ALIGN_H           64           /* h264 decode align height */
+#define H265D_ALIGN_W           64           /* h265 decode align width  */
+#define H265D_ALIGN_H           64           /* h265 decode align height */
+#define JPEGD_ALIGN_W           64           /* jpeg decode align width  */
+#define JPEGD_ALIGN_H           16           /* jpeg decode align height */
 
-#define H264D_ALIGN_FRM          0x1000
-#define H265D_ALIGN_FRM          0x1000
-#define JPEGD_ALIGN_FRM          0x1000
+#define H264D_ALIGN_FRM          0x1000      /* h264 decode yuv_frame align size */
+#define H265D_ALIGN_FRM          0x1000      /* h265 decode yuv_frame align size */
+#define JPEGD_ALIGN_FRM          0x1000      /* jpeg decode yuv_frame align size */
 
-#define H264D_MAX_SPS           32
-#define H264D_MIN_SPS           1
-#define H264D_MAX_PPS           256
-#define H264D_MIN_PPS           1
-#define H264D_MAX_SLICE         300
-#define H264D_MIN_SLICE         1
-
-#define H265D_MAX_VPS           16
-#define H265D_MIN_VPS           1
-#define H265D_MAX_SPS           16
-#define H265D_MIN_SPS           1
-#define H265D_MAX_PPS           64
-#define H265D_MIN_PPS           1
-#define H265D_MAX_SLICE         200
-#define H265D_MIN_SLICE         1
-
-#define VEDU_H264D_MAX_WIDTH    2880
-#define VEDU_H264D_MAX_HEIGHT   1920
-#define VEDU_H264D_MIN_WIDTH    114
-#define VEDU_H264D_MIN_HEIGHT   114
-
-#define VEDU_H265D_MAX_WIDTH    2880
-#define VEDU_H265D_MAX_HEIGHT   1920
-#define VEDU_H265D_MIN_WIDTH    114
-#define VEDU_H265D_MIN_HEIGHT   114
-
-#define JPEGD_IP_NUM            1
-#define JPEGD_MAX_WIDTH         2880
-#define JPEGD_MAX_HEIGHT        1920
-#define JPEGD_MIN_WIDTH         8
-#define JPEGD_MIN_HEIGHT        8
+#define VEDU_H264D_MAX_WIDTH    2880         /* h264 decode max width  */
+#define VEDU_H264D_MAX_HEIGHT   1920         /* h264 decode max height */
+#define VEDU_H265D_MAX_WIDTH    2880         /* h265 decode max width  */
+#define VEDU_H265D_MAX_HEIGHT   1920         /* h265 decode max height */
+#define JPEGD_MAX_WIDTH         2880         /* jpeg decode max width  */
+#define JPEGD_MAX_HEIGHT        1920         /* jpeg decode max height */
 
 /* For Region */
 #define RGN_MIN_WIDTH             2

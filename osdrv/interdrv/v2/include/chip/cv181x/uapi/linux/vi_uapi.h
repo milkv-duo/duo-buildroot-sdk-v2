@@ -18,6 +18,9 @@
 #define VI_IOC_G_CTRL		_IOWR(VI_IOC_MAGIC, VI_IOC_BASE, struct vi_ext_control)
 #define VI_IOC_S_CTRL		_IOWR(VI_IOC_MAGIC, VI_IOC_BASE + 1, struct vi_ext_control)
 
+/*
+ * VI IOCTL.
+ */
 enum VI_IOCTL {
 	VI_IOCTL_ONLINE,
 	VI_IOCTL_HDR,
@@ -74,6 +77,9 @@ enum VI_IOCTL {
 	VI_IOCTL_MAX,
 };
 
+/*
+ * SDK IOCTL.
+ */
 enum VI_SDK_CTRL {
 	VI_SDK_SET_DEV_ATTR,
 	VI_SDK_GET_DEV_ATTR,
@@ -96,6 +102,7 @@ enum VI_SDK_CTRL {
 	VI_SDK_SET_PIPE_FRM_SRC,
 	VI_SDK_SEND_PIPE_RAW,
 	VI_SDK_SET_DEV_TIMING_ATTR,
+	VI_SDK_GET_DEV_TIMING_ATTR,
 	VI_SDK_GET_CHN_FRAME,
 	VI_SDK_RELEASE_CHN_FRAME,
 	VI_SDK_SET_CHN_CROP,
@@ -116,7 +123,7 @@ enum VI_SDK_CTRL {
 };
 
 /*
- * Events
+ * Events.
  */
 enum VI_EVENT {
 	VI_EVENT_BASE,
@@ -138,6 +145,9 @@ enum VI_EVENT {
 	VI_EVENT_MAX,
 };
 
+/*
+ * Structure of VI SDK, etc.
+ */
 struct _vi_sdk_cfg {
 	__s32 dev;
 	__s32 pipe;
@@ -146,6 +156,9 @@ struct _vi_sdk_cfg {
 	__s32 val;
 };
 
+/*
+ * Structure of EVENT, etc.
+ */
 struct vi_ext_control {
 	__u32 id;
 	__u32 sdk_id;
@@ -157,14 +170,17 @@ struct vi_ext_control {
 	};
 } __attribute__ ((packed));
 
+/*
+ * Structure for storing image plane.
+ */
 struct vi_plane {
 	__u64 addr;
 };
 
 /*
  * @index:
- * @length: length of planes
- * @planes: to describe buf
+ * @length: length of planes.
+ * @planes: to describe buf.
  * @reserved
  */
 struct vi_buffer {
@@ -174,6 +190,9 @@ struct vi_buffer {
 	__u32 reserved;
 };
 
+/*
+ * Structure that transmits VI behavior.
+ */
 struct vi_event {
 	__u32			dev_id;
 	__u32			type;
@@ -186,7 +205,9 @@ struct vi_event {
 };
 
 #define MO_TBL_SIZE 2048
-
+/*
+ * Configure the structure of motion information.
+ */
 struct mlv_info_s {
 	__u8	sensor_num;
 	__u32	frm_num;
@@ -194,6 +215,9 @@ struct mlv_info_s {
 	__u8	mtable[MO_TBL_SIZE];
 };
 
+/*
+ * Structure for configuring start and end coordinates of image cropping.
+ */
 struct crop_size_s {
 	__u16 start_x;
 	__u16 start_y;
@@ -201,17 +225,27 @@ struct crop_size_s {
 	__u16 end_y;
 };
 
+/*
+ * Configure the start and end coordinates of image clipping
+ * and the structure of the corresponding sensor.
+ */
 struct dis_info_s {
 	__u8   sensor_num;
 	__u32  frm_num;
 	struct crop_size_s dis_i;
 };
 
+/*
+ * Configure the structure corresponding to whether the channel rotates.
+ */
 struct vi_chn_rot_cfg {
 	VI_CHN ViChn;
 	ROTATION_E enRotation;
 };
 
+/*
+ * Configure the structure of LDC.
+ */
 struct vi_chn_ldc_cfg {
 	VI_CHN ViChn;
 	ROTATION_E enRotation;
@@ -219,6 +253,9 @@ struct vi_chn_ldc_cfg {
 	CVI_U64 meshHandle;
 };
 
+/*
+ * Configure VI to attach the structure of VBpool.
+ */
 struct vi_vb_pool_cfg {
 	VI_PIPE ViPipe;
 	VI_CHN ViChn;

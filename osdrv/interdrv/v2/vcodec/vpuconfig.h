@@ -39,7 +39,7 @@ extern "C" {
 	(x == BODA7503_CODE || x == CODA7542_CODE || x == BODA950_CODE ||      \
 	 x == CODA960_CODE || x == CODA980_CODE || x == WAVE320_CODE)
 
-#define MAX_INST_HANDLE_SIZE 768
+#define MAX_INST_HANDLE_SIZE 784
 #define MAX_NUM_INSTANCE 16
 #define MAX_NUM_DEC_INSTANCE 4
 #define MAX_NUM_VPU_CORE 2

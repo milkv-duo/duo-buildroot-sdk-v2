@@ -160,6 +160,44 @@ void _disp_sel_remux(const struct vo_d_remap *pins, unsigned int pin_num)
 		case SCLR_VO_MIPI_TXP3:
 			PINMUX_CONFIG(PAD_MIPI_TXP3, VO_D_27);
 		break;
+#ifdef __CV181X__
+		case SCLR_JTAG_CPU_TMS:
+			PINMUX_CONFIG(JTAG_CPU_TMS, VO_D_28);
+		break;
+		case SCLR_JTAG_CPU_TCK:
+			PINMUX_CONFIG(JTAG_CPU_TCK, VO_D_29);
+		break;
+		case SCLR_JTAG_CPU_TRST:
+			PINMUX_CONFIG(JTAG_CPU_TRST, VO_D_30);
+		break;
+		case SCLR_AUX0:
+			PINMUX_CONFIG(AUX0, VO_D_31);
+		break;
+		case SCLR_SD1_D3:
+			PINMUX_CONFIG(SD1_D3, PWR_SD1_D3_VO32);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+		case SCLR_SD1_D2:
+			PINMUX_CONFIG(SD1_D2, PWR_SD1_D2_VO33);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+		case SCLR_SD1_D1:
+			PINMUX_CONFIG(SD1_D1, PWR_SD1_D1_VO34);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+		case SCLR_SD1_D0:
+			PINMUX_CONFIG(SD1_D0, PWR_SD1_D0_VO35);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+		case SCLR_SD1_CMD:
+			PINMUX_CONFIG(SD1_CMD, PWR_SD1_CMD_VO36);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+		case SCLR_SD1_CLK:
+			PINMUX_CONFIG(SD1_CLK, PWR_SD1_CLK_VO37);
+			ext_vo_pinmux_set(pins[i].sel);
+		break;
+#endif
 		default:
 		break;
 		}

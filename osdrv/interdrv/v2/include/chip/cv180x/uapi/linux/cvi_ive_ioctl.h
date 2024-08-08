@@ -8,8 +8,8 @@
 #ifndef __CVI_IVE_IOCTL_H__
 #define __CVI_IVE_IOCTL_H__
 
-#include "cvi_comm_ive.h"
-#include "cvi_errno.h"
+#include "linux/cvi_comm_ive.h"
+#include "linux/cvi_errno.h"
 
 struct cvi_ive_test_arg {
 	IVE_IMAGE_TYPE_E enType;

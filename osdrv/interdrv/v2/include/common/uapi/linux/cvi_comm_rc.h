@@ -21,25 +21,25 @@ typedef unsigned int CVI_FR32;
 
 /* rc mode */
 typedef enum _VENC_RC_MODE_E {
-	VENC_RC_MODE_H264CBR = 1,
-	VENC_RC_MODE_H264VBR,
-	VENC_RC_MODE_H264AVBR,
-	VENC_RC_MODE_H264QVBR,
-	VENC_RC_MODE_H264FIXQP,
-	VENC_RC_MODE_H264QPMAP,
-	VENC_RC_MODE_H264UBR,
+	VENC_RC_MODE_H264CBR = 1,		/* h264 cbr */
+	VENC_RC_MODE_H264VBR,			/* h264 vbr */
+	VENC_RC_MODE_H264AVBR,			/* h264 avbr */
+	VENC_RC_MODE_H264QVBR,			/* h264 qvbr */
+	VENC_RC_MODE_H264FIXQP,			/* h264 fix qp */
+	VENC_RC_MODE_H264QPMAP,			/* h264 qp map */
+	VENC_RC_MODE_H264UBR,			/* h264 ubr */
 
-	VENC_RC_MODE_MJPEGCBR,
-	VENC_RC_MODE_MJPEGVBR,
-	VENC_RC_MODE_MJPEGFIXQP,
+	VENC_RC_MODE_MJPEGCBR,			/* mjp cbr */
+	VENC_RC_MODE_MJPEGVBR,			/* mjp vbr */
+	VENC_RC_MODE_MJPEGFIXQP,		/* mjp fix qp */
 
-	VENC_RC_MODE_H265CBR,
-	VENC_RC_MODE_H265VBR,
-	VENC_RC_MODE_H265AVBR,
-	VENC_RC_MODE_H265QVBR,
-	VENC_RC_MODE_H265FIXQP,
-	VENC_RC_MODE_H265QPMAP,
-	VENC_RC_MODE_H265UBR,
+	VENC_RC_MODE_H265CBR,			/* h265 cbr */
+	VENC_RC_MODE_H265VBR,			/* h265 vbr */
+	VENC_RC_MODE_H265AVBR,			/* h265 avbr */
+	VENC_RC_MODE_H265QVBR,			/* h265 qvbr */
+	VENC_RC_MODE_H265FIXQP,			/* h265 fix qp */
+	VENC_RC_MODE_H265QPMAP,			/* h265 qp map */
+	VENC_RC_MODE_H265UBR,			/* h265 ubr */
 
 	VENC_RC_MODE_BUTT,
 
@@ -47,9 +47,9 @@ typedef enum _VENC_RC_MODE_E {
 
 /* qpmap mode*/
 typedef enum _VENC_RC_QPMAP_MODE_E {
-	VENC_RC_QPMAP_MODE_MEANQP = 0,
-	VENC_RC_QPMAP_MODE_MINQP,
-	VENC_RC_QPMAP_MODE_MAXQP,
+	VENC_RC_QPMAP_MODE_MEANQP = 0,	/* mean qp */
+	VENC_RC_QPMAP_MODE_MINQP,		/* minimum qp */
+	VENC_RC_QPMAP_MODE_MAXQP,		/* maximum qp */
 
 	VENC_RC_QPMAP_MODE_BUTT,
 } VENC_RC_QPMAP_MODE_E;
@@ -170,25 +170,25 @@ typedef struct _VENC_MJPEG_VBR_S {
 typedef struct _VENC_RC_ATTR_S {
 	VENC_RC_MODE_E enRcMode; /* RW; the type of rc*/
 	union {
-		VENC_H264_CBR_S stH264Cbr;
-		VENC_H264_VBR_S stH264Vbr;
-		VENC_H264_AVBR_S stH264AVbr;
-		VENC_H264_QVBR_S stH264QVbr;
-		VENC_H264_FIXQP_S stH264FixQp;
-		VENC_H264_QPMAP_S stH264QpMap;
-		VENC_H264_UBR_S stH264Ubr;
+		VENC_H264_CBR_S stH264Cbr;			/* h264 cbr */
+		VENC_H264_VBR_S stH264Vbr;			/* h264 vbr */
+		VENC_H264_AVBR_S stH264AVbr;		/* h264 avbr */
+		VENC_H264_QVBR_S stH264QVbr;		/* h264 qvbr */
+		VENC_H264_FIXQP_S stH264FixQp;		/* h264 fix qp */
+		VENC_H264_QPMAP_S stH264QpMap;		/* h264 qp map */
+		VENC_H264_UBR_S stH264Ubr;			/* h264 ubr */
 
-		VENC_MJPEG_CBR_S stMjpegCbr;
-		VENC_MJPEG_VBR_S stMjpegVbr;
-		VENC_MJPEG_FIXQP_S stMjpegFixQp;
+		VENC_MJPEG_CBR_S stMjpegCbr;		/* mjp cbr */
+		VENC_MJPEG_VBR_S stMjpegVbr;		/* mjp vbr */
+		VENC_MJPEG_FIXQP_S stMjpegFixQp;	/* mjp fix qp */
 
-		VENC_H265_CBR_S stH265Cbr;
-		VENC_H265_VBR_S stH265Vbr;
-		VENC_H265_AVBR_S stH265AVbr;
-		VENC_H265_QVBR_S stH265QVbr;
-		VENC_H265_FIXQP_S stH265FixQp;
-		VENC_H265_QPMAP_S stH265QpMap;
-		VENC_H265_UBR_S stH265Ubr;
+		VENC_H265_CBR_S stH265Cbr;			/* h265 cbr */
+		VENC_H265_VBR_S stH265Vbr;			/* h265 vbr */
+		VENC_H265_AVBR_S stH265AVbr;		/* h265 avbr */
+		VENC_H265_QVBR_S stH265QVbr;		/* h265 qvbr */
+		VENC_H265_FIXQP_S stH265FixQp;		/* h265 fix qp */
+		VENC_H265_QPMAP_S stH265QpMap;		/* h265 qp map */
+		VENC_H265_UBR_S stH265Ubr;			/* h265 ubr */
 	};
 } VENC_RC_ATTR_S;
 
@@ -408,18 +408,18 @@ typedef struct _VENC_RC_PARAM_S {
 	CVI_BOOL bBgEnhanceEn; /* RW; Range:[0, 1];  Enable background enhancement */
 	CVI_S32 s32BgDeltaQp; /* RW; Range:[-51, 51]; Backgournd Qp Delta */
 	union {
-		VENC_PARAM_H264_CBR_S stParamH264Cbr;
-		VENC_PARAM_H264_VBR_S stParamH264Vbr;
-		VENC_PARAM_H264_AVBR_S stParamH264AVbr;
-		VENC_PARAM_H264_QVBR_S stParamH264QVbr;
-		VENC_PARAM_H264_UBR_S stParamH264Ubr;
-		VENC_PARAM_H265_CBR_S stParamH265Cbr;
-		VENC_PARAM_H265_VBR_S stParamH265Vbr;
-		VENC_PARAM_H265_AVBR_S stParamH265AVbr;
-		VENC_PARAM_H265_QVBR_S stParamH265QVbr;
-		VENC_PARAM_H265_UBR_S stParamH265Ubr;
-		VENC_PARAM_MJPEG_CBR_S stParamMjpegCbr;
-		VENC_PARAM_MJPEG_VBR_S stParamMjpegVbr;
+		VENC_PARAM_H264_CBR_S stParamH264Cbr;		/* The param of H264e cbr*/
+		VENC_PARAM_H264_VBR_S stParamH264Vbr;		/* The param of H264e vbr*/
+		VENC_PARAM_H264_AVBR_S stParamH264AVbr;		/* The param of H264e avbr*/
+		VENC_PARAM_H264_QVBR_S stParamH264QVbr;		/* The param of H264e qvbr*/
+		VENC_PARAM_H264_UBR_S stParamH264Ubr;		/* The param of H264e ubr*/
+		VENC_PARAM_H265_CBR_S stParamH265Cbr;		/* The param of H265e cbr*/
+		VENC_PARAM_H265_VBR_S stParamH265Vbr;		/* The param of H265e vbr*/
+		VENC_PARAM_H265_AVBR_S stParamH265AVbr;		/* The param of H265e avbr*/
+		VENC_PARAM_H265_QVBR_S stParamH265QVbr;		/* The param of H265e qvbr*/
+		VENC_PARAM_H265_UBR_S stParamH265Ubr;		/* The param of H265e ubr*/
+		VENC_PARAM_MJPEG_CBR_S stParamMjpegCbr;		/* The param of Mjpge cbr*/
+		VENC_PARAM_MJPEG_VBR_S stParamMjpegVbr;		/* The param of Mjpge vbr*/
 	};
 } VENC_RC_PARAM_S;
 

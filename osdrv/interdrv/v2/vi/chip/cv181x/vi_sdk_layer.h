@@ -30,6 +30,7 @@ int vi_stop_streaming(struct cvi_vi_dev *vdev);
 void cvi_isp_buf_queue_wrap(struct cvi_vi_dev *vdev, struct cvi_isp_buf *b);
 int vi_mac_clk_ctrl(struct cvi_vi_dev *vdev, u8 mac_num, u8 enable);
 int usr_pic_timer_init(struct cvi_vi_dev *vdev);
+int user_pic_trig(struct cvi_vi_dev *vdev);
 void usr_pic_time_remove(void);
 void vi_destory_dbg_thread(struct cvi_vi_dev *vdev);
 

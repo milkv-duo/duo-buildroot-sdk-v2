@@ -15,7 +15,7 @@
 #include <linux/interrupt.h>
 #include <linux/reboot.h>
 
-#include "linux/vo_mipi_tx.h"
+#include "linux/cvi_comm_mipi_tx.h"
 #include "proc/vo_mipi_tx_proc.h"
 #include <vip_common.h>
 #include "scaler.h"

@@ -28,6 +28,7 @@ static struct crop_size_s dis_i_data[VI_MAX_DEV_NUM] = { 0 };
 static CVI_U32 dis_i_frm_num[VI_MAX_DEV_NUM] = { 0 };
 static CVI_U32 dis_flag[VI_MAX_DEV_NUM] = { 0 };
 static wait_queue_head_t dis_wait_q[VI_MAX_DEV_NUM];
+static VI_DEV_TIMING_ATTR_S stTimingAttr[VI_MAX_DEV_NUM];
 /****************************************************************************
  * SDK layer APIs
  ****************************************************************************/
@@ -376,16 +377,31 @@ CVI_S32 vi_set_chn_attr(VI_PIPE ViPipe, VI_CHN ViChn, VI_CHN_ATTR_S *pstChnAttr)
 CVI_S32 vi_set_dev_timing_attr(VI_DEV ViDev, const VI_DEV_TIMING_ATTR_S *pstTimingAttr)
 {
 	gViCtx->stTimingAttr[ViDev] = *pstTimingAttr;
+	stTimingAttr[ViDev] = *pstTimingAttr;
 
-	if (pstTimingAttr->s32FrmRate > 30)
-		gvdev->usr_pic_delay = msecs_to_jiffies(33);
-	else if (pstTimingAttr->s32FrmRate > 0)
-		gvdev->usr_pic_delay = msecs_to_jiffies(1000 / pstTimingAttr->s32FrmRate);
-	else
-		gvdev->usr_pic_delay = 0;
+	gvdev->usr_pic_delay = 0;
+
+	if (pstTimingAttr->bEnable) {
+		if (pstTimingAttr->s32FrmRate > 30)
+			gvdev->usr_pic_delay = 33;
+		else if (pstTimingAttr->s32FrmRate > 0)
+			gvdev->usr_pic_delay = (1000 / pstTimingAttr->s32FrmRate);
+	}
 
 	if (!gvdev->usr_pic_delay)
 		usr_pic_time_remove();
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 vi_get_dev_timing_attr(VI_DEV ViDev, VI_DEV_TIMING_ATTR_S *pstTimingAttr)
+{
+	if (gViCtx->isDevEnable[ViDev] == CVI_FALSE) {
+		vi_pr(VI_ERR, "EnableDev first\n");
+		return CVI_FAILURE;
+	}
+
+	*pstTimingAttr = stTimingAttr[ViDev];
 
 	return CVI_SUCCESS;
 }
@@ -396,6 +412,7 @@ CVI_S32 vi_set_pipe_frame_source(VI_PIPE ViPipe, const VI_PIPE_FRAME_SOURCE_E en
 	gvdev->isp_source = (u32)enSource;
 	gvdev->ctx.isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw = (gvdev->isp_source == CVI_ISP_SOURCE_FE);
 
+	vi_pr(VI_INFO, "Pipe(%d) enSource=%d\n", ViPipe, enSource);
 	vi_pr(VI_INFO, "isp_source=%d\n", gvdev->isp_source);
 	vi_pr(VI_INFO, "ISP_PRERAW_A.is_offline_preraw=%d\n",
 			gvdev->ctx.isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw);
@@ -406,13 +423,13 @@ CVI_S32 vi_set_pipe_frame_source(VI_PIPE ViPipe, const VI_PIPE_FRAME_SOURCE_E en
 CVI_S32 vi_send_pipe_raw(VI_PIPE PipeId, const VIDEO_FRAME_INFO_S *pstVideoFrame)
 {
 	struct isp_ctx *ctx = &gvdev->ctx;
+	u64 phy_addr;
 
-	if (gViCtx->enSource[PipeId] == VI_PIPE_FRAME_SOURCE_DEV) {
+	if (!gvdev->ctx.isp_pipe_cfg[PipeId].is_offline_preraw) {
 		vi_pr(VI_ERR, "Pipe(%d) source(%d) incorrect.\n", PipeId, gViCtx->enSource[PipeId]);
 		return CVI_FAILURE;
-	}
+	} else {
 
-	if (gViCtx->enSource[PipeId] == VI_PIPE_FRAME_SOURCE_USER_FE) {
 		if (pstVideoFrame->stVFrame.enDynamicRange == DYNAMIC_RANGE_HDR10) {
 			ctx->is_hdr_on = true;
 			ctx->isp_pipe_cfg[ISP_PRERAW_A].is_hdr_on = true;
@@ -428,7 +445,18 @@ CVI_S32 vi_send_pipe_raw(VI_PIPE PipeId, const VIDEO_FRAME_INFO_S *pstVideoFrame
 		gvdev->usr_crop.height	= pstVideoFrame->stVFrame.u32Height;
 
 		if (ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw) {
-			u64 phy_addr = pstVideoFrame->stVFrame.u64PhyAddr[0];
+			if (gvdev->usr_pic_delay) {
+				if (pstVideoFrame->stVFrame.u64PhyAddr[0] == 0) {
+					vi_pr(VI_ERR, "auto replay le buf_addr is 0, The current operation trig failed\n");
+					return CVI_FAILURE;
+				}
+			} else if (!gvdev->usr_pic_delay) {
+				if (pstVideoFrame->stVFrame.u64PhyAddr[0] == 0) {
+					vi_pr(VI_ERR, "manual replay le buf_addr is 0, The current operation trig failed\n");
+					return CVI_FAILURE;
+				}
+			}
+			phy_addr = pstVideoFrame->stVFrame.u64PhyAddr[0];
 
 			ispblk_dma_setaddr(ctx, ISP_BLK_ID_DMA_CTL4, phy_addr);
 			gvdev->usr_pic_phy_addr[0] = phy_addr;
@@ -443,6 +471,10 @@ CVI_S32 vi_send_pipe_raw(VI_PIPE PipeId, const VIDEO_FRAME_INFO_S *pstVideoFrame
 
 			if (gvdev->usr_pic_delay) {
 				usr_pic_timer_init(gvdev);
+			} else {
+				if (ctx->is_ctrl_inited) {
+					user_pic_trig(gvdev);
+				}
 			}
 		}
 	}
@@ -1348,6 +1380,19 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 		}
 
 		rc = vi_set_dev_timing_attr(p->sdk_cfg.dev, &dev_timing_attr);
+		break;
+	}
+	case VI_SDK_GET_DEV_TIMING_ATTR:
+	{
+		VI_DEV_TIMING_ATTR_S dev_timing_attr;
+
+		rc = vi_get_dev_timing_attr(p->sdk_cfg.dev, &dev_timing_attr);
+
+		if (copy_to_user(p->sdk_cfg.ptr, &dev_timing_attr, sizeof(dev_timing_attr)) != 0) {
+			vi_pr(VI_ERR, "VI_SDK_GET_DEV_TIMING_ATTR copy to user fail.\n");
+			rc = -1;
+			break;
+		}
 		break;
 	}
 	case VI_SDK_GET_DEV_STATUS:

@@ -124,6 +124,9 @@ static void getPixelFormatStr(PIXEL_FORMAT_E enPixelFormat, char *pcPixelFormat)
 	case PIXEL_FORMAT_YUV_PLANAR_420:
 		strcpy(pcPixelFormat, "YUV420");
 		break;
+	case PIXEL_FORMAT_YUV_400:
+		strcpy(pcPixelFormat, "YUV400");
+		break;
 	case PIXEL_FORMAT_YUV_PLANAR_444:
 		strcpy(pcPixelFormat, "YUV444");
 		break;

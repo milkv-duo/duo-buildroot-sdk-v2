@@ -486,24 +486,9 @@ CVI_S32 cvi_ive_STCandiCorner(struct cvi_ive_device *ndev,
 			      IVE_ST_CANDI_CORNER_CTRL_S *pstStCandiCornerCtrl,
 			      CVI_BOOL bInstant);
 
-CVI_S32 cvi_ive_EqualizeHist(struct cvi_ive_device *ndev,
-			     IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE_S *pstDst,
-			     IVE_EQUALIZE_HIST_CTRL_S *pstEqualizeHistCtrl,
-			     CVI_BOOL bInstant);
-
 CVI_S32 CVI_MPI_IVE_CCL(IVE_HANDLE *pIveHandle, IVE_IMAGE_S *pstSrcDst,
 			IVE_DST_MEM_INFO_S *pstBlob, IVE_CCL_CTRL_S *pstCclCtrl,
 			CVI_BOOL bInstant);
-
-CVI_S32 CVI_MPI_IVE_CannyEdge(IVE_IMAGE_S *pstEdge, IVE_MEM_INFO_S *pstStack);
-
-CVI_S32 CVI_MPI_IVE_LKOpticalFlowPyr(
-	IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S astSrcPrevPyr[],
-	IVE_SRC_IMAGE_S astSrcNextPyr[], IVE_SRC_MEM_INFO_S *pstPrevPts,
-	IVE_MEM_INFO_S *pstNextPts, IVE_DST_MEM_INFO_S *pstStatus,
-	IVE_DST_MEM_INFO_S *pstErr,
-	IVE_LK_OPTICAL_FLOW_PYR_CTRL_S *pstLkOptiFlowPyrCtrl,
-	CVI_BOOL bInstant);
 
 CVI_S32
 cvi_ive_FrameDiffMotion(struct cvi_ive_device *ndev, IVE_SRC_IMAGE_S *pstSrc1,
@@ -515,7 +500,7 @@ CVI_MPI_IVE_STCandiCorner(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 			  IVE_DST_IMAGE_S *pstCandiCorner,
 			  IVE_ST_CANDI_CORNER_CTRL_S *pstStCandiCornerCtrl,
 			  CVI_BOOL bInstant);
-
+#if 0
 CVI_S32 CVI_MPI_IVE_STCorner(IVE_SRC_IMAGE_S *pstCandiCorner,
 			     IVE_DST_MEM_INFO_S *pstCorner,
 			     IVE_ST_CORNER_CTRL_S *pstStCornerCtrl);
@@ -530,6 +515,22 @@ CVI_S32 CVI_MPI_IVE_ANN_MLP_Predict(IVE_HANDLE *pIveHandle,
 				    IVE_LOOK_UP_TABLE_S *pstActivFuncTab,
 				    IVE_ANN_MLP_MODEL_S *pstAnnMlpModel,
 				    IVE_DST_DATA_S *pstDst, CVI_BOOL bInstant);
+
+CVI_S32 cvi_ive_EqualizeHist(struct cvi_ive_device *ndev,
+			     IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE_S *pstDst,
+			     IVE_EQUALIZE_HIST_CTRL_S *pstEqualizeHistCtrl,
+			     CVI_BOOL bInstant);
+
+CVI_S32 CVI_MPI_IVE_CannyEdge(IVE_IMAGE_S *pstEdge, IVE_MEM_INFO_S *pstStack);
+
+CVI_S32 CVI_MPI_IVE_LKOpticalFlowPyr(
+	IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S astSrcPrevPyr[],
+	IVE_SRC_IMAGE_S astSrcNextPyr[], IVE_SRC_MEM_INFO_S *pstPrevPts,
+	IVE_MEM_INFO_S *pstNextPts, IVE_DST_MEM_INFO_S *pstStatus,
+	IVE_DST_MEM_INFO_S *pstErr,
+	IVE_LK_OPTICAL_FLOW_PYR_CTRL_S *pstLkOptiFlowPyrCtrl,
+	CVI_BOOL bInstant);
+#endif
 
 CVI_S32 CVI_MPI_IVE_Query(IVE_HANDLE IveHandle, CVI_BOOL *pbFinish,
 			  CVI_BOOL bBlock);

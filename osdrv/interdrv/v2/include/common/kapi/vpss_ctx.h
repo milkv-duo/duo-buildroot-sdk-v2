@@ -9,7 +9,7 @@
 #include <linux/cvi_comm_vpss.h>
 #include <linux/cvi_comm_region.h>
 #include <linux/cvi_base_ctx.h>
-#include <linux/cvi_vip_sc.h>
+// #include <linux/cvi_vip_sc.h>
 
 struct VPSS_GRP_WORK_STATUS_S {
 	CVI_U32 u32RecvCnt;

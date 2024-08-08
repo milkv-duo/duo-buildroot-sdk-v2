@@ -17,6 +17,9 @@ typedef enum _RC_MODE_ {
 #define CVI_RC_MDL_UPDATE_TYPE	0
 #define CVI_RC_DEF_STAT_TIME	2
 
+uint32_t rcHierarchy = 0;
+module_param(rcHierarchy, uint, 0644);
+
 static void cviEncRc_RcKernelInit(stRcInfo *pRcInfo, EncOpenParam *pEncOP);
 static void cviEncRc_RcKernelUpdatePic(stRcInfo *pRcInfo, EncOutputInfo *pEncOutInfo);
 
@@ -125,8 +128,7 @@ static void _cviEncRc_setBitrateParam(stRcInfo *pRcInfo, EncOpenParam *pEncOP)
 		if (vcodec_mask & CVI_MASK_CVRC) {
 			CVI_VCOM_FLOAT("bitRate = %d, frameRate = %f\n", pEncOP->bitRate, getFloat(frameRate));
 		}
-		cviRcKernel_setBitrateAndFrameRate(pRcKerInfo,
-				pRcInfo->targetBitrate * 1000, frameRate);
+		cviRcKernel_setBitrateAndFrameRate(pRcKerInfo, pRcInfo->targetBitrate * 1000, frameRate, 0);
 	}
 }
 
@@ -470,6 +472,7 @@ static void cviEncRc_RcKernelInit(stRcInfo *pRcInfo, EncOpenParam *pEncOP)
 	pRcKerCfg->minIQp = pEncOP->userQpMinI;
 	pRcKerCfg->firstFrmstartQp = pEncOP->RcInitialQp;
 	pRcKerCfg->rcMdlUpdatType = CVI_RC_MDL_UPDATE_TYPE;
+	pRcKerCfg->rcGopPicWeight = rcHierarchy;
 
 	CVI_VC_CVRC("targetBitrate = %d, codec = %d, framerate = %d, intraPeriod = %d\n",
 			pRcKerCfg->targetBitrate, pRcKerCfg->codec, pRcKerCfg->framerate, pRcKerCfg->intraPeriod);
@@ -479,13 +482,14 @@ static void cviEncRc_RcKernelInit(stRcInfo *pRcInfo, EncOpenParam *pEncOP)
 			pRcKerCfg->numOfPixel,
 			pRcKerCfg->maxIprop,
 			pRcKerCfg->minIprop);
-	CVI_VC_CVRC("maxQp = %d, minQp = %d, maxIQp = %d, minIQp = %d, firstFrmstartQp = %d, rcMdlUpdatType = %d\n",
+	CVI_VC_CVRC("maxQp = %d, minQp = %d, maxIQp = %d, minIQp = %d, firstFrmstartQp = %d, rcMdlUpdatType = %d, rcPicWeight = %d\n",
 			pRcKerCfg->maxQp,
 			pRcKerCfg->minQp,
 			pRcKerCfg->maxIQp,
 			pRcKerCfg->minIQp,
 			pRcKerCfg->firstFrmstartQp,
-			pRcKerCfg->rcMdlUpdatType);
+			pRcKerCfg->rcMdlUpdatType,
+			pRcKerCfg->rcGopPicWeight);
 
 	cviRcKernel_init(pRcKerInfo, pRcKerCfg);
 
@@ -507,6 +511,11 @@ void cviEncRc_RcKernelEstimatePic(stRcInfo *pRcInfo, EncParam *pEncParam, int fr
 	stRcKernelInfo *pRcKerInfo = &pRcInfo->rcKerInfo;
 	stRcKernelPicOut *pRcPicOut = &pRcInfo->rcPicOut;
 
+	if (pEncParam->is_idr_frame && pEncParam->reset_rc_model) {
+		cviRcKernel_resetRcModel(pRcKerInfo);
+		pEncParam->reset_rc_model = FALSE;
+	}
+
 	cviRcKernel_estimatePic(pRcKerInfo, pRcPicOut, pEncParam->is_idr_frame, frameIdx);
 
 	CVI_VC_TRACE("frameIdx = %d, qp = %d, targetBit = %d\n",
@@ -518,17 +527,21 @@ void cviEncRc_RcKernelEstimatePic(stRcInfo *pRcInfo, EncParam *pEncParam, int fr
 
 	pRcInfo->skipPicture = pEncParam->skipPicture;
 
+	maxQp = (pEncParam->is_idr_frame) ? pRcInfo->picIMaxQp : pRcInfo->picPMaxQp;
+	minQp = (pEncParam->is_idr_frame) ? pRcInfo->picIMinQp : pRcInfo->picPMinQp;
+
 	if (pRcInfo->rcMode == RC_MODE_AVBR) {
 		if (!pRcInfo->svcEnable) {
-			maxQp = (pEncParam->is_idr_frame) ? pRcInfo->picIMaxQp : pRcInfo->picPMaxQp;
-			minQp = (pEncParam->is_idr_frame) ? pRcInfo->picIMinQp : pRcInfo->picPMinQp;
 			pEncParam->u32FrameQp = CLIP3(minQp, maxQp + pRcInfo->qDelta, pRcPicOut->qp);
 		} else if (pEncParam->is_idr_frame) {
 			pEncParam->u32FrameQp = CLIP3(pRcInfo->picIMinQp,
 						     pRcInfo->picIMaxQp + pRcInfo->qDelta,
 						     pRcPicOut->qp);
 		}
+	} else {
+		pEncParam->u32FrameQp = CLIP3(minQp, maxQp, pRcPicOut->qp);
 	}
+
 }
 
 void cviEncRc_UpdatePicInfo(stRcInfo *pRcInfo, EncOutputInfo *pEncOutInfo)
@@ -564,6 +577,10 @@ static void cviEncRc_RcKernelUpdatePic(stRcInfo *pRcInfo, EncOutputInfo *pEncOut
 	pRcPicIn->madi = INT_TO_CVI_FLOAT(-1);
 	if (pRcInfo->codec == STD_AVC) {
 		int mbs = pRcInfo->numOfPixel / 256;	// for avc, mb:16*16
+
+		if (pEncOutInfo->picType != 0 && pEncOutInfo->numOfIntra >= (90*mbs/100)) {
+			pRcInfo->rcKerInfo.sceneChange = 1;
+		}
 
 		pRcPicIn->encodedQp = CVI_FLOAT_DIV(
 				INT_TO_CVI_FLOAT(pEncOutInfo->u32SumQp),

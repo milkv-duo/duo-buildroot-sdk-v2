@@ -126,6 +126,7 @@ typedef struct _stRcKernelCfg_ {
 	int minIQp;
 	int firstFrmstartQp;
 	int rcMdlUpdatType;
+	int rcGopPicWeight;
 } stRcKernelCfg;
 
 typedef struct _stRcKernelPicOut_ {
@@ -158,6 +159,7 @@ typedef struct _stRcKernelInfo_ {
 	int numOfPixel;
 	int rcGopSize;
 	int statFrameNum;
+	int statBitrate;
 	int maxIPicBit;
 	int maxPicBit;
 	int minPicBit;
@@ -210,20 +212,35 @@ typedef struct _stRcKernelInfo_ {
 	RC_Float avgGopLambda;
 	int predictPicAvgBit;
 	int bitrateChange;
+	int rcGopPicWeight;
+	int sceneChange;    // 1:change current and next Gop, 2:change current Gop only
+	int rcGop1stQp;
+	int rcGop2ndQp;
+	int rcGop1stBitrate;
+	int rcGop2ndBitrate;
+	int lastPredictPQp;
+	int pPredictPicQpAccum;
+	int deltaPreditQp;
+	int rcGopidx;
+	int lastGopSceneChange;
+	int lastGopPicAvgBit;
+	int lastGopBitError;
+	int lastRcGopBit;
+	int lastRcGopSize;
 } stRcKernelInfo;
 
 void cviRcKernel_init(stRcKernelInfo *info, stRcKernelCfg *cfg);
 void cviRcKernel_estimatePic(stRcKernelInfo *info, stRcKernelPicOut *out, int isIPic, int picIdx);
 void cviRcKernel_updatePic(stRcKernelInfo *info, stRcKernelPicIn *stats, int isIPic);
 void cviRcKernel_setTextCplx(stRcKernelInfo *info, RC_Float madi);
-void cviRcKernel_setBitrateAndFrameRate(stRcKernelInfo *info, int targetBitrate, RC_Float frameRate);
+void cviRcKernel_setBitrateAndFrameRate(stRcKernelInfo *info, int targetBitrate, RC_Float frameRate, int updateRCModel);
 void cviRcKernel_setMinMaxQp(stRcKernelInfo *info, int minQp, int maxQp, int isIntra);
 void cviRcKernel_setLastPicQpClip(stRcKernelInfo *info, int lastPicQpClip);
 void cviRcKernel_setLevelPicQpClip(stRcKernelInfo *info, int levelPicQpClip);
 void cviRcKernel_setpPicQpNormalClip(stRcKernelInfo *info, int picQpNormalClip);
 void cviRcKernel_setRCModelParam(stRcKernelInfo *info, RC_Float alpha, RC_Float beta, int model_idx);
 void cviRcKernel_setRCModelUpdateStep(stRcKernelInfo *info, RC_Float alphaStep, RC_Float betaStep);
-
+void cviRcKernel_resetRcModel(stRcKernelInfo *info);
 
 #ifdef __cplusplus
 }

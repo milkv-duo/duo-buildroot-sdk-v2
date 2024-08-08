@@ -4,7 +4,7 @@
 #include <linux/seq_file.h>
 #include <generated/compile.h>
 
-#include <linux/cvi_vpss_ctx.h>
+#include <vpss_ctx.h>
 #include <linux/cvi_base_ctx.h>
 
 #include "vpss_core.h"

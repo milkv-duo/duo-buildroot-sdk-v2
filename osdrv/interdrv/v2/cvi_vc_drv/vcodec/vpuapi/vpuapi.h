@@ -5104,6 +5104,7 @@ packet-based streaming with ring-buffer, this variable is ignored.
 	Uint32 u32FrameQp;
 	Uint32 u32FrameBits;
 	Int32 s32HrdBufLevel;
+	BOOL reset_rc_model;
 } EncParam;
 
 #define AR_PAGE_SIZE_OFFSET			17

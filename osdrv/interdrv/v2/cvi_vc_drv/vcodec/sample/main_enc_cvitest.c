@@ -3337,6 +3337,7 @@ static int cviVEncSetRequestIDR(stTestEncoder *pTestEnc, void *arg)
 
 	pTestEnc->encParam.idr_request = TRUE;
 	pTestEnc->encParam.resetGop = *resetGop;
+	pTestEnc->encParam.reset_rc_model = TRUE;
 
 	return ret;
 }

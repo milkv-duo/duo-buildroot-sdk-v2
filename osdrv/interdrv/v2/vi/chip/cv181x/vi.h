@@ -128,6 +128,7 @@ struct _isp_sof_raw_num_q {
 } pre_raw_num_q;
 
 struct _isp_dqbuf_n {
+	u8		raw_id;
 	u8		chn_id;
 	u32		frm_num;
 	struct timespec64 timestamp;
@@ -148,6 +149,7 @@ struct _isp_event_q {
 } event_q;
 
 struct _vi_buffer {
+	__u32			raw_id;
 	__u32			chnId;
 	__u32			sequence;
 	struct timespec64	timestamp;

@@ -795,7 +795,7 @@ void ispblk_bnr_tun_cfg(
 	struct isp_ctx *ctx,
 	struct cvi_vip_isp_bnr_config *cfg,
 	const enum cvi_isp_raw raw_num);
-void ispblk_clut_tun_cfg(
+int ispblk_clut_tun_cfg(
 	struct isp_ctx *ctx,
 	struct cvi_vip_isp_clut_config *cfg,
 	const enum cvi_isp_raw raw_num);

@@ -173,6 +173,7 @@ void vi_tuning_clut_update(
 	enum cvi_isp_raw raw_num)
 {
 	u8 tun_idx = 0;
+	int ret;
 	static int stop_update_clut = -1;
 	struct cvi_vip_isp_post_cfg     *post_cfg;
 	struct cvi_vip_isp_post_tun_cfg *post_tun;
@@ -180,7 +181,7 @@ void vi_tuning_clut_update(
 	unsigned long flags;
 
 	post_cfg = (struct cvi_vip_isp_post_cfg *)tuning_buf_addr.post_vir[raw_num];
-	tun_idx  = post_cfg->tun_idx;
+	//tun_idx  = post_cfg->tun_idx;
 
 	vi_pr(VI_DBG, "Postraw_%d tuning update(%d):idx(%d)\n",
 			raw_num, post_cfg->tun_update[tun_idx], tun_idx);
@@ -202,11 +203,12 @@ void vi_tuning_clut_update(
 		stop_update_clut = 0;
 
 	clut_cfg = &post_cfg->tun_cfg[tun_idx].clut_cfg;
-	ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
+	ret = ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
 
 	//Record the clut tbl idx written into HW for ISP MW.
 	spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
-	gClutIdx[raw_num].clut_tbl_idx[tun_idx] = clut_cfg->tbl_idx;
+	if (ret == 1)
+		gClutIdx[raw_num].clut_tbl_idx[tun_idx] = clut_cfg->tbl_idx;
 	spin_unlock_irqrestore(&gClutIdx[raw_num].clut_idx_lock, flags);
 }
 
@@ -572,6 +574,7 @@ void postraw_tuning_update(
 	struct cvi_vip_isp_post_tun_cfg *post_tun;
 	struct cvi_vip_isp_clut_config  *clut_cfg;
 	unsigned long flags;
+	int ret;
 
 	post_cfg = (struct cvi_vip_isp_post_cfg *)tuning_buf_addr.post_vir[raw_num];
 	tun_idx  = post_cfg->tun_idx;
@@ -671,8 +674,8 @@ void postraw_tuning_update(
 			POST_RUNTIME_TUN(ycur);
 			POST_RUNTIME_TUN_BACKUP(ycur);
 
-			clut_cfg = &post_tun->clut_cfg;
-			ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
+			clut_cfg = &post_cfg->tun_cfg[0].clut_cfg;
+			ret = ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
 			if (clut_cfg->update) {
 				struct cvi_vip_isp_clut_config *clut_backup_cfg;
 				clut_backup_cfg = &post_tun_backup[raw_num]->clut_cfg;
@@ -681,7 +684,8 @@ void postraw_tuning_update(
 
 			//Record the clut tbl idx written into HW for ISP MW.
 			spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
-			gClutIdx[raw_num].clut_tbl_idx[tun_idx] = clut_cfg->tbl_idx;
+			if (ret == 1)
+				gClutIdx[raw_num].clut_tbl_idx[0] = clut_cfg->tbl_idx;
 			spin_unlock_irqrestore(&gClutIdx[raw_num].clut_idx_lock, flags);
 		}
 	}
@@ -1164,7 +1168,7 @@ void ispblk_clut_partial_update(
 	ISP_WR_REG(clut, REG_ISP_CLUT_T, CLUT_CTRL, ctrl.raw);
 }
 
-void ispblk_clut_tun_cfg(
+int ispblk_clut_tun_cfg(
 	struct isp_ctx *ctx,
 	struct cvi_vip_isp_clut_config *cfg,
 	const enum cvi_isp_raw raw_num)
@@ -1172,7 +1176,7 @@ void ispblk_clut_tun_cfg(
 	uintptr_t clut = ctx->phys_regs[ISP_BLK_ID_CLUT];
 
 	if (!cfg->update)
-		return;
+		return 0;
 
 	ISP_WR_BITS(clut, REG_ISP_CLUT_T, CLUT_CTRL, CLUT_ENABLE, cfg->enable);
 
@@ -1180,13 +1184,15 @@ void ispblk_clut_tun_cfg(
 		ispblk_clut_partial_update(ctx, cfg, raw_num);
 	} else {
 		if (!cfg->enable)
-			return;
+			return 0;
 #if defined(__CV180X__)
 		ispblk_clut_config(ctx, cfg->enable, cfg->r_lut, cfg->g_lut, cfg->b_lut);
 #else
 		ispblk_clut_cmdq_config(ctx, raw_num, cfg->enable, cfg->r_lut, cfg->g_lut, cfg->b_lut);
 #endif
 	}
+	cfg->update = 0;
+	return 1;
 }
 
 void ispblk_drc_tun_cfg(

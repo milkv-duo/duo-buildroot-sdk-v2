@@ -3813,10 +3813,10 @@ CVI_S32 cvi_ive_reset(struct cvi_ive_device *ndev, CVI_S32 select)
 {
 	//DEFINE_IVE_TOP_C(ive_top_c);
 	IVE_TOP_C ive_top_c = _DEFINE_IVE_TOP_C;
-	udelay(3);
+	usleep_range(3, 5);
 	vip_sys_reg_write_mask(VIP_SYS_REG_RST_IVE_TOP,
 		VIP_SYS_REG_RST_IVE_TOP_MASK, 0x1);
-	udelay(3);
+	usleep_range(3, 5);
 	vip_sys_reg_write_mask(VIP_SYS_REG_RST_IVE_TOP,
 		VIP_SYS_REG_RST_IVE_TOP_MASK, 0x0);
 	ive_set_int(&ive_top_c, 0);
@@ -9205,7 +9205,7 @@ CVI_S32 cvi_ive_rgbPToYuvToErodeToDilate(struct cvi_ive_device *ndev,
 	kfree(ive_top_c);
 	return CVI_SUCCESS;
 }
-
+#if 0
 CVI_S32 CVI_IVE_HW_EqualizeHist(struct cvi_ive_device *ndev,
 				IVE_SRC_IMAGE_S *pstSrc,
 				IVE_DST_IMAGE_S *pstDst,
@@ -9215,6 +9215,8 @@ CVI_S32 CVI_IVE_HW_EqualizeHist(struct cvi_ive_device *ndev,
 	pr_err("CVI_MPI_IVE_EqualizeHist not implement yet\n");
 	return CVI_SUCCESS;
 }
+
+#endif
 
 CVI_S32
 _CVI_HW_STBoxFltAndEigCalc(struct cvi_ive_device *ndev, IVE_SRC_IMAGE_S *pstSrc,

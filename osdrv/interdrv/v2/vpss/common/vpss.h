@@ -8,11 +8,11 @@
 #include <linux/cvi_comm_region.h>
 #include <linux/cvi_errno.h>
 #include <linux/vpss_uapi.h>
-#include <linux/cvi_vpss_ctx.h>
 
 #include <base_ctx.h>
 #include <base_cb.h>
 #include <dwa_cb.h>
+#include <vpss_ctx.h>
 #include "vpss_debug.h"
 #include "vpss_grp_hw_cfg.h"
 

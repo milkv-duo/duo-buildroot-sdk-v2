@@ -21,6 +21,16 @@
 #include "cvi_jpg_internal.h"
 #include "cvi_vcom.h"
 
+#ifdef MAX
+#undef MAX
+#endif
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+#ifdef CLIP3
+#undef CLIP3
+#endif
+#define CLIP3(min, max, x) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+
 #define CVI_RC_MIN_I_PROP		1
 #define CVI_RC_MDL_UPDATE_TYPE	0
 #define Q_CLIP_RANGE			12
@@ -55,6 +65,47 @@ void add_stats(stSlideWinStats *ptSWStats, int stats)
 int get_stats(stSlideWinStats *ptSWStats)
 {
 	return ptSWStats->total;
+}
+
+static int cviJpeRc_StartQp(int target_bit, int total_mb)
+{
+	static int mb_num[9] = {
+		0,     200,   700,   1200,
+		2000,  4000,  8000,  16000,
+		20000
+	};
+
+	static int tab_bit[9] = {
+		3780,  3570,  3150,  2940,
+		2730,  3780,  2100,  1680,
+		2100
+	};
+
+	static unsigned char qscale2qp[96] = {
+		15,  15,  15,  15,  15,  16,  18,  20,  21,  22,  23,  24,
+		25,  25,  26,  27,  28,  28,  29,  29,  30,  30,  30,  31,
+		31,  32,  32,  33,  33,  33,  34,  34,  34,  34,  35,  35,
+		35,  36,  36,  36,  36,  36,  37,  37,  37,  37,  38,  38,
+		38,  38,  38,  39,  39,  39,  39,  39,  39,  40,  40,  40,
+		40,  41,  41,  41,  41,  41,  41,  41,  42,  42,  42,  42,
+		42,  42,  42,  42,  43,  43,  43,  43,  43,  43,  43,  43,
+		44,  44,  44,  44,  44,  44,  44,  44,  45,  45,  45,  45,
+	};
+
+	int cnt = 0;
+	int index;
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		if (mb_num[i] > total_mb)
+			break;
+		cnt++;
+	}
+
+	index = (total_mb * tab_bit[cnt] - 350) / target_bit;
+	index = CLIP3(4, 95, index);
+
+	return qscale2qp[index];
 }
 
 // ----------------------------------------------
@@ -103,6 +154,9 @@ static void cviJpeRc_RcKernelInit(stRcInfo *pRcInfo, stRcCfg *pRcCfg)
 	stRcKernelInfo *pRcKerInfo = &pRcInfo->rcKerInfo;
 	stRcKernelCfg rcKerCfg, *pRcKerCfg = &rcKerCfg;
 	int frameRateDiv, frameRateRes;
+	int fps = 1;
+	int mb_width = (((pRcCfg->width + 15) >> 4) << 4) / 16;
+	int mb_height = (((pRcCfg->height + 15) >> 4) << 4) / 16;
 
 	pRcInfo->maxQs = cviJpgGetEnv("maxIQp");
 	pRcInfo->maxQs = (pRcInfo->maxQs >= 0) ? cvi_jpeg_quality_scaling(pRcInfo->maxQs) : 1;
@@ -114,6 +168,7 @@ static void cviJpeRc_RcKernelInit(stRcInfo *pRcInfo, stRcCfg *pRcCfg)
 
 	frameRateDiv = (pRcCfg->fps >> 16) + 1;
 	frameRateRes = pRcCfg->fps & 0xFFFF;
+	fps = MAX(1, frameRateRes/frameRateDiv);
 
 	pRcKerCfg->framerate =
 		CVI_FLOAT_DIV(INT_TO_CVI_FLOAT(frameRateRes), INT_TO_CVI_FLOAT(frameRateDiv));
@@ -127,7 +182,7 @@ static void cviJpeRc_RcKernelInit(stRcInfo *pRcInfo, stRcCfg *pRcCfg)
 	pRcKerCfg->minIQp = 1;
 	pRcKerCfg->maxQp = pRcKerCfg->maxIQp;
 	pRcKerCfg->minQp = pRcKerCfg->minIQp;
-	pRcKerCfg->firstFrmstartQp = 1;
+	pRcKerCfg->firstFrmstartQp = cviJpeRc_StartQp(pRcKerCfg->targetBitrate / fps, mb_width*mb_height);;
 	pRcKerCfg->rcMdlUpdatType = CVI_RC_MDL_UPDATE_TYPE;
 
 	CVI_JPG_DBG_CVRC("targetBitrate = %d, codec = %d, framerate = %d, intraPeriod = %d\n",
@@ -192,6 +247,11 @@ static int cviJpeRc_RcKernelEstimatePic(stRcInfo *pRcInfo)
 		CVI_JPG_DBG_CVRC("qs = %d, to max\n", qs);
 	}
 
+	if (pRcInfo->picIdx > 0) {
+		qs = (qs + pRcInfo->lastPicQ) / 2;
+		pRcPicOut->lambda = INT_TO_CVI_FLOAT(qs);
+	}
+	pRcInfo->lastPicQ = qs;
 	return qs;
 }
 

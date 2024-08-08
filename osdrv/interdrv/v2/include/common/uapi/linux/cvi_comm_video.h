@@ -65,6 +65,12 @@ typedef enum _ROTATION_E {
 	ROTATION_MAX
 } ROTATION_E;
 
+/**
+ * VB_SOURCE_COMMON: public VB
+ * VB_SOURCE_MODULE: module VB
+ * VB_SOURCE_PRIVATE: private VB
+ * VB_SOURCE_USER: user VB
+*/
 typedef enum _VB_SOURCE_E {
 	VB_SOURCE_COMMON = 0,
 	VB_SOURCE_MODULE = 1,
@@ -73,6 +79,13 @@ typedef enum _VB_SOURCE_E {
 	VB_SOURCE_BUTT
 } VB_SOURCE_E;
 
+/**
+ * u32TopWidth: the width of the top border.
+ * u32BottomWidth: the width of the bottom border.
+ * u32LeftWidth: the width of the left border.
+ * u32RightWidth: the width of the right border.
+ * u32Color: the color of the border.
+*/
 typedef struct _BORDER_S {
 	CVI_U32 u32TopWidth;
 	CVI_U32 u32BottomWidth;
@@ -81,16 +94,30 @@ typedef struct _BORDER_S {
 	CVI_U32 u32Color;
 } BORDER_S;
 
+/**
+ * s32X: Abscissa
+ * s32Y: Ordinate
+*/
 typedef struct _POINT_S {
 	CVI_S32 s32X;
 	CVI_S32 s32Y;
 } POINT_S;
 
+/**
+ * u32Width: width
+ * u32Height: height
+*/
 typedef struct _SIZE_S {
 	CVI_U32 u32Width;
 	CVI_U32 u32Height;
 } SIZE_S;
 
+/**
+ * s32X: Abscissa
+ * s32Y: Ordinate
+ * u32Width: Width
+ * u32Height: Height
+*/
 typedef struct _RECT_S {
 	CVI_S32 s32X;
 	CVI_S32 s32Y;
@@ -103,6 +130,10 @@ typedef struct _VIDEO_REGION_INFO_S {
 	RECT_S *pstRegion; /* W; region attribute */
 } VIDEO_REGION_INFO_S;
 
+/**
+ * bEnable: Whether crop is enabled.
+ * stRect: The information of the crop area.
+*/
 typedef struct _CROP_INFO_S {
 	CVI_BOOL bEnable;
 	RECT_S stRect;
@@ -271,20 +302,6 @@ typedef struct _ISP_HDR_INFO_S {
 	CVI_U8 u8Saturation;
 } ISP_HDR_INFO_S;
 
-typedef struct _ISP_ATTACH_INFO_S {
-	ISP_HDR_INFO_S stIspHdr;
-	CVI_U32 u32ISO;
-	CVI_U8 *u8SnsWDRMode;
-} ISP_ATTACH_INFO_S;
-
-typedef enum _FRAME_FLAG_E {
-	FRAME_FLAG_SNAP_FLASH = 0x1 << 0,
-	FRAME_FLAG_SNAP_CUR = 0x1 << 1,
-	FRAME_FLAG_SNAP_REF = 0x1 << 2,
-	FRAME_FLAG_SNAP_END = 0x1 << 31,
-	FRAME_FLAG_MAX
-} FRAME_FLAG_E;
-
 /* RGGB=4 */
 #define ISP_WB_GAIN_NUM 4
 /* 3*3=9 matrix */
@@ -298,23 +315,6 @@ typedef struct _ISP_CONFIG_INFO_S {
 	CVI_U16 au16CapCCM[ISP_CAP_CCM_NUM];
 } ISP_CONFIG_INFO_S;
 
-/*
- * pJpegDCFVirAddr: JPEG_DCF_S, used in JPEG DCF
- * pIspInfoVirAddr: ISP_FRAME_INFO_S, used in ISP debug, when get raw and send raw
- * pLowDelayVirAddr: used in low delay
- */
-typedef struct _VIDEO_SUPPLEMENT_S {
-	CVI_U64 u64JpegDCFPhyAddr;
-	CVI_U64 u64IspInfoPhyAddr;
-	CVI_U64 u64LowDelayPhyAddr;
-	CVI_U64 u64FrameDNGPhyAddr;
-
-	CVI_VOID * ATTRIBUTE pJpegDCFVirAddr;
-	CVI_VOID * ATTRIBUTE pIspInfoVirAddr;
-	CVI_VOID * ATTRIBUTE pLowDelayVirAddr;
-	CVI_VOID * ATTRIBUTE pFrameDNGVirAddr;
-} VIDEO_SUPPLEMENT_S;
-
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 typedef enum _COLOR_GAMUT_E {
 	COLOR_GAMUT_BT601 = 0,
@@ -324,10 +324,6 @@ typedef enum _COLOR_GAMUT_E {
 	COLOR_GAMUT_MAX
 } COLOR_GAMUT_E;
 // -------- If you want to change these interfaces, please contact the isp team. --------
-
-typedef struct _ISP_COLORGAMMUT_INFO_S {
-	COLOR_GAMUT_E enColorGamut;
-} ISP_COLORGAMMUT_INFO_S;
 
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 typedef enum _DYNAMIC_RANGE_E {
@@ -444,6 +440,14 @@ typedef struct _BITMAP_S {
 	CVI_VOID * ATTRIBUTE pData;
 } BITMAP_S;
 
+/**
+ * bEnable: Whether to enable GridInfo.
+ * gridFileName: GridInfo file name.
+ * gridBindName: GridInfo binding name.
+ * isBlending: Not used at the moment.
+ * bEISEnable: Not used at the moment.
+ * homoRgnNum: Not used at the moment.
+*/
 typedef struct _GRID_INFO_ATTR_S {
 	CVI_BOOL Enable;
 	char gridFileName[128];
@@ -508,6 +512,12 @@ typedef enum _PROC_AMP_E {
 } PROC_AMP_E;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
+/**
+ * minimum: The minimum value of this color control function.
+ * maximum: The maximum value of this color control function.
+ * step: The effective adjustment value of this color control function.
+ * default_value: The default value of this color control function.
+*/
 typedef struct _PROC_AMP_CTRL_S {
 	CVI_S32 minimum;
 	CVI_S32 maximum;

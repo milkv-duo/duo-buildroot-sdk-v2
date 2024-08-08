@@ -115,23 +115,6 @@ typedef struct _IVE_POINT_U16_S {
 	CVI_U16 u16Y;
 } IVE_POINT_U16_S;
 
-typedef struct _IVE_POINT_S16_S {
-	CVI_U16 s16X;
-	CVI_U16 s16Y;
-} IVE_POINT_S16_S;
-
-typedef struct _IVE_POINT_S25Q7_S {
-	CVI_S25Q7 s25q7X; /*X coordinate*/
-	CVI_S25Q7 s25q7Y; /*Y coordinate*/
-} IVE_POINT_S25Q7_S;
-
-typedef struct _IVE_RECT_U16_S {
-	CVI_U16 u16X;
-	CVI_U16 u16Y;
-	CVI_U16 u16Width;
-	CVI_U16 u16Height;
-} IVE_RECT_U16_S;
-
 typedef struct _IVE_LOOK_UP_TABLE_S {
 	IVE_MEM_INFO_S stTable;
 	CVI_U16 u16ElemNum; /*LUT's elements number*/
@@ -142,27 +125,6 @@ typedef struct _IVE_LOOK_UP_TABLE_S {
 	CVI_S32 s32TabInLower; /*LUT's original input lower limit*/
 	CVI_S32 s32TabInUpper; /*LUT's original input upper limit*/
 } IVE_LOOK_UP_TABLE_S;
-
-typedef enum _EN_IVE_ERR_CODE_E {
-	ERR_IVE_SYS_TIMEOUT = 0x40, /* IVE process timeout */
-	ERR_IVE_QUERY_TIMEOUT = 0x41, /* IVE query timeout */
-	ERR_IVE_OPEN_FILE = 0x42, /* IVE open file error */
-	ERR_IVE_READ_FILE = 0x43, /* IVE read file error */
-	ERR_IVE_WRITE_FILE = 0x44, /* IVE write file error */
-
-	ERR_IVE_BUTT
-} EN_IVE_ERR_CODE_E;
-
-typedef enum _EN_FD_ERR_CODE_E {
-	ERR_FD_SYS_TIMEOUT = 0x40, /* FD process timeout */
-	ERR_FD_CFG = 0x41, /* FD configuration error */
-	ERR_FD_FACE_NUM_OVER = 0x42, /* FD candidate face number over*/
-	ERR_FD_OPEN_FILE = 0x43, /* FD open file error */
-	ERR_FD_READ_FILE = 0x44, /* FD read file error */
-	ERR_FD_WRITE_FILE = 0x45, /* FD write file error */
-
-	ERR_FD_BUTT
-} EN_FD_ERR_CODE_E;
 
 #define CVI_ERR_IVE_INVALID_DEVID                                              \
 	CVI_DEF_ERR(CVI_ID_IVE, EN_ERR_LEVEL_ERROR, EN_ERR_INVALID_DEVID)
@@ -263,37 +225,7 @@ typedef enum _EN_FD_ERR_CODE_E {
 #define CVI_ERR_ODT_BUSY                                                       \
 	CVI_DEF_ERR(CVI_ID_ODT, EN_ERR_LEVEL_ERROR, EN_ERR_BUSY)
 //==============================================================================
-typedef struct IVE_BLOCK_CTRL {
-	CVI_FLOAT f32ScaleSize;
-	CVI_U32 u32CellSize;
-} IVE_BLOCK_CTRL_S;
 
-typedef struct IVE_BLEND_CTRL_S {
-	CVI_U8 u8Weight;
-} IVE_BLEND_CTRL_S;
-
-typedef enum IVE_CC_DIR { DIRECTION_4 = 0x0, DIRECTION_8 = 0x1 } IVE_CC_DIR_E;
-
-typedef struct IVE_CC_CTRL {
-	IVE_CC_DIR_E enMode;
-} IVE_CC_CTRL_S;
-
-typedef struct IVE_HOG_CTRL {
-	CVI_U8 u8BinSize;
-	CVI_U32 u32CellSize;
-	CVI_U16 u16BlkSizeInCell;
-	CVI_U16 u16BlkStepX;
-	CVI_U16 u16BlkStepY;
-} IVE_HOG_CTRL_S;
-
-typedef enum IVE_ITC_TYPE {
-	IVE_ITC_SATURATE = 0x0,
-	IVE_ITC_NORMALIZE = 0x1,
-} IVE_ITC_TYPE_E;
-
-typedef struct IVE_ITC_CRTL {
-	IVE_ITC_TYPE_E enType;
-} IVE_ITC_CRTL_S;
 //==============================================================================
 #define IVE_HIST_NUM 256
 #define IVE_MAP_NUM 256
@@ -549,27 +481,6 @@ typedef struct _IVE_MAP_CTRL_S {
 	IVE_MAP_MODE_E enMode;
 } IVE_MAP_CTRL_S;
 
-typedef struct _IVE_MAP_U8BIT_LUT_MEM_S {
-	CVI_U8 au8Map[IVE_MAP_NUM];
-} IVE_MAP_U8BIT_LUT_MEM_S;
-
-typedef struct _IVE_MAP_U16BIT_LUT_MEM_S {
-	CVI_U16 au16Map[IVE_MAP_NUM];
-} IVE_MAP_U16BIT_LUT_MEM_S;
-
-typedef struct _IVE_MAP_S16BIT_LUT_MEM_S {
-	CVI_S16 as16Map[IVE_MAP_NUM];
-} IVE_MAP_S16BIT_LUT_MEM_S;
-
-typedef struct _IVE_EQUALIZE_HIST_CTRL_MEM_S {
-	CVI_U32 au32Hist[IVE_HIST_NUM];
-	CVI_U8 au8Map[IVE_MAP_NUM];
-} IVE_EQUALIZE_HIST_CTRL_MEM_S;
-
-typedef struct _IVE_EQUALIZE_HIST_CTRL_S {
-	IVE_MEM_INFO_S stMem;
-} IVE_EQUALIZE_HIST_CTRL_S;
-
 typedef struct _IVE_ADD_CTRL_S {
 	CVI_U0Q16 u0q16X; /*x of "xA+yB"*/
 	CVI_U0Q16 u0q16Y; /*y of "xA+yB"*/
@@ -662,10 +573,6 @@ typedef struct _IVE_CANNY_HYS_EDGE_CTRL_S {
 	CVI_S8 as8Mask[25];
 } IVE_CANNY_HYS_EDGE_CTRL_S;
 
-typedef struct _IVE_CANNY_STACK_SIZE_S {
-	CVI_U32 u32StackSize; /*Stack size for output*/
-	CVI_U8 u8Reserved[12]; /*For 16 byte align*/
-} IVE_CANNY_STACK_SIZE_S;
 
 typedef enum _IVE_LBP_CMP_MODE_E {
 	IVE_LBP_CMP_MODE_NORMAL =
@@ -715,43 +622,10 @@ typedef struct _IVE_FRAME_DIFF_MOTION_CTRL_S {
 
 } IVE_FRAME_DIFF_MOTION_CTRL_S;
 
-typedef enum _IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E {
-	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_NONE = 0, /*Output none*/
-	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_STATUS = 1, /*Output status*/
-	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_BOTH = 2, /*Output status and err*/
-
-	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_BUTT
-} IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E;
-
-typedef struct _IVE_LK_OPTICAL_FLOW_PYR_CTRL_S {
-	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E enOutMode;
-	CVI_BOOL bUseInitFlow; /*where to use initial flow*/
-	CVI_U16 u16PtsNum; /*Number of the feature points,<=500*/
-	CVI_U8 u8MaxLevel; /*0<=u8MaxLevel<=3*/
-	CVI_U0Q8 u0q8MinEigThr; /*Minimum eigenvalue threshold*/
-	CVI_U8 u8IterCnt; /*Maximum iteration times, <=20*/
-	CVI_U0Q8 u0q8Eps; /*Used for exit criteria: dx^2 + dy^2 < u0q8Eps */
-} IVE_LK_OPTICAL_FLOW_PYR_CTRL_S;
-
-typedef struct _IVE_ST_MAX_EIG_S {
-	CVI_U16 u16MaxEig; /*S_-Tomasi second step output MaxEig*/
-	CVI_U8 u8Reserved[14]; /*For 16 byte align*/
-} IVE_ST_MAX_EIG_S;
-
 typedef struct _IVE_ST_CANDI_CORNER_CTRL_S {
 	IVE_MEM_INFO_S stMem;
 	CVI_U0Q8 u0q8QualityLevel;
 } IVE_ST_CANDI_CORNER_CTRL_S;
-
-typedef struct _IVE_ST_CORNER_INFO_S {
-	CVI_U16 u16CornerNum;
-	IVE_POINT_U16_S astCorner[IVE_ST_MAX_CORNER_NUM];
-} IVE_ST_CORNER_INFO_S;
-
-typedef struct _IVE_ST_CORNER_CTRL_S {
-	CVI_U16 u16MaxCornerNum;
-	CVI_U16 u16MinDist;
-} IVE_ST_CORNER_CTRL_S;
 
 typedef enum _IVE_GRAD_FG_MODE_E {
 	IVE_GRAD_FG_MODE_USE_CUR_GRAD = 0x0,
@@ -866,63 +740,6 @@ typedef struct _IVE_UPDATE_BG_MODEL_CTRL_S {
 	CVI_U8 u8DetChgRegion; /*Whether to detect change region (range: 0 (no), 1 (yes); default: 0)*/
 } IVE_UPDATE_BG_MODEL_CTRL_S;
 
-typedef enum _IVE_ANN_MLP_ACTIV_FUNC_E {
-	IVE_ANN_MLP_ACTIV_FUNC_IDENTITY = 0x0,
-	IVE_ANN_MLP_ACTIV_FUNC_SIGMOID_SYM = 0x1,
-	IVE_ANN_MLP_ACTIV_FUNC_GAUSSIAN = 0x2,
-
-	IVE_ANN_MLP_ACTIV_FUNC_BUTT
-} IVE_ANN_MLP_ACTIV_FUNC_E;
-
-typedef enum _IVE_ANN_MLP_ACCURATE_E {
-	IVE_ANN_MLP_ACCURATE_SRC16_WGT16 =
-		0x0, /*input decimals' accurate 16 bit, weight 16bit*/
-	IVE_ANN_MLP_ACCURATE_SRC14_WGT20 =
-		0x1, /*input decimals' accurate 14 bit, weight 20bit*/
-
-	IVE_ANN_MLP_ACCURATE_BUTT
-} IVE_ANN_MLP_ACCURATE_E;
-
-typedef struct _IVE_ANN_MLP_MODEL_S {
-	IVE_ANN_MLP_ACTIV_FUNC_E enActivFunc;
-	IVE_ANN_MLP_ACCURATE_E enAccurate;
-	IVE_MEM_INFO_S stWeight;
-	CVI_U32 u32TotalWeightSize;
-
-	CVI_U16 au16LayerCount[8]; /*8 layers, including input and output layer*/
-	CVI_U16 u16MaxCount; /*MaxCount<=1024*/
-	CVI_U8 u8LayerNum; /*2<layerNum<=8*/
-	CVI_U8 u8Reserved;
-} IVE_ANN_MLP_MODEL_S;
-
-typedef enum _IVE_SVM_TYPE_E {
-	IVE_SVM_TYPE_C_SVC = 0x0,
-	IVE_SVM_TYPE_NU_SVC = 0x1,
-
-	IVE_SVM_TYPE_BUTT
-} IVE_SVM_TYPE_E;
-
-typedef enum _IVE_SVM_KERNEL_TYPE_E {
-	IVE_SVM_KERNEL_TYPE_LINEAR = 0x0,
-	IVE_SVM_KERNEL_TYPE_POLY = 0x1,
-	IVE_SVM_KERNEL_TYPE_RBF = 0x2,
-	IVE_SVM_KERNEL_TYPE_SIGMOID = 0x3,
-
-	IVE_SVM_KERNEL_TYPE_BUTT
-} IVE_SVM_KERNEL_TYPE_E;
-
-typedef struct _IVE_SVM_MODEL_S {
-	IVE_SVM_TYPE_E enType;
-	IVE_SVM_KERNEL_TYPE_E enKernelType;
-
-	IVE_MEM_INFO_S stSv; /*SV memory*/
-	IVE_MEM_INFO_S stDf; /*Decision functions memory*/
-	CVI_U32 u32TotalDfSize; /*All decision functions coef size in byte*/
-
-	CVI_U16 u16FeatureDim;
-	CVI_U16 u16SvTotal;
-	CVI_U8 u8ClassCount;
-} IVE_SVM_MODEL_S;
 
 typedef enum _IVE_SAD_MODE_E {
 	IVE_SAD_MODE_MB_4X4 = 0x0, /*4x4*/
@@ -963,76 +780,6 @@ typedef struct _IVE_RESIZE_CTRL_S {
 	CVI_U16 u16Num;
 } IVE_RESIZE_CTRL_S;
 
-typedef enum _IVE_CNN_ACTIV_FUNC_E {
-	IVE_CNN_ACTIV_FUNC_NONE =
-		0x0, /*Do not taking a activation, equivalent f(x)=x*/
-	IVE_CNN_ACTIV_FUNC_RELU = 0x1, /*f(x)=max(0, x)*/
-	IVE_CNN_ACTIV_FUNC_SIGMOID = 0x2, /*f(x)=1/(1+exp(-x)), not support*/
-
-	IVE_CNN_ACTIV_FUNC_BUTT
-} IVE_CNN_ACTIV_FUNC_E;
-
-typedef enum _IVE_CNN_POOLING_E {
-	IVE_CNN_POOLING_NONE = 0x0, /*Do not taking a pooling action*/
-	IVE_CNN_POOLING_MAX = 0x1, /*Using max value of every pooling area*/
-	IVE_CNN_POOLING_AVG = 0x2, /*Using average value of every pooling area*/
-
-	IVE_CNN_POOLING_BUTT
-} IVE_CNN_POOLING_E;
-
-typedef struct _IVE_CNN_CONV_POOLING_S {
-	IVE_CNN_ACTIV_FUNC_E enActivFunc; /*Type of activation function*/
-	IVE_CNN_POOLING_E enPooling; /*Mode of pooling method*/
-
-	CVI_U8 u8FeatureMapNum; /*Number of feature maps*/
-	CVI_U8 u8KernelSize; /*Kernel size, only support 3 currently*/
-	CVI_U8 u8ConvStep; /*Convolution step, only support 1 currently*/
-
-	CVI_U8 u8PoolSize; /*Pooling size, only support 2 currently*/
-	CVI_U8 u8PoolStep; /*Pooling step, only support 2 currently*/
-	CVI_U8 u8Reserved[3];
-
-} IVE_CNN_CONV_POOLING_S;
-
-typedef struct _IVE_CNN_FULL_CONNECT_S {
-	CVI_U16 au16LayerCnt[8]; /*Neuron number of every fully connected layers*/
-	CVI_U16 u16MaxCnt; /*Max neuron number in all fully connected layers*/
-	CVI_U8 u8LayerNum; /*Number of fully connected layer*/
-	CVI_U8 u8Reserved;
-} IVE_CNN_FULL_CONNECT_S;
-
-typedef struct _IVE_CNN_MODEL_S {
-	IVE_CNN_CONV_POOLING_S astConvPool[8]; /*Conv-ReLU-Pooling layers info*/
-	IVE_CNN_FULL_CONNECT_S stFullConnect; /*Fully connected layers info*/
-
-	IVE_MEM_INFO_S
-	stConvKernelBias; /*Conv-ReLU-Pooling layers' kernels and bias*/
-	CVI_U32 u32ConvKernelBiasSize; /*Size of Conv-ReLU-Pooling layer' kernels and bias*/
-
-	IVE_MEM_INFO_S stFCLWgtBias; /*Fully Connection Layers' weights and bias*/
-	CVI_U32 u32FCLWgtBiasSize; /*Size of fully connection layers weights and bias*/
-
-	CVI_U32 u32TotalMemSize; /*Total memory size of all kernels, weights, bias*/
-
-	IVE_IMAGE_TYPE_E enType; /*Image type used for the CNN model*/
-	CVI_U32 u32Width; /*Image width used for the model*/
-	CVI_U32 u32Height; /*Image height used for the model*/
-
-	CVI_U16 u16ClassCount; /*Number of classes*/
-	CVI_U8 u8ConvPoolLayerNum; /*Number of Conv-ReLU-Pooling layers*/
-	CVI_U8 u8Reserved;
-} IVE_CNN_MODEL_S;
-
-typedef struct _IVE_CNN_CTRL_S {
-	IVE_MEM_INFO_S stMem; /*Assist memory*/
-	CVI_U32 u32Num; /*Input image number*/
-} IVE_CNN_CTRL_S;
-
-typedef struct _IVE_CNN_RESULT_S {
-	CVI_S32 s32ClassIdx; /*The most possible index of the classification*/
-	CVI_S32 s32Confidence; /*The confidence of the classification*/
-} IVE_CNN_RESULT_S;
-
 typedef enum _IVE_BERNSEN_MODE_E {
 	IVE_BERNSEN_MODE_NORMAL = 0x0, /*Simple Bernsen thresh*/
 	IVE_BERNSEN_MODE_THRESH =
@@ -1048,6 +795,37 @@ typedef struct _IVE_BERNSEN_CTRL_S {
 	CVI_U8 u8Thr;
 	CVI_U8 u8ContrastThreshold; // compare with midgray
 } IVE_BERNSEN_CTRL_S;
+
+typedef struct _IVE_ST_MAX_EIG_S {
+	CVI_U16 u16MaxEig; /*S_-Tomasi second step output MaxEig*/
+	CVI_U8 u8Reserved[14]; /*For 16 byte align*/
+} IVE_ST_MAX_EIG_S;
+
+typedef enum _EN_IVE_ERR_CODE_E {
+	ERR_IVE_SYS_TIMEOUT = 0x40, /* IVE process timeout */
+	ERR_IVE_QUERY_TIMEOUT = 0x41, /* IVE query timeout */
+	ERR_IVE_OPEN_FILE = 0x42, /* IVE open file error */
+	ERR_IVE_READ_FILE = 0x43, /* IVE read file error */
+	ERR_IVE_WRITE_FILE = 0x44, /* IVE write file error */
+
+	ERR_IVE_BUTT
+} EN_IVE_ERR_CODE_E;
+
+typedef enum _EN_FD_ERR_CODE_E {
+	ERR_FD_SYS_TIMEOUT = 0x40, /* FD process timeout */
+	ERR_FD_CFG = 0x41, /* FD configuration error */
+	ERR_FD_FACE_NUM_OVER = 0x42, /* FD candidate face number over*/
+	ERR_FD_OPEN_FILE = 0x43, /* FD open file error */
+	ERR_FD_READ_FILE = 0x44, /* FD read file error */
+	ERR_FD_WRITE_FILE = 0x45, /* FD write file error */
+
+	ERR_FD_BUTT
+} EN_FD_ERR_CODE_E;
+
+typedef struct _IVE_CANNY_STACK_SIZE_S {
+	CVI_U32 u32StackSize; /*Stack size for output*/
+	CVI_U8 u8Reserved[12]; /*For 16 byte align*/
+} IVE_CANNY_STACK_SIZE_S;
 
 #ifdef __cplusplus
 #if __cplusplus
