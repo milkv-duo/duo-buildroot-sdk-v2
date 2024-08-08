@@ -15,9 +15,9 @@
     <project name="osdrv"/>
     <project name="ramdisk"/>
     <project name="oss" revision="master"/>
-    <project name="middleware"/>
+    <project name="cvi_mpi"/>
     <project name="isp_tuning"/>
-    <project name="SensorSupportList" path="middleware/v2/component/isp"/>
+    <project name="SensorSupportList" path="cvi_mpi/component/isp"/>
     <project name="cvibuilder" path="cvibuilder"/>
     <project name="cvikernel" path="cvikernel"/>
     <project name="cviruntime" path="cviruntime"/>

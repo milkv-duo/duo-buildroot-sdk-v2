@@ -4,7 +4,7 @@ fsbl
 host-tools
 isp_tuning
 linux_5.10
-middleware
+cvi_mpi
 opensbi
 osdrv
 ramdisk

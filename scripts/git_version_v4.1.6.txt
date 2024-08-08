@@ -1,0 +1,42 @@
+Project:osdrv
+3639eb492944cff9c398afafa7b8446d377d7119 osdrv: weekly rls 2024.08.07
+
+Project:freertos
+67ac8d8d140a80e61dc63bfcf5e131c3ab8fbf93 freertos: weekly rls 2024.06.6
+
+Project:Lab-Project-FreeRTOS-POSIX
+5042bfd07b1a176d25e24424c4751a497e3bf83a sg200x C906/CA53 cpu boot up.
+
+Project:FreeRTOS-Kernel
+d52c1b6e6193e0ab08950120068a3f8fe6beab1c sg200x C906/CA53 cpu boot up.
+
+Project:opensbi
+ab9b8f8d10f3730ee880781c00d2bc3a317e8373 opensbi: weekly rls 2024.07.20
+
+Project:build
+232c8e1fd06a7424dbdf6fa2e0a4618ee926d85c build: weekly rls 2024.08.07
+
+Project:oss
+a9d88d33c403c652e4d4eadbfe69b48942591d0a (sg200x-dev):add oss_release_tarbar for glibc_riscv64
+
+Project:isp_tuning
+455df99256d6a70df2460f253ce2629c70ca0c61 isp_tuning: weekly rls 2024.07.20
+
+Project:fsbl
+ca989deb0a36329d2b1799a2295f6544524159c2 fsbl: weekly rls 2024.08.07
+
+Project:u-boot-2021.10
+c8d23960e0bd34152e950cda0d09ae1526a0c965 u-boot-2021.10: weekly rls 2024.07.20
+
+Project:ramdisk
+79e8aa19e2c7c0b936aa5370f3dc3a20cfcb50e9 ramdisk: weekly rls 2024.08.07
+
+Project:linux_5.10
+085eec53fc4d1935e6736ddad1d6dce5f755dc20 linux_5.10: weekly rls 2024.08.07
+
+Project:SensorSupportList
+2c5adff820508319bc84f04552a53b8376d09c5d SensorSupportList: weekly rls 2024.08.07
+
+Project:cvi_mpi
+9828ce449905180fcbb03cc41674fa25c0be6f09 isp: weekly rls 2024.08.07
+
