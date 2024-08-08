@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SOPHGO_LIBRARY
+	bool "sophgo library"
+	depends on BR2_aarch64 || BR2_RISCV_64
+	help
+	  Some library files provided by Sophgo.

@@ -2713,6 +2713,7 @@ menu "Sophgo packages"
 	source "package/cvi-pinmux/Config.in"
 	source "package/duo-pinmux/Config.in"
 	source "package/duo-wiringx/Config.in"
+	source "package/sophgo-library/Config.in"
 endmenu
 
 menu "System tools"
