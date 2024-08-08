@@ -733,7 +733,7 @@ function cvi_setup_env()
   OSS_PATH="$TOP_DIR"/oss
   OPENCV_PATH="$TOP_DIR"/opencv
   APPS_PATH="$TOP_DIR"/apps
-  MW_PATH="$TOP_DIR"/middleware/"$MW_VER"
+  MW_PATH="$TOP_DIR"/cvi_mpi
   PQTOOL_SERVER_PATH="$MW_PATH"/modules/isp/"${CHIP_ARCH,,}"/isp-tool-daemon/isp_daemon_tool
   ISP_TUNING_PATH="$TOP_DIR"/isp_tuning
   TPU_SDK_PATH="$TOP_DIR"/cviruntime

@@ -558,10 +558,14 @@ br-rootfs-prepare:
 	# copy ko and mmf libs
 	${Q}mkdir -p $(BR_OVERLAY_DIR)/mnt/system
 	${Q}cp -arf ${SYSTEM_OUT_DIR}/* $(BR_OVERLAY_DIR)/mnt/system/
+	# copy usr/share/fw_vcodec
+	${Q}mkdir -p $(BR_OVERLAY_DIR)/usr/share
+	${Q}cp -rf $(RAMDISK_PATH)/rootfs/common_${SDK_VER}/usr/share/fw_vcodec $(BR_OVERLAY_DIR)/usr/share
 	# strip
 	${Q}find $(BR_OVERLAY_DIR) -name "*.ko" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-unneeded {} \;
 	${Q}find $(BR_OVERLAY_DIR) -name "*.so*" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-all {} \;
 	${Q}find $(BR_OVERLAY_DIR) -executable -type f ! -name "*.sh" ! -path "*etc*" ! -path "*.ko" -printf 'striping %p\n' -exec $(CROSS_COMPILE_SDK)strip --strip-all {} 2>/dev/null \;
+
 
 br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_DIR)/output/$(BR_BOARD)
 br-rootfs-pack:
