@@ -2,7 +2,7 @@
 case $1 in
   start)
     printf "Starting crond: "
-    start-stop-daemon -b -p /var/run/crond.pid -S -q --exe crond --  -c /etc/crontabs/
+    start-stop-daemon -b -p /var/run/crond.pid -S -q --exe crond --  -c /etc/crontabs/ -L /dev/null
     [ $? = 0 ] && echo "OK" || echo "FAIL"
   ;;
   stop)
