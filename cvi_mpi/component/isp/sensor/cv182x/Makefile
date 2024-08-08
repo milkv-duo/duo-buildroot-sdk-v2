@@ -1,10 +1,11 @@
 SHELL = /bin/bash
 
 ifeq ($(PARAM_FILE), )
-PARAM_FILE=../../../../../$(shell echo $(MW_VER))/Makefile.param
+PARAM_FILE=../../../../Makefile.param
 include $(PARAM_FILE)
 endif
-include ../../../../../$(shell echo $(MW_VER))/component/isp/sensor.mk
+
+include ../../../../component/isp/sensor.mk
 
 define MAKE_SENSOR
 	pushd $(1) && \
@@ -137,6 +138,9 @@ ov_ov6211:
 ov_ov7251:
 	$(call MAKE_SENSOR, ${@})
 
+pixelplus_pr2000:
+	$(call MAKE_SENSOR, ${@})
+
 pixelplus_pr2020:
 	$(call MAKE_SENSOR, ${@})
 
@@ -174,6 +178,12 @@ sms_sc200ai:
 	$(call MAKE_SENSOR, ${@})
 
 sms_sc200ai_1L:
+	$(call MAKE_SENSOR, ${@})
+
+sms_sc230ai_2L:
+	$(call MAKE_SENSOR, ${@})
+
+sms_sc230ai_2L_slave:
 	$(call MAKE_SENSOR, ${@})
 
 sms_sc301iot:
