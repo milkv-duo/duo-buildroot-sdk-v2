@@ -10,12 +10,20 @@
 #include <linux/linkage.h>
 
 #define __HAVE_ARCH_MEMSET
-extern asmlinkage void *memset(void *, int, size_t);
-extern asmlinkage void *__memset(void *, int, size_t);
+/* extern asmlinkage void *memset(void *, int, size_t); */
+/* extern asmlinkage void *__memset(void *, int, size_t); */
+extern void *memset(void *s, int c, size_t count);
+extern void *__memset(void *s, int c, size_t count);
 
 #define __HAVE_ARCH_MEMCPY
-extern asmlinkage void *memcpy(void *, const void *, size_t);
-extern asmlinkage void *__memcpy(void *, const void *, size_t);
+/* extern asmlinkage void *memcpy(void *, const void *, size_t); */
+/* extern asmlinkage void *__memcpy(void *, const void *, size_t); */
+extern void *memcpy(void *dest, const void *src, size_t count);
+extern void *__memcpy(void *dest, const void *src, size_t count);
+
+#define __HAVE_ARCH_MEMMOVE
+extern void *memmove(void *dest, const void *src, size_t count);
+extern void *__memmove(void *dest, const void *src, size_t count);
 
 /* For those files which don't want to check by kasan. */
 #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
