@@ -240,7 +240,6 @@ config FLASH_SIZE_SHRINK
 
 config CP_EXT_WIRELESS
 	bool "Install the osdrv/extdrv/wireless/*.ko"
-	depends on FLASH_SIZE_SHRINK
 	default n
 	help
       Install the osdrv/extdrv/wireless/*.ko no matter
@@ -248,12 +247,10 @@ config CP_EXT_WIRELESS
 
 config NO_FB
 	bool "Do not compile frame buffer drivers"
-	depends on FLASH_SIZE_SHRINK
 	default n
 
 config NO_TP
 	bool "Select CONFIG_NO_TP to build osdrv without Touchscreen driver(extdrv/tp)"
-	depends on FLASH_SIZE_SHRINK
 	default n
 	help
 	  TP: Touchscreen driver(extdrv/tp)
