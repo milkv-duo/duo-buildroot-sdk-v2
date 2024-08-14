@@ -11,7 +11,6 @@ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
 # CONFIG_FHANDLE is not set
 # CONFIG_BUG is not set
 # CONFIG_BASE_FULL is not set
-# CONFIG_EPOLL is not set
 # CONFIG_SIGNALFD is not set
 # CONFIG_TIMERFD is not set
 # CONFIG_AIO is not set
