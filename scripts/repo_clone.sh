@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitpull subtree.xml
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml --normal
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml --reproduce git_version_2023-08-18.txt
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml
+# [Usage-Example] : ./scripts/repo_clone.sh --gitpull subtree.xml
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml --normal
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml --reproduce git_version_2023-08-18.txt
 
 function print_usage {
     echo "Usage: $0 arg1 arg2 [arg3] [arg4] [arg5 arg6]"
