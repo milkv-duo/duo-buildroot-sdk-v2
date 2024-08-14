@@ -612,6 +612,6 @@ config ALIOS_SOLUTION
 
 endmenu
 
-menu "Rootfs packages"
-osource "../ramdisk/rootfs/public/Kconfig"
-endmenu
+#menu "Rootfs packages"
+#osource "../ramdisk/rootfs/public/Kconfig"
+#endmenu
