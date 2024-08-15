@@ -16,6 +16,22 @@
 	snsr-reset = <&porta 2 GPIO_ACTIVE_LOW>, <&porta 2 GPIO_ACTIVE_LOW>, <&porta 2 GPIO_ACTIVE_LOW>;
 };
 
+&i2c0 {
+	status = "disabled";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
 &i2c4 {
 	status = "okay";
 
@@ -24,6 +40,14 @@
 		reg = <0x14>;
 		goodix,irq-gpio = <&porta 18 0>;
 		goodix,rst-gpio = <&porta 19 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+};
+
+&spi3 {
+	status = "okay";
+
+	spidev@0 {
 		status = "okay";
 	};
 };
@@ -62,8 +86,28 @@
 };
 
 &wifi_pin {
+	status = "okay";
 	compatible = "cvitek,wifi-pin";
 	poweron-gpio = <&porta 15 GPIO_ACTIVE_HIGH>;
 	wakeup-gpio = <&porte 7 GPIO_ACTIVE_HIGH>;
 };
 
+&usb {
+	vbus-gpio = <&portb 6 0>;
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&uart4 {
+	status = "okay";
+};
