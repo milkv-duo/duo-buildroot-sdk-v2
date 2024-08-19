@@ -14,7 +14,7 @@ project_name: FreeRTOS-Kernel
 commit_id: d52c1b6e6193e0ab08950120068a3f8fe6beab1c sg200x C906/CA53 cpu boot up.
 
 project_name: freertos
-commit_id: 67ac8d8d140a80e61dc63bfcf5e131c3ab8fbf93 freertos: weekly rls 2024.06.6
+commit_id: eb9faf5fe6e63968bc47cb15eca87616445db8f3 freertos: weekly rls 2024.06.6
 
 project_name: cvikernel
 commit_id: 9f1f57a19c3c281a931dfc71b318494487193d56 [feat] cvikernel opensource for cv18xx soc.
