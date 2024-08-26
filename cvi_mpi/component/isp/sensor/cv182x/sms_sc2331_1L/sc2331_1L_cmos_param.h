@@ -12,8 +12,6 @@ extern "C" {
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_type.h"
 #else
-#include <linux/cif_uapi.h>
-#include <linux/vi_snsr.h>
 #include <linux/cvi_type.h>
 #endif
 #include "cvi_sns_ctrl.h"
@@ -44,7 +42,7 @@ static const SC2331_1L_MODE_S g_astSC2331_1L_mode[SC2331_1L_MODE_NUM] = {
 		.u32VtsDef = 1125,
 		.stExp[0] = {
 			.u16Min = 2,//3
-			.u16Max = 1125 - 13,
+			.u16Max = 2250 - 13,
 			.u16Def = 400,
 			.u16Step = 1,
 		},

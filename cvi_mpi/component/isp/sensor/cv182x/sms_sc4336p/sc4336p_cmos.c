@@ -11,7 +11,6 @@
 #else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#include <linux/vi_snsr.h>
 #endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
@@ -190,7 +189,7 @@ static CVI_S32 cmos_fps_set(VI_PIPE ViPipe, CVI_FLOAT f32Fps, AE_SENSOR_DEFAULT_
 	pstAeSnsDft->f32Fps = f32Fps;
 	pstAeSnsDft->u32LinesPer500ms = pstSnsState->u32FLStd * f32Fps / 2;
 	pstAeSnsDft->u32FullLinesStd = pstSnsState->u32FLStd;
-	pstAeSnsDft->u32MaxIntTime = (pstSnsState->u32FLStd << 1) - 8;
+	pstAeSnsDft->u32MaxIntTime = pstSnsState->u32FLStd - 8;
 	pstSnsState->au32FL[0] = pstSnsState->u32FLStd;
 	pstAeSnsDft->u32FullLines = pstSnsState->au32FL[0];
 	pstAeSnsDft->u32HmaxTimes = (1000000) / (pstSnsState->u32FLStd * DIV_0_TO_1_FLOAT(f32Fps));
@@ -211,11 +210,11 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 	pstSnsRegsInfo = &pstSnsState->astSyncInfo[0].snsCfg;
 
 	/* linear exposure reg range:
-	 * min : 0
+	 * min : 2
 	 * max : vts - 8
 	 * step : 1
 	 */
-	u32MinTime = 0;
+	u32MinTime = 2;
 	u32MaxTime = pstSnsState->au32FL[0] - 8;
 	u32TmpIntTime = (u32IntTime[0] > u32MaxTime) ? u32MaxTime : u32IntTime[0];
 	u32TmpIntTime = (u32TmpIntTime < u32MinTime) ? u32MinTime : u32TmpIntTime;

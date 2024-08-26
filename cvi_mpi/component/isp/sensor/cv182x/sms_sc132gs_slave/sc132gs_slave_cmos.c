@@ -11,7 +11,6 @@
 #else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#include <linux/vi_snsr.h>
 #endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
@@ -28,7 +27,6 @@
 #ifdef ARCH_CV182X
 #include <linux/cvi_vip_cif.h>
 #else
-#include <linux/cif_uapi.h>
 #endif
 
 #define DIV_0_TO_1(a)   ((0 == (a)) ? 1 : (a))

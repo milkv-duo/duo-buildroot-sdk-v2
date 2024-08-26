@@ -12,7 +12,6 @@
 #else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#include <linux/vi_snsr.h>
 #endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
@@ -73,8 +72,15 @@ static CVI_U16 g_au16SampleBgain[VI_MAX_PIPE_NUM] = {0};
 #define OS02N10_1L_AGAIN_ADDR		        0x24
 #define OS02N10_1L_DGAIN0_ADDR		        0x1F
 #define OS02N10_1L_VB0_ADDR			0x14
-#define OS02N10_1L_TABLE_END		        0xffff
 #define OS02N10_1L_FLIP_MIRROR_ADDR		0x12
+#define OS02N10_1L_FLIP_PAGE_SWITCH_ADDR	0xFD
+#define OS02N10_1L_FLIP_MIRROR0_ADDR		0x46
+#define OS02N10_1L_FLIP_MIRROR1_ADDR		0x47
+#define OS02N10_1L_FLIP_MIRROR2_ADDR		0x45
+#define OS02N10_1L_FLIP_col_offset_ADDR		0x48
+#define OS02N10_1L_FLIP_row_offset0_ADDR	0x49
+#define OS02N10_1L_FLIP_row_offset1_ADDR	0x4A
+#define OS02N10_1L_TABLE_END		        0xffff
 
 #define OS02N10_1L_RES_IS_1080P(w, h)      ((w) <= 1920 && (h) <= 1080)
 
@@ -168,7 +174,6 @@ static CVI_S32 cmos_fps_set(VI_PIPE ViPipe, CVI_FLOAT f32Fps, AE_SENSOR_DEFAULT_
 	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
 	CVI_U32 u32VMAX = 0;
 	CVI_U32 u32VB = 0;
-	CVI_U32 nVal0, nVal1;
 	CVI_FLOAT f32MaxFps = 0;
 	CVI_FLOAT f32MinFps = 0;
 	CVI_U32 u32Vts = 0;
@@ -192,11 +197,7 @@ static CVI_S32 cmos_fps_set(VI_PIPE ViPipe, CVI_FLOAT f32Fps, AE_SENSOR_DEFAULT_
 		}
 
 		u32VMAX = (u32VMAX > OS02N10_1L_FULL_LINES_MAX) ? OS02N10_1L_FULL_LINES_MAX : u32VMAX;
-
-		nVal0 = os02n10_1l_read_register(ViPipe, OS02N10_1L_VB0_ADDR);
-		nVal1 = os02n10_1l_read_register(ViPipe, OS02N10_1L_VB0_ADDR + 1);
-		u32VB = ((nVal0 & 0xFF) << 8 | (nVal1 & 0xFF))  +  u32VMAX - u32Vts ;
-
+		u32VB = 1194 + (u32VMAX - u32Vts);
 		pstSnsRegsInfo->astI2cData[LINEAR_VB_0].u32Data = (u32VB >> 8 & 0xFF);
 		pstSnsRegsInfo->astI2cData[LINEAR_VB_1].u32Data = (u32VB & 0xFF);
 	}
@@ -233,13 +234,13 @@ static CVI_S32 cmos_inttime_update(VI_PIPE ViPipe, CVI_U32 *u32IntTime)
 		CVI_U32 u32TmpIntTime = u32IntTime[0];
 		CVI_U32 mimExp = 2;
 		CVI_U32 maxExp = pstSnsState->au32FL[0] - 9;
-
 		u32TmpIntTime = (u32TmpIntTime > maxExp) ? maxExp : u32TmpIntTime;
 		u32TmpIntTime = (u32TmpIntTime < mimExp) ? mimExp : u32TmpIntTime;
 		u32IntTime[0] = u32TmpIntTime;
 
 		pstSnsRegsInfo->astI2cData[LINEAR_EXP_0].u32Data = (u32TmpIntTime >> 8 & 0xFF );
 		pstSnsRegsInfo->astI2cData[LINEAR_EXP_1].u32Data = (u32TmpIntTime & 0xFF);
+
 	} else {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Not support WDR: %d\n", pstSnsState->enWDRMode);
 		return CVI_FAILURE;
@@ -688,7 +689,15 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 			pstI2c_data[LINEAR_VB_TRIGGER].u32RegAddr = OS02N10_1L_TRIGGER_ADDR;
 			pstI2c_data[LINEAR_VB_TRIGGER].u32Data = 0x02;
 
-			pstI2c_data[LINEAR_FLIP_MIRROR].u32RegAddr = OS02N10_1L_FLIP_MIRROR_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR].u32RegAddr   = OS02N10_1L_FLIP_MIRROR_ADDR;
+			pstI2c_data[LINEAR_FLIP_PAGE_SWITCH].u32RegAddr = OS02N10_1L_FLIP_PAGE_SWITCH_ADDR;
+			pstI2c_data[LINEAR_FLIP_PAGE_SWITCH].u32Data = 0x03;
+			pstI2c_data[LINEAR_FLIP_MIRROR_0].u32RegAddr = OS02N10_1L_FLIP_MIRROR0_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR_1].u32RegAddr = OS02N10_1L_FLIP_MIRROR1_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR_2].u32RegAddr = OS02N10_1L_FLIP_MIRROR2_ADDR;
+			pstI2c_data[LINEAR_COL_OFFSET].u32RegAddr    = OS02N10_1L_FLIP_col_offset_ADDR;
+			pstI2c_data[LINEAR_ROW_OFFSET_0].u32RegAddr  = OS02N10_1L_FLIP_row_offset0_ADDR;
+			pstI2c_data[LINEAR_ROW_OFFSET_1].u32RegAddr  = OS02N10_1L_FLIP_row_offset1_ADDR;
 
 			break;
 		default:
@@ -698,13 +707,10 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 		pstCfg0->snsCfg.need_update = CVI_TRUE;
 		cmos_get_wdr_size(ViPipe, &pstCfg0->ispCfg);
 		pstCfg0->ispCfg.need_update = CVI_TRUE;
+
 	} else {
 
-		CVI_U32 gainsUpdate = 0;
-		CVI_U32 vtsUpdate = 0;
-		CVI_U32 shutterUpdate = 0;
-		CVI_U32 flipmirrorUpdate = 0;
-
+		CVI_U32 gainsUpdate = 0, vtsUpdate = 0, shutterUpdate = 0, flipmirrorUpdate = 0;
 
 		pstCfg0->snsCfg.need_update = CVI_FALSE;
 		for (i = 0; i < pstCfg0->snsCfg.u32RegNum; i++) {
@@ -717,7 +723,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 					vtsUpdate = 1;
 				if ((i >= LINEAR_EXP_0 ) && (i <= LINEAR_EXP_TRIGGER))
 					shutterUpdate = 1;
-				if ((i == LINEAR_FLIP_MIRROR ))
+				if ((i >= LINEAR_FLIP_MIRROR ) && (i <= LINEAR_ROW_OFFSET_1))
 					flipmirrorUpdate = 1;
 
 				pstCfg0->snsCfg.astI2cData[i].bUpdate = CVI_TRUE;
@@ -747,15 +753,19 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 		if (flipmirrorUpdate) {
 			pstCfg0->snsCfg.astI2cData[LINEAR_PAGE_SWITCH].bUpdate = CVI_TRUE;
 			pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_MIRROR].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_PAGE_SWITCH].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_MIRROR_0].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_MIRROR_1].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_MIRROR_2].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_COL_OFFSET].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_ROW_OFFSET_0].bUpdate = CVI_TRUE;
+			pstCfg0->snsCfg.astI2cData[LINEAR_ROW_OFFSET_1].bUpdate = CVI_TRUE;
 		}
-
 
 		/* check update isp crop or not */
 		pstCfg0->ispCfg.need_update = (sensor_cmp_wdr_size(&pstCfg0->ispCfg, &pstCfg1->ispCfg) ?
 				CVI_TRUE : CVI_FALSE);
-		/* check update isp crop or not */
-		pstCfg0->ispCfg.need_update = (sensor_cmp_wdr_size(&pstCfg0->ispCfg, &pstCfg1->ispCfg) ?
-						CVI_TRUE : CVI_FALSE);
+		pstCfg0->ispCfg.u8DelayFrmNum = 3;
 	}
 
 	pstSnsRegsInfo->bConfig = CVI_FALSE;
@@ -825,74 +835,72 @@ static CVI_VOID sensor_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSn
 
 	if (pstSnsState->bInit == CVI_TRUE && g_aeOs02n10_1l_MirrorFip[ViPipe] != eSnsMirrorFlip) {
 
-	switch (eSnsMirrorFlip) {
-	case ISP_SNS_NORMAL:
-		value  = 0x00;
-		value0 = 0x10;
-		value1 = 0xe2;
-		value2 = 0x50;
-		col_offset = 0x00;
-		row_offset_0 = 0x00;
-		row_offset_1 = 0x00;
-		start_x = 4;
-		start_y = 4;
-		break;
-	case ISP_SNS_MIRROR:
-		value = 0x02;
-		value0 = 0x10;
-		value1 = 0xe2;
-		value2 = 0x5c;
-		col_offset = 0xc3;
-		row_offset_0 = 0x00;
-		row_offset_1 = 0x00;
-		start_x = 5;
-		start_y = 4;
-		break;
-	case ISP_SNS_FLIP:
-		value = 0x01;
-		value0 = 0x10;
-		value1 = 0xe2;
-		value2 = 0x50;
-		col_offset = 0x00;
-		row_offset_0 = 0x3f;
-		row_offset_1 = 0x04;
-		start_x = 5;
-		start_y = 5;
-		break;
-	case ISP_SNS_MIRROR_FLIP:
-		value = 0x03;
-		value0 = 0x10;
-		value1 = 0xe2;
-		value2 = 0x5c;
-		col_offset = 0x00;
-		row_offset_0 = 0x3f;
-		row_offset_1 = 0x04;
-		start_x = 4;
-		start_y = 5;
-		break;
-	default:
-		return;
-	}
+		switch (eSnsMirrorFlip) {
+		case ISP_SNS_NORMAL:
+			value  = 0x00;
+			value0 = 0x10;
+			value1 = 0xe2;
+			value2 = 0x50;
+			col_offset = 0x00;
+			row_offset_0 = 0x00;
+			row_offset_1 = 0x00;
+			start_x = 4;
+			start_y = 4;
+			break;
+		case ISP_SNS_MIRROR:
+			value = 0x02;
+			value0 = 0x10;
+			value1 = 0xe2;
+			value2 = 0x5c;
+			col_offset = 0xc3;
+			row_offset_0 = 0x00;
+			row_offset_1 = 0x00;
+			start_x = 5;
+			start_y = 4;
+			break;
+		case ISP_SNS_FLIP:
+			value = 0x01;
+			value0 = 0x10;
+			value1 = 0xe2;
+			value2 = 0x50;
+			col_offset = 0x00;
+			row_offset_0 = 0x3f;
+			row_offset_1 = 0x04;
+			start_x = 5;
+			start_y = 5;
+			break;
+		case ISP_SNS_MIRROR_FLIP:
+			value = 0x03;
+			value0 = 0x10;
+			value1 = 0xe2;
+			value2 = 0x5c;
+			col_offset = 0x00;
+			row_offset_0 = 0x3f;
+			row_offset_1 = 0x04;
+			start_x = 4;
+			start_y = 5;
+			break;
+		default:
+			return;
+		}
 
-	os02n10_1l_write_register(ViPipe, 0xfd, 0x03);
-	os02n10_1l_write_register(ViPipe, 0x46, value0);
-	os02n10_1l_write_register(ViPipe, 0x47, value1);
-	os02n10_1l_write_register(ViPipe, 0x45, value2);
-	os02n10_1l_write_register(ViPipe, 0x48, col_offset);
-	os02n10_1l_write_register(ViPipe, 0x49, row_offset_0);
-	os02n10_1l_write_register(ViPipe, 0x4A, row_offset_1);
+		pstSnsRegsInfo->astI2cData[LINEAR_PAGE_SWITCH].u32Data = 0x01;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].u32Data =value;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_PAGE_SWITCH].u32Data = 0x03;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_0].u32Data =value0;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_1].u32Data =value1;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_2].u32Data =value2;
+		pstSnsRegsInfo->astI2cData[LINEAR_COL_OFFSET].u32Data =col_offset;
+		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_0].u32Data =row_offset_0;
+		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].u32Data =row_offset_1;
+		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].bDropFrm = 1;
+		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].u8DropFrmNum = 1;
 
-	pstSnsRegsInfo->astI2cData[LINEAR_PAGE_SWITCH].u32Data = 0x01;
-	pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].u32Data =value;
-	pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].bDropFrm = 1;
-	pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].u8DropFrmNum = 2;
-
-	g_aeOs02n10_1l_MirrorFip[ViPipe] = eSnsMirrorFlip;
-	pstIspCfg0->img_size[0].stWndRect.s32X = start_x;
-	pstIspCfg0->img_size[0].stWndRect.s32Y = start_y;
+		g_aeOs02n10_1l_MirrorFip[ViPipe] = eSnsMirrorFlip;
+		pstIspCfg0->img_size[0].stWndRect.s32X = start_x;
+		pstIspCfg0->img_size[0].stWndRect.s32Y = start_y;
 	}
 }
-
 
 static CVI_VOID sensor_global_init(VI_PIPE ViPipe)
 {
@@ -930,7 +938,6 @@ static CVI_S32 sensor_rx_attr(VI_PIPE ViPipe, SNS_COMBO_DEV_ATTR_S *pstRxAttr)
 	else
 		pstRxAttr->mac_clk = RX_MAC_CLK_400M;
 	return CVI_SUCCESS;
-
 }
 
 static CVI_S32 sensor_patch_rx_attr(RX_INIT_ATTR_S *pstRxInitAttr)

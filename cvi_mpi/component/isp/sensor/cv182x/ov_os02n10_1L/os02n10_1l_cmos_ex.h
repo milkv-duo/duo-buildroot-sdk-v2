@@ -12,8 +12,6 @@ extern "C" {
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_type.h"
 #else
-#include <linux/cif_uapi.h>
-#include <linux/vi_snsr.h>
 #include <linux/cvi_type.h>
 #endif
 #include "cvi_sns_ctrl.h"
@@ -35,6 +33,13 @@ enum os02n10_1l_linear_regs_e {
 	LINEAR_VB_1,
 	LINEAR_VB_TRIGGER,
 	LINEAR_FLIP_MIRROR,
+	LINEAR_FLIP_PAGE_SWITCH,
+	LINEAR_FLIP_MIRROR_0,
+	LINEAR_FLIP_MIRROR_1,
+	LINEAR_FLIP_MIRROR_2,
+	LINEAR_COL_OFFSET,
+	LINEAR_ROW_OFFSET_0,
+	LINEAR_ROW_OFFSET_1,
 	LINEAR_REGS_NUM
 };
 

@@ -12,8 +12,6 @@ extern "C" {
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_type.h"
 #else
-#include <linux/cif_uapi.h>
-#include <linux/vi_snsr.h>
 #include <linux/cvi_type.h>
 #endif
 #include "cvi_sns_ctrl.h"
@@ -43,7 +41,7 @@ static const SC4336_MODE_S g_astSC4336_mode[SC4336_MODE_NUM] = {
 		.u32HtsDef = 2800,
 		.u32VtsDef = 1500,
 		.stExp[0] = {
-			.u32Min = 0,
+			.u32Min = 2,
 			.u32Max = 1500 - 8, //vts - 8
 			.u32Def = 400,
 			.u32Step = 1,

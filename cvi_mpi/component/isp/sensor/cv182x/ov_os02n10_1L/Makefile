@@ -9,8 +9,8 @@ SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I./include
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
-TARGET_A = $(MW_LIB)/libsns_os02d10.a
-TARGET_SO = $(MW_LIB)/libsns_os02d10.so
+TARGET_A = $(MW_LIB)/libsns_os02n10.a
+TARGET_SO = $(MW_LIB)/libsns_os02n10.so
 
 EXTRA_CFLAGS = $(INCS) $(PROJ_CFLAGS)
 EXTRA_LDFLAGS =

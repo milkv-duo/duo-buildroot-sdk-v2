@@ -12,8 +12,6 @@ extern "C" {
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_type.h"
 #else
-#include <linux/cif_uapi.h>
-#include <linux/vi_snsr.h>
 #include <linux/cvi_type.h>
 #endif
 #include "cvi_sns_ctrl.h"
@@ -39,12 +37,12 @@ static const OS02N10_1L_MODE_S g_astOs02n10_1l_mode[OS02N10_1L_MODE_NUM] = {
 			},
 		},
 		.f32MaxFps = 15,
-		.f32MinFps = 0.508, /* 1109 * 30 / 0xFFFF = 0.508 */
+		.f32MinFps = 0.521, /* 2276 * 15 / 0xFFFF*/
 		.u32HtsDef = 272,
-		.u32VtsDef = 1109,
+		.u32VtsDef = 2276,
 		.stExp[0] = {
 			.u16Min = 2,
-			.u16Max = 1109 - 9,
+			.u16Max = 2276 - 9,
 			.u16Def = 500,
 			.u16Step = 1,
 		},

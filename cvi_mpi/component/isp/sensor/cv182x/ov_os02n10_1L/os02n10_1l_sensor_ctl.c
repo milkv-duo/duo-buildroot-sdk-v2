@@ -11,7 +11,6 @@
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_comm_video.h"
 #else
-#include <linux/vi_snsr.h>
 #include <linux/cvi_comm_video.h>
 #endif
 #include "cvi_sns_ctrl.h"
@@ -249,6 +248,7 @@ static void os02n10_1l_linear_1080p15_init(VI_PIPE ViPipe)
 	os02n10_1l_write_register(ViPipe, 0x31, 0x16);
 	os02n10_1l_write_register(ViPipe, 0x32, 0x25);
 	os02n10_1l_write_register(ViPipe, 0x33, 0xfb);
+	os02n10_1l_write_register(ViPipe, 0x35, 0x00); //fix exp error
 	os02n10_1l_write_register(ViPipe, 0xfd, 0x01);
 	os02n10_1l_write_register(ViPipe, 0x50, 0x03);
 	os02n10_1l_write_register(ViPipe, 0x51, 0x07);

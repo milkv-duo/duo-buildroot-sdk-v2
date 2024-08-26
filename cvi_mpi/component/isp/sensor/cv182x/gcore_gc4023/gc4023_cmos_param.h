@@ -12,8 +12,6 @@ extern "C" {
 #include <linux/cvi_vip_snsr.h>
 #include "cvi_type.h"
 #else
-#include <linux/cif_uapi.h>
-#include <linux/vi_snsr.h>
 #include <linux/cvi_type.h>
 #endif
 

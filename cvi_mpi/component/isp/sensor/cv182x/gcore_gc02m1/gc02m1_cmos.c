@@ -19,7 +19,6 @@
 #include "cvi_comm_video.h"
 #include "cvi_type.h"
 #else
-#include <linux/vi_snsr.h>
 #include <linux/cvi_comm_video.h>
 #include <linux/cvi_type.h>
 #endif

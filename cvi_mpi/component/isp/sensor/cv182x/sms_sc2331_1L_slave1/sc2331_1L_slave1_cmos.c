@@ -11,7 +11,6 @@
 #else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#include <linux/vi_snsr.h>
 #endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
@@ -60,7 +59,7 @@ static CVI_U16 g_au16SampleRgain[VI_MAX_PIPE_NUM] = {0};
 static CVI_U16 g_au16SampleBgain[VI_MAX_PIPE_NUM] = {0};
 static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 /*****SC2331_1L Lines Range*****/
-#define SC2331_1L_slave1_FULL_LINES_MAX  (0x7FFF)
+#define SC2331_1L_slave1_FULL_LINES_MAX  (0xFFFF)
 
 /*****SC2331_1L Register Address*****/
 #define SC2331_1L_slave1_EXP_H_ADDR                     (0x3e00)
@@ -80,7 +79,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 
 #define SC2331_1L_slave1_RES_IS_1080P(w, h)      ((w) <= 1920 && (h) <= 1080)
 
-#define SC2331_1L_slave1_EXPACCURACY                    (0.5)
+#define SC2331_1L_slave1_EXPACCURACY                    (1)
 
 static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
