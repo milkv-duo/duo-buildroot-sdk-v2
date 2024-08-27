@@ -183,7 +183,8 @@ CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_SUPER_RESOLUTION)                 \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_DETECTION)                    \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION)                  \
-  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR) \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR)                             \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_STEREO)                           \
   // clang-format on
 
 #define CVI_TDL_NAME_WRAP(x) x,
@@ -1567,6 +1568,9 @@ DLL_EXPORT CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_f
 
 DLL_EXPORT CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame,
                                                 cvtdl_object_t *obj_meta);
+
+DLL_EXPORT CVI_S32 CVI_TDL_Depth_Stereo(const cvitdl_handle_t handle,VIDEO_FRAME_INFO_S *frame1,
+                                        VIDEO_FRAME_INFO_S *frame2, cvtdl_depth_logits_t *depth_logist);
 #ifdef __cplusplus
 }
 #endif

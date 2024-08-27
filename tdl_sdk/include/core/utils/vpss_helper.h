@@ -663,6 +663,24 @@ CREATE_ION_HELPER(VIDEO_FRAME_INFO_S *vbFrame, CVI_U32 srcWidth, CVI_U32 srcHeig
       vFrame->u32Length[1] = 0;
       vFrame->u32Length[2] = 0;
     } break;
+    case PIXEL_FORMAT_NV12: {
+      vFrame->u32Stride[0] = ALIGN(vFrame->u32Width, DEFAULT_ALIGN);
+      vFrame->u32Stride[1] = ALIGN(vFrame->u32Width, DEFAULT_ALIGN);
+      vFrame->u32Stride[2] = 0;
+      vFrame->u32Length[0] = ALIGN(vFrame->u32Stride[0] * vFrame->u32Height, SCALAR_4096_ALIGN_BUG);
+      vFrame->u32Length[1] =
+          ALIGN(vFrame->u32Stride[0] * vFrame->u32Height / 2, SCALAR_4096_ALIGN_BUG);
+      vFrame->u32Length[2] = 0;
+    } break;
+    case PIXEL_FORMAT_NV21: {
+      vFrame->u32Stride[0] = ALIGN(vFrame->u32Width, DEFAULT_ALIGN);
+      vFrame->u32Stride[1] = ALIGN(vFrame->u32Width, DEFAULT_ALIGN);
+      vFrame->u32Stride[2] = 0;
+      vFrame->u32Length[0] = ALIGN(vFrame->u32Stride[0] * vFrame->u32Height, SCALAR_4096_ALIGN_BUG);
+      vFrame->u32Length[1] =
+          ALIGN(vFrame->u32Stride[0] * vFrame->u32Height / 2, SCALAR_4096_ALIGN_BUG);
+      vFrame->u32Length[2] = 0;
+    } break;
     case PIXEL_FORMAT_FP32_C1: {
       vFrame->u32Stride[0] = ALIGN(vFrame->u32Width, DEFAULT_ALIGN) * sizeof(float);
       vFrame->u32Stride[1] = 0;

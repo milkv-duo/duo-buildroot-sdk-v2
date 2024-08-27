@@ -57,6 +57,7 @@
 #include "segmentation/deeplabv3.hpp"
 #include "sound_classification/sound_classification_v2.hpp"
 #include "super_resolution/super_resolution.hpp"
+#include "depth_estimation/stereo.hpp"
 #ifdef CV186X
 #include "isp_image_classification/isp_image_classification.hpp"
 #endif
@@ -275,6 +276,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
     {CVI_TDL_SUPPORTED_MODEL_SUPER_RESOLUTION, CREATOR(SuperResolution)},
 
     {CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION, CREATOR(OCRRecognition)},
+    {CVI_TDL_SUPPORTED_MODEL_STEREO, CREATOR(Stereo)},
 #endif
 };
 
@@ -1043,6 +1045,10 @@ DEFINE_INF_FUNC_F2_P1(CVI_TDL_DeeplabV3, Deeplabv3, CVI_TDL_SUPPORTED_MODEL_DEEP
                       cvtdl_class_filter_t *)
 DEFINE_INF_FUNC_F2_P1(CVI_TDL_MotionSegmentation, MotionSegmentation,
                       CVI_TDL_SUPPORTED_MODEL_MOTIONSEGMENTATION, cvtdl_seg_logits_t *)
+
+DEFINE_INF_FUNC_F2_P1(CVI_TDL_Depth_Stereo, Stereo,
+                      CVI_TDL_SUPPORTED_MODEL_STEREO, cvtdl_depth_logits_t *)
+
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateDetection, LicensePlateDetection,
                       CVI_TDL_SUPPORTED_MODEL_WPODNET, cvtdl_object_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_FaceLandmarker, FaceLandmarker,
@@ -1930,22 +1936,6 @@ CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_features_num
       probs[i][j] = result_eigen(i, j);
     }
   }
-
-  // else {
-  //   // This branch can searches for text class in the database.
-  //   if (result_eigen.cols() > 1) {
-  //     LOGE("Error! Please input a text\n");
-  //     return CVI_FAILURE;
-  //   } else {
-  //     for (int i = 0; i < result_eigen.rows(); i++) {
-  //       if (result_eigen(i, 0) > threshold * 10.0 + 20.0) {
-  //         prods_index[i] = i;
-  //       } else {
-  //         prods_index[i] = -1;
-  //       }
-  //     }
-  //   }
-  // }
 
   if (res == 0) {
     return CVI_SUCCESS;

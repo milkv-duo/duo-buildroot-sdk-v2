@@ -569,4 +569,13 @@ typedef struct {
   int8_t *int_logits;
   float qscale;
 } cvtdl_seg_logits_t;
+
+typedef struct {
+  int w;
+  int h;
+  int8_t *int_logits;
+} cvtdl_depth_logits_t;
+
+
+
 #endif
