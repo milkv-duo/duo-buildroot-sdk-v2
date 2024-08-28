@@ -27,6 +27,10 @@
 #include <linux/uaccess.h>
 #endif
 
+#ifdef CONFIG_COMPAT
+#include <linux/compat.h>
+#endif
+
 #include "linux/cif_uapi.h"
 #include "linux/vi_snsr.h"
 #include "drv/cif_drv.h"

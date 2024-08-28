@@ -8,16 +8,6 @@ static long rgn_core_ioctl(struct file *filp, u_int cmd, u_long arg)
 	return rgn_ioctl(filp, cmd, arg);
 }
 
-#ifdef CONFIG_COMPAT
-static long compat_ptr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-{
-	if (!file->f_op->unlocked_ioctl)
-		return -ENOIOCTLCMD;
-
-	return file->f_op->unlocked_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-}
-#endif
-
 static int rgn_core_open(struct inode *inode, struct file *filp)
 {
 	return rgn_open(inode, filp);

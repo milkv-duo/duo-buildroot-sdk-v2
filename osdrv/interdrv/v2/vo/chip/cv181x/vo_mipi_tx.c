@@ -15,6 +15,10 @@
 #include <linux/interrupt.h>
 #include <linux/reboot.h>
 
+#ifdef CONFIG_COMPAT
+#include <linux/compat.h>
+#endif
+
 #include "linux/vo_mipi_tx.h"
 #include "proc/vo_mipi_tx_proc.h"
 #include <vip_common.h>

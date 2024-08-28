@@ -558,7 +558,7 @@ static long base_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	case IOCTL_STATESIG32: {
 		struct base_statesignal32 ds;
 
-		if (copy_from_user(&ds, arg, sizeof(ds)))
+		if (copy_from_user(&ds, (void __user *)arg, sizeof(ds)))
 			return -EFAULT;
 		ps->state_signr = ds.signr;
 		ps->state_context = compat_ptr(ds.context);
@@ -613,16 +613,6 @@ static long base_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	}
 	return ret;
 }
-
-#ifdef CONFIG_COMPAT
-static long compat_ptr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-{
-	if (!file->f_op->unlocked_ioctl)
-		return -ENOIOCTLCMD;
-
-	return file->f_op->unlocked_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-}
-#endif
 
 static const struct file_operations base_fops = {
 	.owner = THIS_MODULE,
