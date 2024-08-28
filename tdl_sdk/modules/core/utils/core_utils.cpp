@@ -95,6 +95,7 @@ void NeonQuantizeScale(VIDEO_FRAME_INFO_S *inFrame, const float *qFactor, const 
 #endif
 }
 void mmap_video_frame(VIDEO_FRAME_INFO_S *frame) {
+#ifndef CONFIG_ALIOS
   CVI_U32 f_frame_size =
       frame->stVFrame.u32Length[0] + frame->stVFrame.u32Length[1] + frame->stVFrame.u32Length[2];
   if (frame->stVFrame.pu8VirAddr[0] == NULL) {
@@ -111,13 +112,16 @@ void mmap_video_frame(VIDEO_FRAME_INFO_S *frame) {
       frame->stVFrame.pu8VirAddr[1] = NULL;
     }
   }
+#endif
 }
 void unmap_video_frame(VIDEO_FRAME_INFO_S *frame) {
+#ifndef CONFIG_ALIOS
   CVI_U32 f_frame_size =
       frame->stVFrame.u32Length[0] + frame->stVFrame.u32Length[1] + frame->stVFrame.u32Length[2];
   CVI_SYS_Munmap((void *)frame->stVFrame.pu8VirAddr[0], f_frame_size);
   frame->stVFrame.pu8VirAddr[0] = NULL;
   frame->stVFrame.pu8VirAddr[1] = NULL;
   frame->stVFrame.pu8VirAddr[2] = NULL;
+#endif
 }
 }  // namespace cvitdl
