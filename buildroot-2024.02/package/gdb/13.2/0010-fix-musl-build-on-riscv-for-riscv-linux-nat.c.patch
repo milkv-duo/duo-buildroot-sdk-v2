@@ -1,0 +1,42 @@
+From bb2fde33bd82776df7d39cfafe0e5fb15de55d4c Mon Sep 17 00:00:00 2001
+From: carbon <carbon@milkv.io>
+Date: Thu, 29 Aug 2024 18:01:51 +0800
+Subject: [PATCH] fix musl build on riscv for riscv-linux-nat.c
+
+Fix the following build failure raised with musl:
+
+../../gdb/riscv-linux-nat.c: In member function 'virtual void riscv_linux_nat_target::fetch_registers(regcache*, int)':
+../../gdb/riscv-linux-nat.c:244:21: error: 'ELF_NFPREG' was not declared in this scope; did you mean 'ELF_NGREG'?
+  244 |       iov.iov_len = ELF_NFPREG * register_size (regcache->arch (),
+      |                     ^~~~~~~~~~
+      |                     ELF_NGREG
+../../gdb/riscv-linux-nat.c: In member function 'virtual void riscv_linux_nat_target::store_registers(regcache*, int)':
+../../gdb/riscv-linux-nat.c:307:21: error: 'ELF_NFPREG' was not declared in this scope; did you mean 'ELF_NGREG'?
+  307 |       iov.iov_len = ELF_NFPREG * register_size (regcache->arch (),
+      |                     ^~~~~~~~~~
+      |                     ELF_NGREG
+
+Signed-off-by: carbon <carbon@milkv.io>
+---
+ gdb/riscv-linux-nat.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/gdb/riscv-linux-nat.c b/gdb/riscv-linux-nat.c
+index 8be4a5a..81a4ab0 100644
+--- a/gdb/riscv-linux-nat.c
++++ b/gdb/riscv-linux-nat.c
+@@ -34,6 +34,11 @@
+ # define NFPREG 33
+ #endif
+ 
++/* Work around musl breakage since version 1.1.24.  */
++#ifndef ELF_NFPREG
++# define ELF_NFPREG 33
++#endif
++
+ /* RISC-V Linux native additions to the default linux support.  */
+ 
+ class riscv_linux_nat_target final : public linux_nat_target
+-- 
+2.25.1
+
