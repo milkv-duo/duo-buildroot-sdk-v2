@@ -18,7 +18,7 @@
 
 // set preprocess and algorithm param for ppyoloe detection
 // if use official model, no need to change param
-CVI_S32 init_param(const cvitdl_handle_t tdl_handle) {
+CVI_S32 init_param(const cvitdl_handle_t tdl_handle, bool assign_out_string) {
   // setup preprocess
   InputPreParam preprocess_cfg = CVI_TDL_GetPreParam(tdl_handle, CVI_TDL_SUPPORTED_MODEL_PPYOLOE);
 
@@ -46,6 +46,16 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle) {
   if (ret != CVI_SUCCESS) {
     printf("Can not set ppyoloe algorithm parameters %#x\n", ret);
     return ret;
+  }
+  if (assign_out_string) {
+    const char* names_array[] = {"reshape2_1.tmp_0_Reshape",    "reshape2_3.tmp_0_Reshape",
+                                 "reshape2_5.tmp_0_Reshape",    "transpose_1.tmp_0_Transpose",
+                                 "transpose_3.tmp_0_Transpose", "transpose_5.tmp_0_Transpose"};
+    CVI_TDL_Set_Outputlayer_Names(tdl_handle, CVI_TDL_SUPPORTED_MODEL_PPYOLOE, names_array, 6);
+    if (ret != CVI_SUCCESS) {
+      printf("Outputlayer names set failed %#x!\n", ret);
+      return ret;
+    }
   }
 
   // set thershold
@@ -78,16 +88,10 @@ int main(int argc, char* argv[]) {
 
   float conf_threshold = 0.5;
   float nms_threshold = 0.5;
-  if (argc > 3) {
-    conf_threshold = std::stof(argv[3]);
-  }
-
-  if (argc > 4) {
-    nms_threshold = std::stof(argv[4]);
-  }
 
   // change param of ppyoloe
-  ret = init_param(tdl_handle);
+  bool assign_out_string = false;
+  ret = init_param(tdl_handle, assign_out_string);
 
   printf("start open cvimodel...\n");
   ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_PPYOLOE, model_path.c_str());

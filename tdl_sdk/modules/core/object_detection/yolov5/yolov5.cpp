@@ -82,6 +82,12 @@ int Yolov5::onModelOpened() {
   int input_h = input_shape.dim[2];
 
   strides_.clear();
+  std::unordered_map<std::string, int> setting_out_names_index_map;
+  if (!setting_out_names_.empty()) {
+    for (size_t i = 0; i < setting_out_names_.size(); i++) {
+      setting_out_names_index_map[setting_out_names_[i]] = i;
+    }
+  }
   for (size_t j = 0; j < getNumOutputTensor(); j++) {
     TensorInfo oinfo = getOutputTensorInfo(j);
     CVI_SHAPE output_shape = oinfo.shape;
@@ -90,17 +96,24 @@ int Yolov5::onModelOpened() {
     int feat_h = output_shape.dim[1];
     uint32_t channel = output_shape.dim[3];
     int stride_h = input_h / feat_h;
-
-    if (channel == 1) {
-      conf_out_names_[stride_h] = oinfo.tensor_name;
-      strides_.push_back(stride_h);
-    } else if (channel == 4) {
-      box_out_names_[stride_h] = oinfo.tensor_name;
-    } else if (channel == alg_param_.cls) {
-      class_out_names_[stride_h] = oinfo.tensor_name;
+    if (setting_out_names_.empty() || setting_out_names_.size() != getNumOutputTensor()) {
+      if (j % 3 == 0) {
+        conf_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else if (j % 3 == 2) {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+      } else {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+      }
     } else {
-      LOGE("unmatched channel!\n");
-      return CVI_TDL_FAILURE;
+      if (setting_out_names_index_map[oinfo.tensor_name] < 3) {
+        conf_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else if (setting_out_names_index_map[oinfo.tensor_name] >= 6) {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+      } else {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+      }
     }
   }
 

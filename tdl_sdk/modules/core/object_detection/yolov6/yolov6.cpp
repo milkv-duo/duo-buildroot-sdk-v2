@@ -100,7 +100,13 @@ int Yolov6::vpssPreprocess(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dst
 int Yolov6::onModelOpened() {
   CVI_SHAPE input_shape = getInputShape(0);
   int input_h = input_shape.dim[2];
-  strides.clear();
+  strides_.clear();
+  std::unordered_map<std::string, int> setting_out_names_index_map;
+  if (!setting_out_names_.empty()) {
+    for (size_t i = 0; i < setting_out_names_.size(); i++) {
+      setting_out_names_index_map[setting_out_names_[i]] = i;
+    }
+  }
   for (size_t j = 0; j < getNumOutputTensor(); j++) {
     TensorInfo oinfo = getOutputTensorInfo(j);
     CVI_SHAPE output_shape = oinfo.shape;
@@ -109,17 +115,25 @@ int Yolov6::onModelOpened() {
     uint32_t channel = output_shape.dim[3];
     int stride_h = input_h / feat_h;
 
-    if (channel == alg_param_.cls) {
-      class_out_names[stride_h] = oinfo.tensor_name;
-      strides.push_back(stride_h);
-      LOGI("parase class decode branch: %s, channel: %d\n", oinfo.tensor_name.c_str(), channel);
+    if (setting_out_names_.empty() || setting_out_names_.size() != getNumOutputTensor()) {
+      if (j % 2 == 1) {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+      }
     } else {
-      bbox_out_names[stride_h] = oinfo.tensor_name;
+      if (setting_out_names_index_map[oinfo.tensor_name] < 3) {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+      }
     }
   }
 
-  for (size_t i = 0; i < strides.size(); i++) {
-    if (!class_out_names.count(strides[i]) || !bbox_out_names.count(strides[i])) {
+  for (size_t i = 0; i < strides_.size(); i++) {
+    if (!class_out_names_.count(strides_[i]) || !box_out_names_.count(strides_[i])) {
       return CVI_TDL_FAILURE;
     }
   }
@@ -146,7 +160,7 @@ int Yolov6::inference(VIDEO_FRAME_INFO_S *srcFrame, cvtdl_object_t *obj_meta) {
 }
 
 void Yolov6::decode_bbox_feature_map(int stride, int anchor_idx, std::vector<float> &decode_box) {
-  std::string box_name = bbox_out_names[stride];
+  std::string box_name = box_out_names_[stride];
   TensorInfo boxinfo = getOutputTensorInfo(box_name);
   CVI_SHAPE input_shape = getInputShape(0);
   int box_val_num = 4;
@@ -243,9 +257,9 @@ void Yolov6::outputParser(const int iamge_width, const int image_height, const i
 
   float inverse_th = std::log(m_model_threshold / (1 - m_model_threshold));
 
-  for (size_t i = 0; i < strides.size(); i++) {
-    int stride = strides[i];
-    std::string cls_name = class_out_names[stride];
+  for (size_t i = 0; i < strides_.size(); i++) {
+    int stride = strides_[i];
+    std::string cls_name = class_out_names_[stride];
 
     TensorInfo classinfo = getOutputTensorInfo(cls_name);
     int num_per_pixel = classinfo.tensor_size / classinfo.tensor_elem;

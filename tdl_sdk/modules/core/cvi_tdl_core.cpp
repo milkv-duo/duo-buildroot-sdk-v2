@@ -1170,6 +1170,25 @@ CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *fram
   }
 }
 
+CVI_S32 CVI_TDL_Set_Outputlayer_Names(const cvitdl_handle_t handle,
+                                      CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                      const char **output_names, size_t size) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  DetectionBase *model = dynamic_cast<DetectionBase *>(getInferenceInstance(model_index, ctx));
+  if (model != nullptr) {
+    std::vector<std::string> names;
+    names.reserve(size);
+    for (size_t i = 0; i < size; ++i) {
+      names.emplace_back(std::string(output_names[i]));
+    }
+    model->set_out_names(names);
+  } else {
+    LOGE("No instance found\n");
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+  return CVI_TDL_SUCCESS;
+}
+
 CVI_S32 CVI_TDL_FaceDetection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                               CVI_TDL_SUPPORTED_MODEL_E model_index, cvtdl_face_t *face_meta) {
   std::set<CVI_TDL_SUPPORTED_MODEL_E> face_detect_set = {

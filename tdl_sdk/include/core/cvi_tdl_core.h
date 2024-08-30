@@ -761,6 +761,18 @@ DLL_EXPORT CVI_S32 CVI_TDL_PersonVehicle_Detection(const cvitdl_handle_t handle,
 DLL_EXPORT CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                                      CVI_TDL_SUPPORTED_MODEL_E model_index, cvtdl_object_t *obj);
 
+/**
+ * @brief Set object model output layer names.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model_index The object detection model id selected to use.
+ * @param output_names output layer names
+ * @param size output layer name's size
+ * @return int Return CVI_TDL_SUCCESS on success.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_Set_Outputlayer_Names(const cvitdl_handle_t handle,
+                                                 CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                                 const char **output_names, size_t size);
 /**@}*/
 /**
  * \addtogroup core_pr Person Re-Id TDL Inference
