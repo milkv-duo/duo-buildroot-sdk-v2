@@ -444,6 +444,35 @@ CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E conf
   return CVI_TDL_SUCCESS;
 }
 
+#ifndef CV186X
+CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
+                                     int8_t *buf, uint32_t size) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  cvitdl_model_t &m_t = ctx->model_cont[config];
+  Core *instance = getInferenceInstance(config, ctx);
+
+  if (instance != nullptr) {
+    if (instance->isInitialized()) {
+      LOGW("%s: Inference has already initialized. Please call CVI_TDL_CloseModel to reset.\n",
+           CVI_TDL_GetModelName(config));
+      return CVI_TDL_ERR_MODEL_INITIALIZED;
+    }
+  } else {
+    LOGE("Cannot create model: %s\n", CVI_TDL_GetModelName(config));
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+
+  m_t.buf = buf;
+  CVI_S32 ret = m_t.instance->modelOpen(m_t.buf, size);
+  if (ret != CVI_TDL_SUCCESS) {
+    LOGE("Failed to open model: %s (%d)", CVI_TDL_GetModelName(config), (int)*m_t.buf);
+    return ret;
+  }
+  LOGI("Model is opened successfully: %s \n", CVI_TDL_GetModelName(config));
+  return CVI_TDL_SUCCESS;
+}
+#endif
+
 const char *CVI_TDL_GetModelPath(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config) {
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
   return GetModelName(ctx->model_cont[config]);

@@ -73,6 +73,7 @@ class Core {
 
   virtual ~Core() = default;
   int modelOpen(const char *filepath);
+  int modelOpen(const int8_t *buf, uint32_t size);
   int getInputMemType();
   const char *getModelFilePath() const { return m_model_file.c_str(); }
   int modelClose();

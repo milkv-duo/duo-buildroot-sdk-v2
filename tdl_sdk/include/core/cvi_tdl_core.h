@@ -117,7 +117,7 @@ typedef void *cvitdl_handle_t;
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE)                       \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_SCRFDFACE)                       \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_IR)                    \
-CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_THERMALFACE)                      \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_THERMALPERSON)                    \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_FACEATTRIBUTE)                    \
@@ -253,6 +253,18 @@ DLL_EXPORT CVI_S32 CVI_TDL_DestroyHandle(cvitdl_handle_t handle);
  */
 DLL_EXPORT CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
                                      const char *filepath);
+
+/**
+ * @brief Open model with given file path.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model Supported model id.
+ * @param bug memory buffer to the cvimodel.
+ * @param size cvimodel buffer size
+ * @return int Return CVI_TDL_SUCCESS if load model succeed.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
+                                     int8_t *buf, uint32_t size);
 
 /**
  * @brief Get set model path from supported models.

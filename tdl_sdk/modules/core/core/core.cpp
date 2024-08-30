@@ -150,6 +150,103 @@ int Core::modelOpen(const char *filepath) {
   return CVI_TDL_SUCCESS;
 }
 
+int Core::modelOpen(const int8_t *buf, uint32_t size) {
+  if (!mp_mi) {
+    LOGE("config not set\n");
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+
+  if (mp_mi->handle != nullptr) {
+    LOGE("failed to open model from buffer: %d \n", (int)*buf);
+    return CVI_TDL_FAILURE;
+  }
+
+  CLOSE_MODEL_IF_TPU_FAILED(CVI_NN_RegisterModelFromBuffer(buf, size, &mp_mi->handle),
+                            "CVI_NN_RegisterModelFromBuffer failed");
+
+  CVI_NN_SetConfig(mp_mi->handle, OPTION_OUTPUT_ALL_TENSORS,
+                   static_cast<int>(mp_mi->conf.debug_mode));
+
+  CLOSE_MODEL_IF_TPU_FAILED(
+      CVI_NN_GetInputOutputTensors(mp_mi->handle, &mp_mi->in.tensors, &mp_mi->in.num,
+                                   &mp_mi->out.tensors, &mp_mi->out.num),
+      "CVI_NN_GetINputsOutputs failed");
+
+  setupTensorInfo(mp_mi->in.tensors, mp_mi->in.num, &m_input_tensor_info);
+  setupTensorInfo(mp_mi->out.tensors, mp_mi->out.num, &m_output_tensor_info);
+
+  CVI_TENSOR *input =
+          CVI_NN_GetTensorByName(CVI_NN_DEFAULT_TENSOR, mp_mi->in.tensors, mp_mi->in.num);
+  // Assigning default values.
+  bool use_quantize_scale;
+  for (uint32_t i = 0; i < (uint32_t)mp_mi->in.num; i++) {
+    CVI_TENSOR *tensor = mp_mi->in.tensors + i;
+    float quant_scale = CVI_NN_TensorQuantScale(tensor);
+    use_quantize_scale = quant_scale != 0 || quant_scale != 1.0;
+
+    if (((mp_mi->in.tensors[i].shape.dim[3] % 64) != 0)) {
+      aligned_input = false;
+    }
+  }
+
+  if (CVI_MEM_SYSTEM == getInputMemType()) {
+    aligned_input = false;
+  }
+
+  if (true == aligned_input) {
+    for (int32_t i = 0; i < mp_mi->in.num; i++)
+      CLOSE_MODEL_IF_TPU_FAILED(CVI_NN_SetTensorPhysicalAddr(&mp_mi->in.tensors[i], (uint64_t)0),
+                                "CVI_NN_SetTensorPhysicalAddr failed");
+    LOGI("parse model with aligned input tensor\n");
+  }
+
+  CLOSE_MODEL_IF_FAILED(onModelOpened(), "return failed in onModelOpened");
+
+  m_vpss_config.clear();
+  for (uint32_t i = 0; i < (uint32_t)mp_mi->in.num; i++) {
+    if (use_quantize_scale) {
+      CVI_TENSOR *tensor = mp_mi->in.tensors + i;
+      float quant_scale = CVI_NN_TensorQuantScale(tensor);
+      for (uint32_t j = 0; j < 3; j++) {
+        m_preprocess_param[i].factor[j] *= quant_scale;
+        m_preprocess_param[i].mean[j] *= quant_scale;
+      }
+      // FIXME: Behavior will changed in 1822.
+      float factor_limit = 8191.f / 8192;
+      for (uint32_t j = 0; j < 3; j++) {
+        if (m_preprocess_param[i].factor[j] > factor_limit) {
+          LOGW("factor[%d] is bigger than limit: %f\n", i, m_preprocess_param[i].factor[j]);
+          m_preprocess_param[i].factor[j] = factor_limit;
+        }
+      }
+    }
+    VPSSConfig vcfg;
+    int32_t width, height;
+    // FIXME: Future support for nhwc input. Currently disabled.
+    if (false) {
+      width = input->shape.dim[2];
+      height = input->shape.dim[1];
+      vcfg.frame_type = CVI_FRAME_PACKAGE;
+    } else {
+      CVI_TENSOR *input = &(mp_mi->in.tensors[i]);
+      width = input->shape.dim[3];
+      height = input->shape.dim[2];
+      vcfg.frame_type = CVI_FRAME_PLANAR;
+    }
+    vcfg.rescale_type = m_preprocess_param[i].rescale_type;
+    vcfg.crop_attr.bEnable = m_preprocess_param[i].use_crop;
+    bool pad_reverse = false;
+    VPSS_CHN_SQ_HELPER(&vcfg.chn_attr, width, height, m_preprocess_param[i].format,
+                       m_preprocess_param[i].factor, m_preprocess_param[i].mean, pad_reverse);
+    if (!m_preprocess_param[i].keep_aspect_ratio) {
+      vcfg.chn_attr.stAspectRatio.enMode = ASPECT_RATIO_NONE;
+    }
+    vcfg.chn_coeff = m_preprocess_param[i].resize_method;
+    m_vpss_config.emplace_back(vcfg);
+  }
+  return CVI_TDL_SUCCESS;
+}
+
 void Core::setupTensorInfo(CVI_TENSOR *tensor, int32_t num_tensors,
                            std::map<std::string, TensorInfo> *tensor_info) {
   for (int32_t i = 0; i < num_tensors; i++) {
