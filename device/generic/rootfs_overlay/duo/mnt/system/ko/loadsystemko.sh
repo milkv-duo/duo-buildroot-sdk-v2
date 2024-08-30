@@ -17,7 +17,6 @@ insmod /mnt/system/ko/cv180x_dwa.ko
 insmod /mnt/system/ko/cv180x_rgn.ko
 
 #insmod /mnt/system/ko/cv180x_wdt.ko
-insmod /mnt/system/ko/cv180x_thermal.ko
 insmod /mnt/system/ko/cv180x_clock_cooling.ko
 
 insmod /mnt/system/ko/cv180x_tpu.ko
