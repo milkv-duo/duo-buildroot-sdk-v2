@@ -117,7 +117,6 @@ if (NOT DEFINED NO_OPENCV)
     buildninstallcpp(NAME test_img_ocr INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstallcpp(NAME test_img_pose INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstallcpp(NAME test_img_sr INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
-    buildninstallcpp(NAME test_video_adas INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
     # buildninstallcpp(NAME test_vpss_fuse_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     # buildninstallcpp(NAME test_vpss_mosaic INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     # buildninstallcpp(NAME test_vpss_pd INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
@@ -160,6 +159,7 @@ buildninstallcpp(NAME test_hardhat_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomi
 buildninstallcpp(NAME test_hardhat_retinaface INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_fire_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_stereo INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+buildninstallcpp(NAME test_video_adas INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 
 # yolo external sample
 buildninstallcpp(NAME sample_yolo INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})

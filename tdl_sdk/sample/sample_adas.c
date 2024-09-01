@@ -127,6 +127,8 @@ void *run_venc(void *args) {
       char lane_info[64];
       int txt_x = (int)(0.5 * stFrame.stVFrame.u32Width);
       int txt_y = (int)(0.8 * stFrame.stVFrame.u32Height);
+
+#ifndef NO_OPENCV
       if (stLaneMeta.lane_state == 0) {
         strcpy(lane_info, "NORMAL");
         s32Ret = CVI_TDL_Service_ObjectWriteText(lane_info, txt_x, txt_y, &stFrame, 0, 255, 0);
@@ -151,6 +153,7 @@ void *run_venc(void *args) {
           goto error;
         }
       }
+#endif
     }
 
     s32Ret = SAMPLE_TDL_Send_Frame_RTSP(&stFrame, pstArgs->pstMWContext);
@@ -240,11 +243,12 @@ static void SampleHandleSig(CVI_S32 signo) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 3 && argc != 5) {
+  if (argc != 4 && argc != 6) {
     printf(
         "\nUsage: %s \n"
         "person_vehicle_model_path\n"
         "det_type(0: only object, 1: object and lane) \n"
+        "sence_type(0: car, 1: motorbike) \n"
         "[lane_det_model_path](optional, if det_type=1, must exist) \n"
         "[lane_model_type](optional, 0 for lane_det model, 1 for lstr model, if det_type=1, must "
         "exist) \n",
@@ -377,6 +381,9 @@ int main(int argc, char *argv[]) {
     printf("failed with %#x!\n", s32Ret);
     goto setup_tdl_fail;
   }
+  app_handle->adas_info->sence_type = atoi(argv[3]);  // 0 for car, 1 for motorbike, defult 1
+  app_handle->adas_info->location_type = 1;  // camera location, 0 for left, 1 for middle, 2 for
+                                             // right, defult 1, only work when sence_type=1
 
   // setup yolo algorithm preprocess
   cvtdl_det_algo_param_t yolov8_param =
@@ -393,8 +400,8 @@ int main(int argc, char *argv[]) {
   GOTO_IF_FAILED(CVI_TDL_OpenModel(stTDLHandle, CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION, argv[1]),
                  s32Ret, setup_tdl_fail);
 
-  if (argc == 5) {  // detect lane
-    app_handle->adas_info->lane_model_type = atoi(argv[4]);
+  if (argc == 6) {  // detect lane
+    app_handle->adas_info->lane_model_type = atoi(argv[5]);
     CVI_TDL_SUPPORTED_MODEL_E lane_model_id;
     if (app_handle->adas_info->lane_model_type == 0) {
       lane_model_id = CVI_TDL_SUPPORTED_MODEL_LANE_DET;
@@ -405,7 +412,7 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-    GOTO_IF_FAILED(CVI_TDL_OpenModel(stTDLHandle, lane_model_id, argv[3]), s32Ret, setup_tdl_fail);
+    GOTO_IF_FAILED(CVI_TDL_OpenModel(stTDLHandle, lane_model_id, argv[4]), s32Ret, setup_tdl_fail);
   }
 
   // Init DeepSORT
