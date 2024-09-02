@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
+#include <core/utils/vpss_helper.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -10,12 +12,9 @@
 #include <vector>
 #include "core/cvi_tdl_types_mem_internal.h"
 #include "core/utils/vpss_helper.h"
-#include <core/utils/vpss_helper.h>
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
-#include <fstream>
 int main(int argc, char *argv[]) {
-
   int vpssgrp_width = 1920;
   int vpssgrp_height = 1080;
   CVI_S32 ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888_PLANAR, 4,
@@ -42,8 +41,6 @@ int main(int argc, char *argv[]) {
     return ret;
   }
 
-
-
   imgprocess_t img_handle;
   CVI_TDL_Create_ImageProcessor(&img_handle);
 
@@ -51,21 +48,22 @@ int main(int argc, char *argv[]) {
   VIDEO_FRAME_INFO_S right_img;
 
   ret = CVI_TDL_ReadImage(img_handle, left_img_dir.c_str(), &left_img, PIXEL_FORMAT_RGB_888_PLANAR);
-  ret = CVI_TDL_ReadImage(img_handle, right_img_dir.c_str(), &right_img, PIXEL_FORMAT_RGB_888_PLANAR);
+  ret =
+      CVI_TDL_ReadImage(img_handle, right_img_dir.c_str(), &right_img, PIXEL_FORMAT_RGB_888_PLANAR);
 
-  
   cvtdl_depth_logits_t depth_logist;
   depth_logist.int_logits = NULL;
-  CVI_TDL_Depth_Stereo(tdl_handle,&left_img,&right_img,&depth_logist);
+  CVI_TDL_Depth_Stereo(tdl_handle, &left_img, &right_img, &depth_logist);
   int pix_size = depth_logist.w * depth_logist.h;
-  //increat depth frame for rtsp
+  // increat depth frame for rtsp
   VIDEO_FRAME_INFO_S stFrame_nv21;
-  CREATE_ION_HELPER(&stFrame_nv21, depth_logist.w, depth_logist.h, PIXEL_FORMAT_NV21, "cvitdl/image");
-  memcpy(stFrame_nv21.stVFrame.pu8VirAddr[0],depth_logist.int_logits, pix_size);
+  CREATE_ION_HELPER(&stFrame_nv21, depth_logist.w, depth_logist.h, PIXEL_FORMAT_NV21,
+                    "cvitdl/image");
+  memcpy(stFrame_nv21.stVFrame.pu8VirAddr[0], depth_logist.int_logits, pix_size);
   memset(stFrame_nv21.stVFrame.pu8VirAddr[1], 128, pix_size / 2);
-  //send_rtsp
+  // send_rtsp
   /**********************/
-  //after send, free stFrame_nv21
+  // after send, free stFrame_nv21
   CVI_SYS_IonFree(stFrame_nv21.stVFrame.u64PhyAddr[0], stFrame_nv21.stVFrame.pu8VirAddr[0]);
 
   std::ofstream outFile(output_dir, std::ios::binary);
@@ -73,7 +71,7 @@ int main(int argc, char *argv[]) {
     std::cerr << "can not open xxx.bin file\n" << std::endl;
     return 1;
   }
-  outFile.write(reinterpret_cast<const char*>(depth_logist.int_logits), pix_size * sizeof(int8_t));
+  outFile.write(reinterpret_cast<const char *>(depth_logist.int_logits), pix_size * sizeof(int8_t));
   outFile.close();
 
   CVI_TDL_ReleaseImage(img_handle, &left_img);

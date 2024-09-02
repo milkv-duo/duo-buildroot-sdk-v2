@@ -116,12 +116,12 @@ int main(int argc, char *argv[]) {
          << obj_meta.info[i].classes << "," << obj_meta.info[i].bbox.score << std::endl;
 
     std::cout << "points=[";
-    for (uint32_t j = 0; j < obj_meta.info[i].mask_point_size; j++) {
-      std::cout << "(" << obj_meta.info[i].mask_point[2 * j] << ","
-                << obj_meta.info[i].mask_point[2 * j + 1] << "),";
+    for (uint32_t j = 0; j < obj_meta.info[i].mask_properity->mask_point_size; j++) {
+      std::cout << "(" << obj_meta.info[i].mask_properity->mask_point[2 * j] << ","
+                << obj_meta.info[i].mask_properity->mask_point[2 * j + 1] << "),";
 
-      file << "(" << obj_meta.info[i].mask_point[2 * j] << ","
-           << obj_meta.info[i].mask_point[2 * j + 1] << "),";
+      file << "(" << obj_meta.info[i].mask_properity->mask_point[2 * j] << ","
+           << obj_meta.info[i].mask_properity->mask_point[2 * j + 1] << "),";
     }
     std::cout << "]" << std::endl;
   }

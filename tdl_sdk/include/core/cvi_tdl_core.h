@@ -184,7 +184,7 @@ typedef void *cvitdl_handle_t;
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_DETECTION)                    \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION)                  \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR)                             \
-  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_STEREO)                           \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_STEREO) \
   // clang-format on
 
 #define CVI_TDL_NAME_WRAP(x) x,
@@ -263,8 +263,9 @@ DLL_EXPORT CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_M
  * @param size cvimodel buffer size
  * @return int Return CVI_TDL_SUCCESS if load model succeed.
  */
-DLL_EXPORT CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
-                                     int8_t *buf, uint32_t size);
+DLL_EXPORT CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle,
+                                                CVI_TDL_SUPPORTED_MODEL_E model, int8_t *buf,
+                                                uint32_t size);
 
 /**
  * @brief Get set model path from supported models.
@@ -1581,8 +1582,9 @@ DLL_EXPORT CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_f
 DLL_EXPORT CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame,
                                                 cvtdl_object_t *obj_meta);
 
-DLL_EXPORT CVI_S32 CVI_TDL_Depth_Stereo(const cvitdl_handle_t handle,VIDEO_FRAME_INFO_S *frame1,
-                                        VIDEO_FRAME_INFO_S *frame2, cvtdl_depth_logits_t *depth_logist);
+DLL_EXPORT CVI_S32 CVI_TDL_Depth_Stereo(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame1,
+                                        VIDEO_FRAME_INFO_S *frame2,
+                                        cvtdl_depth_logits_t *depth_logist);
 #ifdef __cplusplus
 }
 #endif

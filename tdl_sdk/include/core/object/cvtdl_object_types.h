@@ -292,6 +292,12 @@ typedef struct {
   adas_state_e state;
 } cvtdl_adas_meta;
 
+typedef struct {
+  uint8_t *mask;
+  float *mask_point;
+  uint32_t mask_point_size;
+} cvtdl_mask_meta;
+
 /** @struct cvtdl_object_info_t
  * @ingroup core_cvitdlcore
  * @brief A structure to describe a found object.
@@ -326,11 +332,8 @@ typedef struct {
   int is_cross;
   cvtdl_feature_t feature;
   int classes;
-  uint8_t *mask;
 
-  float *mask_point;
-  uint32_t mask_point_size;
-
+  cvtdl_mask_meta *mask_properity;
   cvtdl_vehicle_meta *vehicle_properity;
   cvtdl_pedestrian_meta *pedestrian_properity;
   cvtdl_adas_meta adas_properity;
@@ -575,7 +578,5 @@ typedef struct {
   int h;
   int8_t *int_logits;
 } cvtdl_depth_logits_t;
-
-
 
 #endif

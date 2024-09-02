@@ -83,14 +83,17 @@ void CVI_TDL_FreeCpp(cvtdl_object_info_t *obj_info) {
     obj_info->pedestrian_properity = NULL;
   }
 
-  if (obj_info->mask) {
-    free(obj_info->mask);
-    obj_info->mask = NULL;
-  }
-
-  if (obj_info->mask_point) {
-    free(obj_info->mask_point);
-    obj_info->mask_point = NULL;
+  if (obj_info->mask_properity) {
+    if (obj_info->mask_properity->mask) {
+      free(obj_info->mask_properity->mask);
+      obj_info->mask_properity->mask = NULL;
+    }
+    if (obj_info->mask_properity->mask_point) {
+      free(obj_info->mask_properity->mask_point);
+      obj_info->mask_properity->mask_point = NULL;
+    }
+    free(obj_info->mask_properity);
+    obj_info->mask_properity = NULL;
   }
 }
 

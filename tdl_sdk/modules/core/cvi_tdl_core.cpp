@@ -46,6 +46,7 @@
 #include "object_detection/yolov8/yolov8.hpp"
 #include "object_detection/yolox/yolox.hpp"
 
+#include "depth_estimation/stereo.hpp"
 #include "face_detection/face_mask_detection/retinaface_yolox.hpp"
 #include "face_detection/retina_face/retina_face.hpp"
 #include "face_detection/retina_face/scrfd_face.hpp"
@@ -57,7 +58,6 @@
 #include "segmentation/deeplabv3.hpp"
 #include "sound_classification/sound_classification_v2.hpp"
 #include "super_resolution/super_resolution.hpp"
-#include "depth_estimation/stereo.hpp"
 #ifdef CV186X
 #include "isp_image_classification/isp_image_classification.hpp"
 #endif
@@ -966,7 +966,8 @@ CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame, cvtdl_object_t *
   int proto_h = obj_meta->mask_height;
   int proto_w = obj_meta->mask_width;
   for (uint32_t i = 0; i < obj_meta->size; i++) {
-    cv::Mat src(proto_h, proto_w, CV_8UC1, obj_meta->info[i].mask, proto_w * sizeof(uint8_t));
+    cv::Mat src(proto_h, proto_w, CV_8UC1, obj_meta->info[i].mask_properity->mask,
+                proto_w * sizeof(uint8_t));
 
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
@@ -999,13 +1000,16 @@ CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame, cvtdl_object_t *
           static_cast<float>(frame->stVFrame.u32Height) / static_cast<float>(source_region_height);
       float width_scale =
           static_cast<float>(frame->stVFrame.u32Width) / static_cast<float>(source_region_width);
-      obj_meta->info[i].mask_point_size = max_length;
-      obj_meta->info[i].mask_point = (float *)malloc(2 * max_length * sizeof(float));
+      obj_meta->info[i].mask_properity->mask_point_size = max_length;
+      obj_meta->info[i].mask_properity->mask_point =
+          (float *)malloc(2 * max_length * sizeof(float));
 
       size_t j = 0;
       for (const auto &point : contours[longest_index]) {
-        obj_meta->info[i].mask_point[2 * j] = (point.x - source_x_offset) * width_scale;
-        obj_meta->info[i].mask_point[2 * j + 1] = (point.y - source_y_offset) * height_scale;
+        obj_meta->info[i].mask_properity->mask_point[2 * j] =
+            (point.x - source_x_offset) * width_scale;
+        obj_meta->info[i].mask_properity->mask_point[2 * j + 1] =
+            (point.y - source_y_offset) * height_scale;
         j++;
       }
     }
@@ -1075,8 +1079,8 @@ DEFINE_INF_FUNC_F2_P1(CVI_TDL_DeeplabV3, Deeplabv3, CVI_TDL_SUPPORTED_MODEL_DEEP
 DEFINE_INF_FUNC_F2_P1(CVI_TDL_MotionSegmentation, MotionSegmentation,
                       CVI_TDL_SUPPORTED_MODEL_MOTIONSEGMENTATION, cvtdl_seg_logits_t *)
 
-DEFINE_INF_FUNC_F2_P1(CVI_TDL_Depth_Stereo, Stereo,
-                      CVI_TDL_SUPPORTED_MODEL_STEREO, cvtdl_depth_logits_t *)
+DEFINE_INF_FUNC_F2_P1(CVI_TDL_Depth_Stereo, Stereo, CVI_TDL_SUPPORTED_MODEL_STEREO,
+                      cvtdl_depth_logits_t *)
 
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateDetection, LicensePlateDetection,
                       CVI_TDL_SUPPORTED_MODEL_WPODNET, cvtdl_object_t *)

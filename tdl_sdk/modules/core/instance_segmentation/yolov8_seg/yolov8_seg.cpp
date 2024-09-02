@@ -306,11 +306,11 @@ void YoloV8Seg::outputParser(const int image_width, const int image_height, cons
     int x2 = static_cast<int>(round(obj_meta->info[i].bbox.x2 / proto_stride));
     int y1 = static_cast<int>(round(obj_meta->info[i].bbox.y1 / proto_stride));
     int y2 = static_cast<int>(round(obj_meta->info[i].bbox.y2 / proto_stride));
-    obj_meta->info[i].mask = (uint8_t *)calloc(proto_hw, sizeof(uint8_t));
+    obj_meta->info[i].mask_properity->mask = (uint8_t *)calloc(proto_hw, sizeof(uint8_t));
     for (int j = y1; j < y2; ++j) {
       for (int k = x1; k < x2; ++k) {
         if (1 / (1 + exp(-masks_output(i, j * proto_w + k))) >= 0.5) {
-          obj_meta->info[i].mask[j * proto_w + k] = 255;
+          obj_meta->info[i].mask_properity->mask[j * proto_w + k] = 255;
         }
       }
     }

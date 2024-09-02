@@ -8,9 +8,10 @@ class Stereo final : public Core {
  public:
   Stereo();
   virtual ~Stereo();
-  int inference(VIDEO_FRAME_INFO_S *frame1, VIDEO_FRAME_INFO_S *frame2, cvtdl_depth_logits_t *depth_logist);
+  int inference(VIDEO_FRAME_INFO_S *frame1, VIDEO_FRAME_INFO_S *frame2,
+                cvtdl_depth_logits_t *depth_logist);
 
-//  private:
-//   virtual int setupInputPreprocess(std::vector<InputPreprecessSetup> *data) override;
+  //  private:
+  //   virtual int setupInputPreprocess(std::vector<InputPreprecessSetup> *data) override;
 };
 }  // namespace cvitdl

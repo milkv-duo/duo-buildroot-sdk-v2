@@ -176,7 +176,7 @@ int Core::modelOpen(const int8_t *buf, uint32_t size) {
   setupTensorInfo(mp_mi->out.tensors, mp_mi->out.num, &m_output_tensor_info);
 
   CVI_TENSOR *input =
-          CVI_NN_GetTensorByName(CVI_NN_DEFAULT_TENSOR, mp_mi->in.tensors, mp_mi->in.num);
+      CVI_NN_GetTensorByName(CVI_NN_DEFAULT_TENSOR, mp_mi->in.tensors, mp_mi->in.num);
   // Assigning default values.
   bool use_quantize_scale;
   for (uint32_t i = 0; i < (uint32_t)mp_mi->in.num; i++) {
