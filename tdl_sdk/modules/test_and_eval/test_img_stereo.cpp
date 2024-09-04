@@ -53,23 +53,27 @@ int main(int argc, char *argv[]) {
 
   cvtdl_depth_logits_t depth_logist;
   depth_logist.int_logits = NULL;
-  CVI_TDL_Depth_Stereo(tdl_handle, &left_img, &right_img, &depth_logist);
-  int pix_size = depth_logist.w * depth_logist.h;
-  // increat depth frame for rtsp
-  VIDEO_FRAME_INFO_S stFrame_nv21;
-  CREATE_ION_HELPER(&stFrame_nv21, depth_logist.w, depth_logist.h, PIXEL_FORMAT_NV21,
-                    "cvitdl/image");
-  memcpy(stFrame_nv21.stVFrame.pu8VirAddr[0], depth_logist.int_logits, pix_size);
-  memset(stFrame_nv21.stVFrame.pu8VirAddr[1], 128, pix_size / 2);
-  // send_rtsp
-  /**********************/
-  // after send, free stFrame_nv21
-  CVI_SYS_IonFree(stFrame_nv21.stVFrame.u64PhyAddr[0], stFrame_nv21.stVFrame.pu8VirAddr[0]);
+  int pix_size = 0;
+  for (int i = 0; i < 10000; i++) {
+    CVI_TDL_Depth_Stereo(tdl_handle, &left_img, &right_img, &depth_logist);
+    pix_size = depth_logist.w * depth_logist.h;
+    // increat depth frame for rtsp
+    VIDEO_FRAME_INFO_S stFrame_nv21;
+    CREATE_ION_HELPER(&stFrame_nv21, depth_logist.w, depth_logist.h, PIXEL_FORMAT_NV21,
+                      "cvitdl/image");
+    memcpy(stFrame_nv21.stVFrame.pu8VirAddr[0], depth_logist.int_logits, pix_size);
+    memset(stFrame_nv21.stVFrame.pu8VirAddr[1], 128, pix_size / 2);
+    // send_rtsp
+    /**********************/
+    // after send, free stFrame_nv21
+    CVI_SYS_IonFree(stFrame_nv21.stVFrame.u64PhyAddr[0], stFrame_nv21.stVFrame.pu8VirAddr[0]);
+  }
+  free(depth_logist.int_logits);
 
   std::ofstream outFile(output_dir, std::ios::binary);
   if (!outFile) {
-    std::cerr << "can not open xxx.bin file\n" << std::endl;
-    return 1;
+    std::cout << "can not open xxx.bin file\n" << std::endl;
+    return ret;
   }
   outFile.write(reinterpret_cast<const char *>(depth_logist.int_logits), pix_size * sizeof(int8_t));
   outFile.close();

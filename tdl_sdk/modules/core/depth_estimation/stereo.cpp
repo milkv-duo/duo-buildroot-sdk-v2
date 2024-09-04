@@ -52,10 +52,10 @@ int Stereo::inference(VIDEO_FRAME_INFO_S *frame1, VIDEO_FRAME_INFO_S *frame2,
   depth_logist->h = oinfo.shape.dim[1];
   int pix_size = depth_logist->w * depth_logist->h;
   if (depth_logist->int_logits != NULL) {
-    delete[] depth_logist->int_logits;
+    free(depth_logist->int_logits);
     depth_logist->int_logits = NULL;
   }
-  depth_logist->int_logits = new int8_t[pix_size];
+  depth_logist->int_logits = (int8_t *)malloc(pix_size * sizeof(int8_t));
   if (byte_per_pixel == 1) {
     int8_t *int8_out_data = getOutputRawPtr<int8_t>(0);
     for (int i = 0; i < pix_size; i++) {
