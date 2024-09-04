@@ -147,6 +147,7 @@ buildninstallcpp(NAME test_face_landmarker_det2 INC ${REG_INCLUDES} DEPS cvi_tdl
 buildninstallcpp(NAME test_image_classification INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS})
 buildninstallcpp(NAME test_audio_cls INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_face_cap INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+buildninstallcpp(NAME test_img_face_cap_pet INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_capture INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_consumer_counting INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_irregular_people_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)

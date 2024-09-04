@@ -347,24 +347,15 @@ int main(int argc, char *argv[]) {
   for (VPSS_GRP VpssGrp = 0; VpssGrp < VPSS_MAX_GRP_NUM; ++VpssGrp)
     SAMPLE_COMM_VPSS_Stop(VpssGrp, abChnEnable);
 
-  CVI_TDL_SUPPORTED_MODEL_E model = CVI_TDL_SUPPORTED_MODEL_SCRFDFACE;
-  std::string modelf = std::string(
-      "/mnt/data/wkz/faceCapture_pull_package/cviai/face_cvimodel/"
-      "scrfd_500m_bnkps_432_768.cvimodel");
+  std::string od_modelf =
+      std::string("/tmp/yzx/infer/face_cap_det/models/face_cap_det_int8_cv181x.cvimodel");
 
   std::string fl_modelf =
-      "/mnt/data/wkz/faceCapture_pull_package/cviai/face_cvimodel/"
-      "pipnet_mbv1_at_50ep_v8_cv181x.cvimodel";
-  std::string ped_modelf =
-      "/mnt/data/wkz/faceCapture_pull_package/cviai/face_cvimodel/"
-      "mobiledetv2-pedestrian-d0-ls-448.cvimodel";
+      std::string("/tmp/yzx/infer/face_cap/models/1x/pipnet_mbv1_at_50ep_v8_cv181x.cvimodel");
 
   std::string fa_modelf = "NULL";
 
-  std::string str_model_file = modelf;
-  CVI_TDL_SUPPORTED_MODEL_E fd_model_id = model;
-
-  const char *fd_model_path = str_model_file.c_str();
+  CVI_TDL_SUPPORTED_MODEL_E od_model_id = CVI_TDL_SUPPORTED_MODEL_YOLOV8_DETECTION;
 
   const char *config_path = "NULL";  // argv[4];//NULL
 
@@ -392,8 +383,8 @@ int main(int argc, char *argv[]) {
   imgprocess_t img_handle;
   CVI_TDL_Create_ImageProcessor(&img_handle);
 
-  ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 3, vpssgrp_width,
-                         vpssgrp_height, PIXEL_FORMAT_RGB_888_PLANAR, 3);
+  ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 4, vpssgrp_width,
+                         vpssgrp_height, PIXEL_FORMAT_RGB_888_PLANAR, 4);
   cvitdl_handle_t tdl_handle = NULL;
   cvitdl_service_handle_t service_handle = NULL;
   cvitdl_app_handle_t app_handle = NULL;
@@ -414,18 +405,17 @@ int main(int argc, char *argv[]) {
   cvtdl_service_feature_array_t feat_gallery;
   memset(&feat_gallery, 0, sizeof(feat_gallery));
   CVI_TDL_SUPPORTED_MODEL_E fr_model_id = CVI_TDL_SUPPORTED_MODEL_FACERECOGNITION;
-  ret |= CVI_TDL_APP_FaceCapture_QuickSetUp(app_handle, fd_model_id, fr_model_id, fd_model_path,
-                                            NULL, NULL, fl_modelf.c_str(), NULL);
+  ret |= CVI_TDL_APP_FacePetCapture_QuickSetUp(
+      app_handle, od_model_id, fr_model_id, od_modelf.c_str(), NULL, fl_modelf.c_str(),
+      (!strcmp(fa_modelf.c_str(), "NULL")) ? NULL : fa_modelf.c_str());
   g_use_face_attribute = app_handle->face_cpt_info->fa_flag;
-  CVI_TDL_SUPPORTED_MODEL_E ped_model_id = CVI_TDL_SUPPORTED_MODEL_MOBILEDETV2_PEDESTRIAN;
-  ret |= CVI_TDL_APP_FaceCapture_FusePedSetup(app_handle, ped_model_id, ped_modelf.c_str());
 
   if (ret != CVI_SUCCESS) {
     release_system(tdl_handle, service_handle, app_handle);
     return CVI_FAILURE;
   }
 
-  CVI_TDL_SetModelThreshold(tdl_handle, fd_model_id, det_threshold);
+  CVI_TDL_SetModelThreshold(tdl_handle, od_model_id, det_threshold);
 
   printf("finish init \n");
 
@@ -433,7 +423,7 @@ int main(int argc, char *argv[]) {
   bool do_face_recog = false;
 
   if (do_face_recog) {
-    const char *gimg = "/mnt/data/admin1_data/datasets/ivs_eval_set/image/yitong/register.jpg";
+    const char *gimg = "/tmp/admin1_data/datasets/ivs_eval_set/image/yitong/register.jpg";
     ret = register_gallery_face(img_handle, app_handle, gimg, &feat_gallery, gallery_names);
     std::cout << "register ret:" << ret << std::endl;
     if (ret == CVI_SUCCESS) {
@@ -475,7 +465,7 @@ int main(int argc, char *argv[]) {
 
   int num_append = 0;
   PIXEL_FORMAT_E img_format = PIXEL_FORMAT_RGB_888_PLANAR;  // IVE_IMAGE_TYPE_U8C3_PACKAGE;
-  for (int img_idx = 0; img_idx < 1100; img_idx++) {
+  for (int img_idx = 0; img_idx < atoi(argv[3]); img_idx++) {
     if (bExit) break;
     std::cout << "processing:" << img_idx << "/1100\n";
     char szimg[256];
@@ -496,7 +486,7 @@ int main(int argc, char *argv[]) {
       empty_img = true;
 
       ret = CVI_TDL_ReadImage(
-          img_handle, "/mnt/data/algo_pub/eval_data/dataset/face_cap_val_dataset/black_image.jpg",
+          img_handle, "/tmp/algo_pub/eval_data/dataset/face_cap_val_dataset/black_image.jpg",
           &fdFrame, img_format);
 
       num_append++;
@@ -515,7 +505,7 @@ int main(int argc, char *argv[]) {
 
     int alive_person_num = COUNT_ALIVE(app_handle->face_cpt_info);
     printf("ALIVE persons: %d\n", alive_person_num);
-    ret = CVI_TDL_APP_FaceCapture_Run(app_handle, &fdFrame);
+    ret = CVI_TDL_APP_FacePetCapture_Run(app_handle, &fdFrame);
     if (ret != CVI_SUCCESS) {
       printf("CVI_TDL_APP_FaceCapture_Run failed with %#x\n", ret);
       break;
@@ -591,6 +581,7 @@ int main(int argc, char *argv[]) {
   bRunImageWriter = false;
   bRunVideoOutput = false;
   pthread_join(io_thread, NULL);
+
   CVI_TDL_Destroy_ImageProcessor(img_handle);
   CVI_TDL_APP_DestroyHandle(app_handle);
   CVI_TDL_Service_DestroyHandle(service_handle);
