@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iterator>
 
+#include <unordered_map>
 #include "coco_utils.hpp"
 #include "core/core/cvtdl_errno.h"
 #include "core/cvi_tdl_types_mem.h"
