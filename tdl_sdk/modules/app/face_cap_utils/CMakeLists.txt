@@ -1,0 +1,6 @@
+project(face_cap_utils)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../core/core
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../../core/utils
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../../../sample
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../../../include/core/utils)
+add_library(${PROJECT_NAME} OBJECT face_cap_utils.c)

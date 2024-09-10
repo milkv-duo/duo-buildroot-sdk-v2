@@ -1,0 +1,13 @@
+Miss_Time_Limit 40
+Threshold_Area_Min 8192
+Threshold_Area_Max 259200
+Threshold_Area_Base 115200
+Threshold_Aspect_Ratio_Min 1.0
+Threshold_Aspect_Ratio_Max 3.0
+Threshold_Quality 0.8
+FAST_Mode_Interval 20
+FAST_Mode_Capture_Num 3
+CYCLE_Mode_Interval 20
+AUTO_Mode_Time_Limit 0
+AUTO_Mode_Fast_Cap 1
+Store_RGB888 0

@@ -1,0 +1,17 @@
+Miss_Time_Limit 40
+Threshold_Size_Min 32
+Threshold_Size_Max 512
+Quality_Assessment_Method 0
+Threshold_Quality 0.1
+Threshold_Quality_High 0.95
+Threshold_Yaw 0.25
+Threshold_Pitch 0.25
+Threshold_Roll 0.25
+FAST_Mode_Interval 10
+FAST_Mode_Capture_Num 3
+CYCLE_Mode_Interval 20
+AUTO_Mode_Time_Limit 0
+AUTO_Mode_Fast_Cap 1
+img_capture_flag 0
+Store_Face_Feature 1
+Store_RGB888 0
