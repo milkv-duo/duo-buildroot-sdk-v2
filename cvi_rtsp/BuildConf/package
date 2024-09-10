@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PROJECT="cvi_rtsp"
+
+echo "packaging ${PROJECT}..."
+
+make install DESTDIR="${PACKAGE_TMP_DIR}/system/";
