@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 
 # 判断传参数目是否合法
 if [[ $# -lt 2 ]]; then
-    printusage
+    print_usage
     exit 1
 fi
 
@@ -87,12 +87,12 @@ function git_clone {
     sync=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*sync-s="\([^"]*\)".*/\1/p')
 
     # 判断参数是否带有revision
-    if [[ ! -n $revision ]]; then
+    if [[ -z $revision ]]; then
         revision=$DEFAULT_REVISION
     fi
 
     # 判断参数是否带有path
-    if [[ ! -n $path ]]; then
+    if [[ -z $path ]]; then
         path=$repo
     fi
 
@@ -121,7 +121,7 @@ function git_pull {
     path=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
 
     # 判断参数是否带有path
-    if [[ ! -n $path ]]; then
+    if [[ -z $path ]]; then
         path=$repo
     fi
 
@@ -143,7 +143,7 @@ function reproduce_repo {
     path=$(grep "name=\"${_repo}\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
 
     # 判断参数是否带有path
-    if [[ ! -n ${path} ]]; then
+    if [[ -z ${path} ]]; then
         path=${_repo}
     fi
 
