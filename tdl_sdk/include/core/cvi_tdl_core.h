@@ -1278,19 +1278,6 @@ DLL_EXPORT CVI_S32 CVI_TDL_FaceLandmarkerDet2(const cvitdl_handle_t handle,
 DLL_EXPORT CVI_S32 CVI_TDL_DMSLDet(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                                    cvtdl_face_t *face);
 
-/**
- * @brief Dump model input frame to npz.
- *
- * @param handle An TDL SDK handle.
- * @param model Model id.
- * @param dump_path Output path.
- * @param enable Whether enable or not.
- * @return int Return CVI_TDL_SUCCESS on success.
- */
-/**@}*/
-DLL_EXPORT CVI_S32 CVI_TDL_EnalbeDumpInput(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
-                                           const char *dump_path, bool enable);
-
 DLL_EXPORT CVI_S32 CVI_TDL_CropImage_With_VPSS(const cvitdl_handle_t handle,
                                                CVI_TDL_SUPPORTED_MODEL_E model,
                                                VIDEO_FRAME_INFO_S *frame,

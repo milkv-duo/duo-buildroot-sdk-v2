@@ -5,6 +5,7 @@
 #include <string.h>
 #include <algorithm>
 #include <error_msg.hpp>
+#include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>

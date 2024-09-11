@@ -169,7 +169,7 @@ int FaceAttribute::inference(VIDEO_FRAME_INFO_S *stOutFrame, cvtdl_face_t *meta,
 
       float pts[10];
       float transm[6];
-      for (u_int8_t i = 0; i < 5; i++) {
+      for (uint8_t i = 0; i < 5; i++) {
         pts[2 * i] = face_info.pts.x[i];
         pts[2 * i + 1] = face_info.pts.y[i];
       }
@@ -212,7 +212,7 @@ int FaceAttribute::extract_face_feature(const uint8_t *p_rgb_pack, uint32_t widt
   float transm[6];
   mmap_video_frame(&m_wrap_frame);
   if (p_face_info->pts.size == 5) {  // do face alignment
-    for (u_int8_t i = 0; i < 5; i++) {
+    for (uint8_t i = 0; i < 5; i++) {
       pts[2 * i] = p_face_info->pts.x[i];
       pts[2 * i + 1] = p_face_info->pts.y[i];
     }

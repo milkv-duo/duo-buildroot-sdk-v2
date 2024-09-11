@@ -3,18 +3,15 @@
 #include "core/core/cvtdl_errno.h"
 #include "core/core/cvtdl_vpss_types.h"
 
-#include "cvi_tdl_log.hpp"
-#ifndef CONFIG_ALIOS
-#include "model_debugger.hpp"
-#endif
-#include "vpss_engine.hpp"
-
 #include <cviruntime.h>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include "cvi_comm.h"
+#include "cvi_tdl_log.hpp"
 #include "profiler.hpp"
+#include "vpss_engine.hpp"
 #define DEFAULT_MODEL_THRESHOLD 0.5
 #define DEFAULT_MODEL_NMS_THRESHOLD 0.5
 
@@ -101,20 +98,6 @@ class Core {
   bool isInitialized();
   // TODO:remove this interface
   virtual bool allowExportChannelAttribute() const { return false; }
-#ifndef CONFIG_ALIOS
-  void enableDebugger(bool enable) { m_debugger.setEnable(enable); }
-  void setDebuggerOutputPath(const std::string &dump_path) {
-    m_debugger.setDirPath(dump_path);
-
-    if (m_debugger.isEnable()) {
-      LOGW("************************TDL SDK Debugger***********************\n");
-      LOGW("TDL SDK Debugger is enabled!\n");
-      LOGW("execute 'echo 1 > %s/enable' command to turn on debugger\n", dump_path.c_str());
-      LOGW("execute 'echo 0 > %s/enable' command to turn off debugger\n", dump_path.c_str());
-      LOGW("**************************************************************\n");
-    }
-  }
-#endif
 
   void set_perf_eval_interval(int interval) { model_timer_.Config("", interval); }
   int vpssCropImage(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dstFrame, cvtdl_bbox_t bbox,
@@ -205,9 +188,6 @@ class Core {
   // vpss related control
   int32_t m_vpss_timeout = 100;
   std::string m_model_file;
-#ifndef CONFIG_ALIOS
-  debug::ModelDebugger m_debugger;
-#endif
 
  private:
   template <typename T>

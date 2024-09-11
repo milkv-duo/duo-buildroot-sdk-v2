@@ -500,12 +500,6 @@ int Core::run(std::vector<VIDEO_FRAME_INFO_S *> &frames) {
   model_timer_.TicToc("runstart");
   std::vector<std::shared_ptr<VIDEO_FRAME_INFO_S>> dstFrames;
 
-#ifndef CONFIG_ALIOS
-  m_debugger.newSession(demangle::type_no_scope(*this));
-  m_debugger.save_field("skip_vpss_preprocess", ((uint8_t)m_skip_vpss_preprocess));
-  m_debugger.save_field("model_file", m_model_file.c_str(), {m_model_file.size()});
-  m_debugger.save_field("input_mem_type", (uint8_t)mp_mi->conf.input_mem_type);
-#endif
   if (aligned_input && frames.size() != 1) {
     LOGE("can only process one frame for aligninput,got frame_num:%d\n", int(frames.size()));
   }
@@ -524,9 +518,6 @@ int Core::run(std::vector<VIDEO_FRAME_INFO_S *> &frames) {
       dstFrames.reserve(frames.size());
       for (uint32_t i = 0; i < frames.size(); i++) {
         VIDEO_FRAME_INFO_S *f = new VIDEO_FRAME_INFO_S;
-#ifndef CONFIG_ALIOS
-        m_debugger.save_origin_frame(frames[i], mp_mi->in.tensors + i);
-#endif
         memset(f, 0, sizeof(VIDEO_FRAME_INFO_S));
         int vpssret = vpssPreprocess(frames[i], f, m_vpss_config[i]);
         if (vpssret != CVI_TDL_SUCCESS) {
@@ -555,15 +546,8 @@ int Core::run(std::vector<VIDEO_FRAME_INFO_S *> &frames) {
     if (rcret == CVI_RC_SUCCESS) {
       // save debuginfo
       for (int32_t i = 0; i < mp_mi->in.num; i++) {
-#ifndef CONFIG_ALIOS
-        CVI_TENSOR *tensor = mp_mi->in.tensors + i;
-        m_debugger.save_tensor(tensor, getInputRawPtr<void>(0));
-#endif
         // save normalizer only if model needs vpss precprcossing
         if (!m_skip_vpss_preprocess && mp_mi->conf.input_mem_type == CVI_MEM_DEVICE) {
-#ifndef CONFIG_ALIOS
-          m_debugger.save_normalizer(tensor, m_vpss_config[i].chn_attr.stNormalize);
-#endif
         }
       }
     } else {

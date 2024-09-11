@@ -763,24 +763,6 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
   return instance->getChnConfig(frameWidth, frameHeight, idx, chnConfig);
 }
 
-CVI_S32 CVI_TDL_EnalbeDumpInput(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
-                                const char *dump_path, bool enable) {
-  CVI_S32 ret = CVI_TDL_SUCCESS;
-  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
-  cvitdl::Core *instance = getInferenceInstance(config, ctx);
-  if (instance == nullptr) {
-    LOGE("Instance is null.\n");
-    return CVI_TDL_ERR_OPEN_MODEL;
-  }
-
-#ifdef CONFIG_ALIOS
-#else
-  instance->enableDebugger(enable);
-  instance->setDebuggerOutputPath(dump_path);
-#endif
-  return ret;
-}
-
 /**
  *  Convenience macros for defining inference functions. F{NUM} stands for how many input frame
  *  variables, P{NUM} stands for how many input parameters in inference function. All inference
