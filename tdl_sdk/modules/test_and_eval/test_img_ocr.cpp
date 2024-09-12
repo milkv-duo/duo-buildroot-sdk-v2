@@ -92,7 +92,10 @@ int main(int argc, char* argv[]) {
 
   cvtdl_object_t obj_meta = {0};
   ret = CVI_TDL_OCR_Detection(tdl_handle, &bg, &obj_meta);
-  if (obj_meta.size > 0) {
+  if (ret != CVI_SUCCESS) {
+    printf("ocr detection failed with %#x!\n", ret);
+    return ret;
+  } else if (obj_meta.size > 0) {
     ret = CVI_TDL_OCR_Recognition(tdl_handle, &bg, &obj_meta);
   } else {
     printf("cannot find ocr bbox\n");

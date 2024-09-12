@@ -258,6 +258,10 @@ void CVI_TDL_CopyInfoCpp(const cvtdl_object_info_t *info, cvtdl_object_info_t *i
   if (infoNew->feature.size != 0) {
     uint32_t feature_size = infoNew->feature.size * getFeatureTypeSize(infoNew->feature.type);
     infoNew->feature.ptr = (int8_t *)malloc(feature_size);
+    if (infoNew->feature.ptr == nullptr) {
+      syslog(LOG_ERR, "malloc failed for feature.ptr\n");
+      return;
+    }
     memcpy(infoNew->feature.ptr, info->feature.ptr, feature_size);
   } else {
     infoNew->feature.ptr = NULL;
