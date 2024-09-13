@@ -260,212 +260,212 @@ static void imx675_linear_5M30_init(VI_PIPE ViPipe)
 {
 	delay_ms(4);
 
-	imx675_write_register(ViPipe, 0X3000, 0X01); //STANDBY
-	imx675_write_register(ViPipe, 0X3001, 0X00); //REGHOLD
-	imx675_write_register(ViPipe, 0X3002, 0X01); //XMSTA
-	imx675_write_register(ViPipe, 0X3014, 0X03); //INCK_SEL[3:0] 3:27 1:37.125
-	imx675_write_register(ViPipe, 0X3015, 0X04); //DATARATE_SEL[3:0]
-	imx675_write_register(ViPipe, 0X3018, 0X00); //WINMODE[3:0]
-	imx675_write_register(ViPipe, 0X3019, 0X00); //CFMODE
-	imx675_write_register(ViPipe, 0X301A, 0X00); //WDMODE[7:0]
-	imx675_write_register(ViPipe, 0X301B, 0X00); //ADDMODE[1:0]
-	imx675_write_register(ViPipe, 0X301C, 0X00); //THIN_V_EN[7:0]
-	imx675_write_register(ViPipe, 0X301E, 0X01); //VCMODE[7:0]
-	imx675_write_register(ViPipe, 0X3020, 0X00); //HREVERSE
-	imx675_write_register(ViPipe, 0X3021, 0X00); //VREVERSE
-	imx675_write_register(ViPipe, 0X3022, 0X01); //ADBIT[1:0]
-	imx675_write_register(ViPipe, 0X3023, 0X01); //MDBIT
-	imx675_write_register(ViPipe, 0X3028, 0X52); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X3029, 0X0E); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X302A, 0X00); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X302C, 0XA3); //HMAX[15:0]
-	imx675_write_register(ViPipe, 0X302D, 0X02); //HMAX[15:0]
-	imx675_write_register(ViPipe, 0X3030, 0X00); //FDG_SEL0[1:0]
-	imx675_write_register(ViPipe, 0X3031, 0X00); //FDG_SEL1[1:0]
-	imx675_write_register(ViPipe, 0X3032, 0X00); //FDG_SEL2[1:0]
-	imx675_write_register(ViPipe, 0X303C, 0X00); //PIX_HST[12:0]
-	imx675_write_register(ViPipe, 0X303D, 0X00); //PIX_HST[12:0]
-	imx675_write_register(ViPipe, 0X303E, 0X30); //PIX_HWIDTH[12:0]
-	imx675_write_register(ViPipe, 0X303F, 0X0A); //PIX_HWIDTH[12:0]
-	imx675_write_register(ViPipe, 0X3040, 0X03); //LANEMODE[2:0]
-	imx675_write_register(ViPipe, 0X3044, 0X00); //PIX_VST[11:0]
-	imx675_write_register(ViPipe, 0X3045, 0X00); //PIX_VST[11:0]
-	imx675_write_register(ViPipe, 0X3046, 0XAC); //PIX_VWIDTH[11:0]
-	imx675_write_register(ViPipe, 0X3047, 0X07); //PIX_VWIDTH[11:0]
-	imx675_write_register(ViPipe, 0X304C, 0X00); //GAIN_HG0[10:0]
-	imx675_write_register(ViPipe, 0X304D, 0X00); //GAIN_HG0[10:0]
-	imx675_write_register(ViPipe, 0X3050, 0X04); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3051, 0X00); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3052, 0X00); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3054, 0X93); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3055, 0X00); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3056, 0X00); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3058, 0X53); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X3059, 0X00); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X305A, 0X00); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X3060, 0X95); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3061, 0X00); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3062, 0X00); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3064, 0X56); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3065, 0X00); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3066, 0X00); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3070, 0X00); //GAIN_0[10:0]
-	imx675_write_register(ViPipe, 0X3071, 0X00); //GAIN_0[10:0]
-	imx675_write_register(ViPipe, 0X3072, 0X00); //GAIN_1[10:0]
-	imx675_write_register(ViPipe, 0X3073, 0X00); //GAIN_1[10:0]
-	imx675_write_register(ViPipe, 0X3074, 0X00); //GAIN_2[10:0]
-	imx675_write_register(ViPipe, 0X3075, 0X00); //GAIN_2[10:0]
-	imx675_write_register(ViPipe, 0X30A4, 0XAA); //XVSOUTSEL[1:0]
-	imx675_write_register(ViPipe, 0X30A6, 0X00); //XVS_DRV[1:0]
-	imx675_write_register(ViPipe, 0X30CC, 0X00);
-	imx675_write_register(ViPipe, 0X30CD, 0X00);
-	imx675_write_register(ViPipe, 0X30CE, 0X02);
-	imx675_write_register(ViPipe, 0X30DC, 0X32); //BLKLEVEL[9:0]
-	imx675_write_register(ViPipe, 0X30DD, 0X40); //BLKLEVEL[9:0]
-	imx675_write_register(ViPipe, 0X310C, 0X01);
-	imx675_write_register(ViPipe, 0X3130, 0X01);
-	imx675_write_register(ViPipe, 0X3148, 0X00);
-	imx675_write_register(ViPipe, 0X315E, 0X10);
-	imx675_write_register(ViPipe, 0X3400, 0X01); //GAIN_PGC_FIDMD
-	imx675_write_register(ViPipe, 0X3460, 0X22);
-	imx675_write_register(ViPipe, 0X347B, 0X02);
-	imx675_write_register(ViPipe, 0X3492, 0X08);
-	imx675_write_register(ViPipe, 0X3890, 0X08); //HFR_EN[3:0]
-	imx675_write_register(ViPipe, 0X3891, 0X00); //HFR_EN[3:0]
-	imx675_write_register(ViPipe, 0X3893, 0X00);
-	imx675_write_register(ViPipe, 0X3B1D, 0X17);
-	imx675_write_register(ViPipe, 0X3B44, 0X3F);
-	imx675_write_register(ViPipe, 0X3B60, 0X03);
-	imx675_write_register(ViPipe, 0X3C03, 0X04);
-	imx675_write_register(ViPipe, 0X3C04, 0X04);
-	imx675_write_register(ViPipe, 0X3C0A, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0B, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0C, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0D, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0E, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0F, 0X1F);
-	imx675_write_register(ViPipe, 0X3C30, 0X73);
-	imx675_write_register(ViPipe, 0X3C3C, 0X20);
-	imx675_write_register(ViPipe, 0X3C44, 0X06);
-	imx675_write_register(ViPipe, 0X3C7C, 0XB9);
-	imx675_write_register(ViPipe, 0X3C7D, 0X01);
-	imx675_write_register(ViPipe, 0X3C7E, 0XB7);
-	imx675_write_register(ViPipe, 0X3C7F, 0X01);
-	imx675_write_register(ViPipe, 0X3CB0, 0X00);
-	imx675_write_register(ViPipe, 0X3CB2, 0XFF);
-	imx675_write_register(ViPipe, 0X3CB3, 0X03);
-	imx675_write_register(ViPipe, 0X3CB4, 0XFF);
-	imx675_write_register(ViPipe, 0X3CB5, 0X03);
-	imx675_write_register(ViPipe, 0X3CBA, 0XFF);
-	imx675_write_register(ViPipe, 0X3CBB, 0X03);
-	imx675_write_register(ViPipe, 0X3CC0, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC1, 0X03);
-	imx675_write_register(ViPipe, 0X3CC2, 0X00);
-	imx675_write_register(ViPipe, 0X3CC6, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC7, 0X03);
-	imx675_write_register(ViPipe, 0X3CC8, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC9, 0X03);
-	imx675_write_register(ViPipe, 0X3E00, 0X1E);
-	imx675_write_register(ViPipe, 0X3E02, 0X04);
-	imx675_write_register(ViPipe, 0X3E03, 0X00);
-	imx675_write_register(ViPipe, 0X3E20, 0X04);
-	imx675_write_register(ViPipe, 0X3E21, 0X00);
-	imx675_write_register(ViPipe, 0X3E22, 0X1E);
-	imx675_write_register(ViPipe, 0X3E24, 0XBA);
-	imx675_write_register(ViPipe, 0X3E72, 0X85);
-	imx675_write_register(ViPipe, 0X3E76, 0X0C);
-	imx675_write_register(ViPipe, 0X3E77, 0X01);
-	imx675_write_register(ViPipe, 0X3E7A, 0X85);
-	imx675_write_register(ViPipe, 0X3E7E, 0X1F);
-	imx675_write_register(ViPipe, 0X3E82, 0XA6);
-	imx675_write_register(ViPipe, 0X3E86, 0X2D);
-	imx675_write_register(ViPipe, 0X3EE2, 0X33);
-	imx675_write_register(ViPipe, 0X3EE3, 0X03);
-	imx675_write_register(ViPipe, 0X4490, 0X07);
-	imx675_write_register(ViPipe, 0X4494, 0X19);
-	imx675_write_register(ViPipe, 0X4495, 0X00);
-	imx675_write_register(ViPipe, 0X4496, 0XBB);
-	imx675_write_register(ViPipe, 0X4497, 0X00);
-	imx675_write_register(ViPipe, 0X4498, 0X55);
-	imx675_write_register(ViPipe, 0X449A, 0X50);
-	imx675_write_register(ViPipe, 0X449C, 0X50);
-	imx675_write_register(ViPipe, 0X449E, 0X50);
-	imx675_write_register(ViPipe, 0X44A0, 0X3C);
-	imx675_write_register(ViPipe, 0X44A2, 0X19);
-	imx675_write_register(ViPipe, 0X44A4, 0X19);
-	imx675_write_register(ViPipe, 0X44A6, 0X19);
-	imx675_write_register(ViPipe, 0X44A8, 0X4B);
-	imx675_write_register(ViPipe, 0X44AA, 0X4B);
-	imx675_write_register(ViPipe, 0X44AC, 0X4B);
-	imx675_write_register(ViPipe, 0X44AE, 0X4B);
-	imx675_write_register(ViPipe, 0X44B0, 0X3C);
-	imx675_write_register(ViPipe, 0X44B2, 0X19);
-	imx675_write_register(ViPipe, 0X44B4, 0X19);
-	imx675_write_register(ViPipe, 0X44B6, 0X19);
-	imx675_write_register(ViPipe, 0X44B8, 0X4B);
-	imx675_write_register(ViPipe, 0X44BA, 0X4B);
-	imx675_write_register(ViPipe, 0X44BC, 0X4B);
-	imx675_write_register(ViPipe, 0X44BE, 0X4B);
-	imx675_write_register(ViPipe, 0X44C0, 0X3C);
-	imx675_write_register(ViPipe, 0X44C2, 0X19);
-	imx675_write_register(ViPipe, 0X44C4, 0X19);
-	imx675_write_register(ViPipe, 0X44C6, 0X19);
-	imx675_write_register(ViPipe, 0X44C8, 0XF0);
-	imx675_write_register(ViPipe, 0X44CA, 0XEB);
-	imx675_write_register(ViPipe, 0X44CC, 0XEB);
-	imx675_write_register(ViPipe, 0X44CE, 0XE6);
-	imx675_write_register(ViPipe, 0X44D0, 0XE6);
-	imx675_write_register(ViPipe, 0X44D2, 0XBB);
-	imx675_write_register(ViPipe, 0X44D4, 0XBB);
-	imx675_write_register(ViPipe, 0X44D6, 0XBB);
-	imx675_write_register(ViPipe, 0X44D8, 0XE6);
-	imx675_write_register(ViPipe, 0X44DA, 0XE6);
-	imx675_write_register(ViPipe, 0X44DC, 0XE6);
-	imx675_write_register(ViPipe, 0X44DE, 0XE6);
-	imx675_write_register(ViPipe, 0X44E0, 0XE6);
-	imx675_write_register(ViPipe, 0X44E2, 0XBB);
-	imx675_write_register(ViPipe, 0X44E4, 0XBB);
-	imx675_write_register(ViPipe, 0X44E6, 0XBB);
-	imx675_write_register(ViPipe, 0X44E8, 0XE6);
-	imx675_write_register(ViPipe, 0X44EA, 0XE6);
-	imx675_write_register(ViPipe, 0X44EC, 0XE6);
-	imx675_write_register(ViPipe, 0X44EE, 0XE6);
-	imx675_write_register(ViPipe, 0X44F0, 0XE6);
-	imx675_write_register(ViPipe, 0X44F2, 0XBB);
-	imx675_write_register(ViPipe, 0X44F4, 0XBB);
-	imx675_write_register(ViPipe, 0X44F6, 0XBB);
-	imx675_write_register(ViPipe, 0X4538, 0X15);
-	imx675_write_register(ViPipe, 0X4539, 0X15);
-	imx675_write_register(ViPipe, 0X453A, 0X15);
-	imx675_write_register(ViPipe, 0X4544, 0X15);
-	imx675_write_register(ViPipe, 0X4545, 0X15);
-	imx675_write_register(ViPipe, 0X4546, 0X15);
-	imx675_write_register(ViPipe, 0X4550, 0X10);
-	imx675_write_register(ViPipe, 0X4551, 0X10);
-	imx675_write_register(ViPipe, 0X4552, 0X10);
-	imx675_write_register(ViPipe, 0X4553, 0X10);
-	imx675_write_register(ViPipe, 0X4554, 0X10);
-	imx675_write_register(ViPipe, 0X4555, 0X10);
-	imx675_write_register(ViPipe, 0X4556, 0X10);
-	imx675_write_register(ViPipe, 0X4557, 0X10);
-	imx675_write_register(ViPipe, 0X4558, 0X10);
-	imx675_write_register(ViPipe, 0X455C, 0X10);
-	imx675_write_register(ViPipe, 0X455D, 0X10);
-	imx675_write_register(ViPipe, 0X455E, 0X10);
-	imx675_write_register(ViPipe, 0X455F, 0X10);
-	imx675_write_register(ViPipe, 0X4560, 0X10);
-	imx675_write_register(ViPipe, 0X4561, 0X10);
-	imx675_write_register(ViPipe, 0X4562, 0X10);
-	imx675_write_register(ViPipe, 0X4563, 0X10);
-	imx675_write_register(ViPipe, 0X4564, 0X10);
-	imx675_write_register(ViPipe, 0X4569, 0X01);
-	imx675_write_register(ViPipe, 0X456A, 0X01);
-	imx675_write_register(ViPipe, 0X456B, 0X06);
-	imx675_write_register(ViPipe, 0X456C, 0X06);
-	imx675_write_register(ViPipe, 0X456D, 0X06);
-	imx675_write_register(ViPipe, 0X456E, 0X06);
-	imx675_write_register(ViPipe, 0X456F, 0X06);
-	imx675_write_register(ViPipe, 0X4570, 0X06);
+	imx675_write_register(ViPipe, 0x3000, 0x01); //STANDBY
+	imx675_write_register(ViPipe, 0x3001, 0x00); //REGHOLD
+	imx675_write_register(ViPipe, 0x3002, 0x01); //XMSTA
+	imx675_write_register(ViPipe, 0x3014, 0x03); //INCK_SEL[3:0] 3:27 1:37.125
+	imx675_write_register(ViPipe, 0x3015, 0x04); //DATARATE_SEL[3:0]
+	imx675_write_register(ViPipe, 0x3018, 0x00); //WINMODE[3:0]
+	imx675_write_register(ViPipe, 0x3019, 0x00); //CFMODE
+	imx675_write_register(ViPipe, 0x301A, 0x00); //WDMODE[7:0]
+	imx675_write_register(ViPipe, 0x301B, 0x00); //ADDMODE[1:0]
+	imx675_write_register(ViPipe, 0x301C, 0x00); //THIN_V_EN[7:0]
+	imx675_write_register(ViPipe, 0x301E, 0x01); //VCMODE[7:0]
+	imx675_write_register(ViPipe, 0x3020, 0x00); //HREVERSE
+	imx675_write_register(ViPipe, 0x3021, 0x00); //VREVERSE
+	imx675_write_register(ViPipe, 0x3022, 0x01); //ADBIT[1:0]
+	imx675_write_register(ViPipe, 0x3023, 0x01); //MDBIT
+	imx675_write_register(ViPipe, 0x3028, 0x52); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x3029, 0x0E); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x302A, 0x00); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x302C, 0xA3); //HMAX[15:0]
+	imx675_write_register(ViPipe, 0x302D, 0x02); //HMAX[15:0]
+	imx675_write_register(ViPipe, 0x3030, 0x00); //FDG_SEL0[1:0]
+	imx675_write_register(ViPipe, 0x3031, 0x00); //FDG_SEL1[1:0]
+	imx675_write_register(ViPipe, 0x3032, 0x00); //FDG_SEL2[1:0]
+	imx675_write_register(ViPipe, 0x303C, 0x00); //PIX_HST[12:0]
+	imx675_write_register(ViPipe, 0x303D, 0x00); //PIX_HST[12:0]
+	imx675_write_register(ViPipe, 0x303E, 0x30); //PIX_HWIDTH[12:0]
+	imx675_write_register(ViPipe, 0x303F, 0x0A); //PIX_HWIDTH[12:0]
+	imx675_write_register(ViPipe, 0x3040, 0x03); //LANEMODE[2:0]
+	imx675_write_register(ViPipe, 0x3044, 0x00); //PIX_VST[11:0]
+	imx675_write_register(ViPipe, 0x3045, 0x00); //PIX_VST[11:0]
+	imx675_write_register(ViPipe, 0x3046, 0xAC); //PIX_VWIDTH[11:0]
+	imx675_write_register(ViPipe, 0x3047, 0x07); //PIX_VWIDTH[11:0]
+	imx675_write_register(ViPipe, 0x304C, 0x00); //GAIN_HG0[10:0]
+	imx675_write_register(ViPipe, 0x304D, 0x00); //GAIN_HG0[10:0]
+	imx675_write_register(ViPipe, 0x3050, 0x04); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3051, 0x00); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3052, 0x00); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3054, 0x93); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3055, 0x00); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3056, 0x00); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3058, 0x53); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x3059, 0x00); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x305A, 0x00); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x3060, 0x95); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3061, 0x00); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3062, 0x00); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3064, 0x56); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3065, 0x00); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3066, 0x00); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3070, 0x00); //GAIN_0[10:0]
+	imx675_write_register(ViPipe, 0x3071, 0x00); //GAIN_0[10:0]
+	imx675_write_register(ViPipe, 0x3072, 0x00); //GAIN_1[10:0]
+	imx675_write_register(ViPipe, 0x3073, 0x00); //GAIN_1[10:0]
+	imx675_write_register(ViPipe, 0x3074, 0x00); //GAIN_2[10:0]
+	imx675_write_register(ViPipe, 0x3075, 0x00); //GAIN_2[10:0]
+	imx675_write_register(ViPipe, 0x30A4, 0xAA); //XVSOUTSEL[1:0]
+	imx675_write_register(ViPipe, 0x30A6, 0x00); //XVS_DRV[1:0]
+	imx675_write_register(ViPipe, 0x30CC, 0x00);
+	imx675_write_register(ViPipe, 0x30CD, 0x00);
+	imx675_write_register(ViPipe, 0x30CE, 0x02);
+	imx675_write_register(ViPipe, 0x30DC, 0x32); //BLKLEVEL[9:0]
+	imx675_write_register(ViPipe, 0x30DD, 0x40); //BLKLEVEL[9:0]
+	imx675_write_register(ViPipe, 0x310C, 0x01);
+	imx675_write_register(ViPipe, 0x3130, 0x01);
+	imx675_write_register(ViPipe, 0x3148, 0x00);
+	imx675_write_register(ViPipe, 0x315E, 0x10);
+	imx675_write_register(ViPipe, 0x3400, 0x01); //GAIN_PGC_FIDMD
+	imx675_write_register(ViPipe, 0x3460, 0x22);
+	imx675_write_register(ViPipe, 0x347B, 0x02);
+	imx675_write_register(ViPipe, 0x3492, 0x08);
+	imx675_write_register(ViPipe, 0x3890, 0x08); //HFR_EN[3:0]
+	imx675_write_register(ViPipe, 0x3891, 0x00); //HFR_EN[3:0]
+	imx675_write_register(ViPipe, 0x3893, 0x00);
+	imx675_write_register(ViPipe, 0x3B1D, 0x17);
+	imx675_write_register(ViPipe, 0x3B44, 0x3F);
+	imx675_write_register(ViPipe, 0x3B60, 0x03);
+	imx675_write_register(ViPipe, 0x3C03, 0x04);
+	imx675_write_register(ViPipe, 0x3C04, 0x04);
+	imx675_write_register(ViPipe, 0x3C0A, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0B, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0C, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0D, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0E, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0F, 0x1F);
+	imx675_write_register(ViPipe, 0x3C30, 0x73);
+	imx675_write_register(ViPipe, 0x3C3C, 0x20);
+	imx675_write_register(ViPipe, 0x3C44, 0x06);
+	imx675_write_register(ViPipe, 0x3C7C, 0xB9);
+	imx675_write_register(ViPipe, 0x3C7D, 0x01);
+	imx675_write_register(ViPipe, 0x3C7E, 0xB7);
+	imx675_write_register(ViPipe, 0x3C7F, 0x01);
+	imx675_write_register(ViPipe, 0x3CB0, 0x00);
+	imx675_write_register(ViPipe, 0x3CB2, 0xFF);
+	imx675_write_register(ViPipe, 0x3CB3, 0x03);
+	imx675_write_register(ViPipe, 0x3CB4, 0xFF);
+	imx675_write_register(ViPipe, 0x3CB5, 0x03);
+	imx675_write_register(ViPipe, 0x3CBA, 0xFF);
+	imx675_write_register(ViPipe, 0x3CBB, 0x03);
+	imx675_write_register(ViPipe, 0x3CC0, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC1, 0x03);
+	imx675_write_register(ViPipe, 0x3CC2, 0x00);
+	imx675_write_register(ViPipe, 0x3CC6, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC7, 0x03);
+	imx675_write_register(ViPipe, 0x3CC8, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC9, 0x03);
+	imx675_write_register(ViPipe, 0x3E00, 0x1E);
+	imx675_write_register(ViPipe, 0x3E02, 0x04);
+	imx675_write_register(ViPipe, 0x3E03, 0x00);
+	imx675_write_register(ViPipe, 0x3E20, 0x04);
+	imx675_write_register(ViPipe, 0x3E21, 0x00);
+	imx675_write_register(ViPipe, 0x3E22, 0x1E);
+	imx675_write_register(ViPipe, 0x3E24, 0xBA);
+	imx675_write_register(ViPipe, 0x3E72, 0x85);
+	imx675_write_register(ViPipe, 0x3E76, 0x0C);
+	imx675_write_register(ViPipe, 0x3E77, 0x01);
+	imx675_write_register(ViPipe, 0x3E7A, 0x85);
+	imx675_write_register(ViPipe, 0x3E7E, 0x1F);
+	imx675_write_register(ViPipe, 0x3E82, 0xA6);
+	imx675_write_register(ViPipe, 0x3E86, 0x2D);
+	imx675_write_register(ViPipe, 0x3EE2, 0x33);
+	imx675_write_register(ViPipe, 0x3EE3, 0x03);
+	imx675_write_register(ViPipe, 0x4490, 0x07);
+	imx675_write_register(ViPipe, 0x4494, 0x19);
+	imx675_write_register(ViPipe, 0x4495, 0x00);
+	imx675_write_register(ViPipe, 0x4496, 0xBB);
+	imx675_write_register(ViPipe, 0x4497, 0x00);
+	imx675_write_register(ViPipe, 0x4498, 0x55);
+	imx675_write_register(ViPipe, 0x449A, 0x50);
+	imx675_write_register(ViPipe, 0x449C, 0x50);
+	imx675_write_register(ViPipe, 0x449E, 0x50);
+	imx675_write_register(ViPipe, 0x44A0, 0x3C);
+	imx675_write_register(ViPipe, 0x44A2, 0x19);
+	imx675_write_register(ViPipe, 0x44A4, 0x19);
+	imx675_write_register(ViPipe, 0x44A6, 0x19);
+	imx675_write_register(ViPipe, 0x44A8, 0x4B);
+	imx675_write_register(ViPipe, 0x44AA, 0x4B);
+	imx675_write_register(ViPipe, 0x44AC, 0x4B);
+	imx675_write_register(ViPipe, 0x44AE, 0x4B);
+	imx675_write_register(ViPipe, 0x44B0, 0x3C);
+	imx675_write_register(ViPipe, 0x44B2, 0x19);
+	imx675_write_register(ViPipe, 0x44B4, 0x19);
+	imx675_write_register(ViPipe, 0x44B6, 0x19);
+	imx675_write_register(ViPipe, 0x44B8, 0x4B);
+	imx675_write_register(ViPipe, 0x44BA, 0x4B);
+	imx675_write_register(ViPipe, 0x44BC, 0x4B);
+	imx675_write_register(ViPipe, 0x44BE, 0x4B);
+	imx675_write_register(ViPipe, 0x44C0, 0x3C);
+	imx675_write_register(ViPipe, 0x44C2, 0x19);
+	imx675_write_register(ViPipe, 0x44C4, 0x19);
+	imx675_write_register(ViPipe, 0x44C6, 0x19);
+	imx675_write_register(ViPipe, 0x44C8, 0xF0);
+	imx675_write_register(ViPipe, 0x44CA, 0xEB);
+	imx675_write_register(ViPipe, 0x44CC, 0xEB);
+	imx675_write_register(ViPipe, 0x44CE, 0xE6);
+	imx675_write_register(ViPipe, 0x44D0, 0xE6);
+	imx675_write_register(ViPipe, 0x44D2, 0xBB);
+	imx675_write_register(ViPipe, 0x44D4, 0xBB);
+	imx675_write_register(ViPipe, 0x44D6, 0xBB);
+	imx675_write_register(ViPipe, 0x44D8, 0xE6);
+	imx675_write_register(ViPipe, 0x44DA, 0xE6);
+	imx675_write_register(ViPipe, 0x44DC, 0xE6);
+	imx675_write_register(ViPipe, 0x44DE, 0xE6);
+	imx675_write_register(ViPipe, 0x44E0, 0xE6);
+	imx675_write_register(ViPipe, 0x44E2, 0xBB);
+	imx675_write_register(ViPipe, 0x44E4, 0xBB);
+	imx675_write_register(ViPipe, 0x44E6, 0xBB);
+	imx675_write_register(ViPipe, 0x44E8, 0xE6);
+	imx675_write_register(ViPipe, 0x44EA, 0xE6);
+	imx675_write_register(ViPipe, 0x44EC, 0xE6);
+	imx675_write_register(ViPipe, 0x44EE, 0xE6);
+	imx675_write_register(ViPipe, 0x44F0, 0xE6);
+	imx675_write_register(ViPipe, 0x44F2, 0xBB);
+	imx675_write_register(ViPipe, 0x44F4, 0xBB);
+	imx675_write_register(ViPipe, 0x44F6, 0xBB);
+	imx675_write_register(ViPipe, 0x4538, 0x15);
+	imx675_write_register(ViPipe, 0x4539, 0x15);
+	imx675_write_register(ViPipe, 0x453A, 0x15);
+	imx675_write_register(ViPipe, 0x4544, 0x15);
+	imx675_write_register(ViPipe, 0x4545, 0x15);
+	imx675_write_register(ViPipe, 0x4546, 0x15);
+	imx675_write_register(ViPipe, 0x4550, 0x10);
+	imx675_write_register(ViPipe, 0x4551, 0x10);
+	imx675_write_register(ViPipe, 0x4552, 0x10);
+	imx675_write_register(ViPipe, 0x4553, 0x10);
+	imx675_write_register(ViPipe, 0x4554, 0x10);
+	imx675_write_register(ViPipe, 0x4555, 0x10);
+	imx675_write_register(ViPipe, 0x4556, 0x10);
+	imx675_write_register(ViPipe, 0x4557, 0x10);
+	imx675_write_register(ViPipe, 0x4558, 0x10);
+	imx675_write_register(ViPipe, 0x455C, 0x10);
+	imx675_write_register(ViPipe, 0x455D, 0x10);
+	imx675_write_register(ViPipe, 0x455E, 0x10);
+	imx675_write_register(ViPipe, 0x455F, 0x10);
+	imx675_write_register(ViPipe, 0x4560, 0x10);
+	imx675_write_register(ViPipe, 0x4561, 0x10);
+	imx675_write_register(ViPipe, 0x4562, 0x10);
+	imx675_write_register(ViPipe, 0x4563, 0x10);
+	imx675_write_register(ViPipe, 0x4564, 0x10);
+	imx675_write_register(ViPipe, 0x4569, 0x01);
+	imx675_write_register(ViPipe, 0x456A, 0x01);
+	imx675_write_register(ViPipe, 0x456B, 0x06);
+	imx675_write_register(ViPipe, 0x456C, 0x06);
+	imx675_write_register(ViPipe, 0x456D, 0x06);
+	imx675_write_register(ViPipe, 0x456E, 0x06);
+	imx675_write_register(ViPipe, 0x456F, 0x06);
+	imx675_write_register(ViPipe, 0x4570, 0x06);
 
 	imx675_default_reg_init(ViPipe);
 
@@ -482,212 +482,212 @@ static void imx675_wdr_5M25_2to1_init(VI_PIPE ViPipe)
 {
 	delay_ms(4);
 
-	imx675_write_register(ViPipe, 0X3000, 0X01); //STANDBY
-	imx675_write_register(ViPipe, 0X3001, 0X00); //REGHOLD
-	imx675_write_register(ViPipe, 0X3002, 0X01); //XMSTA
-	imx675_write_register(ViPipe, 0X3014, 0X03); //INCK_SEL[3:0]
-	imx675_write_register(ViPipe, 0X3015, 0X03); //DATARATE_SEL[3:0]
-	imx675_write_register(ViPipe, 0X3018, 0X00); //WINMODE[3:0]
-	imx675_write_register(ViPipe, 0X3019, 0X00); //CFMODE
-	imx675_write_register(ViPipe, 0X301A, 0X01); //WDMODE[7:0]
-	imx675_write_register(ViPipe, 0X301B, 0X00); //ADDMODE[1:0]
-	imx675_write_register(ViPipe, 0X301C, 0X01); //THIN_V_EN[7:0]
-	imx675_write_register(ViPipe, 0X301E, 0X01); //VCMODE[7:0]
-	imx675_write_register(ViPipe, 0X3020, 0X00); //HREVERSE
-	imx675_write_register(ViPipe, 0X3021, 0X00); //VREVERSE
-	imx675_write_register(ViPipe, 0X3022, 0X01); //ADBIT[1:0]
-	imx675_write_register(ViPipe, 0X3023, 0X01); //MDBIT
-	imx675_write_register(ViPipe, 0X3028, 0X98); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X3029, 0X08); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X302A, 0X00); //VMAX[19:0]
-	imx675_write_register(ViPipe, 0X302C, 0XA3); //HMAX[15:0]
-	imx675_write_register(ViPipe, 0X302D, 0X02); //HMAX[15:0]
-	imx675_write_register(ViPipe, 0X3030, 0X00); //FDG_SEL0[1:0]
-	imx675_write_register(ViPipe, 0X3031, 0X00); //FDG_SEL1[1:0]
-	imx675_write_register(ViPipe, 0X3032, 0X00); //FDG_SEL2[1:0]
-	imx675_write_register(ViPipe, 0X303C, 0X00); //PIX_HST[12:0]
-	imx675_write_register(ViPipe, 0X303D, 0X00); //PIX_HST[12:0]
-	imx675_write_register(ViPipe, 0X303E, 0X30); //PIX_HWIDTH[12:0]
-	imx675_write_register(ViPipe, 0X303F, 0X0A); //PIX_HWIDTH[12:0]
-	imx675_write_register(ViPipe, 0X3040, 0X03); //LANEMODE[2:0]
-	imx675_write_register(ViPipe, 0X3044, 0X00); //PIX_VST[11:0]
-	imx675_write_register(ViPipe, 0X3045, 0X00); //PIX_VST[11:0]
-	imx675_write_register(ViPipe, 0X3046, 0XAC); //PIX_VWIDTH[11:0]
-	imx675_write_register(ViPipe, 0X3047, 0X07); //PIX_VWIDTH[11:0]
-	imx675_write_register(ViPipe, 0X304C, 0X00); //GAIN_HG0[10:0]
-	imx675_write_register(ViPipe, 0X304D, 0X00); //GAIN_HG0[10:0]
-	imx675_write_register(ViPipe, 0X3050, 0X50); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3051, 0X0A); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3052, 0X00); //SHR0[19:0]
-	imx675_write_register(ViPipe, 0X3054, 0X05); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3055, 0X00); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3056, 0X00); //SHR1[19:0]
-	imx675_write_register(ViPipe, 0X3058, 0X53); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X3059, 0X00); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X305A, 0X00); //SHR2[19:0]
-	imx675_write_register(ViPipe, 0X3060, 0X75); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3061, 0X00); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3062, 0X00); //RHS1[19:0]
-	imx675_write_register(ViPipe, 0X3064, 0X56); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3065, 0X00); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3066, 0X00); //RHS2[19:0]
-	imx675_write_register(ViPipe, 0X3070, 0X00); //GAIN_0[10:0]
-	imx675_write_register(ViPipe, 0X3071, 0X00); //GAIN_0[10:0]
-	imx675_write_register(ViPipe, 0X3072, 0X00); //GAIN_1[10:0]
-	imx675_write_register(ViPipe, 0X3073, 0X00); //GAIN_1[10:0]
-	imx675_write_register(ViPipe, 0X3074, 0X00); //GAIN_2[10:0]
-	imx675_write_register(ViPipe, 0X3075, 0X00); //GAIN_2[10:0]
-	imx675_write_register(ViPipe, 0X30A4, 0XAA); //XVSOUTSEL[1:0]
-	imx675_write_register(ViPipe, 0X30A6, 0X00); //XVS_DRV[1:0]
-	imx675_write_register(ViPipe, 0X30CC, 0X00);
-	imx675_write_register(ViPipe, 0X30CD, 0X00);
-	imx675_write_register(ViPipe, 0X30CE, 0X02);
-	imx675_write_register(ViPipe, 0X30DC, 0X32); //BLKLEVEL[9:0]
-	imx675_write_register(ViPipe, 0X30DD, 0X40); //BLKLEVEL[9:0]
-	imx675_write_register(ViPipe, 0X310C, 0X01);
-	imx675_write_register(ViPipe, 0X3130, 0X01);
-	imx675_write_register(ViPipe, 0X3148, 0X00);
-	imx675_write_register(ViPipe, 0X315E, 0X10);
-	imx675_write_register(ViPipe, 0X3400, 0X01); //GAIN_PGC_FIDMD
-	imx675_write_register(ViPipe, 0X3460, 0X22);
-	imx675_write_register(ViPipe, 0X347B, 0X02);
-	imx675_write_register(ViPipe, 0X3492, 0X08);
-	imx675_write_register(ViPipe, 0X3890, 0X08); //HFR_EN[3:0]
-	imx675_write_register(ViPipe, 0X3891, 0X00); //HFR_EN[3:0]
-	imx675_write_register(ViPipe, 0X3893, 0X00);
-	imx675_write_register(ViPipe, 0X3B1D, 0X17);
-	imx675_write_register(ViPipe, 0X3B44, 0X3F);
-	imx675_write_register(ViPipe, 0X3B60, 0X03);
-	imx675_write_register(ViPipe, 0X3C03, 0X04);
-	imx675_write_register(ViPipe, 0X3C04, 0X04);
-	imx675_write_register(ViPipe, 0X3C0A, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0B, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0C, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0D, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0E, 0X1F);
-	imx675_write_register(ViPipe, 0X3C0F, 0X1F);
-	imx675_write_register(ViPipe, 0X3C30, 0X73);
-	imx675_write_register(ViPipe, 0X3C3C, 0X20);
-	imx675_write_register(ViPipe, 0X3C44, 0X06);
-	imx675_write_register(ViPipe, 0X3C7C, 0XB9);
-	imx675_write_register(ViPipe, 0X3C7D, 0X01);
-	imx675_write_register(ViPipe, 0X3C7E, 0XB7);
-	imx675_write_register(ViPipe, 0X3C7F, 0X01);
-	imx675_write_register(ViPipe, 0X3CB0, 0X00);
-	imx675_write_register(ViPipe, 0X3CB2, 0XFF);
-	imx675_write_register(ViPipe, 0X3CB3, 0X03);
-	imx675_write_register(ViPipe, 0X3CB4, 0XFF);
-	imx675_write_register(ViPipe, 0X3CB5, 0X03);
-	imx675_write_register(ViPipe, 0X3CBA, 0XFF);
-	imx675_write_register(ViPipe, 0X3CBB, 0X03);
-	imx675_write_register(ViPipe, 0X3CC0, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC1, 0X03);
-	imx675_write_register(ViPipe, 0X3CC2, 0X00);
-	imx675_write_register(ViPipe, 0X3CC6, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC7, 0X03);
-	imx675_write_register(ViPipe, 0X3CC8, 0XFF);
-	imx675_write_register(ViPipe, 0X3CC9, 0X03);
-	imx675_write_register(ViPipe, 0X3E00, 0X1E);
-	imx675_write_register(ViPipe, 0X3E02, 0X04);
-	imx675_write_register(ViPipe, 0X3E03, 0X00);
-	imx675_write_register(ViPipe, 0X3E20, 0X04);
-	imx675_write_register(ViPipe, 0X3E21, 0X00);
-	imx675_write_register(ViPipe, 0X3E22, 0X1E);
-	imx675_write_register(ViPipe, 0X3E24, 0XBA);
-	imx675_write_register(ViPipe, 0X3E72, 0X85);
-	imx675_write_register(ViPipe, 0X3E76, 0X0C);
-	imx675_write_register(ViPipe, 0X3E77, 0X01);
-	imx675_write_register(ViPipe, 0X3E7A, 0X85);
-	imx675_write_register(ViPipe, 0X3E7E, 0X1F);
-	imx675_write_register(ViPipe, 0X3E82, 0XA6);
-	imx675_write_register(ViPipe, 0X3E86, 0X2D);
-	imx675_write_register(ViPipe, 0X3EE2, 0X33);
-	imx675_write_register(ViPipe, 0X3EE3, 0X03);
-	imx675_write_register(ViPipe, 0X4490, 0X07);
-	imx675_write_register(ViPipe, 0X4494, 0X19);
-	imx675_write_register(ViPipe, 0X4495, 0X00);
-	imx675_write_register(ViPipe, 0X4496, 0XBB);
-	imx675_write_register(ViPipe, 0X4497, 0X00);
-	imx675_write_register(ViPipe, 0X4498, 0X55);
-	imx675_write_register(ViPipe, 0X449A, 0X50);
-	imx675_write_register(ViPipe, 0X449C, 0X50);
-	imx675_write_register(ViPipe, 0X449E, 0X50);
-	imx675_write_register(ViPipe, 0X44A0, 0X3C);
-	imx675_write_register(ViPipe, 0X44A2, 0X19);
-	imx675_write_register(ViPipe, 0X44A4, 0X19);
-	imx675_write_register(ViPipe, 0X44A6, 0X19);
-	imx675_write_register(ViPipe, 0X44A8, 0X4B);
-	imx675_write_register(ViPipe, 0X44AA, 0X4B);
-	imx675_write_register(ViPipe, 0X44AC, 0X4B);
-	imx675_write_register(ViPipe, 0X44AE, 0X4B);
-	imx675_write_register(ViPipe, 0X44B0, 0X3C);
-	imx675_write_register(ViPipe, 0X44B2, 0X19);
-	imx675_write_register(ViPipe, 0X44B4, 0X19);
-	imx675_write_register(ViPipe, 0X44B6, 0X19);
-	imx675_write_register(ViPipe, 0X44B8, 0X4B);
-	imx675_write_register(ViPipe, 0X44BA, 0X4B);
-	imx675_write_register(ViPipe, 0X44BC, 0X4B);
-	imx675_write_register(ViPipe, 0X44BE, 0X4B);
-	imx675_write_register(ViPipe, 0X44C0, 0X3C);
-	imx675_write_register(ViPipe, 0X44C2, 0X19);
-	imx675_write_register(ViPipe, 0X44C4, 0X19);
-	imx675_write_register(ViPipe, 0X44C6, 0X19);
-	imx675_write_register(ViPipe, 0X44C8, 0XF0);
-	imx675_write_register(ViPipe, 0X44CA, 0XEB);
-	imx675_write_register(ViPipe, 0X44CC, 0XEB);
-	imx675_write_register(ViPipe, 0X44CE, 0XE6);
-	imx675_write_register(ViPipe, 0X44D0, 0XE6);
-	imx675_write_register(ViPipe, 0X44D2, 0XBB);
-	imx675_write_register(ViPipe, 0X44D4, 0XBB);
-	imx675_write_register(ViPipe, 0X44D6, 0XBB);
-	imx675_write_register(ViPipe, 0X44D8, 0XE6);
-	imx675_write_register(ViPipe, 0X44DA, 0XE6);
-	imx675_write_register(ViPipe, 0X44DC, 0XE6);
-	imx675_write_register(ViPipe, 0X44DE, 0XE6);
-	imx675_write_register(ViPipe, 0X44E0, 0XE6);
-	imx675_write_register(ViPipe, 0X44E2, 0XBB);
-	imx675_write_register(ViPipe, 0X44E4, 0XBB);
-	imx675_write_register(ViPipe, 0X44E6, 0XBB);
-	imx675_write_register(ViPipe, 0X44E8, 0XE6);
-	imx675_write_register(ViPipe, 0X44EA, 0XE6);
-	imx675_write_register(ViPipe, 0X44EC, 0XE6);
-	imx675_write_register(ViPipe, 0X44EE, 0XE6);
-	imx675_write_register(ViPipe, 0X44F0, 0XE6);
-	imx675_write_register(ViPipe, 0X44F2, 0XBB);
-	imx675_write_register(ViPipe, 0X44F4, 0XBB);
-	imx675_write_register(ViPipe, 0X44F6, 0XBB);
-	imx675_write_register(ViPipe, 0X4538, 0X15);
-	imx675_write_register(ViPipe, 0X4539, 0X15);
-	imx675_write_register(ViPipe, 0X453A, 0X15);
-	imx675_write_register(ViPipe, 0X4544, 0X15);
-	imx675_write_register(ViPipe, 0X4545, 0X15);
-	imx675_write_register(ViPipe, 0X4546, 0X15);
-	imx675_write_register(ViPipe, 0X4550, 0X10);
-	imx675_write_register(ViPipe, 0X4551, 0X10);
-	imx675_write_register(ViPipe, 0X4552, 0X10);
-	imx675_write_register(ViPipe, 0X4553, 0X10);
-	imx675_write_register(ViPipe, 0X4554, 0X10);
-	imx675_write_register(ViPipe, 0X4555, 0X10);
-	imx675_write_register(ViPipe, 0X4556, 0X10);
-	imx675_write_register(ViPipe, 0X4557, 0X10);
-	imx675_write_register(ViPipe, 0X4558, 0X10);
-	imx675_write_register(ViPipe, 0X455C, 0X10);
-	imx675_write_register(ViPipe, 0X455D, 0X10);
-	imx675_write_register(ViPipe, 0X455E, 0X10);
-	imx675_write_register(ViPipe, 0X455F, 0X10);
-	imx675_write_register(ViPipe, 0X4560, 0X10);
-	imx675_write_register(ViPipe, 0X4561, 0X10);
-	imx675_write_register(ViPipe, 0X4562, 0X10);
-	imx675_write_register(ViPipe, 0X4563, 0X10);
-	imx675_write_register(ViPipe, 0X4564, 0X10);
-	imx675_write_register(ViPipe, 0X4569, 0X01);
-	imx675_write_register(ViPipe, 0X456A, 0X01);
-	imx675_write_register(ViPipe, 0X456B, 0X06);
-	imx675_write_register(ViPipe, 0X456C, 0X06);
-	imx675_write_register(ViPipe, 0X456D, 0X06);
-	imx675_write_register(ViPipe, 0X456E, 0X06);
-	imx675_write_register(ViPipe, 0X456F, 0X06);
-	imx675_write_register(ViPipe, 0X4570, 0X06);
+	imx675_write_register(ViPipe, 0x3000, 0x01); //STANDBY
+	imx675_write_register(ViPipe, 0x3001, 0x00); //REGHOLD
+	imx675_write_register(ViPipe, 0x3002, 0x01); //XMSTA
+	imx675_write_register(ViPipe, 0x3014, 0x03); //INCK_SEL[3:0]
+	imx675_write_register(ViPipe, 0x3015, 0x03); //DATARATE_SEL[3:0]
+	imx675_write_register(ViPipe, 0x3018, 0x00); //WINMODE[3:0]
+	imx675_write_register(ViPipe, 0x3019, 0x00); //CFMODE
+	imx675_write_register(ViPipe, 0x301A, 0x01); //WDMODE[7:0]
+	imx675_write_register(ViPipe, 0x301B, 0x00); //ADDMODE[1:0]
+	imx675_write_register(ViPipe, 0x301C, 0x01); //THIN_V_EN[7:0]
+	imx675_write_register(ViPipe, 0x301E, 0x01); //VCMODE[7:0]
+	imx675_write_register(ViPipe, 0x3020, 0x00); //HREVERSE
+	imx675_write_register(ViPipe, 0x3021, 0x00); //VREVERSE
+	imx675_write_register(ViPipe, 0x3022, 0x01); //ADBIT[1:0]
+	imx675_write_register(ViPipe, 0x3023, 0x01); //MDBIT
+	imx675_write_register(ViPipe, 0x3028, 0x98); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x3029, 0x08); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x302A, 0x00); //VMAX[19:0]
+	imx675_write_register(ViPipe, 0x302C, 0xA3); //HMAX[15:0]
+	imx675_write_register(ViPipe, 0x302D, 0x02); //HMAX[15:0]
+	imx675_write_register(ViPipe, 0x3030, 0x00); //FDG_SEL0[1:0]
+	imx675_write_register(ViPipe, 0x3031, 0x00); //FDG_SEL1[1:0]
+	imx675_write_register(ViPipe, 0x3032, 0x00); //FDG_SEL2[1:0]
+	imx675_write_register(ViPipe, 0x303C, 0x00); //PIX_HST[12:0]
+	imx675_write_register(ViPipe, 0x303D, 0x00); //PIX_HST[12:0]
+	imx675_write_register(ViPipe, 0x303E, 0x30); //PIX_HWIDTH[12:0]
+	imx675_write_register(ViPipe, 0x303F, 0x0A); //PIX_HWIDTH[12:0]
+	imx675_write_register(ViPipe, 0x3040, 0x03); //LANEMODE[2:0]
+	imx675_write_register(ViPipe, 0x3044, 0x00); //PIX_VST[11:0]
+	imx675_write_register(ViPipe, 0x3045, 0x00); //PIX_VST[11:0]
+	imx675_write_register(ViPipe, 0x3046, 0xAC); //PIX_VWIDTH[11:0]
+	imx675_write_register(ViPipe, 0x3047, 0x07); //PIX_VWIDTH[11:0]
+	imx675_write_register(ViPipe, 0x304C, 0x00); //GAIN_HG0[10:0]
+	imx675_write_register(ViPipe, 0x304D, 0x00); //GAIN_HG0[10:0]
+	imx675_write_register(ViPipe, 0x3050, 0x50); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3051, 0x0A); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3052, 0x00); //SHR0[19:0]
+	imx675_write_register(ViPipe, 0x3054, 0x05); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3055, 0x00); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3056, 0x00); //SHR1[19:0]
+	imx675_write_register(ViPipe, 0x3058, 0x53); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x3059, 0x00); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x305A, 0x00); //SHR2[19:0]
+	imx675_write_register(ViPipe, 0x3060, 0x75); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3061, 0x00); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3062, 0x00); //RHS1[19:0]
+	imx675_write_register(ViPipe, 0x3064, 0x56); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3065, 0x00); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3066, 0x00); //RHS2[19:0]
+	imx675_write_register(ViPipe, 0x3070, 0x00); //GAIN_0[10:0]
+	imx675_write_register(ViPipe, 0x3071, 0x00); //GAIN_0[10:0]
+	imx675_write_register(ViPipe, 0x3072, 0x00); //GAIN_1[10:0]
+	imx675_write_register(ViPipe, 0x3073, 0x00); //GAIN_1[10:0]
+	imx675_write_register(ViPipe, 0x3074, 0x00); //GAIN_2[10:0]
+	imx675_write_register(ViPipe, 0x3075, 0x00); //GAIN_2[10:0]
+	imx675_write_register(ViPipe, 0x30A4, 0xAA); //XVSOUTSEL[1:0]
+	imx675_write_register(ViPipe, 0x30A6, 0x00); //XVS_DRV[1:0]
+	imx675_write_register(ViPipe, 0x30CC, 0x00);
+	imx675_write_register(ViPipe, 0x30CD, 0x00);
+	imx675_write_register(ViPipe, 0x30CE, 0x02);
+	imx675_write_register(ViPipe, 0x30DC, 0x32); //BLKLEVEL[9:0]
+	imx675_write_register(ViPipe, 0x30DD, 0x40); //BLKLEVEL[9:0]
+	imx675_write_register(ViPipe, 0x310C, 0x01);
+	imx675_write_register(ViPipe, 0x3130, 0x01);
+	imx675_write_register(ViPipe, 0x3148, 0x00);
+	imx675_write_register(ViPipe, 0x315E, 0x10);
+	imx675_write_register(ViPipe, 0x3400, 0x01); //GAIN_PGC_FIDMD
+	imx675_write_register(ViPipe, 0x3460, 0x22);
+	imx675_write_register(ViPipe, 0x347B, 0x02);
+	imx675_write_register(ViPipe, 0x3492, 0x08);
+	imx675_write_register(ViPipe, 0x3890, 0x08); //HFR_EN[3:0]
+	imx675_write_register(ViPipe, 0x3891, 0x00); //HFR_EN[3:0]
+	imx675_write_register(ViPipe, 0x3893, 0x00);
+	imx675_write_register(ViPipe, 0x3B1D, 0x17);
+	imx675_write_register(ViPipe, 0x3B44, 0x3F);
+	imx675_write_register(ViPipe, 0x3B60, 0x03);
+	imx675_write_register(ViPipe, 0x3C03, 0x04);
+	imx675_write_register(ViPipe, 0x3C04, 0x04);
+	imx675_write_register(ViPipe, 0x3C0A, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0B, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0C, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0D, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0E, 0x1F);
+	imx675_write_register(ViPipe, 0x3C0F, 0x1F);
+	imx675_write_register(ViPipe, 0x3C30, 0x73);
+	imx675_write_register(ViPipe, 0x3C3C, 0x20);
+	imx675_write_register(ViPipe, 0x3C44, 0x06);
+	imx675_write_register(ViPipe, 0x3C7C, 0xB9);
+	imx675_write_register(ViPipe, 0x3C7D, 0x01);
+	imx675_write_register(ViPipe, 0x3C7E, 0xB7);
+	imx675_write_register(ViPipe, 0x3C7F, 0x01);
+	imx675_write_register(ViPipe, 0x3CB0, 0x00);
+	imx675_write_register(ViPipe, 0x3CB2, 0xFF);
+	imx675_write_register(ViPipe, 0x3CB3, 0x03);
+	imx675_write_register(ViPipe, 0x3CB4, 0xFF);
+	imx675_write_register(ViPipe, 0x3CB5, 0x03);
+	imx675_write_register(ViPipe, 0x3CBA, 0xFF);
+	imx675_write_register(ViPipe, 0x3CBB, 0x03);
+	imx675_write_register(ViPipe, 0x3CC0, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC1, 0x03);
+	imx675_write_register(ViPipe, 0x3CC2, 0x00);
+	imx675_write_register(ViPipe, 0x3CC6, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC7, 0x03);
+	imx675_write_register(ViPipe, 0x3CC8, 0xFF);
+	imx675_write_register(ViPipe, 0x3CC9, 0x03);
+	imx675_write_register(ViPipe, 0x3E00, 0x1E);
+	imx675_write_register(ViPipe, 0x3E02, 0x04);
+	imx675_write_register(ViPipe, 0x3E03, 0x00);
+	imx675_write_register(ViPipe, 0x3E20, 0x04);
+	imx675_write_register(ViPipe, 0x3E21, 0x00);
+	imx675_write_register(ViPipe, 0x3E22, 0x1E);
+	imx675_write_register(ViPipe, 0x3E24, 0xBA);
+	imx675_write_register(ViPipe, 0x3E72, 0x85);
+	imx675_write_register(ViPipe, 0x3E76, 0x0C);
+	imx675_write_register(ViPipe, 0x3E77, 0x01);
+	imx675_write_register(ViPipe, 0x3E7A, 0x85);
+	imx675_write_register(ViPipe, 0x3E7E, 0x1F);
+	imx675_write_register(ViPipe, 0x3E82, 0xA6);
+	imx675_write_register(ViPipe, 0x3E86, 0x2D);
+	imx675_write_register(ViPipe, 0x3EE2, 0x33);
+	imx675_write_register(ViPipe, 0x3EE3, 0x03);
+	imx675_write_register(ViPipe, 0x4490, 0x07);
+	imx675_write_register(ViPipe, 0x4494, 0x19);
+	imx675_write_register(ViPipe, 0x4495, 0x00);
+	imx675_write_register(ViPipe, 0x4496, 0xBB);
+	imx675_write_register(ViPipe, 0x4497, 0x00);
+	imx675_write_register(ViPipe, 0x4498, 0x55);
+	imx675_write_register(ViPipe, 0x449A, 0x50);
+	imx675_write_register(ViPipe, 0x449C, 0x50);
+	imx675_write_register(ViPipe, 0x449E, 0x50);
+	imx675_write_register(ViPipe, 0x44A0, 0x3C);
+	imx675_write_register(ViPipe, 0x44A2, 0x19);
+	imx675_write_register(ViPipe, 0x44A4, 0x19);
+	imx675_write_register(ViPipe, 0x44A6, 0x19);
+	imx675_write_register(ViPipe, 0x44A8, 0x4B);
+	imx675_write_register(ViPipe, 0x44AA, 0x4B);
+	imx675_write_register(ViPipe, 0x44AC, 0x4B);
+	imx675_write_register(ViPipe, 0x44AE, 0x4B);
+	imx675_write_register(ViPipe, 0x44B0, 0x3C);
+	imx675_write_register(ViPipe, 0x44B2, 0x19);
+	imx675_write_register(ViPipe, 0x44B4, 0x19);
+	imx675_write_register(ViPipe, 0x44B6, 0x19);
+	imx675_write_register(ViPipe, 0x44B8, 0x4B);
+	imx675_write_register(ViPipe, 0x44BA, 0x4B);
+	imx675_write_register(ViPipe, 0x44BC, 0x4B);
+	imx675_write_register(ViPipe, 0x44BE, 0x4B);
+	imx675_write_register(ViPipe, 0x44C0, 0x3C);
+	imx675_write_register(ViPipe, 0x44C2, 0x19);
+	imx675_write_register(ViPipe, 0x44C4, 0x19);
+	imx675_write_register(ViPipe, 0x44C6, 0x19);
+	imx675_write_register(ViPipe, 0x44C8, 0xF0);
+	imx675_write_register(ViPipe, 0x44CA, 0xEB);
+	imx675_write_register(ViPipe, 0x44CC, 0xEB);
+	imx675_write_register(ViPipe, 0x44CE, 0xE6);
+	imx675_write_register(ViPipe, 0x44D0, 0xE6);
+	imx675_write_register(ViPipe, 0x44D2, 0xBB);
+	imx675_write_register(ViPipe, 0x44D4, 0xBB);
+	imx675_write_register(ViPipe, 0x44D6, 0xBB);
+	imx675_write_register(ViPipe, 0x44D8, 0xE6);
+	imx675_write_register(ViPipe, 0x44DA, 0xE6);
+	imx675_write_register(ViPipe, 0x44DC, 0xE6);
+	imx675_write_register(ViPipe, 0x44DE, 0xE6);
+	imx675_write_register(ViPipe, 0x44E0, 0xE6);
+	imx675_write_register(ViPipe, 0x44E2, 0xBB);
+	imx675_write_register(ViPipe, 0x44E4, 0xBB);
+	imx675_write_register(ViPipe, 0x44E6, 0xBB);
+	imx675_write_register(ViPipe, 0x44E8, 0xE6);
+	imx675_write_register(ViPipe, 0x44EA, 0xE6);
+	imx675_write_register(ViPipe, 0x44EC, 0xE6);
+	imx675_write_register(ViPipe, 0x44EE, 0xE6);
+	imx675_write_register(ViPipe, 0x44F0, 0xE6);
+	imx675_write_register(ViPipe, 0x44F2, 0xBB);
+	imx675_write_register(ViPipe, 0x44F4, 0xBB);
+	imx675_write_register(ViPipe, 0x44F6, 0xBB);
+	imx675_write_register(ViPipe, 0x4538, 0x15);
+	imx675_write_register(ViPipe, 0x4539, 0x15);
+	imx675_write_register(ViPipe, 0x453A, 0x15);
+	imx675_write_register(ViPipe, 0x4544, 0x15);
+	imx675_write_register(ViPipe, 0x4545, 0x15);
+	imx675_write_register(ViPipe, 0x4546, 0x15);
+	imx675_write_register(ViPipe, 0x4550, 0x10);
+	imx675_write_register(ViPipe, 0x4551, 0x10);
+	imx675_write_register(ViPipe, 0x4552, 0x10);
+	imx675_write_register(ViPipe, 0x4553, 0x10);
+	imx675_write_register(ViPipe, 0x4554, 0x10);
+	imx675_write_register(ViPipe, 0x4555, 0x10);
+	imx675_write_register(ViPipe, 0x4556, 0x10);
+	imx675_write_register(ViPipe, 0x4557, 0x10);
+	imx675_write_register(ViPipe, 0x4558, 0x10);
+	imx675_write_register(ViPipe, 0x455C, 0x10);
+	imx675_write_register(ViPipe, 0x455D, 0x10);
+	imx675_write_register(ViPipe, 0x455E, 0x10);
+	imx675_write_register(ViPipe, 0x455F, 0x10);
+	imx675_write_register(ViPipe, 0x4560, 0x10);
+	imx675_write_register(ViPipe, 0x4561, 0x10);
+	imx675_write_register(ViPipe, 0x4562, 0x10);
+	imx675_write_register(ViPipe, 0x4563, 0x10);
+	imx675_write_register(ViPipe, 0x4564, 0x10);
+	imx675_write_register(ViPipe, 0x4569, 0x01);
+	imx675_write_register(ViPipe, 0x456A, 0x01);
+	imx675_write_register(ViPipe, 0x456B, 0x06);
+	imx675_write_register(ViPipe, 0x456C, 0x06);
+	imx675_write_register(ViPipe, 0x456D, 0x06);
+	imx675_write_register(ViPipe, 0x456E, 0x06);
+	imx675_write_register(ViPipe, 0x456F, 0x06);
+	imx675_write_register(ViPipe, 0x4570, 0x06);
 
 	imx675_default_reg_init(ViPipe);
 
