@@ -134,6 +134,14 @@ void cvi_get_rtos_ion_size(size_t *psize)
 }
 #endif
 
+struct gen_pool *ion_carveout_get_pool(struct ion_heap *heap)
+{
+	struct ion_carveout_heap *carveout_heap =
+		container_of(heap, struct ion_carveout_heap, heap);
+
+	return carveout_heap->pool;
+}
+
 struct ion_heap *ion_carveout_heap_create(struct ion_platform_heap *heap_data)
 {
 	struct ion_carveout_heap *carveout_heap;

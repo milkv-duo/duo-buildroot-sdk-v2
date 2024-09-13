@@ -17,12 +17,6 @@
 #include <linux/genalloc.h>
 #include <linux/types.h>
 
-struct ion_carveout_heap {
-	struct ion_heap heap;
-	struct gen_pool *pool;
-	phys_addr_t base;
-};
-
 static inline size_t chunk_size(const struct gen_pool_chunk *chunk)
 {
 	return chunk->end_addr - chunk->start_addr + 1;
@@ -64,7 +58,6 @@ void show_bitmap_mem_usage(struct seq_file *s, u32 heap_id, struct gen_pool_chun
 void show_carveout_heap_usage(struct seq_file *s, struct ion_heap *heap)
 {
 	int end_bit;
-	struct ion_carveout_heap *carveout_heap;
 	struct gen_pool *pool;
 	struct gen_pool_chunk *chunk;
 	int order;
@@ -72,8 +65,7 @@ void show_carveout_heap_usage(struct seq_file *s, struct ion_heap *heap)
 	if (heap->type != ION_HEAP_TYPE_CARVEOUT)
 		return;
 
-	carveout_heap = container_of(heap, struct ion_carveout_heap, heap);
-	pool = carveout_heap->pool;
+	pool = ion_carveout_get_pool(heap);
 	order = pool->min_alloc_order;
 
 	#ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG

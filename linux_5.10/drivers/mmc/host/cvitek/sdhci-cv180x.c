@@ -1135,8 +1135,8 @@ static const struct sdhci_pltfm_data sdhci_cv180x_sd_pdata = {
 
 static const struct sdhci_pltfm_data sdhci_cv180x_sdio_pdata = {
 	.ops = &sdhci_cv180x_sdio_ops,
-	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT | SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN | SDHCI_QUIRK2_NO_1_8_V,
+	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT | SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN | SDHCI_QUIRK_BROKEN_ADMA,
+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN | SDHCI_QUIRK2_NO_1_8_V | SDHCI_QUIRK2_BROKEN_64_BIT_DMA,
 };
 
 static const struct sdhci_pltfm_data sdhci_cv180x_fpga_emmc_pdata = {

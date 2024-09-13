@@ -18,6 +18,7 @@ void cvi_ion_free(pid_t fd_pid, int fd);
 struct ion_buffer *
 cvi_ion_alloc_nofd(enum ion_heap_type type, size_t len, bool mmap_cache);
 void cvi_ion_free_nofd(struct ion_buffer *buffer);
+int cvi_ion_get_memory_statics(uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size);
 
 void cvi_ion_dump(struct ion_heap *heap);
 
