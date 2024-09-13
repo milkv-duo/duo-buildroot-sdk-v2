@@ -1,0 +1,1 @@
+source "osdrv/extdrv/wireless/bouffalolab/bl602c/Kconfig"

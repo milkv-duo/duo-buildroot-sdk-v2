@@ -489,6 +489,17 @@ int cvi_sdio_rescan(void)
 }
 EXPORT_SYMBOL_GPL(cvi_sdio_rescan);
 
+// register sysfs
+static ssize_t rescan_store(struct device *dev, struct device_attribute *attr,
+			    const char *buf, size_t count)
+{
+	// mmc rescan
+	cvi_sdio_rescan();
+
+	return count;
+}
+
+static DEVICE_ATTR(rescan, 0200, NULL, rescan_store);
 
 void sdhci_cvi_emmc_voltage_switch(struct sdhci_host *host)
 {
@@ -1137,8 +1148,8 @@ static const struct sdhci_pltfm_data sdhci_cv181x_sd_pdata = {
 
 static const struct sdhci_pltfm_data sdhci_cv181x_sdio_pdata = {
 	.ops = &sdhci_cv181x_sdio_ops,
-	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT | SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN | SDHCI_QUIRK2_NO_1_8_V,
+	.quirks = SDHCI_QUIRK_INVERTED_WRITE_PROTECT | SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN | SDHCI_QUIRK_BROKEN_ADMA,
+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN | SDHCI_QUIRK2_NO_1_8_V | SDHCI_QUIRK2_BROKEN_64_BIT_DMA,
 };
 
 static const struct sdhci_pltfm_data sdhci_cv181x_fpga_emmc_pdata = {
@@ -1316,9 +1327,12 @@ static int sdhci_cvi_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, cvi_host);
 
-	if (strstr(dev_name(mmc_dev(host->mmc)), "wifi-sd"))
+	if (strstr(dev_name(mmc_dev(host->mmc)), "wifi-sd")) {
 		wifi_mmc = host->mmc;
-	else
+
+		if (device_create_file(&host->mmc->class_dev, &dev_attr_rescan))
+			pr_err("Fail to create rescan sysfs file.\n");
+	} else
 		wifi_mmc = NULL;
 
 	/* device proc entry */

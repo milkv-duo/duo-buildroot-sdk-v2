@@ -1,0 +1,3 @@
+./cvi_models/BNR_2560x1440/BNR_BGGR_iso12800_bm1688.bmodel 3200
+./cvi_models/BNR_2560x1440/BNR_BGGR_iso51200_bm1688.bmodel 12800
+./cvi_models/BNR_2560x1440/BNR_BGGR_iso102400_bm1688.bmodel 51200

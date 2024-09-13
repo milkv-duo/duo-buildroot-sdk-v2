@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitpull subtree.xml
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml --normal
-# [Usage-Example] : ./cvi_manifest/repo_clone.sh --gitclone subtree.xml --reproduce git_version_2023-08-18.txt
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml
+# [Usage-Example] : ./scripts/repo_clone.sh --gitpull subtree.xml
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml --normal
+# [Usage-Example] : ./scripts/repo_clone.sh --gitclone subtree.xml --reproduce git_version_2023-08-18.txt
 
-function printusage {
+function print_usage {
     echo "Usage: $0 arg1 arg2 [arg3] [arg4] [arg5 arg6]"
     echo "arg1: --gitclone or --gitpull(DEFAULT: git clone)"
     echo "arg2: xxx.xml"
@@ -14,9 +14,13 @@ function printusage {
     echo "arg5: git_version.txt"
 }
 
+# 打印等级及颜色设置
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
 # 判断传参数目是否合法
 if [[ $# -lt 2 ]]; then
-    printusage
+    print_usage
     exit 1
 fi
 
@@ -40,13 +44,13 @@ while [[ $# -gt 0 ]]; do
    case $1 in
         --gitclone)
            shift
-           dir=$1
-           REMOTE_URL=$(grep -o '<remote.*/>' ${dir} | sed 's/.*fetch="\([^"]*\)".*/\1/' | sed "s/ssh:\/\/\(.*\)/ssh:\/\/$USERNAME@\1/")
+           xml_file=$1
+           REMOTE_URL=$(grep -o '<remote.*/>' ${xml_file} | sed 's/.*fetch="\([^"]*\)".*/\1/' | sed "s/ssh:\/\/\(.*\)/ssh:\/\/$USERNAME@\1/")
            shift
            ;;
         --gitpull)
            shift
-           dir=$1
+           xml_file=$1
            DOWNLOAD=1
            shift
            ;;
@@ -56,44 +60,44 @@ while [[ $# -gt 0 ]]; do
            ;;
         --reproduce)
            shift
-           txt=$1
+           gitver_txt=$1
            REPRODUCE=1
            shift
            ;;
         *)
-           printusage
+           print_usage
            exit 1
            ;;
    esac
 done
 
 # 设置全局变量
-REMOTE_NAME=$(grep -o '<remote.*/>' ${dir} | sed 's/.*name="\([^"]*\)".*/\1/')
-DEFAULT_REVISION=$(grep -o '<default.*/>' ${dir} | sed 's/.*revision="\([^"]*\)".*/\1/')
-PARAMETERS="--single-branch --depth 200"
+REMOTE_NAME=$(grep -o '<remote.*/>' ${xml_file} | sed 's/.*name="\([^"]*\)".*/\1/')
+DEFAULT_REVISION=$(grep -o '<default.*/>' ${xml_file} | sed 's/.*revision="\([^"]*\)".*/\1/')
+PARAMETERS="--single-branch --depth 2000"
 
 # 获取xml文件中所有的project name
-repo_list=$(grep -o '<project name="[^"]*"' ${dir} | sed 's/.*name="\([^"]*\)".*/\1/')
+repo_list=$(grep -o '<project name="[^"]*"' ${xml_file} | sed 's/.*name="\([^"]*\)".*/\1/')
 
 # git clone function
 function git_clone {
 
-    revision=$(grep "name=\"$repo\"" ${dir} | sed -n 's/.*revision="\([^"]*\)".*/\1/p')
-    path=$(grep "name=\"$repo\"" ${dir} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
+    revision=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*revision="\([^"]*\)".*/\1/p')
+    path=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
+    sync=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*sync-s="\([^"]*\)".*/\1/p')
 
     # 判断参数是否带有revision
-    if [[ ! -n $revision ]]; then
+    if [[ -z $revision ]]; then
         revision=$DEFAULT_REVISION
     fi
 
     # 判断参数是否带有path
-    if [[ ! -n $path ]]; then
+    if [[ -z $path ]]; then
         path=$repo
     fi
 
     # 判断参数是否带有normal
     if [ $NORMAL == 0 ]; then
-	echo "git clone $REMOTE_URL$repo.git $PWD/$path -b $revision $PARAMETERS"
         git clone $REMOTE_URL$repo.git $PWD/$path -b $revision $PARAMETERS
     else
         git clone $REMOTE_URL$repo.git $PWD/$path
@@ -101,15 +105,23 @@ function git_clone {
           git checkout $revision
         popd
     fi
+
+    # 判断参数是否带有sync-s
+    if [[ "$sync" == "true" ]]; then
+        echo -e "${YELLOW}Warning: Pay attention to managing $repo/, as it requires submodule management${NC}"
+        pushd $PWD/$path
+            git submodule update --init
+        popd
+    fi
 }
 
 # git pull function
 function git_pull {
 
-    path=$(grep "name=\"$repo\"" ${dir} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
+    path=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
 
     # 判断参数是否带有path
-    if [[ ! -n $path ]]; then
+    if [[ -z $path ]]; then
         path=$repo
     fi
 
@@ -124,53 +136,71 @@ function git_pull {
 }
 
 # git reproduce function
-function git_reproduce {
+function reproduce_repo {
+    local _repo=$1
+    local _commit_id=$2
+    echo "reproduce_repo: ""${_repo}" " reset to " "${_commit_id}"
+    path=$(grep "name=\"${_repo}\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
 
-    while IFS= read -r project_line && IFS= read -r commit_line; do
-        project=$(echo "$project_line" | cut -d ' ' -f 2)
-        commit=$(echo "$commit_line" | cut -d ' ' -f 1)
+    # 判断参数是否带有path
+    if [[ -z ${path} ]]; then
+        path=${_repo}
+    fi
 
-        # reset
-        # 判断 project 是否为合法路径
-        if [ -d $project ]; then
-            pushd "$project"
-            # 判断 project 是否为合法git仓库
-            if [ -d ".git" ]; then
-                git reset --hard "$commit" ||
-                    {
-                        echo "Error: Unable to reset to project $project"; 
-                        echo "Error: Unable to reset to commit $commit"; 
-                        exit 1;
-                    }
-            else
-                echo "Error: '$project' is not a Git repository."
-            fi
-            popd
-        else
-            echo "Error: Directory '$project' does not exist."
-        fi
+    if [ ! -d ${PWD}/${path} ]; then
+        echo -e "\033[31merror, target porject not exist!! ${PWD}/${path}}\033[0m"
+        continue
+    fi
 
-        # 读取并丢弃空行
-        IFS= read -r empty_line
-    done < $txt
+    pushd $PWD/$path
+    git reset --hard "${_commit_id}" ||
+    {
+        echo "Error: Unable to reset to project ${_repo}";
+        echo "Error: Unable to reset to commit ${_commit_id}";
+        exit 1;
+    }
+    popd
+}
+
+function get_commit_id {
+    local Project_name="$1"
+    local File=$2
+    local Commit_id=""
+
+    # 使用awk搜索文件，找到匹配的project_name并提取commit_id
+    Commit_id=$(awk -v proj="$Project_name" '
+        /^project_name: / {
+            if ($2 == proj) {
+                found = 1;
+                next;
+            }
+            found = 0;
+        }
+        found && /^commit_id: / {
+            print $2;
+            exit;  # 找到后退出awk,避免打印多余信息
+        }
+    ' "$File")
+
+    echo "$Commit_id"
 }
 
 function main {
-
-    # 遍历每个project，并使用0: git clone 或者1：git pull
-    for repo in $repo_list
-    do
+    for repo in $repo_list; do
         if [ $DOWNLOAD == 0 ]; then
             git_clone
         else
             git_pull
         fi
+        # 复现git_version.txt中的所有仓库
+        if [ $REPRODUCE -eq 1 ]; then
+            item=$(basename ${repo})
+            commit_id=$(get_commit_id ${item} ${gitver_txt})
+            if [ "$commit_id" != "" ]; then
+                reproduce_repo ${repo} ${commit_id}
+            fi
+        fi
     done
-
-    # 复现git_version.txt中的所有仓库
-    if [ $REPRODUCE -eq 1 ]; then
-        git_reproduce
-    fi
 }
 
 main

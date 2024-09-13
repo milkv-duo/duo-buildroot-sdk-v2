@@ -517,7 +517,7 @@ function clean_pqtool_server()
 function build_3rd_party()
 {
   mkdir -p "$OSS_TARBALL_PATH"
- 
+
   if [ -d "${OSS_PATH}/oss_release_tarball" ]; then
     echo "oss prebuilt tarball found!"
   else
@@ -527,7 +527,7 @@ function build_3rd_party()
   fi
   echo "cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}"
   cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}
- 
+
   local oss_list=(
     "zlib"
     "glog"
@@ -546,7 +546,7 @@ function build_3rd_party()
     "cvi-json-c"
     "cvi-miniz"
   )
- 
+
   for name in "${oss_list[@]}"
   do
     if [ -f "${OSS_TARBALL_PATH}/${name}.tar.gz" ]; then
@@ -597,6 +597,9 @@ function build_all()
   build_middleware || return $?
   if [ "$TPU_REL" = 1 ]; then
     build_tpu_sdk || return $?
+    build_ive_sdk || return $?
+    build_ivs_sdk || return $?
+    build_ai_sdk  || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?
@@ -739,14 +742,14 @@ function cvi_setup_env()
   OSS_PATH="$TOP_DIR"/oss
   OPENCV_PATH="$TOP_DIR"/opencv
   APPS_PATH="$TOP_DIR"/apps
-  MW_PATH="$TOP_DIR"/middleware/"$MW_VER"
+  MW_PATH="$TOP_DIR"/cvi_mpi
   PQTOOL_SERVER_PATH="$MW_PATH"/modules/isp/"${CHIP_ARCH,,}"/isp-tool-daemon/isp_daemon_tool
   ISP_TUNING_PATH="$TOP_DIR"/isp_tuning
   TPU_SDK_PATH="$TOP_DIR"/cviruntime
   IVE_SDK_PATH="$TOP_DIR"/ive
   IVS_SDK_PATH="$TOP_DIR"/ivs
   CNV_SDK_PATH="$TOP_DIR"/cnv
-  AI_SDK_PATH="$TOP_DIR"/cviai
+  AI_SDK_PATH="$TOP_DIR"/tdl_sdk
   CVI_PIPELINE_PATH="$TOP_DIR"/cvi_pipeline
   CVI_RTSP_PATH="$TOP_DIR"/cvi_rtsp
   OPENSBI_PATH="$TOP_DIR"/opensbi

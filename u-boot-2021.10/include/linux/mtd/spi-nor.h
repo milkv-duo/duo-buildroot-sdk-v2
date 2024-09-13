@@ -38,7 +38,7 @@
 #define SNOR_MFR_BOYA		CFI_MFR_BOYA
 #define SNOR_MFR_PY		0x85
 #define SNOR_MFR_FUDAN		0xA1
-
+#define SNOR_MFR_TH		0xCD
 /*
  * Note on opcode nomenclature: some opcodes have a format like
  * SPINOR_OP_FUNCTION{4,}_x_y_z. The numbers x, y, and z stand for the number

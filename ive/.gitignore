@@ -1,0 +1,14 @@
+.vscode
+build
+build_soc
+build_soc_32
+install
+install_soc
+install_soc_32
+prebuilt
+tmp
+ivesdk-*.tar.gz
+*.o
+3rdparty/tracer
+
+

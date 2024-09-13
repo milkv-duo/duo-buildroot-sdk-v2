@@ -763,6 +763,7 @@
 		fb_reserved: cvifb {
 			alloc-ranges = <0x0 CVIMMAP_FRAMEBUFFER_ADDR 0 CVIMMAP_FRAMEBUFFER_SIZE>;
 			size = <0x0 CVIMMAP_FRAMEBUFFER_SIZE>;
+			no-map;
 		};
 	};
 

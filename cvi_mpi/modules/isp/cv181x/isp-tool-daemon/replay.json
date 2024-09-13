@@ -1,0 +1,13 @@
+{
+	"//": "PixelFormat: 0 raw, !0 yuv(not support yet!) ",
+	"//": "CompressMode: none,tile,line,frame",
+	"//": "BayerFormat: 0 bggr, 1 gbrg, 2 grbg, 3 rggb",
+	"PixelFormat": 0,
+	"width": 2560,
+	"height": 1440,
+	"TimingEnable": false,
+	"FrameRate": 25,
+	"WDRMode": 0,
+	"BayerFormat": 0,
+	"CompressMode": "none"
+}

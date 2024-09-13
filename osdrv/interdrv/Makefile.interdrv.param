@@ -1,0 +1,7 @@
+#ccflags-y += -save-temps=obj
+ifeq ("$(CVIARCH)", "CV181X")
+ccflags-y += -D__CV181X__
+endif
+ifeq ("$(CVIARCH)", "CV180X")
+ccflags-y += -D__CV180X__
+endif

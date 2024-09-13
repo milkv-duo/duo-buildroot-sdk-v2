@@ -2764,6 +2764,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		case SNOR_MFR_BOYA:
 		case SNOR_MFR_PY:
 		case SNOR_MFR_FUDAN:
+		case SNOR_MFR_TH:
 			params->quad_enable = quad_enable_SR2_bit1;
 			break;
 

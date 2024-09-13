@@ -348,6 +348,7 @@ static inline struct ion_heap
 	return ERR_PTR(-EINVAL);
 }
 #endif
+struct gen_pool *ion_carveout_get_pool(struct ion_heap *heap);
 /** ion_page_pool_shrink - shrinks the size of the memory cached in the pool
  * @pool:		the pool
  * @gfp_mask:		the memory type to reclaim
@@ -367,6 +368,7 @@ void ion_free(pid_t fd_pid, int fd);
 void ion_free_nofd(struct ion_buffer *buffer);
 int ion_buf_begin_cpu_access(struct ion_buffer *buffer);
 int ion_buf_end_cpu_access(struct ion_buffer *buffer);
+int ion_get_memory_statics(uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size);
 
 #ifdef CONFIG_ION_CARVEOUT_HEAP
 struct ion_heap *ion_carveout_heap_create(struct ion_platform_heap *heap_data);

@@ -21,6 +21,7 @@ obj-$(CONFIG_WLAN_VENDOR_TI) += ti/
 obj-$(CONFIG_WLAN_VENDOR_ZYDAS) += zydas/
 obj-$(CONFIG_WLAN_VENDOR_QUANTENNA) += quantenna/
 obj-$(CONFIG_WLAN_VENDOR_ICOMMSEMI) += icommsemi/
+obj-$(CONFIG_WLAN_VENDOR_BOUFFALOLAB) += bouffalolab/
 obj-$(CONFIG_WLAN_VENDOR_AICSEMI) += aicsemi/
 
 # 16-bit wireless PCMCIA client drivers

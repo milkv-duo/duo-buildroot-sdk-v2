@@ -1,0 +1,18 @@
+# init files
+__init__.py
+__pycache__
+
+# make files for sphinx-quickstart 
+make.bat
+
+# static html templates
+templates/
+_templates/
+
+# static common materials including disclaimer and images
+_static/
+
+.vscode/
+
+# output directory
+build/

@@ -1,6 +1,5 @@
 config TARGET_PACKAGE_CVITRACER
 	bool "Target package cvitracer"
-	default y if MW_VER="v1"
-	default n if MW_VER="v2"
+	default n
 	help
 	  target cvitracer

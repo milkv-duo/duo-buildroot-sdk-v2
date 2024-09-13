@@ -814,8 +814,8 @@ static struct usb_function_instance *uvc_alloc_inst(void)
 	pd->bSourceID			= 1;
 	pd->wMaxMultiplier		= cpu_to_le16(16*1024);
 	pd->bControlSize		= 2;
-	pd->bmControls[0]		= 1;
-	pd->bmControls[1]		= 0;
+	pd->bmControls[0]		= 0x1F;
+	pd->bmControls[1]		= 0x4;
 	pd->iProcessing			= 0;
 
 	od = &opts->uvc_output_terminal;

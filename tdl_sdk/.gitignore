@@ -1,0 +1,13 @@
+build*
+install*
+*.o
+*.so
+*.a
+*.sw[a-p]
+*~
+.vscode/
+prebuilt
+doxygen/latex
+tmp
+*.out
+*.cvimodel

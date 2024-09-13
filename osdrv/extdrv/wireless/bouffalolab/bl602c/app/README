@@ -1,0 +1,24 @@
+==================================
+User Manual For blutl
+==================================
+
+blutl: The util is used to set/get paramaters of bouffalolab WiFi driver.
+
+
+COMMAND LIST:
+	blutl wlanX version
+	blutl wlanX temp
+
+
+COMMAND DESCRIPTION:
+version
+	This command is used to get the version of driver and FW.
+	
+	Usage:
+		blutl wlan0 version
+
+temp
+	This command is used to get the IC temperature, unit 1 centigrade.
+	
+	Usage:
+		blutl wlan0 temp

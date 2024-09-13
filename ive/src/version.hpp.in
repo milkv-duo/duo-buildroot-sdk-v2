@@ -1,0 +1,2 @@
+#pragma once
+#cmakedefine CVIIVE_TAG     "@CVIIVE_TAG@"
