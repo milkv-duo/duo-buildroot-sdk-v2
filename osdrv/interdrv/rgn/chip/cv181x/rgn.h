@@ -45,7 +45,6 @@ CVI_S32 rgn_set_display_attr(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, const R
 CVI_S32 rgn_get_display_attr(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, RGN_CHN_ATTR_S *pstChnAttr);
 CVI_S32 rgn_get_canvas_info(RGN_HANDLE Handle, RGN_CANVAS_INFO_S *pstCanvasInfo);
 CVI_S32 rgn_update_canvas(RGN_HANDLE Handle);
-CVI_S32 rgn_invert_color(RGN_HANDLE Handle, MMF_CHN_S *pstChn, CVI_U32 *pu32Color);
 CVI_S32 rgn_set_chn_palette(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, RGN_PALETTE_S *pstPalette,
 			RGN_RGBQUARD_S *pstInputPixelTable);
 

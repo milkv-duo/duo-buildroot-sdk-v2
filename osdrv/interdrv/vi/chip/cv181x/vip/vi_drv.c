@@ -460,7 +460,7 @@ void isp_pre_trig(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, const u8 chn_nu
 			vi_pr(VI_DBG, "Raw replay trigger fe_%d\n", raw_num);
 		}
 	} else { // patgen or sensor->fe
-		vi_pr(VI_INFO, "trigger fe_%d chn_num_%d frame_vld\n", raw, chn_num);
+		vi_pr(VI_DBG, "trigger fe_%d chn_num_%d frame_vld\n", raw, chn_num);
 
 		// In synthetic HDR mode, always trigger chn 0.
 		if (ctx->isp_pipe_cfg[raw_num].is_hdr_on && ctx->is_synthetic_hdr_on)
@@ -1453,6 +1453,7 @@ int ispblk_wbg_enable(struct isp_ctx *ctx, int wbg_id, bool enable, bool bypass)
 void isp_first_frm_reset(struct isp_ctx *ctx, uint8_t reset)
 {
 	uintptr_t isptopb = ctx->phys_regs[ISP_BLK_ID_ISPTOP];
+	uintptr_t tnr = ctx->phys_regs[ISP_BLK_ID_TNR];
 
 	//0: reg_first_frame_reset(in IP)
 	//1: reg_first_frame_sw
@@ -1464,6 +1465,7 @@ void isp_first_frm_reset(struct isp_ctx *ctx, uint8_t reset)
 	//[2]: TNR
 	//[3]: MMAP
 	ISP_WR_BITS(isptopb, REG_ISP_TOP_T, FIRST_FRAME, FIRST_FRAME_SW, reset ? 0xF : 0x0);
+	ISP_WR_BITS(tnr, REG_ISP_444_422_T, REG_8, FORCE_DMA_DISABLE, reset ? 0x3F : 0x0);
 }
 
 void _ispblk_isptop_cfg_update(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num)

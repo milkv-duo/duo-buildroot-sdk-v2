@@ -46,24 +46,6 @@ typedef struct _VI_CMP_PARAM_S {
 	CVI_U8 au8CmpParam[VI_CMP_PARAM_SIZE];
 } VI_CMP_PARAM_S;
 
-typedef enum _VI_USERPIC_MODE_E {
-	VI_USERPIC_MODE_PIC = 0, /* YUV picture */
-	VI_USERPIC_MODE_BGC, /* Background picture only with a color */
-	VI_USERPIC_MODE_BUTT,
-} VI_USERPIC_MODE_E;
-
-typedef struct _VI_USERPIC_BGC_S {
-	CVI_U32 u32BgColor;
-} VI_USERPIC_BGC_S;
-
-typedef struct _VI_USERPIC_ATTR_S {
-	VI_USERPIC_MODE_E enUsrPicMode; /* User picture mode */
-	union {
-		VIDEO_FRAME_INFO_S stUsrPicFrm; /* Information about a YUV picture */
-		VI_USERPIC_BGC_S stUsrPicBg; /* Information about a background picture only with a color */
-	} unUsrPic;
-} VI_USERPIC_ATTR_S;
-
 /* interface mode of video input */
 typedef enum _VI_INTF_MODE_E {
 	VI_MODE_BT656 = 0, /* ITU-R BT.656 YUV4:2:2 */
@@ -540,133 +522,7 @@ typedef struct {
 
 } tV59aNRc;
 
-/* 3DNR Spatial Filter: SFy0,SFy1,SFy2,SFy3; Temporal Filter:TFy0,TFy1;Chroma Noise Reduction: NRC0,NRC1
- *
- * HdgType: RW; Range:[0,1];Format 1.0;the type of complexed mixed spatial filter whether is SFi or SFk
- * BriType: RW; Range:[0,1];Format 1.0;the mode decide SFy3 whether is SFk type or SFi type
- * HdgMode: RW; Range:[0,3];Format 2.0;the mode decide complexed mixed spatial filter band for flat area
- * kTab2: RW; Range:[0,1];Format 1.0;the parameter decide SFy2 whether or not based on the image absolute luminance
- * HdgWnd: RW; Range:[0,1];Format 1.0;the sampling window of complexed mixed spatial filter for noise detection
- * kTab3: RW; Range:[0,1];Format 1.0;the parameter decide SFy3 whether or not based on the image absolute luminance
- * HdgSFR: RW; Range:[0,13];Format 4.0;the trend of the noise reduction of complexed mixed spatial filter for flat area
- * nOut: RW; Range:[0,27];Format 5.0;the parameter for output intermediate result of SFy3
- * HdgIES: RW; Range:[0,255];Format 8.0;the strength of image enhancement for complexed mixed spatial filter
- * nRef: RW; Range:[0,1];Format 1.0;Not recommended for debugging
- *
- * SFRi: RW; Range:[0,255];Format 8.0;the relative strength of SFy3 when the filter type is SFi
- * SFRk: RW; Range:[0,255];Format 8.0;the relative strength of SFy3 when the filter type is SFk
- * SBSk2: RW; Range:[0,9999];Format 14.0;the noise reduction strength of SFy2 for the relative bright pixel
- *	  based on the image absolute luminance
- * SBSk3: RW; Range:[0,9999];Format 14.0;the noise reduction strength of SFy3 for the relative bright pixel
- *	  based on the image absolute luminance
- * SDSk2: RW; Range:[0,9999];Format 14.0;the noise reduction strength of SFy2 for the relative dark pixel
- *	  based on the image absolute luminance
- * SDSk3: RW; Range:[0,9999];Format 14.0;the noise reduction strength of SFy3 for the relative dark pixel
- *	  based on the image absolute luminance
- * BriThr: RW; Range:[0,1024];Format 11.0;the threshold decide SFy3 choose the SFi type filter or SFk type filter
- *	  in dark and bright area
- *
- */
-typedef struct {
-	tV59aIEy IEy;
-	tV59aSFy SFy[5];
-	tV59aMDy MDy[2];
-	tV59aTFy TFy[2];
-
-	CVI_U16 HdgType : 1;
-	CVI_U16 BriType : 1;
-	CVI_U16 HdgMode : 2;
-	CVI_U16 kTab2 : 1;
-	CVI_U16 HdgWnd : 1;
-	CVI_U16 kTab3 : 1;
-	CVI_U16 HdgSFR : 4;
-	CVI_U16 nOut : 5;
-	CVI_U8 HdgIES;
-	CVI_U8 nRef : 1;
-
-	CVI_U8 IEyMode : 1;
-	CVI_U8 IEyEx[4];
-
-	CVI_U8 SFRi[4];
-	CVI_U8 SFRk[4];
-	CVI_U16 SBSk2[32];
-	CVI_U16 SBSk3[32];
-	CVI_U16 SDSk2[32];
-	CVI_U16 SDSk3[32];
-	CVI_U16 BriThr[16];
-
-	tV59aNRc NRc;
-} VI_PIPE_NRX_PARAM_V1_S;
-
 typedef enum _VI_NR_VERSION_E { VI_NR_V1 = 1, VI_NR_V2 = 2, VI_NR_V3 = 3, VI_NR_V4 = 4, VI_NR_BUTT } VI_NR_VERSION_E;
-
-typedef struct _NRX_PARAM_MANUAL_V1_S {
-	VI_PIPE_NRX_PARAM_V1_S stNRXParamV1;
-} NRX_PARAM_MANUAL_V1_S;
-
-typedef struct _NRX_PARAM_AUTO_V1_S {
-	CVI_U32 u32ParamNum;
-
-	CVI_U32 *ATTRIBUTE pau32ISO;
-	VI_PIPE_NRX_PARAM_V1_S *ATTRIBUTE pastNRXParamV1;
-} NRX_PARAM_AUTO_V1_S;
-
-typedef struct _NRX_PARAM_V1_S {
-	OPERATION_MODE_E enOptMode; /* RW;Adaptive NR */
-	NRX_PARAM_MANUAL_V1_S stNRXManualV1; /* RW;NRX V1 param for manual */
-	NRX_PARAM_AUTO_V1_S stNRXAutoV1; /* RW;NRX V1 param for auto */
-} NRX_PARAM_V1_S;
-
-typedef struct {
-	CVI_U8 IES0, IES1, IES2, IES3;
-	CVI_U16 IEDZ : 10, _rb_ : 6;
-} tV500_VI_IEy;
-
-typedef struct {
-	CVI_U8 SPN6 : 3, SFR : 5;
-	CVI_U8 SBN6 : 3, PBR6 : 5;
-	CVI_U16 SRT0 : 5, SRT1 : 5, JMODE : 3, DeIdx : 3;
-	CVI_U8 DeRate, SFR6[3];
-
-	CVI_U8 SFS1, SFT1, SBR1;
-	CVI_U8 SFS2, SFT2, SBR2;
-	CVI_U8 SFS4, SFT4, SBR4;
-
-	CVI_U16 STH1 : 9, SFN1 : 3, NRyEn : 1, SFN0 : 3;
-	CVI_U16 STH2 : 9, SFN2 : 3, BWSF4 : 1, kMode : 3;
-	CVI_U16 STH3 : 9, SFN3 : 3, TriTh : 1, _rb0_ : 3;
-} tV500_VI_SFy;
-
-typedef struct {
-	tV500_VI_IEy IEy;
-	tV500_VI_SFy SFy;
-} VI_PIPE_NRX_PARAM_V2_S;
-
-typedef struct _NRX_PARAM_MANUAL_V2_S {
-	VI_PIPE_NRX_PARAM_V2_S stNRXParamV2;
-} NRX_PARAM_MANUAL_V2_S;
-
-typedef struct _NRX_PARAM_AUTO_V2_S {
-	CVI_U32 u32ParamNum;
-
-	CVI_U32 *ATTRIBUTE pau32ISO;
-	VI_PIPE_NRX_PARAM_V2_S *ATTRIBUTE pastNRXParamV2;
-
-} NRX_PARAM_AUTO_V2_S;
-
-typedef struct _NRX_PARAM_V2_S {
-	OPERATION_MODE_E enOptMode; /* RW;Adaptive NR */
-	NRX_PARAM_MANUAL_V2_S stNRXManualV2; /* RW;NRX V2 param for manual */
-	NRX_PARAM_AUTO_V2_S stNRXAutoV2; /* RW;NRX V2 param for auto */
-} NRX_PARAM_V2_S;
-
-typedef struct _VI_PIPE_NRX_PARAM_S {
-	VI_NR_VERSION_E enNRVersion; /* RW;3DNR Version*/
-	union {
-		NRX_PARAM_V1_S stNRXParamV1; /* RW;3DNR X param version 1 */
-		NRX_PARAM_V2_S stNRXParamV2; /* RW;3DNR X param version 2 */
-	};
-} VI_PIPE_NRX_PARAM_S;
 
 /* The attributes of channel */
 typedef struct _VI_CHN_ATTR_S {
@@ -709,9 +565,10 @@ typedef struct _VI_VS_SIGNAL_ATTR_S {
 	CVI_U32 u32Interval; /* RW;output frequently interval, unit: frame*/
 } VI_VS_SIGNAL_ATTR_S;
 
+/*Source of VI extension channel*/
 typedef enum _VI_EXT_CHN_SOURCE_E {
-	VI_EXT_CHN_SOURCE_TAIL,
-	VI_EXT_CHN_SOURCE_HEAD,
+	VI_EXT_CHN_SOURCE_TAIL, /*The expansion channel comes from the tail*/
+	VI_EXT_CHN_SOURCE_HEAD,	/*The expansion channel comes from the head*/
 
 	VI_EXT_CHN_SOURCE_BUTT
 } VI_EXT_CHN_SOURCE_E;
@@ -761,9 +618,9 @@ typedef struct _VI_CHN_STATUS_S {
 
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 typedef enum _VI_DUMP_TYPE_E {
-	VI_DUMP_TYPE_RAW = 0,
-	VI_DUMP_TYPE_YUV = 1,
-	VI_DUMP_TYPE_IR = 2,
+	VI_DUMP_TYPE_RAW = 0,	/*dump raw*/
+	VI_DUMP_TYPE_YUV = 1,	/*dump yuv*/
+	VI_DUMP_TYPE_IR = 2,	/*dump ir*/
 	VI_DUMP_TYPE_BUTT
 } VI_DUMP_TYPE_E;
 // -------- If you want to change these interfaces, please contact the isp team. --------
@@ -791,8 +648,8 @@ typedef struct _VI_RAW_INFO_S {
 
 /* module params */
 typedef struct _VI_MOD_PARAM_S {
-	CVI_S32 s32DetectErrFrame;
-	CVI_U32 u32DropErrFrame;
+	CVI_S32 s32DetectErrFrame;	/*Detecting the number of erroneous frames*/
+	CVI_U32 u32DropErrFrame;	/*The number of discarded error frames*/
 } VI_MOD_PARAM_S;
 
 typedef struct _VI_DEV_TIMING_ATTR_S {
@@ -807,9 +664,9 @@ typedef struct _VI_EARLY_INTERRUPT_S {
 
 /* VI dump register table */
 typedef struct _MLSC_GAIN_LUT_S {
-	CVI_U16 *RGain;
-	CVI_U16 *GGain;
-	CVI_U16 *BGain;
+	CVI_U16 *RGain;	/*The gain value of the red channel*/
+	CVI_U16 *GGain;	/*The gain value of the greeen channel*/
+	CVI_U16 *BGain;	/*The gain value of the blue channel*/
 } MLSC_GAIN_LUT_S;
 
 typedef struct _VI_DUMP_REGISTER_TABLE_S {
@@ -819,10 +676,10 @@ typedef struct _VI_DUMP_REGISTER_TABLE_S {
 typedef int (*pfnViDevPmOps)(void *pvData);
 
 typedef struct _VI_PM_OPS_S {
-	pfnViDevPmOps pfnSnsSuspend;
-	pfnViDevPmOps pfnSnsResume;
-	pfnViDevPmOps pfnMipiSuspend;
-	pfnViDevPmOps pfnMipiResume;
+	pfnViDevPmOps pfnSnsSuspend;	/*sensor suspend function*/
+	pfnViDevPmOps pfnSnsResume;		/*sensor resume function*/
+	pfnViDevPmOps pfnMipiSuspend;	/*mipi suspend function*/
+	pfnViDevPmOps pfnMipiResume;	/*mipi resume function*/
 } VI_PM_OPS_S;
 
 typedef struct _VI_SMOOTH_RAW_DUMP_INFO_S {

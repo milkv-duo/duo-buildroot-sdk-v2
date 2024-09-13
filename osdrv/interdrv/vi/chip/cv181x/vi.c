@@ -3701,7 +3701,6 @@ void _pre_hw_enque(
 					post_para->snr_num = raw_num;
 					post_para->is_tile = false;
 					post_para->bypass_num = gViCtx->bypass_frm[raw_num];
-					vi_fill_mlv_info(NULL, raw_num, &post_para->m_lv_i, false);
 					if (_vi_call_cb(E_MODULE_VPSS, VPSS_CB_VI_ONLINE_TRIGGER, post_para) != 0) {
 						vi_pr(VI_DBG, "snr_num_%d, SC is running\n", raw_num);
 						atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
@@ -4143,7 +4142,6 @@ static void _post_hw_enque(
 			post_para->snr_num = raw_num;
 			post_para->is_tile = false;
 			post_para->bypass_num = gViCtx->bypass_frm[raw_num];
-			vi_fill_mlv_info(NULL, raw_num, &post_para->m_lv_i, false);
 			if (_vi_call_cb(E_MODULE_VPSS, VPSS_CB_VI_ONLINE_TRIGGER, post_para) != 0) {
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				kfree(post_para);
@@ -4217,7 +4215,6 @@ YUV_POSTRAW_TILE:
 			post_para->snr_num = raw_num;
 			post_para->is_tile = false;
 			post_para->bypass_num = gViCtx->bypass_frm[raw_num];
-			vi_fill_mlv_info(NULL, raw_num, &post_para->m_lv_i, false);
 			if (_vi_call_cb(E_MODULE_VPSS, VPSS_CB_VI_ONLINE_TRIGGER, post_para) != 0) {
 				vi_pr(VI_DBG, "snr_num_%d, SC is running\n", raw_num);
 				atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
@@ -4286,7 +4283,6 @@ YUV_POSTRAW:
 			post_para->snr_num = raw_num;
 			post_para->is_tile = false;
 			post_para->bypass_num = gViCtx->bypass_frm[raw_num];
-			vi_fill_mlv_info(NULL, raw_num, &post_para->m_lv_i, false);
 			if (_vi_call_cb(E_MODULE_VPSS, VPSS_CB_VI_ONLINE_TRIGGER, post_para) != 0) {
 				vi_pr(VI_DBG, "snr_num_%d, SC is running\n", raw_num);
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
@@ -4349,7 +4345,6 @@ YUV_POSTRAW:
 					post_para->snr_num = raw_num;
 					post_para->is_tile = false;
 					post_para->bypass_num = gViCtx->bypass_frm[raw_num];
-					vi_fill_mlv_info(NULL, raw_num, &post_para->m_lv_i, false);
 					if (_vi_call_cb(E_MODULE_VPSS, VPSS_CB_VI_ONLINE_TRIGGER, post_para) != 0) {
 						vi_pr(VI_DBG, "snr_num_%d, SC is not ready\n", raw_num);
 						atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
@@ -6115,7 +6110,7 @@ static void vi_motion_level_calc(struct cvi_vi_dev *vdev, enum cvi_isp_raw raw_n
 	CVI_U16 x, y, idxX, idxY;
 	CVI_U32 motion_cnt, i, idx, motion_value_vc, motion_cnt_vc;
 	CVI_U32 total_grid = grid_w_num * grid_h_num;
-	CVI_U8 u8MotionTh = 64;//maybe modify
+	CVI_U8 u8MotionTh = ctx->isp_pipe_cfg[raw_num].motion_th;
 	CVI_U8 u8VcNum = VC_GRID_SIZE / grid_w;
 	CVI_U16 vc_grid_w_num = grid_w_num / u8VcNum;
 	CVI_U16 vc_grid_h_num = grid_h_num / u8VcNum;
@@ -6300,7 +6295,6 @@ static int _vi_event_handler_thread(void * arg)
 			if (!gViCtx->pipeAttr[chn.s32ChnId].bYuvBypassPath) {
 				vi_motion_level_calc(vdev, b.raw_id, vb->buf.motion_table, &vb->buf.motion_lv);
 				vi_dci_calc(vdev, b.raw_id, &vb->buf.dci_lv);
-				//vi_fill_mlv_info((struct vb_s *)blk, 0, NULL, true);
 				vi_fill_dis_info(vb);
 				vi_motion_dbg(vdev, vb);
 			}
@@ -7786,7 +7780,7 @@ static inline void _isp_pre_be_done_handler(
 static void _isp_postraw_shaw_done_handler(struct cvi_vi_dev *vdev)
 {
 	if (_is_fe_be_online(&vdev->ctx) && vdev->ctx.is_slice_buf_on) {
-		vi_pr(VI_INFO, "postraw shaw done\n");
+		vi_pr(VI_DBG, "postraw shaw done\n");
 		_vi_wake_up_preraw_th(vdev, ISP_PRERAW_A);
 	}
 }
@@ -7985,7 +7979,7 @@ void vi_irq_handler(struct cvi_vi_dev *vdev)
 		if (!vdev->ctx.isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw)
 			++vdev->pre_fe_sof_cnt[ISP_PRERAW_A][ISP_FE_CH0];
 
-		vi_pr(VI_INFO, "pre_fe_%d sof chn_num=%d frm_num=%d\n",
+		vi_pr(VI_DBG, "pre_fe_%d sof chn_num=%d frm_num=%d\n",
 				ISP_PRERAW_A, ISP_FE_CH0, vdev->pre_fe_sof_cnt[ISP_PRERAW_A][ISP_FE_CH0]);
 
 		if (!vdev->ctx.isp_pipe_cfg[ISP_PRERAW_A].is_yuv_bypass_path) { //RGB sensor
@@ -8016,7 +8010,7 @@ void vi_irq_handler(struct cvi_vi_dev *vdev)
 		if (!vdev->ctx.isp_pipe_cfg[ISP_PRERAW_B].is_offline_preraw)
 			++vdev->pre_fe_sof_cnt[ISP_PRERAW_B][ISP_FE_CH0];
 
-		vi_pr(VI_INFO, "pre_fe_%d sof chn_num=%d frm_num=%d\n",
+		vi_pr(VI_DBG, "pre_fe_%d sof chn_num=%d frm_num=%d\n",
 				ISP_PRERAW_B, ISP_FE_CH0, vdev->pre_fe_sof_cnt[ISP_PRERAW_B][ISP_FE_CH0]);
 
 		if (!vdev->ctx.isp_pipe_cfg[ISP_PRERAW_B].is_yuv_bypass_path) { //RGB sensor

@@ -819,11 +819,18 @@ int cviInitAddrRemap(stTestEncoder *pTestEnc)
 	int framebufStride = 0, ret = 0;
 	int comp, productId;
 
+	if (!pEncOP->cbcrInterleave) {
+		CVI_VC_ERR("Only support cbcr Interleave mode, %d\n", pEncOP->cbcrInterleave);
+		return TE_ERR_ENC_OPEN;
+	}
+
 	par->mode = cviVcodecGetEnv("ARMode");
 
 	par->numExtraLine = cviVcodecGetEnv("ARExtraLine");
 
 	par->pageSizeSel = AR_PAGE_256KB;
+
+RECALCULATE:
 	par->mmuEnable = AR_MMU_BIT30;
 	par->pageSizeInBit = par->pageSizeSel + AR_PAGE_SIZE_OFFSET;
 	par->pageSize = 1 << par->pageSizeInBit;
@@ -887,6 +894,21 @@ int cviInitAddrRemap(stTestEncoder *pTestEnc)
 		CVI_VC_AR("numPhyPageInFbs = 0x%X, numVirPageInFbs = 0x%X\n",
 				par->numPhyPageInFbs[comp], par->numVirPageInFbs[comp]);
 
+	}
+
+	if (par->numPhyPageInFbs[AR_COMP_LUMA] + par->numPhyPageInFbs[AR_COMP_CHROMA] >
+		AR_MAX_NUM_PAGE_TABLE_ENTRY / 2) {
+		par->pageSizeSel += 1;
+		if (par->pageSizeSel > AR_PAGE_1024KB) {
+			CVI_VC_ERR("Size too large not support addrremap\n");
+			return TE_ERR_ENC_OPEN;
+		}
+		goto RECALCULATE;
+	}
+
+	for (comp = AR_COMP_LUMA; comp < AR_COMP_MAX; comp++) {
+		vpu_buffer_t *pvbRecFb = &pTestEnc->vbReconFrameBuf[comp];
+
 		memset(ionName, 0, MAX_VPU_ION_BUFFER_NAME);
 		sprintf(ionName, "VENC_%d_ReconFb_%d", pCodecInst->s32ChnNum, comp);
 
@@ -895,7 +917,6 @@ int cviInitAddrRemap(stTestEncoder *pTestEnc)
 			return TE_ERR_ENC_OPEN;
 		}
 	}
-
 
 	for (comp = AR_COMP_LUMA; comp < AR_COMP_MAX; comp++) {
 		vpu_buffer_t *pvbRecFb = &pTestEnc->vbReconFrameBuf[comp];

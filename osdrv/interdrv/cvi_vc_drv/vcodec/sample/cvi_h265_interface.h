@@ -631,6 +631,7 @@ int cviVEncGetStream(void *handle, cviVEncStreamInfo *pStreamInfo,
 int cviVEncReleaseStream(void *handle, cviVEncStreamInfo *pStreamInfo);
 int cviVEncIoctl(void *handle, int op, void *arg);
 void cviCopyMotionMap(void *handle, cviEncOnePicCfg *pPicCfg, void *phandle);
+bool cviGetSvcEnable(void *handle);
 typedef struct _cviInitDecConfig_ {
 	int codec;
 	int cviApiMode;

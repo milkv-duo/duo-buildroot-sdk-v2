@@ -155,6 +155,7 @@ struct cvi_img_vdev {
 	u32 isp_trig_fail_cnt[VPSS_ONLINE_NUM];
 	u32 user_trig_cnt;
 	u32 user_trig_fail_cnt;
+	u32 overflow_cnt[VPSS_ONLINE_NUM];
 	struct timespec64 ts_start;
 	struct timespec64 ts_end;
 	u32 hw_duration;

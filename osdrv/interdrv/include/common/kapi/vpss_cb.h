@@ -25,7 +25,6 @@ struct sc_cfg_cb {
 	u8  bypass_num;
 	u8  is_tile;
 	u8  is_left_tile;
-	struct mlv_i_s m_lv_i;
 };
 
 struct sc_err_handle_cb {

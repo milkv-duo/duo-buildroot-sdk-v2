@@ -141,7 +141,7 @@ static long dwa_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	{
 		struct gdc_handle_data *data = (struct gdc_handle_data *)kdata;
 
-		CVI_TRACE_DWA(CVI_DBG_ERR, "CVIDWA_END_JOB, handle=0x%llx\n",
+		CVI_TRACE_DWA(CVI_DBG_DEBUG, "CVIDWA_END_JOB, handle=0x%llx\n",
 			      (unsigned long long)data->handle);
 		ret = gdc_end_job(wdev, data->handle);
 		break;

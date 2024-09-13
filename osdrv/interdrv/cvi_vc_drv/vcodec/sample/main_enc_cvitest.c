@@ -5373,6 +5373,13 @@ int cviVEncSetSvcParam(stTestEncoder *pTestEnc, void *arg)
 	return 0;
 }
 
+bool cviGetSvcEnable(void *handle)
+{
+	stTestEncoder *pTestEnc = (stTestEncoder *) handle;
+
+	return pTestEnc->encOP.svc_enable;
+}
+
 int cviVEncShowRcRealInfo(stTestEncoder *pTestEnc, void *arg)
 {
 	stRcInfo *pRcInfo = &pTestEnc->handle->rcInfo;

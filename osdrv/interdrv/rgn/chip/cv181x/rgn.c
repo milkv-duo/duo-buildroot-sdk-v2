@@ -1848,7 +1848,7 @@ CVI_S32 rgn_get_canvas_info(RGN_HANDLE Handle, RGN_CANVAS_INFO_S *pstCanvasInfo)
 				usleep_range(1000, 2000);
 			} while ((cb_param.addr == pstCanvasInfo->u64PhyAddr) && (cnt <= 500));
 
-			CVI_TRACE_RGN(RGN_WARN, "VPSS_CB_GET_RGN_OW_ADDR PhyAaddr:%llx cnt:%d.\n",
+			CVI_TRACE_RGN(RGN_INFO, "VPSS_CB_GET_RGN_OW_ADDR PhyAaddr:%llx cnt:%d.\n",
 				cb_param.addr, cnt);
 			CVI_TRACE_RGN(RGN_INFO, "ow addr(%llx).\n", cb_param.addr);
 			if (cb_param.addr == pstCanvasInfo->u64PhyAddr) {
@@ -2016,198 +2016,6 @@ retry:
 
 	ret = _rgn_update_hw(ctx, RGN_OP_UPDATE);
 	ctx->canvas_get = CVI_FALSE;
-	return ret;
-}
-
-/* CVI_RGN_Invert_Color - invert color per luma statistics of video content
- *   Chns' pixel-format should be YUV.
- *   RGN's pixel-format should be ARGB1555.
- *
- * @param Handle: RGN Handle
- * @param pstChn: the chn which rgn attached
- * @param pu32Color: rgn's content
- */
-CVI_S32 rgn_invert_color(RGN_HANDLE Handle, MMF_CHN_S *pstChn, CVI_U32 *pu32Color)
-{
-	CVI_S32 ret = -EINVAL;
-	struct cvi_rgn_ctx *ctx = NULL;
-	RGN_CANVAS_INFO_S stCanvasInfo;
-	CVI_S32 s32StrLen;
-	CVI_U32 u32LumaThresh;
-	CVI_U32 proc_idx;
-	CVI_U32 canvasNum;
-	OVERLAY_INVERT_COLOR_S invertColor;
-	POINT_S point;
-	CVI_S32 s32Ret;
-
-	s32Ret = CHECK_RGN_HANDLE(&ctx, Handle);
-	if (s32Ret != CVI_SUCCESS)
-		return s32Ret;
-
-	proc_idx = _rgn_proc_get_idx(Handle);
-
-	if ((pstChn->enModId != ctx->stChn.enModId) || (pstChn->s32DevId != ctx->stChn.s32DevId) ||
-		(pstChn->s32ChnId != ctx->stChn.s32ChnId)) {
-		CVI_TRACE_RGN(RGN_ERR, "RGN_HANDLE(%d) not attached to chn(%d-%d-%d) yet.\n",
-			Handle,  pstChn->enModId, pstChn->s32DevId, pstChn->s32ChnId);
-		return CVI_ERR_RGN_ILLEGAL_PARAM;
-	}
-
-	if (ctx->stRegion.enType != OVERLAY_RGN && ctx->stRegion.enType != OVERLAYEX_RGN) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color only support Overlay/OverlayEx (%d).\n"
-			, ctx->stRegion.enType);
-		return CVI_ERR_RGN_NOT_SUPPORT;
-	}
-
-	if (pstChn->enModId != CVI_ID_VPSS) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color GRN did not attach to vpss.\n");
-		return CVI_ERR_RGN_NOT_SUPPORT;
-	}
-
-	if (ctx->stRegion.enType == OVERLAY_RGN) {
-		canvasNum = ctx->stRegion.unAttr.stOverlay.u32CanvasNum;
-		invertColor = ctx->stChnAttr.unChnAttr.stOverlayChn.stInvertColor;
-		point = ctx->stChnAttr.unChnAttr.stOverlayChn.stPoint;
-	} else {
-		canvasNum = ctx->stRegion.unAttr.stOverlayEx.u32CanvasNum;
-		invertColor = ctx->stChnAttr.unChnAttr.stOverlayExChn.stInvertColor;
-		point = ctx->stChnAttr.unChnAttr.stOverlayExChn.stPoint;
-	}
-
-	if (invertColor.bInvColEn != CVI_TRUE) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color bInvColEn hasn't been set\n");
-		return CVI_ERR_RGN_SYS_NOTREADY;
-	}
-
-#if 0 //Need to try to use GOP HW invert function in 2x first.
-	VIDEO_FRAME_INFO_S stVideoFrame;
-	CVI_U8 *pstVirAddr;
-	CVI_U32 u32MainStride;
-	CVI_S32 s32StartX, s32StartY;
-	SIZE_S Font;
-	CVI_U32 u32Sum, u32Num;
-	CVI_U32 u32AverLuma;
-	//CVI_FLOAT proportion_x, proportion_y;
-	CVI_U32 scale, proportion_x, proportion_y;
-	CVI_S32 i;
-	CVI_U32 x, y;
-	VPSS_CROP_INFO_S pstGrpCropInfo;
-	VPSS_CROP_INFO_S pstChnCropInfo;
-	size_t Luma_size;
-	VPSS_CHN_ATTR_S stVpssChnAttr;
-
-	ret = CVI_VPSS_GetChnAttr(0, 0, &stVpssChnAttr);
-
-	if (stVpssChnAttr.bFlip != CVI_FALSE || stVpssChnAttr.bMirror != CVI_FALSE) {
-		if (stVpssChnAttr.stAspectRatio.enMode != ASPECT_RATIO_AUTO) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color only support keep aspect ratio\n");
-		return ret;
-	}
-
-	ret = CVI_VPSS_GetGrpCrop(pstChn->s32DevId, &pstGrpCropInfo);
-	if (pstGrpCropInfo.stCropRect.s32X != 0 || pstGrpCropInfo.stCropRect.s32Y != 0
-		|| pstGrpCropInfo.stCropRect.u32Width != 0 || pstGrpCropInfo.stCropRect.u32Height != 0) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color not support vpss group crop yet\n");
-		return ret;
-	}
-
-	ret = CVI_VPSS_GetChnCrop(pstChn->s32DevId, pstChn->s32ChnId, &pstChnCropInfo);
-	if (pstChnCropInfo.stCropRect.s32X != 0 || pstChnCropInfo.stCropRect.s32Y != 0
-		|| pstChnCropInfo.stCropRect.u32Width != 0 || pstChnCropInfo.stCropRect.u32Height != 0) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color not support vpss chn crop yet\n");
-		return ret;
-	}
-
-	ret = CVI_VI_GetChnFrame(0, 0, &stVideoFrame, 1000);
-	if (MOD_CHECK_NULL_PTR(CVI_ID_RGN, &stVideoFrame)) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color get vi chn frame failed with %#x\n", ret);
-		return CVI_ERR_RGN_SYS_NOTREADY;
-	}
-
-	if (!IS_FMT_YUV(stVideoFrame.stVFrame.enPixelFormat)) {
-		ret = CVI_VI_ReleaseChnFrame(0, 0, &stVideoFrame);
-
-		if (ret != CVI_SUCCESS) {
-			CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color release vi chn frame failed with %#x\n", ret);
-			return CVI_ERR_RGN_SYS_NOTREADY;
-		}
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color invert color only support yuv-fmt(%d).\n"
-			, stVideoFrame.stVFrame.enPixelFormat);
-		return CVI_ERR_RGN_NOT_SUPPORT;
-	}
-
-	Luma_size = stVideoFrame.stVFrame.u32Length[0];
-	pstVirAddr = stVideoFrame.stVFrame.pu8VirAddr[0];
-	//pstVirAddr = CVI_SYS_Mmap(stVideoFrame.stVFrame.u64PhyAddr[0], Luma_size);
-	u32MainStride = stVideoFrame.stVFrame.u32Stride[0];
-#endif
-
-	if (canvasNum == 1)
-		stCanvasInfo = ctx->stCanvasInfo[0];
-	else {
-		ctx->canvas_idx = rgn_prc_ctx[proc_idx].canvas_idx = 1 - ctx->canvas_idx;
-		stCanvasInfo = ctx->stCanvasInfo[ctx->canvas_idx];
-	}
-	s32StrLen = stCanvasInfo.stSize.u32Width / invertColor.stInvColArea.u32Width;
-
-	u32LumaThresh = invertColor.u32LumThresh;
-
-#if 0 //Need to try to use GOP HW invert function in 2x first.
-	//Original code in cvi_region.c.
-	//proportion_x = (CVI_FLOAT)stVideoFrame.stVFrame.u32Width / stVpssChnAttr.u32Width;
-	//proportion_y = (CVI_FLOAT)stVideoFrame.stVFrame.u32Height / stVpssChnAttr.u32Height;
-	//=> After sinking into kernel to remove CVI_FLOAT usage
-	//scale = stVpssChnAttr.u32Width * stVpssChnAttr.u32Height;
-	//proportion_x = (stVideoFrame.stVFrame.u32Width * stVpssChnAttr.u32Height) / scale;
-	//proportion_y = (stVideoFrame.stVFrame.u32Height * stVpssChnAttr.u32Width) / scale;
-	//=> After sinking into kernel to remove CVI_FLOAT usage and callback function.
-	scale = arg.stVpssChnAttr.u32Width * arg.stVpssChnAttr.u32Height;
-	proportion_x = (stVideoFrame.stVFrame.u32Width * arg.stVpssChnAttr.u32Height) / scale;
-	proportion_y = (stVideoFrame.stVFrame.u32Height * arg.stVpssChnAttr.u32Width) / scale;
-
-	s32StartX = (CVI_S32)(point.s32X * proportion_x);
-	s32StartY = (CVI_S32)(point.s32Y * proportion_y);
-
-	Font.u32Width = (CVI_U32)(invertColor.stInvColArea.u32Width * proportion_x);
-	Font.u32Height = (CVI_U32)(invertColor.stInvColArea.u32Height * proportion_y);
-
-	for (i = 0; i < s32StrLen; i++) {
-		u32Num = 0;
-		u32Sum = 0;
-		//get average Luma
-		for (y = s32StartY; y < s32StartY + Font.u32Height; y++) {
-			for (x = s32StartX + Font.u32Width * i; x < (s32StartX + Font.u32Width * (i + 1));
-				x++) {
-				u32Sum += *(pstVirAddr + x + y * u32MainStride);
-				u32Num++;
-			}
-			y++;
-		}
-		u32AverLuma = u32Sum / u32Num;
-
-		//invert color
-		if (invertColor.enChgMod == MORETHAN_LUM_THRESH) {
-			if (u32AverLuma > u32LumaThresh)
-				pu32Color[i] = RGN_COLOR_DARK;
-			else
-				pu32Color[i] = RGN_COLOR_BRIGHT;
-		} else {
-			if (u32AverLuma > u32LumaThresh)
-				pu32Color[i] = RGN_COLOR_BRIGHT;
-			else
-				pu32Color[i] = RGN_COLOR_DARK;
-		}
-	}
-
-	CVI_SYS_Munmap(pstVirAddr, Luma_size);
-
-	ret = CVI_VI_ReleaseChnFrame(0, 0, &stVideoFrame);
-	if (ret != CVI_SUCCESS) {
-		CVI_TRACE_RGN(RGN_ERR, "CVI_RGN_Invert_Color release vi chn frame failed with %#x\n", ret);
-		return CVI_ERR_RGN_SYS_NOTREADY;
-	}
-#endif
-
 	return ret;
 }
 
@@ -2400,7 +2208,7 @@ static long _rgn_s_ctrl(struct cvi_rgn_dev *rdev, struct rgn_ext_control *p)
 	BITMAP_S stBitmap;
 	MMF_CHN_S stChn;
 	RGN_CHN_ATTR_S stChnAttr;
-	CVI_U32 u32Color, id, sdk_id;
+	CVI_U32 id, sdk_id;
 	RGN_PALETTE_S stPalette;
 	RGN_HANDLE Handle;
 
@@ -2499,15 +2307,6 @@ static long _rgn_s_ctrl(struct cvi_rgn_dev *rdev, struct rgn_ext_control *p)
 
 		case RGN_SDK_UPDATE_CANVAS: {
 			ret = rgn_update_canvas(Handle);
-		}
-		break;
-
-		case RGN_SDK_INVERT_COLOR: {
-			if ((copy_from_user(&stChn, p->ptr1, sizeof(MMF_CHN_S)) != 0) ||
-				(copy_from_user(&u32Color, p->ptr2, sizeof(CVI_U32)) != 0))
-				break;
-
-			ret = rgn_invert_color(Handle, &stChn, &u32Color);
 		}
 		break;
 

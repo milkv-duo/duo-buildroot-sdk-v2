@@ -42,16 +42,18 @@ struct wdr_size_s {
 	struct active_size_s	img_size[MAX_WDR_FRAME_NUM];
 };
 
+/*Sensor interface type*/
 enum isp_sns_type_e {
-	ISP_SNS_I2C_TYPE = 0,
-	ISP_SNS_SSP_TYPE,
-	ISP_SNS_TYPE_BUTT,
+    ISP_SNS_I2C_TYPE = 0,  /* I2C sensor type. */
+    ISP_SNS_SSP_TYPE,      /* SSP (Serial Synchronous Port) sensor type. */
+    ISP_SNS_TYPE_BUTT,     /* Placeholder for invalid sensor type. */
 };
 
+/*Sensor wide dynamic range mode*/
 enum sns_wdr_e {
-	SNS_WDR_MODE_NONE = 0,
-	SNS_WDR_MODE_2TO1_LINE,
-	SNS_WDR_MODE_BUTT
+    SNS_WDR_MODE_NONE = 0,          /* No WDR mode. */
+    SNS_WDR_MODE_2TO1_LINE,         /* 2:1 line WDR mode. */
+    SNS_WDR_MODE_BUTT                /* Placeholder for invalid WDR mode. */
 };
 
 /**

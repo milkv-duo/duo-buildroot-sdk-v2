@@ -13,7 +13,7 @@ $(CHIP_ID)_motor-y += hal/relmon/ms41929/ms41929.o
 $(CHIP_ID)_motor-y += hal/relmon/ms41929/ms41929_driver.o
 $(CHIP_ID)_motor-y += common/motor_driver.o
 
-MW = $(PWD)/../../interdrv/v2
+MW = $(PWD)/../../interdrv
 ccflags-y += -I$(PWD)/common/ -I$(PWD)/hal/relmon/ms41929/ -I$(PWD)/common/
 ccflags-y += -I$(srctree)/drivers/pinctrl/cvitek/
 ccflags-y += -I$(MW)/include/chip/$(CHIP_ID)/uapi/linux/

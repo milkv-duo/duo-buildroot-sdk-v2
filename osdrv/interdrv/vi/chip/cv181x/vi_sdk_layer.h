@@ -40,7 +40,6 @@ void vi_destory_dbg_thread(struct cvi_vi_dev *vdev);
 CVI_S32 vi_disable_chn(VI_CHN ViChn);
 long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p);
 int vi_sdk_qbuf(MMF_CHN_S chn);
-void vi_fill_mlv_info(struct vb_s *blk, u8 dev, struct mlv_i_s *m_lv_i, u8 is_vpss_offline);
 void vi_fill_dis_info(struct vb_s *blk);
 CVI_S32 vi_set_dev_attr(VI_DEV ViDev, const VI_DEV_ATTR_S *pstDevAttr);
 CVI_S32 vi_enable_dev(VI_DEV ViDev);

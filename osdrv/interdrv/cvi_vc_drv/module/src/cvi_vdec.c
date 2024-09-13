@@ -13,7 +13,9 @@
 #include <linux/sched.h>
 #include "vdec.h"
 #include "vb.h"
-
+#include <linux/kthread.h>
+#include <uapi/linux/sched/types.h>
+#include <linux/delay.h>
 #define CVI_VDEC_NO_INPUT -10
 #define CVI_VDEC_INPUT_ERR -11
 
@@ -52,7 +54,7 @@ extern VB_POOL vb_handle2PoolId(VB_BLK blk);
 extern int32_t vb_release_block(VB_BLK blk);
 extern int32_t vb_destroy_pool(VB_POOL poolId);
 // TODO: need to refine:
-struct cvi_vdec_vb_ctx vdec_vb_ctx[VENC_MAX_CHN_NUM];
+// struct cvi_vdec_vb_ctx vdec_vb_ctx[VENC_MAX_CHN_NUM];
 
 static DEFINE_MUTEX(g_vdec_handle_mutex);
 static DEFINE_MUTEX(jpdLock);
@@ -667,6 +669,12 @@ CVI_BOOL _cvi_vdec_FindBlkInfo(vdec_chn_context *pChnHandle, CVI_U64 u64PhyAddr,
 	return true;
 }
 
+typedef struct _VDEC_BIND_FRM_S {
+	VIDEO_FRAME_INFO_S stFrameInfo;
+	VB_BLK vbBLK;
+	CVI_BOOL bIsFrmOutput;
+} VDEC_BIND_FRM_S;
+
 CVI_S32 _cvi_vdec_FindFrameIdx(vdec_chn_context *pChnHandle,
 			       const VIDEO_FRAME_INFO_S *pstFrameInfo)
 {
@@ -703,6 +711,89 @@ static CVI_S32 CVI_VDEC_Init(void)
 	cviGetDebugConfigFromDecProc();
 
 	return ret;
+}
+
+static int vdec_event_handler(CVI_VOID *data)
+{
+	vdec_chn_context *pChnHandle = (vdec_chn_context *) data;
+	VDEC_CHN VdecChn;
+	VIDEO_FRAME_INFO_S stVFrame;
+	CVI_S32 s32Ret = CVI_SUCCESS;
+	CVI_U32 frmIdx = 0;
+	struct cvi_vdec_vb_ctx *pVbCtx;
+	VB_BLK vbBLK = VB_INVALID_HANDLE;
+	CVI_U32 i = 0;
+	VDEC_BIND_FRM_S *pBindFrmQueue;
+	CVI_U32 u32Cnt = 0;
+	MMF_CHN_S chn = {.enModId = CVI_ID_VDEC, .s32DevId = 0, .s32ChnId = 0};
+	struct vb_s *vb;
+
+	if (pChnHandle == NULL)
+		return CVI_ERR_VDEC_NULL_PTR;
+
+	VdecChn = pChnHandle->VdChn;
+	pVbCtx = pChnHandle->pVbCtx;
+
+	pBindFrmQueue = (VDEC_BIND_FRM_S *)MEM_MALLOC(sizeof(VDEC_BIND_FRM_S) * MAX_VDEC_FRM_NUM);
+	if (pBindFrmQueue == NULL) {
+		CVI_VDEC_ERR("no memory for pBindFrmQueue\n");
+		return CVI_FAILURE;
+	}
+
+	memset(pBindFrmQueue, 0, sizeof(VDEC_BIND_FRM_S) * MAX_VDEC_FRM_NUM);
+
+	while (!kthread_should_stop()) {
+		if (IF_WANNA_DISABLE_BIND_MODE()) {
+			break;
+		}
+		//Check if frame free
+
+		for (i = 0; i < MAX_VDEC_FRM_NUM; i++) {
+			if (pBindFrmQueue[i].bIsFrmOutput == true) {
+				vb_inquireUserCnt(pBindFrmQueue[i].vbBLK, &u32Cnt);
+				if (u32Cnt == 1) {
+					CVI_VDEC_ReleaseFrame(VdecChn, &(pBindFrmQueue[i].stFrameInfo));
+					pBindFrmQueue[i].bIsFrmOutput = false;
+					break;
+				}
+			}
+		}
+
+		s32Ret = CVI_VDEC_GetFrame(VdecChn, &stVFrame, -1);
+
+		if (s32Ret == CVI_SUCCESS) {
+			if (_cvi_vdec_FindBlkInfo(pChnHandle, stVFrame.stVFrame.u64PhyAddr[0], &vbBLK, &frmIdx)
+				== false) {
+				return CVI_NULL;
+			}
+			vb = (struct vb_s *)vbBLK;
+
+			atomic_fetch_add(1, &vb->usr_cnt);
+			// rhino_atomic_add(&vb->usr_cnt, 1);
+
+			chn.s32ChnId = VdecChn;
+			base_fill_videoframe2buffer(chn, &stVFrame, &vb->buf);
+
+			vb_done_handler(chn, CHN_TYPE_OUT, vbBLK);
+
+			for (i = 0; i < MAX_VDEC_FRM_NUM; i++) {
+				if (pBindFrmQueue[i].bIsFrmOutput == false) {
+					pBindFrmQueue[i].vbBLK = vbBLK;
+					pBindFrmQueue[i].stFrameInfo = stVFrame;
+					pBindFrmQueue[i].bIsFrmOutput = true;
+					break;
+				}
+			}
+		} else {
+			usleep_range(800, 1200);
+		}
+	}
+
+	if (pBindFrmQueue != NULL) {
+		MEM_FREE(pBindFrmQueue);
+	}
+
+	return CVI_SUCCESS;
 }
 
 #define MAX_VDEC_DISPLAYQ_NUM 32
@@ -824,6 +915,11 @@ CVI_S32 CVI_VDEC_DestroyChn(VDEC_CHN VdChn)
 	pChnHandle = vdec_handle->chn_handle[VdChn];
 	pVbCtx = pChnHandle->pVbCtx;
 
+	if (IF_WANNA_DISABLE_BIND_MODE()) {
+		kthread_stop(pVbCtx->thread);
+		pVbCtx->thread = NULL;
+		pVbCtx->currBindMode = CVI_FALSE;
+	}
 
 	if (pChnHandle->ChnAttr.enType == PT_H264 ||
 	    pChnHandle->ChnAttr.enType == PT_H265) {
@@ -987,6 +1083,17 @@ CVI_S32 CVI_VDEC_SendStream(VDEC_CHN VdChn, const VDEC_STREAM_S *pstStream,
 	}
 
 	cviGetDebugConfigFromDecProc();
+
+	if (IF_WANNA_ENABLE_BIND_MODE()) {
+		struct sched_param param = {
+			.sched_priority = 95,
+		};
+		pVbCtx->currBindMode = CVI_TRUE;
+		pVbCtx->thread = kthread_run(vdec_event_handler,
+				(CVI_VOID *) pChnHandle, "vdec_handler%d", VdChn);
+		sched_setscheduler(pVbCtx->thread, SCHED_RR, &param);
+	}
+
 
 	while (1) {
 		CVI_U64 startTime, endTime;

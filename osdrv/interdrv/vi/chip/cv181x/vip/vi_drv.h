@@ -375,6 +375,7 @@ struct _isp_cfg {
 	uint32_t		drop_frm_cnt;
 	uint32_t		isp_reset_frm;
 	uint32_t		first_frm_cnt;
+
 	struct vi_rect		crop;
 	struct vi_rect		crop_se;
 	struct vi_rect		rawdump_crop;
@@ -389,6 +390,8 @@ struct _isp_cfg {
 	enum _VI_WORK_MODE_E	muxMode;
 	enum _VI_YUV_DATA_SEQ_E enDataSeq;
 	struct isp_cmdq_buf	cmdq_buf;
+
+	uint8_t			motion_th;
 
 	uint32_t		is_patgen_en		: 1;
 	uint32_t		is_offline_preraw	: 1;

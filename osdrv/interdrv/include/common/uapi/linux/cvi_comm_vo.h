@@ -443,16 +443,30 @@ enum VO_TOP_D_SEL {
 	VO_PAD_MAX = VO_D_MAX
 };
 
-struct VO_D_REMAP {
+/* Define pin mapping
+ *
+ * sel: pad name
+ * mux: signal name
+ */
+typedef struct VO_D_REMAP {
 	enum VO_TOP_D_SEL sel;
 	CVI_U32 mux;
-};
+} VO_D_REMAP_S;
 
-struct VO_PINMUX {
+/* Define PINMUX
+ *
+ * pin_num: Number of pins
+ * d_pins: Pin mapping
+ */
+typedef struct VO_PINMUX {
 	unsigned char pin_num;
 	struct VO_D_REMAP d_pins[MAX_VO_PINS];
-};
+} VO_PINMUX_S;
 
+/* Define BT's config
+ *
+ * pins: Pin configuration
+ */
 typedef struct _VO_BT_ATTR_S {
 	struct VO_PINMUX pins;
 } VO_BT_ATTR_S;
@@ -463,21 +477,38 @@ enum VO_MCU_MODE {
 	VO_MCU_MODE_MAX,
 };
 
-struct VO_MCU_INSTRS {
+/* Define MCU Initialization
+ *
+ * instr_num: Initialization sequence num
+ * instr_cmd: Initialization sequence
+ */
+typedef struct VO_MCU_INSTRS {
 	unsigned char instr_num;
 	VO_I80_INSTR_S instr_cmd[MAX_MCU_INSTR];
-};
+} VO_MCU_INSTRS_S;
 
+/* Define HW_MCU's config
+ *
+ * mode: fmt mode
+ * pins: pin mapping
+ * lcd_power_gpio_num: power gpio num
+ * lcd_power_avtive: polarity
+ * backlight_gpio_num: backlight gpio num
+ * backlight_avtive: polarity
+ * reset_gpio_num: reset gpio num
+ * reset_avtive: polarity
+ * instrs: Initialization sequence
+ */
 typedef struct _VO_HW_MCU_CFG_S {
 	enum VO_MCU_MODE mode;
-	struct VO_PINMUX pins;
+	VO_PINMUX_S pins;
 	CVI_U32 lcd_power_gpio_num;
 	CVI_S8 lcd_power_avtive;
 	CVI_U32 backlight_gpio_num;
 	CVI_S8 backlight_avtive;
 	CVI_U32 reset_gpio_num;
 	CVI_S8 reset_avtive;
-	struct VO_MCU_INSTRS instrs;
+	VO_MCU_INSTRS_S instrs;
 } VO_HW_MCU_CFG_S;
 
 /*

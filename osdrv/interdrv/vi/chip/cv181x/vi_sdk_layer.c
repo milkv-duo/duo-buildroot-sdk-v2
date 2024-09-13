@@ -22,7 +22,6 @@ extern VI_CHN_ATTR_S tmp_chn_attr;
 extern struct cvi_vi_ctx *gViCtx;
 extern struct cvi_gdc_mesh g_vi_mesh[VI_MAX_CHN_NUM];
 static struct cvi_vi_dev *gvdev;
-static struct mlv_i_s gmLVi[VI_MAX_DEV_NUM];
 
 static struct crop_size_s dis_i_data[VI_MAX_DEV_NUM] = { 0 };
 static CVI_U32 dis_i_frm_num[VI_MAX_DEV_NUM] = { 0 };
@@ -126,28 +125,14 @@ int vi_sdk_qbuf(MMF_CHN_S chn)
 	return rc;
 }
 
-void vi_fill_mlv_info(struct vb_s *blk, u8 dev, struct mlv_i_s *m_lv_i, u8 is_vpss_offline)
-{
-	if (is_vpss_offline) {
-		CVI_U8 snr_num = blk->buf.dev_num;
-
-		blk->buf.motion_lv = gmLVi[snr_num].mlv_i_level;
-		memcpy(blk->buf.motion_table, gmLVi[snr_num].mlv_i_table, MO_TBL_SIZE);
-	} else {
-		CVI_U8 snr_num = dev;
-
-		m_lv_i->mlv_i_level = gmLVi[snr_num].mlv_i_level;
-		memcpy(m_lv_i->mlv_i_table, gmLVi[snr_num].mlv_i_table, MO_TBL_SIZE);
-	}
-}
-
 CVI_S32 vi_set_motion_lv(struct mlv_info_s *mlv_i)
 {
-	if (mlv_i->sensor_num >= VI_MAX_DEV_NUM)
+	struct isp_ctx *ctx = &gvdev->ctx;
+
+	if (mlv_i->raw_num >= VI_MAX_DEV_NUM)
 		return CVI_FAILURE;
 
-	gmLVi[mlv_i->sensor_num].mlv_i_level = mlv_i->mlv;
-	memcpy(gmLVi[mlv_i->sensor_num].mlv_i_table, mlv_i->mtable, MO_TBL_SIZE);
+	ctx->isp_pipe_cfg[mlv_i->raw_num].motion_th = mlv_i->motion_th;
 
 	return CVI_SUCCESS;
 }

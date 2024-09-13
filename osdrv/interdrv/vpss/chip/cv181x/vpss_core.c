@@ -1512,6 +1512,7 @@ static int vpss_open(struct inode *inode, struct file *filep)
 			idev->isp_trig_cnt[j] = 0;
 			idev->isp_trig_fail_cnt[j] = 0;
 			idev->frame_number[j] = 0;
+			idev->overflow_cnt[j] = 0;
 		}
 		idev->user_trig_cnt = 0;
 		idev->user_trig_fail_cnt = 0;

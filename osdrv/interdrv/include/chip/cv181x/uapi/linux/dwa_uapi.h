@@ -74,8 +74,6 @@ struct gdc_task_attr {
 	__u32 enRotation;
 	__u64 reserved;
 	union {
-		FISHEYE_ATTR_S stFishEyeAttr;
-		AFFINE_ATTR_S stAffineAttr;
 		LDC_ATTR_S stLDCAttr;
 	};
 

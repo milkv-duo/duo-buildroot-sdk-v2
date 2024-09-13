@@ -7,11 +7,13 @@
 #define BT_DEMUX_NUM	4
 #define MIPI_DEMUX_NUM	4
 
+/*image size*/
 struct img_size_s {
 	unsigned int	width;
 	unsigned int	height;
 };
 
+/*rx MAC clock frequency*/
 enum rx_mac_clk_e {
 	RX_MAC_CLK_200M = 0,
 	RX_MAC_CLK_300M,
@@ -21,6 +23,7 @@ enum rx_mac_clk_e {
 	RX_MAC_CLK_BUTT,
 };
 
+/*Camera PLL frequency*/
 enum cam_pll_freq_e {
 	CAMPLL_FREQ_NONE = 0,
 	CAMPLL_FREQ_37P125M,
@@ -31,16 +34,19 @@ enum cam_pll_freq_e {
 	CAMPLL_FREQ_NUM
 };
 
+/*Define a structure type for storing the configuration of the camera master clock and PLL frequency*/
 struct mclk_pll_s {
 	unsigned int		cam;
 	enum cam_pll_freq_e	freq;
 };
 
+/*D-PHY configuration parameters*/
 struct dphy_s {
 	unsigned char		enable;
 	unsigned char		hs_settle;
 };
 
+/*Channel division mode*/
 enum lane_divide_mode_e {
 	LANE_DIVIDE_MODE_0 = 0,
 	LANE_DIVIDE_MODE_1,
@@ -53,6 +59,7 @@ enum lane_divide_mode_e {
 	LANE_DIVIDE_MODE_BUTT
 };
 
+/*Input Mode*/
 enum input_mode_e {
 	INPUT_MODE_MIPI = 0,
 	INPUT_MODE_SUBLVDS,
@@ -66,6 +73,7 @@ enum input_mode_e {
 	INPUT_MODE_BUTT
 };
 
+/*original data type*/
 enum raw_data_type_e {
 	RAW_DATA_8BIT = 0,
 	RAW_DATA_10BIT,
@@ -75,6 +83,7 @@ enum raw_data_type_e {
 	RAW_DATA_BUTT
 };
 
+/*MIPI Wide Dynamic Range (WDR) mode*/
 enum mipi_wdr_mode_e {
 	CVI_MIPI_WDR_MODE_NONE = 0,
 	CVI_MIPI_WDR_MODE_VC,
@@ -84,6 +93,7 @@ enum mipi_wdr_mode_e {
 	CVI_MIPI_WDR_MODE_BUTT
 };
 
+/*Wide Dynamic Range (WDR) mode*/
 enum wdr_mode_e {
 	CVI_WDR_MODE_NONE = 0,
 	CVI_WDR_MODE_2F,
@@ -93,18 +103,22 @@ enum wdr_mode_e {
 	CVI_WDR_MODE_DOL_BUTT
 };
 
+/*LVDS synchronization mode*/
 enum lvds_sync_mode_e {
 	LVDS_SYNC_MODE_SOF = 0,
 	LVDS_SYNC_MODE_SAV,
 	LVDS_SYNC_MODE_BUTT
 };
 
+/*End sequence mode*/
 enum lvds_bit_endian {
 	LVDS_ENDIAN_LITTLE = 0,
 	LVDS_ENDIAN_BIG,
 	LVDS_ENDIAN_BUTT
 };
 
+
+/*LVDS Vertical synchronization signal type*/
 enum lvds_vsync_type_e {
 	LVDS_VSYNC_NORMAL = 0,
 	LVDS_VSYNC_SHARE,
@@ -112,6 +126,7 @@ enum lvds_vsync_type_e {
 	LVDS_VSYNC_BUTT
 };
 
+/*LVDS FID signal type*/
 enum lvds_fid_type_e {
 	LVDS_FID_NONE = 0,
 	LVDS_FID_IN_SAV,
@@ -122,12 +137,14 @@ struct lvds_fid_type_s {
 	enum lvds_fid_type_e		fid;
 };
 
+/*LVDS Vertical synchronization signal configuration*/
 struct lvds_vsync_type_s {
 	enum lvds_vsync_type_e	sync_type;
 	unsigned short			hblank1;
 	unsigned short			hblank2;
 };
 
+/*LVDS device properties*/
 struct lvds_dev_attr_s {
 	enum wdr_mode_e			wdr_mode;
 	enum lvds_sync_mode_e		sync_mode;
@@ -156,11 +173,13 @@ struct lvds_dev_attr_s {
 	char				pn_swap[MIPI_LANE_NUM+1];
 };
 
+/*mipi demultiplex configuration*/
 struct mipi_demux_info_s {
 	unsigned int			demux_en;
 	unsigned char			vc_mapping[MIPI_DEMUX_NUM];
 };
 
+/*Mipi device properties*/
 struct mipi_dev_attr_s {
 	enum raw_data_type_e		raw_data_type;
 	short				lane_id[MIPI_LANE_NUM+1];
@@ -171,6 +190,7 @@ struct mipi_dev_attr_s {
 	struct mipi_demux_info_s	demux;
 };
 
+/*Manual WDR attribute*/
 struct manual_wdr_attr_s {
 	unsigned int			manual_en;
 	unsigned short			l2s_distance;
@@ -179,6 +199,7 @@ struct manual_wdr_attr_s {
 	unsigned int			update;
 };
 
+/*TTL pin function*/
 enum ttl_pin_func_e {
 	TTL_PIN_FUNC_VS,
 	TTL_PIN_FUNC_HS,
@@ -203,6 +224,7 @@ enum ttl_pin_func_e {
 	TTL_PIN_FUNC_NUM,
 };
 
+/*TTL video input source*/
 enum ttl_src_e {
 	TTL_VI_SRC_VI0 = 0,
 	TTL_VI_SRC_VI1,
@@ -210,6 +232,7 @@ enum ttl_src_e {
 	TTL_VI_SRC_NUM
 };
 
+/*TTL format*/
 enum ttl_fmt_e {
 	TTL_SYNC_PAT = 0,
 	TTL_VHS_11B, //for YUV 11 lane input, VS + HS
@@ -225,6 +248,7 @@ enum ttl_fmt_e {
 	TTL_CUSTOM_PAT, // No used
 };
 
+/*BT demultiplexing mode*/
 enum bt_demux_mode_e {
 	BT_DEMUX_DISABLE = 0,
 	BT_DEMUX_2,
@@ -232,6 +256,7 @@ enum bt_demux_mode_e {
 	BT_DEMUX_4,
 };
 
+/*BT demultiplexing synchronization attribute;The effectiveness and block information of SAV and EAV signals*/
 struct bt_demux_sync_s {
 	unsigned char		sav_vld;
 	unsigned char		sav_blk;
@@ -239,6 +264,7 @@ struct bt_demux_sync_s {
 	unsigned char		eav_blk;
 };
 
+/*BT demultiplexing attribute*/
 struct bt_demux_attr_s {
 	signed char			func[TTL_PIN_FUNC_NUM];
 	unsigned short			v_fp;
@@ -251,6 +277,7 @@ struct bt_demux_attr_s {
 	char				yc_exchg;
 };
 
+/*TTL device properties*/
 struct ttl_dev_attr_s {
 	enum ttl_src_e			vi;
 	enum ttl_fmt_e			ttl_fmt;
@@ -260,6 +287,7 @@ struct ttl_dev_attr_s {
 	unsigned short			h_bp;
 };
 
+/*Combination device attributes*/
 struct combo_dev_attr_s {
 	enum input_mode_e		input_mode;
 	enum rx_mac_clk_e		mac_clk;
@@ -275,44 +303,52 @@ struct combo_dev_attr_s {
 	struct manual_wdr_attr_s	wdr_manu;
 };
 
+/*Clock edge type*/
 enum clk_edge_e {
 	CLK_UP_EDGE = 0,
 	CLK_DOWN_EDGE,
 	CLK_EDGE_BUTT
 };
 
+/*Clock edge structure*/
 struct clk_edge_s {
 	unsigned int			devno;
 	enum clk_edge_e			edge;
 };
 
+/*Output MSB status*/
 enum output_msb_e {
 	OUTPUT_NORM_MSB = 0,
 	OUTPUT_REVERSE_MSB,
 	OUTPUT_MSB_BUTT
 };
 
+/*MSB state structure*/
 struct msb_s {
 	unsigned int			devno;
 	enum output_msb_e		msb;
 };
 
+/*Crop the top information structure*/
 struct crop_top_s {
 	unsigned int			devno;
 	unsigned int			crop_top;
 	unsigned int			update;
 };
 
+/*Manual WDR attribute structure*/
 struct manual_wdr_s {
 	unsigned int			devno;
 	struct manual_wdr_attr_s	attr;
 };
 
+/*Vertical synchronization generates information structures*/
 struct vsync_gen_s {
 	unsigned int			devno;
 	unsigned int			distance_fp;
 };
 
+/*BT output format*/
 enum bt_fmt_out_e {
 	BT_FMT_OUT_CBYCRY,
 	BT_FMT_OUT_CRYCBY,
@@ -320,11 +356,13 @@ enum bt_fmt_out_e {
 	BT_FMT_OUT_YCRYCB,
 };
 
+/*BT output format information structure*/
 struct bt_fmt_out_s {
 	unsigned int			devno;
 	enum bt_fmt_out_e		fmt_out;
 };
 
+/*CIF Crop Window Information*/
 struct cif_crop_win_s {
 	unsigned int			devno;
 	unsigned int			enable;
@@ -334,6 +372,7 @@ struct cif_crop_win_s {
 	unsigned int			h;
 };
 
+/*CIF YUV data exchange information*/
 struct cif_yuv_swap_s {
 	unsigned int			devno;
 	unsigned int			uv_swap;

@@ -373,10 +373,13 @@ typedef enum _EN_VOU_ERR_CODE_E {
 /* system is not ready,had not initialized or loaded*/
 #define CVI_ERR_AI_SYS_NOTREADY      0xA000000E
 
+/* AI dev busy */
 #define CVI_ERR_AI_BUSY              0xA000000F
 /* vqe  err */
 #define CVI_ERR_AI_VQE_ERR       0xA0000010
+/* vqe buffer full */
 #define CVI_ERR_AI_VQE_BUF_FULL       0xA0000011
+/* vqe file unexist */
 #define CVI_ERR_AI_VQE_FILE_UNEXIST       0xA0000012
 /*invalid card ID*/
 #define CVI_ERR_AI_INVALID_CARDID    0xA100013
@@ -408,6 +411,7 @@ typedef enum _EN_VOU_ERR_CODE_E {
 /* system is not ready,had not initialized or loaded*/
 #define CVI_ERR_AO_SYS_NOTREADY      0xA100000D
 
+/* AO dev busy */
 #define CVI_ERR_AO_BUSY              0xA100000E
 /* vqe  err */
 #define CVI_ERR_AO_VQE_ERR       0xA100000F

@@ -291,9 +291,33 @@ static inline CVI_U32 VDEC_GetPicBufferSize(PAYLOAD_TYPE_E enType,
 	COMPRESS_MODE_E enCmpMode)
 {
 	VB_CAL_CONFIG_S stVbCfg;
+	CVI_U32 u32AlignYSize, u32AlignCSize;
 
 	memset(&stVbCfg, 0, sizeof(stVbCfg));
 	VDEC_GetPicBufferConfig(enType, u32Width, u32Height, enPixelFormat, enBitWidth, enCmpMode, &stVbCfg);
+
+	// Ensure vbsize aligned to 4096 ,recalculate base on each format
+	u32AlignYSize = ALIGN(stVbCfg.u32MainYSize, 4096);
+	u32AlignCSize = ALIGN(stVbCfg.u32MainCSize, 4096);
+	switch (enPixelFormat) {
+		case PIXEL_FORMAT_YUV_PLANAR_444:
+		case PIXEL_FORMAT_YUV_PLANAR_422:
+		case PIXEL_FORMAT_YUV_PLANAR_420: {
+			stVbCfg.u32VBSize = u32AlignYSize + (u32AlignCSize << 1);
+			break;
+		}
+		case PIXEL_FORMAT_NV12:
+		case PIXEL_FORMAT_NV21: {
+			stVbCfg.u32VBSize = u32AlignYSize + u32AlignCSize;
+			break;
+		}
+		case PIXEL_FORMAT_YUV_400: {
+			stVbCfg.u32VBSize = u32AlignYSize;
+			break;
+		}
+		default:
+			break;
+	}
 	return stVbCfg.u32VBSize;
 }
 

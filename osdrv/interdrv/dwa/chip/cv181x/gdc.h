@@ -75,13 +75,6 @@ s32 gdc_add_rotation_task(struct cvi_dwa_vdev *wdev,
 
 s32 gdc_add_ldc_task(struct cvi_dwa_vdev *wdev, struct gdc_task_attr *attr);
 
-// color night vision
-//s32 cvi_gdc_addcnvwarptask(const float *pfmesh_data, u64 hHandle, const struct gdc_task_attr *pstTask,
-//			       const FISHEYE_ATTR_S *pstAffineAttr, bool *bReNew);
-
-//s32 cvi_gdc_addcorrectiontaskcnv(u64 hHandle, const struct gdc_task_attr *pstTask,
-//		const FISHEYE_ATTR_S *pstFishEyeAttr, uint8_t *p_tbl, uint8_t *p_idl, uint32_t *tbl_param);
-
 /* set meshsize for rotation only
  *
  * @param nMeshHor: mesh counts horizontal

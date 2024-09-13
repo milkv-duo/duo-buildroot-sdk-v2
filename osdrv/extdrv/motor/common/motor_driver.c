@@ -11,7 +11,6 @@
  * (at your option) any later version.
  *
  */
-#include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -129,32 +128,70 @@ static int proc_motor_open(struct inode *inode, struct file *file)
 
 static ssize_t proc_motor_write(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)
 {
-	u32 user_input_param = 0;
+	char *kbuf;
+	unsigned int cmd[2] = {0, 0};
+	char i = 0;
+	char *token;
+	int ret;
 
-	if (kstrtouint_from_user(user_buf, count, 0, &user_input_param)) {
+	kbuf = kmalloc(count + 1, GFP_KERNEL);
+	if (!kbuf)
+		return -ENOMEM;
+
+	if (copy_from_user(kbuf, user_buf, count)) {
+		kfree(kbuf);
+		return -EFAULT;
+	}
+	kbuf[count] = '\0';
+
+	while ((token = strsep(&kbuf, " ")) != NULL) {
+		ret = kstrtouint(token, 10, &cmd[i]);
+		if (ret) {
+			kfree(kbuf);
+			return ret;
+		}
+		i++;
+	}
+
+	if (i != 2) {
 		pr_err("\n[Motor] input parameter incorrect\n");
+		pr_err("please refer it\n");
+		pr_err("0 x:zoom  in x step 1 x:zoom  out x step\n");
+		pr_err("2 x:focus in x step 3 x:focus out x step\n");
+		pr_err("4 x:set zoom  speed\n");
+		pr_err("5 x:set focus speed\n");
 		return count;
 	}
 
-	if (user_input_param == 0) {
-		pr_err("motor zoom in\n");
+	pr_err("%d %d\n", cmd[0], cmd[1]);
+
+	if (cmd[0] == 0) {
+		pr_err("motor zoom in %d step\n", cmd[1]);
 		focus_in(0);
-		zoom_in(255);
+		zoom_in(cmd[1]);
 		apply();
-	} else if (user_input_param == 1) {
-		pr_err("motor zoom out\n");
+	} else if (cmd[0] == 1) {
+		pr_err("motor zoom out %d step\n", cmd[1]);
 		focus_out(0);
-		zoom_out(255);
+		zoom_out(cmd[1]);
 		apply();
-	} else if (user_input_param == 2) {
-		pr_err("motor focus in\n");
+	} else if (cmd[0] == 2) {
+		pr_err("motor focus in %d step\n", cmd[1]);
 		zoom_in(0);
-		focus_in(255);
+		focus_in(cmd[1]);
 		apply();
-	} else if (user_input_param == 3) {
-		pr_err("motor focus out\n");
+	} else if (cmd[0] == 3) {
+		pr_err("motor focus out %d step\n", cmd[1]);
 		zoom_out(0);
-		focus_out(255);
+		focus_out(cmd[1]);
+		apply();
+	} else if (cmd[0] == 4) {
+		pr_err("set zoom %d speed\n");
+		set_zoom_speed(cmd[1]);
+		apply();
+	} else if (cmd[0] == 5) {
+		pr_err("set focus %d speed\n");
+		set_focus_speed(cmd[1]);
 		apply();
 	}
 

@@ -984,6 +984,8 @@ static CVI_S32 vidEnc_enc_one_pic(CVI_VOID *ctx,
 	cviEncOnePicCfg *pPicCfg = &encOnePicCfg;
 	CVIFRAMEBUF srcInfo, *psi = &srcInfo;
 	struct vb_s *blk = (struct vb_s *)pstFrame->stVFrame.pPrivateData;
+	//frame src from vdec check
+	uintptr_t indexFrameDisplay = (uintptr_t)pstFrame->stVFrame.pPrivateData;
 	CVI_U8 *mtable = kzalloc(MO_TBL_SIZE, GFP_ATOMIC);
 
 	if (!mtable) {
@@ -1020,8 +1022,9 @@ static CVI_S32 vidEnc_enc_one_pic(CVI_VOID *ctx,
 		break;
 	}
 
-	if (pEncCtx->base.rcMode <= RC_MODE_AVBR) {
-		if (blk) {
+	if ((cviGetSvcEnable(pEncCtx->ext.vid.pHandle) && pEncCtx->base.rcMode < RC_MODE_AVBR)
+		|| pEncCtx->base.rcMode == RC_MODE_AVBR) {
+		if (blk && (indexFrameDisplay & 0xffffff00)) {
 			pPicCfg->picMotionLevel = blk->buf.motion_lv;
 			pPicCfg->picDciLv = blk->buf.dci_lv;
 			pPicCfg->picMotionMap = mtable;

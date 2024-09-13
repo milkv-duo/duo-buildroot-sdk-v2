@@ -32,6 +32,18 @@ static const struct dev_freq default_dev_freqs[] = {
 #endif
 };
 
+static const struct dev_freq default_dev_freqs_od[] = {
+#ifdef __riscv
+	{1050000000, 700000000},
+	{450000000, 375000000},
+	{450000000, 300000000},
+#else
+	{1000000000, 700000000},
+	{500000000, 375000000},
+	{500000000, 300000000},
+#endif
+};
+
 /* cooling device thermal callback functions are defined below */
 
 /**
@@ -189,6 +201,14 @@ cv180x_cooling_device_register(struct device *dev)
 	/* Get the cpu/tpu original clk freq as max freq */
 	clk_cpu_max_freq = clk_get_rate(cvcdev->clk_cpu);
 	clk_tpu_max_freq = clk_get_rate(cvcdev->clk_tpu);
+
+	/* if od */
+	if ((clk_cpu_max_freq == 1050000000 && clk_tpu_max_freq == 700000000) ||
+		(clk_cpu_max_freq == 1000000000 && clk_tpu_max_freq == 700000000)) {
+		cvcdev->dev_freqs = devm_kmemdup(dev, &default_dev_freqs_od, sizeof(default_dev_freqs_od), GFP_KERNEL);
+		if (!cvcdev->dev_freqs)
+			return ERR_PTR(-ENOMEM);
+	}
 
 	/* Check if the cpu/tpu clk freq exceeds max freq */
 	for (j = 0; j <= cvcdev->max_clk_state; j++) {

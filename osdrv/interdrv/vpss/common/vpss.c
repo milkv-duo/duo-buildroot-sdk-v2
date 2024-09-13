@@ -2173,6 +2173,11 @@ static CVI_BOOL _vpss_check_gdc_job(MMF_CHN_S chn, VB_BLK blk, struct cvi_vpss_c
 			struct vb_s *vb = (struct vb_s *)blk;
 			struct _vpss_gdc_cb_param cb_param = { .chn = chn, .usage = GDC_USAGE_LDC};
 
+			if (vpss_ctx->stChnCfgs[chn.s32ChnId].stChnAttr.u32Width % 64 ||
+			    vpss_ctx->stChnCfgs[chn.s32ChnId].stChnAttr.u32Height % 64) {
+				CVI_TRACE_VPSS(CVI_DBG_WARN, "The width and height of the vpss chn requires 64 alignments!!!\n");
+			    }
+
 			if (_mesh_gdc_do_op_cb(GDC_USAGE_LDC
 				, &vpss_ctx->stChnCfgs[chn.s32ChnId].stLDCAttr.stAttr
 				, vb
@@ -2194,6 +2199,11 @@ static CVI_BOOL _vpss_check_gdc_job(MMF_CHN_S chn, VB_BLK blk, struct cvi_vpss_c
 			struct vb_s *vb = (struct vb_s *)blk;
 			struct _vpss_gdc_cb_param cb_param = { .chn = chn,
 				.usage = GDC_USAGE_ROTATION };
+
+			if (vpss_ctx->stChnCfgs[chn.s32ChnId].stChnAttr.u32Width % 64 ||
+			    vpss_ctx->stChnCfgs[chn.s32ChnId].stChnAttr.u32Height % 64) {
+				CVI_TRACE_VPSS(CVI_DBG_WARN, "The width and height of the vpss chn requires 64 alignments!!!\n");
+			    }
 
 			if (_mesh_gdc_do_op_cb(GDC_USAGE_ROTATION
 				, NULL
@@ -2683,6 +2693,7 @@ static CVI_VOID vpss_sbm_err_handle(struct vpss_handler_ctx *ctx)
 	spin_unlock_irqrestore(&ctx->lock, flags_job);
 
 	CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss reset done\n");
+	vip_dev->img_vdev[dev_idx].overflow_cnt[workingGrp]++;
 	wake_up_interruptible(&ctx->vi_reset_wait);
 	usleep_range(100, 200);
 }
@@ -3877,6 +3888,10 @@ CVI_S32 vpss_set_chn_attr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_CHN_ATT
 		sizeof(vpssCtx[VpssGrp]->stChnCfgs[VpssChn].stChnAttr));
 	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].blk_size = stVbCalConfig.u32VBSize;
 	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].align = DEFAULT_ALIGN;
+	if (vpssCtx[VpssGrp]->stChnCfgs[VpssChn].VbPool == VB_INVALID_POOLID) {
+		vpssCtx[VpssGrp]->stChnCfgs[VpssChn].stChnWorkStatus.PoolId =
+		find_vb_pool(stVbCalConfig.u32VBSize);
+	}
 
 	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].is_cfg_changed = CVI_TRUE;
 	mutex_unlock(&vpssCtx[VpssGrp]->lock);
@@ -4885,6 +4900,7 @@ CVI_S32 vpss_attach_vb_pool(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VB_POOL hVbPool)
 
 	mutex_lock(&vpssCtx[VpssGrp]->lock);
 	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].VbPool = hVbPool;
+	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].stChnWorkStatus.PoolId = hVbPool;
 	mutex_unlock(&vpssCtx[VpssGrp]->lock);
 
 	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "Grp(%d) Chn(%d) attach vb pool(%d)\n",
@@ -4910,6 +4926,8 @@ CVI_S32 vpss_detach_vb_pool(VPSS_GRP VpssGrp, VPSS_CHN VpssChn)
 
 	mutex_lock(&vpssCtx[VpssGrp]->lock);
 	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].VbPool = VB_INVALID_POOLID;
+	vpssCtx[VpssGrp]->stChnCfgs[VpssChn].stChnWorkStatus.PoolId =
+		find_vb_pool(vpssCtx[VpssGrp]->stChnCfgs[VpssChn].blk_size);
 	mutex_unlock(&vpssCtx[VpssGrp]->lock);
 
 	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "Grp(%d) Chn(%d)\n", VpssGrp, VpssChn);

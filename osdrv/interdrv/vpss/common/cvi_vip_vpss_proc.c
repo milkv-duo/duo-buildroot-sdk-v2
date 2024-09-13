@@ -9,6 +9,7 @@
 #include "vpss_common.h"
 #include "scaler.h"
 #include "vpss_core.h"
+#include "vb.h"
 
 #define VPSS_SHARE_MEM_SIZE     (0x8000)
 #define VPSS_PROC_NAME          "cvitek/vpss"
@@ -320,15 +321,15 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 
 	// VPSS CHN OUTPUT RESOLUTION
 	seq_puts(m, "\n-------------------------------VPSS CHN OUTPUT RESOLUTION-----------------\n");
-	seq_printf(m, "%10s%10s%10s%10s%10s%20s%10s%10s%10s\n",
-		"GrpID", "ChnID", "Enable", "Width", "Height", "Pixfmt", "Videofmt", "SendOK", "FrameRate");
+	seq_printf(m, "%10s%10s%10s%10s%10s%20s%10s%10s%10s%10s\n",
+		"GrpID", "ChnID", "Enable", "Width", "Height", "Pixfmt", "Videofmt", "VbPool", "SendOK", "FrameRate");
 	for (i = 0; i < VPSS_MAX_GRP_NUM; ++i) {
 		if (pVpssCtx[i] && pVpssCtx[i]->isCreated) {
 			for (j = 0; j < pVpssCtx[i]->chnNum; ++j) {
 				memset(c, 0, sizeof(c));
 				_pixFmt_to_String(pVpssCtx[i]->stChnCfgs[j].stChnAttr.enPixelFormat, c, sizeof(c));
 
-				seq_printf(m, "%8s%2d%8s%2d%10s%10d%10d%20s%10s%10d%10d\n",
+				seq_printf(m, "%8s%2d%8s%2d%10s%10d%10d%20s%10s%9d%1s%10d%10d\n",
 					"#",
 					i,
 					"#",
@@ -339,6 +340,8 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 					c,
 					(pVpssCtx[i]->stChnCfgs[j].stChnAttr.enVideoFormat
 						== VIDEO_FORMAT_LINEAR) ? "LINEAR" : "UNKNOWN",
+					pVpssCtx[i]->stChnCfgs[j].stChnWorkStatus.PoolId,
+					(pVpssCtx[i]->stChnCfgs[j].VbPool == VB_INVALID_POOLID) ? " " : "*",
 					pVpssCtx[i]->stChnCfgs[j].stChnWorkStatus.u32SendOk,
 					pVpssCtx[i]->stChnCfgs[j].stChnWorkStatus.u32RealFrameRate);
 			}
@@ -393,26 +396,27 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 	}
 
 	//VPSS driver status
-	seq_puts(m, "\n------------------------------DRV WORK STATUS------------------------------\n");
-	seq_printf(m, "%14s%20s%20s%20s%20s%12s\n", "dev", "UserTrigCnt", "UserTrigFailCnt",
-			"IspTrigCnt0", "IspTrigFailCnt0", "IrqCnt0");
-	seq_printf(m, "%14s%20s%20s%20s%20s%12s\n", "IspTrigCnt1", "IspTrigFailCnt1", "IrqCnt1",
-			"IspTrigCnt2", "IspTrigFailCnt2", "IrqCnt2");
 	for (i = 0; i < CVI_VIP_IMG_MAX; ++i) {
-		seq_printf(m, "%12s%2d%20d%20d%20d%20d%12d\n%14d%20d%20d%20d%20d%12d\n",
-			"#",
-			i,
-			bdev->img_vdev[i].user_trig_cnt,
-			bdev->img_vdev[i].user_trig_fail_cnt,
-			bdev->img_vdev[i].isp_trig_cnt[0],
-			bdev->img_vdev[i].isp_trig_fail_cnt[0],
-			bdev->img_vdev[i].irq_cnt[0],
-			bdev->img_vdev[i].isp_trig_cnt[1],
-			bdev->img_vdev[i].isp_trig_fail_cnt[1],
-			bdev->img_vdev[i].irq_cnt[1],
-			bdev->img_vdev[i].isp_trig_cnt[2],
-			bdev->img_vdev[i].isp_trig_fail_cnt[2],
-			bdev->img_vdev[i].irq_cnt[2]);
+		seq_printf(m, "\n------------------------------DRV WORK STATUS DEV%d------------------------------\n", i);
+
+		if (bdev->img_vdev[i].is_online_from_isp) {
+			seq_printf(m, "%10s%20s%20s%20s%20s\n", "GrpID", "TrigCnt", "FailCnt", "IrqCnt", "OverFlowCnt");
+			for (j = 0; j < VPSS_ONLINE_NUM; ++j) {
+				seq_printf(m, "%8s%2d%20d%20d%20d%20d\n",
+					"#",
+					j,
+					bdev->img_vdev[i].isp_trig_cnt[j],
+					bdev->img_vdev[i].isp_trig_fail_cnt[j],
+					bdev->img_vdev[i].irq_cnt[j],
+					bdev->img_vdev[i].overflow_cnt[j]);
+			}
+		} else {
+			seq_printf(m, "%20s%20s%20s\n", "UserTrigCnt", "UserTrigFailCnt", "IrqCnt");
+			seq_printf(m, "%20d%20d%20d\n",
+				bdev->img_vdev[i].user_trig_cnt,
+				bdev->img_vdev[i].user_trig_fail_cnt,
+				bdev->img_vdev[i].irq_cnt[0]);
+		}
 	}
 
 	// VPSS Slice buffer status

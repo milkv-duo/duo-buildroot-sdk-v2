@@ -10,6 +10,7 @@
 #define __CVI_MOTOR_IOCTL_H__
 
 #include "cvi_errno.h"
+#define ZOOM_FOCUS_TAB_SIZE 9
 
 struct cvi_motor_regval {
 	unsigned char addr;
@@ -17,14 +18,35 @@ struct cvi_motor_regval {
 };
 
 //refer by cvi_comm_3a.h
+enum cvi_motor_speed {
+	MOTOR_SPEED_4X,
+	MOTOR_SPEED_2X,
+	MOTOR_SPEED_1X,
+	MOTOR_SPEED_HALF,
+};
+
+struct cvi_zoom_focus_tab {
+	unsigned int zoom_pos;
+	unsigned int focus_pos_min;
+	unsigned int focus_pos_max;
+};
+
 struct cvi_lens_info {
+	struct cvi_zoom_focus_tab zoom_focus_table[ZOOM_FOCUS_TAB_SIZE];
 	unsigned int focus_range;
 	unsigned int zoom_range;
 	unsigned int focus_offset;
 	unsigned int zoom_offset;
 	unsigned int focus_backlash;
 	unsigned int zoom_backlash;
-	unsigned int time_cost_one_step;//unit is us
+	unsigned int focus_max_speed;//this speed use for MOTOR_SPEED_4X
+	unsigned int zoom_max_speed;//this speed use for MOTOR_SPEED_4X
+	unsigned int focus_time_cost_one_step;//unit is us
+	unsigned int zoom_time_cost_one_step;//unit is us
+	//We want different motors to run a step corresponding to the step Angle is similar,
+	//so we need to do normalization
+	unsigned int focus_max_step;//After normalization, not every motor can be used up to 0-255
+	unsigned int zoom_max_step; //After normalization, not every motor can be used up to 0-255
 };
 
 #define CVI_MOTOR_IOC_MAGIC      'm'

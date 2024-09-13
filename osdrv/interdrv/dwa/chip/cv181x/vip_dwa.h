@@ -1,7 +1,7 @@
 #ifndef _VIP_DWA_H_
 #define _VIP_DWA_H_
 
-#include <linux/cvi_vip_dwa.h>
+#include <linux/dwa_uapi.h>
 #include <linux/irqreturn.h>
 
 #define VIP_MAX_PLANES 3

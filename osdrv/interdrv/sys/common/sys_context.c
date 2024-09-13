@@ -151,27 +151,29 @@ void *sys_ctx_get_sysinfo(void)
 void sys_ctx_release_bind(void)
 {
 	struct bind_t *item, *item_tmp;
+	unsigned long flags_job;
 
-	spin_lock(&bind_lock);
+	spin_lock_irqsave(&bind_lock, flags_job);
 	TAILQ_FOREACH_SAFE(item, &binds, tailq, item_tmp) {
 		TAILQ_REMOVE(&binds, item, tailq);
 		vfree(item);
 	}
 	memset(bind_nodes, 0, sizeof(bind_nodes));
-	spin_unlock(&bind_lock);
+	spin_unlock_irqrestore(&bind_lock, flags_job);
 }
 
 int32_t sys_ctx_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	struct bind_t *item, *item_tmp;
 	int32_t ret = 0, i;
+	unsigned long flags_job;
 
 	pr_debug("%s: src(mId=%d, dId=%d, cId=%d), dst(mId=%d, dId=%d, cId=%d)\n",
 		__func__,
 		pstSrcChn->enModId, pstSrcChn->s32DevId, pstSrcChn->s32ChnId,
 		pstDestChn->enModId, pstDestChn->s32DevId, pstDestChn->s32ChnId);
 
-	spin_lock(&bind_lock);
+	spin_lock_irqsave(&bind_lock, flags_job);
 	TAILQ_FOREACH_SAFE(item, &binds, tailq, item_tmp) {
 		if (!CHN_MATCH(&item->node->src, pstSrcChn))
 			continue;
@@ -230,11 +232,11 @@ BIND_SUCCESS:
 
 	if (pstDestChn->enModId == CVI_ID_VENC)
 		venc_vb_ctx[pstDestChn->s32ChnId].enable_bind_mode = CVI_TRUE;
-	else if (pstSrcChn->enModId == CVI_ID_VDEC)
+	if (pstSrcChn->enModId == CVI_ID_VDEC)
 		vdec_vb_ctx[pstSrcChn->s32ChnId].enable_bind_mode = CVI_TRUE;
 
 BIND_EXIT:
-	spin_unlock(&bind_lock);
+	spin_unlock_irqrestore(&bind_lock, flags_job);
 
 	return ret;
 }
@@ -243,8 +245,9 @@ int32_t sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	struct bind_t *item, *item_tmp;
 	uint32_t i;
+	unsigned long flags_job;
 
-	spin_lock(&bind_lock);
+	spin_lock_irqsave(&bind_lock, flags_job);
 	TAILQ_FOREACH_SAFE(item, &binds, tailq, item_tmp) {
 		if (!CHN_MATCH(&item->node->src, pstSrcChn))
 			continue;
@@ -258,15 +261,15 @@ int32_t sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 
 				if (pstDestChn->enModId == CVI_ID_VENC)
 					venc_vb_ctx[pstDestChn->s32ChnId].enable_bind_mode = CVI_FALSE;
-				else if (pstSrcChn->enModId == CVI_ID_VDEC)
+				if (pstSrcChn->enModId == CVI_ID_VDEC)
 					vdec_vb_ctx[pstSrcChn->s32ChnId].enable_bind_mode = CVI_FALSE;
 
-				spin_unlock(&bind_lock);
+				spin_unlock_irqrestore(&bind_lock, flags_job);
 				return 0;
 			}
 		}
 	}
-	spin_unlock(&bind_lock);
+	spin_unlock_irqrestore(&bind_lock, flags_job);
 	return 0;
 }
 
@@ -274,22 +277,23 @@ int32_t sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest
 {
 	struct bind_t *item, *item_tmp;
 	uint32_t i;
+	unsigned long flags_job;
 
 	pr_debug("%s: src(.enModId=%d, .s32DevId=%d, .s32ChnId=%d)\n",
 		__func__, pstSrcChn->enModId,
 		pstSrcChn->s32DevId, pstSrcChn->s32ChnId);
 
-	spin_lock(&bind_lock);
+	spin_lock_irqsave(&bind_lock, flags_job);
 	TAILQ_FOREACH_SAFE(item, &binds, tailq, item_tmp) {
 		for (i = 0; i < item->node->dsts.u32Num; ++i) {
 			if (CHN_MATCH(&item->node->src, pstSrcChn)) {
 				*pstBindDest = item->node->dsts;
-				spin_unlock(&bind_lock);
+				spin_unlock_irqrestore(&bind_lock, flags_job);
 				return 0;
 			}
 		}
 	}
-	spin_unlock(&bind_lock);
+	spin_unlock_irqrestore(&bind_lock, flags_job);
 	return -1;
 }
 
@@ -297,22 +301,23 @@ int32_t sys_ctx_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn)
 {
 	struct bind_t *item, *item_tmp;
 	uint32_t i;
+	unsigned long flags_job;
 
 	pr_debug("%s: dst(.enModId=%d, .s32DevId=%d, .s32ChnId=%d)\n",
 		__func__, pstSrcChn->enModId,
 		pstSrcChn->s32DevId, pstSrcChn->s32ChnId);
 
-	spin_lock(&bind_lock);
+	spin_lock_irqsave(&bind_lock, flags_job);
 	TAILQ_FOREACH_SAFE(item, &binds, tailq, item_tmp) {
 		for (i = 0; i < item->node->dsts.u32Num; ++i) {
 			if (CHN_MATCH(&item->node->dsts.astMmfChn[i], pstDestChn)) {
 				*pstSrcChn = item->node->src;
-				spin_unlock(&bind_lock);
+				spin_unlock_irqrestore(&bind_lock, flags_job);
 				return 0;
 			}
 		}
 	}
-	spin_unlock(&bind_lock);
+	spin_unlock_irqrestore(&bind_lock, flags_job);
 	return -1;
 }
 

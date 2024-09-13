@@ -38,21 +38,21 @@ extern "C" {
 
 #define ALIGN_NUM 4
 
-#define LUMA_PHY_ALIGN               16
+#define LUMA_PHY_ALIGN          16
 
-#define DEFAULT_ALIGN                64
-#define MAX_ALIGN                    1024
-#define SEG_CMP_LENGTH               256
+#define DEFAULT_ALIGN           64
+#define MAX_ALIGN               1024
+#define SEG_CMP_LENGTH          256
 
 /* For VENC */
-#define VENC_MAX_CHN_NUM             16		/* Maximum number of channels */
-#define VENC_MAX_ROI_NUM             8		/* Maximum number of roi region */
-#define MAX_TILE_NUM                 1		/* Maximum number of tile */
-#define VENC_ALIGN_W             32			/* VENC width alignment */
-#define VENC_ALIGN_H             16			/* VENC height alignment */
+#define VENC_MAX_CHN_NUM        16           /* Maximum number of channels */
+#define VENC_MAX_ROI_NUM        8            /* Maximum number of roi region */
+#define MAX_TILE_NUM            1            /* Maximum number of tile */
+#define VENC_ALIGN_W            32           /* VENC width alignment */
+#define VENC_ALIGN_H            16           /* VENC height alignment */
 
 /* For RC */
-#define RC_TEXTURE_THR_SIZE          16		/* Number of thresholds for texture rate control */
+#define RC_TEXTURE_THR_SIZE     16           /* Number of thresholds for texture rate control */
 
 /* For VDEC */
 #define VDEC_MAX_CHN_NUM        64           /* vdec max channel number */
@@ -138,8 +138,8 @@ extern "C" {
 #define RGN_MAX_NUM               108
 
 /*************************************/
-#define VENC_MAX_SSE_NUM            8
-#define CVI_MAX_SENSOR_NUM          2
+#define VENC_MAX_SSE_NUM          8
+#define CVI_MAX_SENSOR_NUM        2
 
 /* For VI */
 /* number of channel and device on video input unit of chip
@@ -147,79 +147,29 @@ extern "C" {
  * multiplied by VI_MAX_CHN_NUM, because all VI devices
  * can't work at mode of 4 channels at the same time.
  */
-#define VI_MAX_PHY_DEV_NUM        3
-#define VI_MAX_VIR_DEV_NUM        2
-#define VI_MAX_DEV_NUM            (VI_MAX_PHY_DEV_NUM + VI_MAX_VIR_DEV_NUM)
-#define VI_MAX_PHY_PIPE_NUM       4
-#define VI_MAX_VIR_PIPE_NUM       2
-#define VI_MAX_PIPE_NUM           (VI_MAX_PHY_PIPE_NUM + VI_MAX_VIR_PIPE_NUM)
-#define VI_MAX_WDR_NUM            1
+#define VI_MAX_PHY_DEV_NUM        3        /* max physics device num */
+#define VI_MAX_VIR_DEV_NUM        2        /* max virtual device num */
+#define VI_MAX_DEV_NUM            (VI_MAX_PHY_DEV_NUM + VI_MAX_VIR_DEV_NUM)        /* max device num */
+#define VI_MAX_PHY_PIPE_NUM       4        /* max physics pipe num */
+#define VI_MAX_VIR_PIPE_NUM       2        /* max virtual pipe num */
+#define VI_MAX_PIPE_NUM           (VI_MAX_PHY_PIPE_NUM + VI_MAX_VIR_PIPE_NUM)        /* max pipe num */
 
-#define VI_MAX_VIR_CHN_NUM          2
-#define VI_MAX_PHY_CHN_NUM          3
-#define VI_MAX_EXT_CHN_NUM          2
-#define VI_MAX_CHN_NUM              (VI_MAX_PHY_CHN_NUM + VI_MAX_VIR_CHN_NUM)
-#define VI_EXT_CHN_START            VI_MAX_CHN_NUM
-#define VI_MAX_EXTCHN_BIND_PER_CHN  1
+#define VI_MAX_VIR_CHN_NUM          2      /* max virtual channel num */
+#define VI_MAX_PHY_CHN_NUM          3      /* max physics channel num */
+#define VI_MAX_EXT_CHN_NUM          2      /* max external channel num */
+#define VI_MAX_CHN_NUM              (VI_MAX_PHY_CHN_NUM + VI_MAX_VIR_CHN_NUM)        /* max channel num */
+#define VI_EXT_CHN_START            VI_MAX_CHN_NUM        /*  extension channel start channel num */
+#define VI_MAX_EXTCHN_BIND_PER_CHN  1      /* maximum external channels bind Per Channel*/
 
-#define VI_MAX_WDR_FRAME_NUM    2
-#define VI_MAX_NODE_NUM         3
-#define VIPROC_IP_NUM           1
-#define VICAP_IP_NUM            1
+#define VI_PIPE1_MAX_WIDTH          4096   /* pipe1 max width */
+#define VI_CMP_PARAM_SIZE           152    /* compare parameter size */
+#define VI_PIXEL_FORMAT             PIXEL_FORMAT_NV21        /* pixel format */
+#define CVI_VI_VPSS_EXTRA_BUF       0      /* vi vpss extra buffer num */
 
-#define VI_MAX_SPLIT_NODE_NUM   3
-
-#define VI_DEV_MIN_WIDTH        120
-#define VI_DEV_MIN_HEIGHT       120
-#define VI_DEV_MAX_WIDTH        4608
-#define VI_DEV_MAX_HEIGHT       4608
-#define VI_FPN_MAX_WIDTH        4096
-#define VI_FPN_MAX_HEIGHT       VI_DEV_MAX_HEIGHT
-
-#define VI_PIPE_OFFLINE_MIN_WIDTH           120
-#define VI_PIPE_OFFLINE_MIN_HEIGHT          120
-#define VI_PIPE_OFFLINE_MAX_WIDTH           4096
-#define VI_PIPE_OFFLINE_MAX_HEIGHT          2160
-
-#define VI_PIPE_ONLINE_MIN_WIDTH            120
-#define VI_PIPE_ONLINE_MIN_HEIGHT           120
-#define VI_PIPE_ONLINE_MAX_WIDTH            2688
-#define VI_PIPE_ONLINE_MAX_HEIGHT           1944
-
-#define VI_PIPE0_MAX_WIDTH                  4096
-#define VI_PIPE0_MAX_HEIGHT                 2160
-#define VI_PIPE1_MAX_WIDTH                  4096
-#define VI_PIPE1_MAX_HEIGHT                 2160
-#define VI_PIPE2_MAX_WIDTH                  2688
-#define VI_PIPE2_MAX_HEIGHT                 1944
-#define VI_PIPE3_MAX_WIDTH                  2688
-#define VI_PIPE3_MAX_HEIGHT                 1944
-
-#define VI_PIPE_WDR_FIRST_MAX_WIDTH         VI_PIPE1_MAX_WIDTH
-#define VI_PIPE_FUSION_MAX_WIDTH            2688
-#define VI_PIPE_FUSION_MAX_HEIGHT           1944
-
-#define VI_PHYCHN_OFFLINE_MIN_WIDTH         120
-#define VI_PHYCHN_OFFLINE_MIN_HEIGHT        120
-#define VI_PHYCHN_OFFLINE_MAX_WIDTH         4608
-#define VI_PHYCHN_OFFLINE_MAX_HEIGHT        4608
-
-#define VI_PHYCHN_ONLINE_MIN_WIDTH          120
-#define VI_PHYCHN_ONLINE_MIN_HEIGHT         120
-#define VI_PHYCHN_ONLINE_MAX_WIDTH          2048
-#define VI_PHYCHN_ONLINE_MAX_HEIGHT         4608
-
-#define VI_CMP_PARAM_SIZE                   152
-
-#define VI_PIXEL_FORMAT                     PIXEL_FORMAT_NV21
-
-#define CVI_VI_VPSS_EXTRA_BUF 0
-
-#define CVI_VI_CHN_0_BUF                    (2 + CVI_VI_VPSS_EXTRA_BUF)
-#define CVI_VI_CHN_1_BUF                    (2 + CVI_VI_VPSS_EXTRA_BUF)
-#define CVI_VI_CHN_2_BUF                    (2 + CVI_VI_VPSS_EXTRA_BUF)
-#define CVI_VI_CHN_3_BUF                    (2 + CVI_VI_VPSS_EXTRA_BUF)
-#define CVI_VI_BUF                          (CVI_VI_CHN_0_BUF + CVI_VI_CHN_1_BUF + CVI_VI_CHN_2_BUF + CVI_VI_CHN_3_BUF)
+#define CVI_VI_CHN_0_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn0 buffer num */
+#define CVI_VI_CHN_1_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn1 buffer num */
+#define CVI_VI_CHN_2_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn2 buffer num */
+#define CVI_VI_CHN_3_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn3 buffer num */
 
 /* For VO */
 #define VO_MIN_CHN_WIDTH        32      /* channel minimal width */
@@ -234,57 +184,46 @@ extern "C" {
 #define VO_MAX_TOLERATE         100000  /* max play toleration 100s */
 
 /* For AUDIO */
-#define AI_DEV_MAX_NUM          1
-#define AO_DEV_MIN_NUM          0
-#define AO_DEV_MAX_NUM          2
-#define AIO_MAX_NUM             2
-#define AENC_MAX_CHN_NUM        3
-#define ADEC_MAX_CHN_NUM        3
+#define AI_DEV_MAX_NUM          1       /* max dev num of input/output devices */
+#define AO_DEV_MAX_NUM          2       /* max dev num of output devices */
+#define AENC_MAX_CHN_NUM        3       /* max channel num of audio encoder */
+#define ADEC_MAX_CHN_NUM        3       /* max channel num of audio decoder */
 
-#define AI_MAX_CHN_NUM          2
-#define AO_MAX_CHN_NUM          1
-#define AO_SYSCHN_CHNID         (AO_MAX_CHN_NUM - 1)
-
+#define AI_MAX_CHN_NUM          2       /* max channel num of input device */
+#define AO_MAX_CHN_NUM          1       /* max channel num of output device */
+#define AO_SYSCHN_CHNID         (AO_MAX_CHN_NUM - 1) /* system channel id */
+                                        /* max channel num of input/output device */
 #define AIO_MAX_CHN_NUM         ((AO_MAX_CHN_NUM > AI_MAX_CHN_NUM) ? AO_MAX_CHN_NUM:AI_MAX_CHN_NUM)
 
 /* For VPSS */
-#define VPSS_IP_NUM              2 /* VPSS IP num */
-#define VPSS_MAX_GRP_NUM         16 /* maximum number of VPSS groups */
-#define VPSS_ONLINE_NUM          5 /* maximum number of VPSS online groups */
-#define VPSS_ONLINE_GRP_0        0 /* online grp 0 */
-#define VPSS_ONLINE_GRP_1        1 /* online grp 1 */
+#define VPSS_IP_NUM              2      /* VPSS IP num */
+#define VPSS_MAX_GRP_NUM         16     /* maximum number of VPSS groups */
+#define VPSS_ONLINE_NUM          5      /* maximum number of VPSS online groups */
+#define VPSS_ONLINE_GRP_0        0      /* online grp 0 */
+#define VPSS_ONLINE_GRP_1        1      /* online grp 1 */
 
-#ifdef __CV181X__
-#define VPSS_MAX_PHY_CHN_NUM     4	/* sc_d, sc_v1, sc_v2, sc_v3 */
-#define SC_D_MAX_LIMIT           1920 /* maximum width of sc_d */
-#define SC_V1_MAX_LIMIT          2880 /* maximum width of sc_v1 */
-#define SC_V2_MAX_LIMIT          1920 /* maximum width of sc_v2 */
-#define SC_V3_MAX_LIMIT          1280 /* maximum width of sc_v3 */
-#else
-#define VPSS_MAX_PHY_CHN_NUM     3	/* sc_d, sc_v1, sc_v2 */
-#define SC_D_MAX_LIMIT           1280 /* maximum width of sc_d */
-#define SC_V1_MAX_LIMIT          2880 /* maximum width of sc_v1 */
-#define SC_V2_MAX_LIMIT          1920 /* maximum width of sc_v2 */
-#endif
+#define VPSS_MAX_PHY_CHN_NUM     3      /* sc_d, sc_v1, sc_v2 */
+#define SC_D_MAX_LIMIT           1280   /* maximum width of sc_d */
+#define SC_V1_MAX_LIMIT          2880   /* maximum width of sc_v1 */
+#define SC_V2_MAX_LIMIT          1920   /* maximum width of sc_v2 */
+
 #define VPSS_MAX_CHN_NUM         (VPSS_MAX_PHY_CHN_NUM) /* maximum number of VPSS channels */
-#define VPSS_MIN_IMAGE_WIDTH     32 /* minimum width of the VPSS image */
-#define VPSS_MIN_IMAGE_HEIGHT    32 /* minimum height of the VPSS image */
-#define VPSS_MAX_IMAGE_WIDTH            2880 /* maximum width of the VPSS image */
-#define VPSS_MAX_IMAGE_HEIGHT           4096 /* maximum height of the VPSS image */
-#define VPSS_MAX_ZOOMIN                 32 /* maximum zoom-in factor of VPSS physical channels */
-#define VPSS_MAX_ZOOMOUT                32 /* maximum zoom-out factor of VPSS physical channels */
-
-/*For Gdc*/
-#define LDC_ALIGN                      64
-#define LDC_MIN_IMAGE_WIDTH            640
-#define LDC_MIN_IMAGE_HEIGHT           480
-
-#define SPREAD_MIN_IMAGE_WIDTH          640
-#define SPREAD_MIN_IMAGE_HEIGHT         480
+#define VPSS_MIN_IMAGE_WIDTH     32     /* minimum width of the VPSS image */
+#define VPSS_MIN_IMAGE_HEIGHT    32     /* minimum height of the VPSS image */
+#define VPSS_MAX_IMAGE_WIDTH     2880   /* maximum width of the VPSS image */
+#define VPSS_MAX_IMAGE_HEIGHT    4096   /* maximum height of the VPSS image */
+#define VPSS_MAX_ZOOMIN          32     /* maximum zoom-in factor of VPSS physical channels */
+#define VPSS_MAX_ZOOMOUT         32     /* maximum zoom-out factor of VPSS physical channels */
 
 /* For GDC */
-#define GDC_IP_NUM                 1
-#define GDC_PROC_JOB_INFO_NUM      (500)
+#define LDC_ALIGN                64     /* ldc image size alignment constraints*/
+
+#define GDC_IP_NUM               1      /* number of hardware IPs of gdc*/
+#define GDC_PROC_JOB_INFO_NUM    (500)  /* maximum number of job to be processed*/
+#define GDC_MIN_IMAGE_WIDTH      64     /* minimum width of the GDC image */
+#define GDC_MIN_IMAGE_HEIGHT     64     /* minimum height of the GDC image */
+#define GDC_MAX_IMAGE_WIDTH      4032   /* maximum width of the GDC image */
+#define GDC_MAX_IMAGE_HEIGHT     4032   /* maximum height of the GDC image */
 
 #ifdef __cplusplus
 #if __cplusplus

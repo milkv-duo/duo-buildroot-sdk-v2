@@ -96,13 +96,13 @@ int apply(void)
 	return 1;
 }
 
-int set_zoom_speed(unsigned short speed)
+int set_zoom_speed(unsigned char speed)
 {
 	ms41929_set_zoom_speed(motor.p_spi, speed);
 	return 1;
 }
 
-int set_focus_speed(unsigned short speed)
+int set_focus_speed(unsigned char speed)
 {
 	ms41929_set_focus_speed(motor.p_spi, speed);
 	return 1;

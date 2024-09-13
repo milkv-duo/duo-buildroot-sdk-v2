@@ -11,6 +11,10 @@
  * (at your option) any later version.
  *
  */
+
+#ifndef MS41929_H
+#define MS41929_H
+
 #include <linux/types.h>
 #include <linux/spi/spi.h>
 #include <linux/of_gpio.h>
@@ -18,14 +22,39 @@
 #include <linux/delay.h>
 #include "motor_driver.h"
 
-#define MSB_LSB_MODE   (1) //0:MSB 1:LSB
-#define FOCUS_RANGE    (18682)
-#define ZOOM_RANGE     (15228)
+//CAILB PARAM CONFIG
+#define FOCUS_RANGE    (1750)
+#define ZOOM_RANGE     (1707)
 #define FOCUS_OFFSET   (0)
-#define ZOOM_OFFSET    (8992)
-#define FOCUS_BACKLASH (200)
-#define ZOOM_BACKLASH  (200)
-#define ONE_STEP_TIME_COST  (590) //us
+#define ZOOM_OFFSET    (1207)
+#define FOCUS_BACKLASH (25)
+#define ZOOM_BACKLASH  (25)
+#define FOCUS_MAX_SPEED      (20)//The fastest speed that won't cause a slide
+#define ZOOM_MAX_SPEED      (20)//The fastest speed that won't cause a slide
+#define FOCUS_ONE_STEP_TIME_COST  (2768) //us
+#define ZOOM_ONE_STEP_TIME_COST   (2768) //us
+#define FOCUS_MAX_STEP (32)
+#define ZOOM_MAX_STEP  (32)
+
+static const struct cvi_zoom_focus_tab zoom_focus_tab[ZOOM_FOCUS_TAB_SIZE] = {
+	{0, 0, 127},
+	{213, 332, 215},
+	{217, 121, 287},
+	{639, 217, 391},
+	{853, 337, 519},
+	{1066, 473, 679},
+	{1279, 657, 871},
+	{1492, 905, 1143},
+	{ZOOM_RANGE, 1289, 1663}
+};
+
+//SPI CONFIG
+#define MSB_LSB_MODE (1) //sub spi device data mode 0:MSB 1:LSB
+#define SPI_BUS_NUM (2)
+#define SPI_CS_NUM (0)
+#define SPI_MODE (SPI_MODE_3)
+#define SPI_MAX_SPEED_HZ (2 * 1000 * 1000)
+#define SPI_MAX_BISTS_PER_WORD (8)
 
 void ms41929_pinmux_switch(void);
 void ms41929_pinmux_resume(void);
@@ -40,3 +69,5 @@ int ms41929_zoom_out(struct spi_device *p_spi, unsigned char step);
 int ms41929_focus_in(struct spi_device *p_spi, unsigned char step);
 int ms41929_focus_out(struct spi_device *p_spi, unsigned char step);
 int ms41929_get_info(struct spi_device *p_spi, struct cvi_lens_info *info);
+
+#endif //MS41929_H

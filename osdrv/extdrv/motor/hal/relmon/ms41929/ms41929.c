@@ -26,6 +26,7 @@
 
 static unsigned char msb_to_lsb(unsigned char data)
 {
+#ifdef MSB_LSB_MODE
 	data = ((data & 0x80) >> 7) |
 		   ((data & 0x40) >> 5) |
 		   ((data & 0x20) >> 3) |
@@ -34,23 +35,24 @@ static unsigned char msb_to_lsb(unsigned char data)
 		   ((data & 0x04) << 3) |
 		   ((data & 0x02) << 5) |
 		   ((data & 0x01) << 7);
-
+#endif
 	return data;
 }
 
-// static unsigned char lsb_to_msb(unsigned char data)
-// {
-//	 data = ((data & 0x80) >> 7) |
-//			((data & 0x40) >> 5) |
-//			((data & 0x20) >> 3) |
-//			((data & 0x10) >> 1) |
-//			((data & 0x08) << 1) |
-//			((data & 0x04) << 3) |
-//			((data & 0x02) << 5) |
-//			((data & 0x01) << 7);
-
-//	 return data;
-// }
+static unsigned char lsb_to_msb(unsigned char data)
+{
+#ifdef MSB_LSB_MODE
+	data = ((data & 0x80) >> 7) |
+			((data & 0x40) >> 5) |
+			((data & 0x20) >> 3) |
+			((data & 0x10) >> 1) |
+			((data & 0x08) << 1) |
+			((data & 0x04) << 3) |
+			((data & 0x02) << 5) |
+			((data & 0x01) << 7);
+#endif
+	return data;
+}
 
 void ms41929_pinmux_switch(void)
 {
@@ -95,7 +97,7 @@ int ms41929_read(struct spi_device *p_spi, unsigned char addr)
 {
 	unsigned char data = msb_to_lsb(addr | 0x40);
 
-	return spi_w8r16(p_spi, data);
+	return lsb_to_msb(spi_w8r16(p_spi, data));
 }
 
 int ms41929_default_set(struct spi_device *p_spi)
@@ -107,8 +109,8 @@ int ms41929_default_set(struct spi_device *p_spi)
 	ms41929_write(p_spi, 0x23, 0x6868);//PPWA/PPWB:176 max duty cycle: 176/ (13 * 8) = 100%
 	ms41929_write(p_spi, 0x28, 0x6868);//PPWC/PPWD:176 max duty cycle: 176/ (13 * 8) = 100%
 
-	ms41929_write(p_spi, 0x25, 0x0210);//a motor speed:608
-	ms41929_write(p_spi, 0x2A, 0x0210);//b motor speed:
+	ms41929_write(p_spi, 0x25, 0x0110);//a motor speed:528
+	ms41929_write(p_spi, 0x2A, 0x0110);//b motor speed:528
 
 	ms41929_write(p_spi, 0x0B, 0x0480);//TESTEN1:1
 	ms41929_write(p_spi, 0x21, 0x0087);//TESTEN1 setting
@@ -134,6 +136,11 @@ int ms41929_set_focus_speed(struct spi_device *p_spi, unsigned char speed)
 
 int ms41929_zoom_in(struct spi_device *p_spi, unsigned char step)
 {
+	if (step == 32)
+		step = 255;
+	else
+		step = step * 8;
+
 	ms41929_write(p_spi, 0x29, ((0x4 + 0) << 8) | step);//set dir and step
 
 	return 0;
@@ -141,15 +148,23 @@ int ms41929_zoom_in(struct spi_device *p_spi, unsigned char step)
 
 int ms41929_zoom_out(struct spi_device *p_spi, unsigned char step)
 {
-	ms41929_write(p_spi, 0x29, ((0x4 + 1) << 8) | step);//set dir and step
+	if (step == 32)
+		step = 255;
+	else
+		step = step * 8;
 
-	ms41929_vdfz(p_spi);
+	ms41929_write(p_spi, 0x29, ((0x4 + 1) << 8) | step);//set dir and step
 
 	return 0;
 }
 
 int ms41929_focus_in(struct spi_device *p_spi, unsigned char step)
 {
+	if (step == 32)
+		step = 255;
+	else
+		step = step * 8;
+
 	ms41929_write(p_spi, 0x24, ((0x4 + 0) << 8) | step);//set focus dir and step
 
 	return 0;
@@ -157,6 +172,11 @@ int ms41929_focus_in(struct spi_device *p_spi, unsigned char step)
 
 int ms41929_focus_out(struct spi_device *p_spi, unsigned char step)
 {
+	if (step == 32)
+		step = 255;
+	else
+		step = step * 8;
+
 	ms41929_write(p_spi, 0x24, ((0x4 + 1) << 8) | step);//set focus dir and step
 
 	return 0;
@@ -167,10 +187,17 @@ int ms41929_get_info(struct spi_device *p_spi, struct cvi_lens_info *info)
 	info->focus_backlash = FOCUS_BACKLASH;
 	info->focus_offset = FOCUS_OFFSET;
 	info->focus_range = FOCUS_RANGE;
+	info->focus_max_speed = FOCUS_MAX_SPEED;
+	info->focus_time_cost_one_step = FOCUS_ONE_STEP_TIME_COST;
+	info->focus_max_step = FOCUS_MAX_STEP;
 	info->zoom_backlash = ZOOM_BACKLASH;
 	info->zoom_offset = ZOOM_OFFSET;
 	info->zoom_range = ZOOM_RANGE;
-	info->time_cost_one_step = ONE_STEP_TIME_COST;
+	info->zoom_max_speed = ZOOM_MAX_SPEED;
+	info->zoom_time_cost_one_step = ZOOM_ONE_STEP_TIME_COST;
+	info->zoom_max_step = ZOOM_MAX_STEP;
+
+	memcpy(info->zoom_focus_table, zoom_focus_tab, sizeof(info->zoom_focus_table));
 
 	return 0;
 }
