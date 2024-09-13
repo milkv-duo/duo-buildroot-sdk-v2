@@ -27,6 +27,18 @@ fsbl%: export OD_CLK_SEL=${CONFIG_OD_CLK_SEL}
 fsbl%: export VC_CLK_OVERDRIVE=${CONFIG_VC_CLK_OVERDRIVE}
 fsbl%: export KERNEL_SUSPEND=${CONFIG_KERNEL_SUSPEND}
 fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ]; then echo "y";else echo "n";fi)
+fsbl%: export BUILD_BOOT0=${CONFIG_ENABLE_BOOT0}
+fsbl%: export BUILD_FASTBOOT0=${CONFIG_ENABLE_FASTBOOT0}
+fsbl%: export STORAGE=${STORAGE_TYPE}
+
+ifeq (${CONFIG_ENABLE_BOOT0},y)
+fsbl-build: u-boot-build memory-map
+	$(call print_target)
+	${Q}mkdir -p ${FSBL_PATH}/build
+	${Q}ln -snrf -t ${FSBL_PATH}/build ${CVI_BOARD_MEMMAP_H_PATH}
+	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH}
+	${Q}cp ${FSBL_OUTPUT_PATH}/boot0 ${OUTPUT_DIR}/
+else
 fsbl-build: u-boot-build memory-map
 	$(call print_target)
 	${Q}mkdir -p ${FSBL_PATH}/build
@@ -42,6 +54,10 @@ ifeq (${CONFIG_UBOOT_SPL_CUSTOM},y)
 else
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
 endif
+endif
+
+
+
 
 fsbl-clean: rtos-clean
 	$(call print_target)

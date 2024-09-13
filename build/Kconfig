@@ -532,6 +532,20 @@ endmenu
 
 menu "RTOS options"
 
+config ENABLE_BOOT0
+	bool "Enable BOOT0"
+	depends on CHIP_ARCH_cv181x || CHIP_ARCH_cv180x
+	default n
+	help
+	  Enable boot0.
+
+config ENABLE_FASTBOOT0
+	bool "Enable FASTBOOT0"
+	depends on ENABLE_BOOT0
+	default n
+	help
+	  Enable fastboot0.
+
 config ENABLE_FREERTOS
 	bool "Enable FREERTOS"
 	depends on CHIP_ARCH_cv181x || CHIP_ARCH_cv180x
