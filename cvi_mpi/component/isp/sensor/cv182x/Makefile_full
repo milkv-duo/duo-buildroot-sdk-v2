@@ -7,7 +7,7 @@ endif
 include ../../sensor.mk
 
 SRCS = $(shell find $(sensor-y) -name '*.c')
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:.c=.o) $(SENSOR_LIST_INC)/sensor_list.o
 
 TARGET_A = $(MW_LIB)/libsns_full.a
 TARGET_SO = $(MW_LIB)/libsns_full.so
