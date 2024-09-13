@@ -12,7 +12,7 @@ VDEC_INC=../../modules/vdec
 SAMPLE_VENC_INC=$(SDIR)/../venc/include
 SAMPLE_VDEC_INC=$(SDIR)/include
 
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(SAMPLE_VDEC_INC) -I$(SAMPLE_VENC_INC) -I$(VDEC_INC) -I$(KERNEL_INC) -I../common -I$(SYS_INC)
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(SAMPLE_VDEC_INC) -I$(SAMPLE_VENC_INC) -I$(VDEC_INC) -I$(KERNEL_INC) -I../common -I$(SYS_INC) -I$(SENSOR_LIST_INC)
 
 OBJS = $(SRCS:.c=.o)
 VDEC_OBJS = $(VDEC_SRCS:.c=.o)

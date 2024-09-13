@@ -557,10 +557,8 @@ CVI_VOID CVI_VI_SetMotionLV(struct mlv_info mlevel_i)
 	}
 
 	if (s32Ret == CVI_SUCCESS) {
-		mlv_i_tmp.sensor_num = mlevel_i.sensor_num;
-		mlv_i_tmp.frm_num    = mlevel_i.frm_num;
-		mlv_i_tmp.mlv        = mlevel_i.mlv;
-		memcpy(mlv_i_tmp.mtable, mlevel_i.mtable, MO_TBL_SIZE);
+		mlv_i_tmp.raw_num = mlevel_i.raw_num;
+		mlv_i_tmp.motion_th        = mlevel_i.motion_th;
 
 		s32Ret = vi_sdk_set_motion_lv(d->fd, &mlv_i_tmp);
 		if (s32Ret != CVI_SUCCESS) {
@@ -2015,34 +2013,6 @@ CVI_S32 CVI_VI_Trig_AHD(VI_PIPE ViPipe, CVI_U8 u8AHDSignal)
 	if (gViCtx->chnStatus[ViChn].bEnable == CVI_TRUE) {
 		vi_set_trig_preraw(fd, ViPipe);
 	}
-
-	return CVI_SUCCESS;
-}
-
-/**
- * @deprecated
- */
-CVI_S32 CVI_VI_SetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, const FISHEYE_ATTR_S *pstFishEyeAttr)
-{
-	CHECK_VI_NULL_PTR(pstFishEyeAttr);
-	CHECK_VI_PIPEID_VALID(ViPipe);
-	CHECK_VI_EXTCHNID_VALID(ViChn);
-
-	//ToDo fisheye
-
-	return CVI_SUCCESS;
-}
-
-/**
- * @deprecated
- */
-CVI_S32 CVI_VI_GetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, FISHEYE_ATTR_S *pstFishEyeAttr)
-{
-	CHECK_VI_NULL_PTR(pstFishEyeAttr);
-	CHECK_VI_PIPEID_VALID(ViPipe);
-	CHECK_VI_EXTCHNID_VALID(ViChn);
-
-	//ToDo fisheye
 
 	return CVI_SUCCESS;
 }

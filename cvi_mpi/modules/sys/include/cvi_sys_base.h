@@ -14,7 +14,7 @@
 #include "cvi_vpss.h"
 
 #include <linux/cvi_vip_sc.h>
-#include <linux/cvi_vip_dwa.h>
+#include <linux/dwa_uapi.h>
 #include <linux/vo_disp.h>
 
 #include <stdatomic.h>
@@ -158,10 +158,8 @@ struct dis_info {
 
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
 struct mlv_info {
-	CVI_U8  sensor_num;
-	CVI_U32 frm_num;
-	CVI_U8  mlv;
-	CVI_U8  mtable[Mo_Table_Size];
+	CVI_U8  raw_num;
+	CVI_U8  motion_th;
 };
 // -------- If you want to change these interfaces, please contact the isp team. --------
 

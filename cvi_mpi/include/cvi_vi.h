@@ -609,28 +609,6 @@ CVI_S32 CVI_VI_SetDevBindPipe(VI_DEV ViDev, const VI_DEV_BIND_PIPE_S *pstDevBind
 CVI_S32 CVI_VI_GetDevBindPipe(VI_DEV ViDev, VI_DEV_BIND_PIPE_S *pstDevBindPipe);
 
 /**
- * @brief Set chn info to fish_eye.
- *
- * @param ViPipe(In), Pipe ID.
- * @param ViChn(In), Channel ID.
- * @param pstFishEyeAttr(In), Fisheye info.
- *
- * @return CVI_S32 Return CVI_SUCCESS if succeed.
- */
-CVI_S32 CVI_VI_SetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, const FISHEYE_ATTR_S *pstFishEyeAttr);
-
-/**
- * @brief Get chn info to fish_eye.
- *
- * @param ViPipe(In), Pipe ID.
- * @param ViChn(In), Channel ID.
- * @param pstFishEyeAttr(Out), Fisheye info.
- *
- * @return CVI_S32 Return CVI_SUCCESS if succeed.
- */
-CVI_S32 CVI_VI_GetExtChnFisheye(VI_PIPE ViPipe, VI_CHN ViChn, FISHEYE_ATTR_S *pstFishEyeAttr);
-
-/**
  * @brief Set chn info to ldc or fisheye.
  *
  * @param ViPipe(In), Pipe ID.

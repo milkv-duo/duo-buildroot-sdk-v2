@@ -198,6 +198,14 @@ CVI_S32 CVI_SYS_IonInvalidateCache(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr, CVI_U
 CVI_S32 CVI_SYS_IonGetFd(CVI_VOID);
 
 /**
+ * @brief The user get ION memory statics
+ *
+ * @param statics(Out), the statics of ION memory
+ * @return CVI_S32 Return CVI_SUCCESS if succeed.
+ */
+CVI_S32 CVI_SYS_IonGetMMStatics(ION_MM_STATICS_S *statics);
+
+/**
  * @brief memory copy by TPU.
  *
  * @param u64PhyDst(In), destination physical address.

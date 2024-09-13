@@ -6,13 +6,6 @@ endif
 
 SDIR = $(PWD)/src
 SRCS = $(wildcard $(SDIR)/*.c)
-ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X CV181X CV182X MARS PHOBOS))
-	SRCS := $(filter-out $(SDIR)/cvi_gdc.c, $(SRCS))
-	SRCS := $(filter-out $(SDIR)/gdc_mesh.c, $(SRCS))
-else
-	SRCS := $(filter-out $(SDIR)/cvi_gdc_1822.c, $(SRCS))
-	SRCS := $(filter-out $(SDIR)/gdc_mesh_1822.c, $(SRCS))
-endif
 
 ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X PHOBOS))
 	SRCS := $(filter-out $(SDIR)/cvi_vo.c, $(SRCS))
@@ -32,7 +25,7 @@ EXTRA_CFLAGS = $(INCS)
 .PHONY : clean all
 all : $(TARGET_A) $(TARGET_SO)
 
-$(SDIR)/gdc_mesh_1822.o: $(SDIR)/gdc_mesh_1822.c
+$(SDIR)/gdc_mesh.o: $(SDIR)/gdc_mesh.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -O3 -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 

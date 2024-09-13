@@ -292,33 +292,6 @@ CVI_S32 CVI_RGN_UpdateCanvas(RGN_HANDLE Handle)
 	return CVI_SUCCESS;
 }
 
-/* CVI_RGN_Invert_Color - invert color per luma statistics of video content
- *   Chns' pixel-format should be YUV.
- *   RGN's pixel-format should be ARGB1555.
- *
- * @param Handle: RGN Handle
- * @param pstChn: the chn which rgn attached
- * @param pu32Color: rgn's content
- */
-CVI_S32 CVI_RGN_Invert_Color(RGN_HANDLE Handle, MMF_CHN_S *pstChn, CVI_U32 *pu32Color)
-{
-	CVI_S32 fd = -1;
-	CVI_S32 s32Ret;
-
-	MOD_CHECK_NULL_PTR(CVI_ID_RGN, pstChn);
-	MOD_CHECK_NULL_PTR(CVI_ID_RGN, pu32Color);
-
-	// Driver control
-	fd = get_rgn_fd();
-	s32Ret = rgn_invert_color(fd, Handle, pstChn, (void *)pu32Color);
-	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_RGN(CVI_DBG_INFO, "Invert RGN color fail.\n");
-		return s32Ret;
-	}
-
-	return CVI_SUCCESS;
-}
-
 CVI_S32 CVI_RGN_SetChnPalette(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, RGN_PALETTE_S *pstPalette)
 {
 	struct vdev *d;
@@ -333,7 +306,7 @@ CVI_S32 CVI_RGN_SetChnPalette(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, RGN_PA
 
 	s32Ret = rgn_set_chn_palette(d->fd, Handle, pstChn, pstPalette);
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_RGN(CVI_DBG_INFO, "Invert RGN color fail.\n");
+		CVI_TRACE_RGN(CVI_DBG_INFO, "Set RGN channel palette fail.\n");
 		return s32Ret;
 	}
 

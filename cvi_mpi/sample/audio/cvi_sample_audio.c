@@ -28,16 +28,8 @@
 #include "cvi_audio_aac_adp.h"
 //#endif
 
-#if defined(ARCH_CV183X)
-#define ACODEC_ADC	"/dev/cv1835adc"
-#define ACODEC_DAC	"/dev/cv1835dac"
-#elif defined(__CV181X__) || defined(__CV180X__)
 #define ACODEC_ADC	"/dev/cvitekaadc"
 #define ACODEC_DAC	"/dev/cvitekadac"
-#else
-#define ACODEC_ADC	"/dev/cv182xadc"
-#define ACODEC_DAC	"/dev/cv182xdac"
-#endif
 
 #define SMP_AUD_UNUSED_REF(X)  ((X) = (X))
 #define AUDIO_ADPCM_TYPE ADPCM_TYPE_DVI4/* ADPCM_TYPE_IMA, ADPCM_TYPE_DVI4*/
@@ -426,9 +418,9 @@ int printf_sample_usage(void)
 {
 	printf("\n/Usage:./sample_audio <index>/\n");
 	printf("\t0:Ai bind Aenc, save as file\n");
-	printf("\t1:Ai unbind Aenc, save as file\n");
+	printf("\t1:Ai/Aenc user-get-mode, save as file\n");
 	printf("\t2:Adec bind ao, save as file\n");
-	printf("\t3:Adec unbind ao, save as file\n");
+	printf("\t3:Adec/Ao user-get-mode, save as file\n");
 	printf("\t4:recording frame by frame\n");
 	printf("\t5:playing audio frame by frame\n");
 	printf("\t6:SetVolume db test\n");
@@ -904,7 +896,7 @@ ERROR3:
 }
 
 
-CVI_S32 SAMPLE_AUDIO_AI_UNBIND_AENC(void *argv)
+CVI_S32 SAMPLE_AUDIO_AI_AENC_USER_GET_MODE(void *argv)
 {
 	int AiDev = 0;/*only support 0 dev */
 	int AiChn = 0;
@@ -1263,7 +1255,7 @@ ERROR3:
 }
 
 
-CVI_S32 SAMPLE_AUDIO_ADEC_UNBIND_AO(void *argv)
+CVI_S32 SAMPLE_AUDIO_ADEC_AO_USER_GET_MODE(void *argv)
 {
 	CVI_S32 s32Ret = 0;
 	CVI_S32 AdChn = 0;
@@ -1712,9 +1704,9 @@ CVI_S32 SAMPLE_AUDIO_DEBUG_SET_VOLUME(ST_AudioUnitTestCfg *testCfg)
 	CVI_S32 s32SetInputOrOutput = 0;
 
 	printf("----------------------cvi check------------------------\n");
-	printf("\n Enter output card id: \t");
+	printf("\n Enter output card id: \n");
 	err = scanf("%d", &idevid);
-	printf("\n Enter volume \t");
+	printf("\n Enter volume \n");
 	err = scanf("%d", &volumedb);
 	printf("\n enter card[%d] vol[%d]\n", idevid, volumedb);
 	if (err == EOF)
@@ -1751,7 +1743,7 @@ CVI_S32 SAMPLE_AUDIO_DEBUG_GET_VOLUME(ST_AudioUnitTestCfg *testCfg)
 		printf("testCfg is null\n");
 		return -1;
 	}
-	printf("Enter output card id: \t");
+	printf("Enter output card id: \n");
 	err = scanf("%d", &idevid);
 	if (err == EOF)
 		printf("[Error][%s][%d]\n", __func__, __LINE__);
@@ -1793,11 +1785,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 	CVI_S32 s32Cmd = -1;
 	CVI_U32 u32Val = 0;
 
-#ifdef ARCH_CV183X
-	printf("IOCTL %s 183X\n", __func__);
-#else
-	printf("IOCTL %s 182x\n", __func__);
-#endif
+	printf("IOCTL %s\n", __func__);
 
 	fdAcodec_adc = open(ACODEC_ADC, O_RDWR);
 	if (fdAcodec_adc < 0) {
@@ -1897,11 +1885,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 
 		break;
 	case 2:
-#ifdef ARCH_CV183X
-		printf("enter _INPUT_VOL[7-0, 0:mute]:\t");
-#else
 		printf("enter _INPUT_VOL[24-0, 0:mute]:\t");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (ioctl(fdAcodec_adc, ACODEC_SET_INPUT_VOL, &u32Val))
@@ -1920,11 +1904,8 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 
 		break;
 	case 4:
-#ifdef ARCH_CV183X
-		printf("enter OUTPUT_VOL[15-0, 0:mute]:\t");
-#else
 		printf("enter OUTPUT_VOL[32-0, 0:mute]:\t");
-#endif
+
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (ioctl(fdAcodec_dac, ACODEC_SET_OUTPUT_VOL, &u32Val))
@@ -1952,11 +1933,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 		break;
 	case 7:
 		printf("enter ACODEC_SET_GAIN_MICL:\n");
-#ifdef ARCH_CV183X
-		printf("[7~0]:[40dB, 30dB, 27.5dB, 21dB, 12dB, 9dB, 0dB, -1dB], 0:mute\n");
-#else
 		printf("[24~0] 0:mute\n");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (ioctl(fdAcodec_adc, ACODEC_SET_GAIN_MICL, &u32Val))
@@ -1967,11 +1944,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 		break;
 	case 8:
 		printf("enter ACODEC_SET_GAIN_MICR:\n");
-#ifdef ARCH_CV183X
-		printf("[7~0]:[40dB, 30dB, 27.5dB, 21dB, 12dB, 9dB, 0dB, -1dB], 0:mute\n");
-#else
 		printf("[24~0] 0:mute\n");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (ioctl(fdAcodec_adc, ACODEC_SET_GAIN_MICR, &u32Val))
@@ -1982,11 +1955,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 		break;
 	case 9:
 		vol_ctrl.vol_ctrl_mute = 0x0;
-#ifdef ARCH_CV183X
-		printf("enter  ACODEC_SET_DACL_VOL[15-0, 0:mute]:\t");
-#else
 		printf("enter  ACODEC_SET_DACL_VOL[32-0, 0:mute]:\t");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (u32Val == 0) {
@@ -2006,11 +1975,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 
 	case 10:
 		vol_ctrl.vol_ctrl_mute = 0x0;
-#ifdef ARCH_CV183X
-		printf("enter  ACODEC_SET_DACR_VOL[15-0, 0:mute]:\t");
-#else
 		printf("enter  ACODEC_SET_DACL_VOL[32-0, 0:mute]:\t");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (u32Val == 0) {
@@ -2029,11 +1994,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 		break;
 	case 11:
 		vol_ctrl.vol_ctrl_mute = 0x0;
-#ifdef ARCH_CV183X
-		printf("enter  ACODEC_SET_ADCL_VOL mic[7-0, 0:mute]:\t");
-#else
 		printf("enter  ACODEC_SET_ADCL_VOL mic[24-0, 0:mute]:\t");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (u32Val == 0)
@@ -2049,11 +2010,7 @@ CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
 		break;
 	case 12:
 		vol_ctrl.vol_ctrl_mute = 0x0;
-#ifdef ARCH_CV183X
-		printf("enter  ACODEC_SET_ADCR_VOL  mic[7-0, 0:mute]:\t");
-#else
 		printf("enter  ACODEC_SET_ADCR_VOL  mic[24-0, 0:mute]:\t");
-#endif
 		scanf("%d", &u32Val);
 		printf("\n Enter[%d]\n", u32Val);
 		if (u32Val == 0)
@@ -2562,7 +2519,7 @@ CVI_S32 main(int argc, char *argv[])
 		break;
 	}
 	case 1: {
-		SAMPLE_AUDIO_AI_UNBIND_AENC(&stAudioparam);
+		SAMPLE_AUDIO_AI_AENC_USER_GET_MODE(&stAudioparam);
 		break;
 	}
 	case 2: {
@@ -2570,7 +2527,7 @@ CVI_S32 main(int argc, char *argv[])
 		break;
 	}
 	case 3: {
-		SAMPLE_AUDIO_ADEC_UNBIND_AO(&stAudioparam);
+		SAMPLE_AUDIO_ADEC_AO_USER_GET_MODE(&stAudioparam);
 		break;
 	}
 	case 4: {

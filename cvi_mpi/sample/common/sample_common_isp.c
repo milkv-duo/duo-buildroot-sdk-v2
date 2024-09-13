@@ -266,9 +266,11 @@ CVI_S32 SAMPLE_COMM_ISP_Motor_SetZoomOutCb(VI_PIPE ViPipe, CVI_U8 step)
 	return CVI_SUCCESS;
 }
 
-CVI_S32 SAMPLE_COMM_ISP_Motor_SetZoomAndFocusCb(VI_PIPE ViPipe, AF_DIRECTION eDir, CVI_U8 zoomStep, CVI_U8 focusStep)
+CVI_S32 SAMPLE_COMM_ISP_Motor_SetZoomAndFocusCb(VI_PIPE ViPipe, AF_DIRECTION eDirz, AF_DIRECTION eDirf, CVI_U8 zoomStep, CVI_U8 focusStep)
 {
 	struct cvi_motor_regval reg;
+	CVI_U32 zoom_dir_cmd;
+	CVI_U32 focus_dir_cmd;
 
 	if (ViPipe == 0) {
 		if (motor_fd == -1) {
@@ -279,49 +281,34 @@ CVI_S32 SAMPLE_COMM_ISP_Motor_SetZoomAndFocusCb(VI_PIPE ViPipe, AF_DIRECTION eDi
 			}
 		}
 
-		if (eDir == AF_DIR_FAR) {
-			printf("test2 %d %d\n", zoomStep, focusStep);
-			reg.val = zoomStep;
+		reg.val = zoomStep;
 
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_ZOOM_IN, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Zoom In err\n");
-				return CVI_FAILURE;
-			}
+		if (eDirz == AF_DIR_FAR)
+			zoom_dir_cmd = CVI_MOTOR_IOC_ZOOM_IN;
+		else
+			zoom_dir_cmd = CVI_MOTOR_IOC_ZOOM_OUT;
 
-			reg.val = focusStep;
-
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_FOCUS_IN, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Focus Out err\n");
-				return CVI_FAILURE;
-			}
-
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_APPLY, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Apply err\n");
-				return CVI_FAILURE;
-			}
-		} else {
-			reg.val = zoomStep;
-			printf("test2 %d %d\n", zoomStep, focusStep);
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_ZOOM_OUT, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Zoom Out err\n");
-				return CVI_FAILURE;
-			}
-
-			reg.val = focusStep;
-
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_FOCUS_OUT, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Focus Out err\n");
-				return CVI_FAILURE;
-			}
-
-			if (ioctl(motor_fd, CVI_MOTOR_IOC_APPLY, &reg) < 0) {
-				CVI_TRACE_LOG(CVI_DBG_ERR, "Apply err\n");
-				return CVI_FAILURE;
-			}
+		if (ioctl(motor_fd, zoom_dir_cmd, &reg) < 0) {
+			CVI_TRACE_LOG(CVI_DBG_ERR, "Zoom In/Out err\n");
+			return CVI_FAILURE;
 		}
-	} else {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "Not implement %d cb func\n", ViPipe);
-		return CVI_FAILURE;
+
+		reg.val = focusStep;
+
+		if (eDirf == AF_DIR_FAR)
+			focus_dir_cmd = CVI_MOTOR_IOC_FOCUS_IN;
+		else
+			focus_dir_cmd = CVI_MOTOR_IOC_FOCUS_OUT;
+
+		if (ioctl(motor_fd, focus_dir_cmd, &reg) < 0) {
+			CVI_TRACE_LOG(CVI_DBG_ERR, "Focus Out err\n");
+			return CVI_FAILURE;
+		}
+
+		if (ioctl(motor_fd, CVI_MOTOR_IOC_APPLY, &reg) < 0) {
+			CVI_TRACE_LOG(CVI_DBG_ERR, "Apply err\n");
+			return CVI_FAILURE;
+		}
 	}
 
 	return CVI_SUCCESS;

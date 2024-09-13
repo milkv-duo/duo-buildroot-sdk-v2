@@ -747,6 +747,27 @@ CVI_S32 CVI_SYS_IonFree(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr)
 	return CVI_SUCCESS;
 }
 
+CVI_S32 CVI_SYS_IonGetMMStatics(ION_MM_STATICS_S *statics)
+{
+	CVI_S32 fd = -1;
+	CVI_S32 ret = CVI_SUCCESS;
+	struct sys_ion_mm_statics ion_statics;
+
+	if ((fd = get_sys_fd()) == -1)
+		return CVI_ERR_SYS_NOTREADY;
+
+	ret = ioctl(fd, SYS_ION_G_ION_MM_STATICS, &ion_statics);
+	if (ret < 0) {
+		printf("ioctl SYS_ION_ALLOC failed\n");
+	}
+
+	statics->total_size = ion_statics.total_size;
+	statics->free_size = ion_statics.free_size;
+	statics->max_avail_size = ion_statics.max_avail_size;
+
+	return ret;
+}
+
 CVI_S32 CVI_SYS_IonFlushCache(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr, CVI_U32 u32Len)
 {
 	CVI_S32 fd = -1;

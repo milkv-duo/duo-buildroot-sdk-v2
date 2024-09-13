@@ -132,11 +132,6 @@ int rgn_update_canvas(int fd, int Handle)
 	return SDK_CTRL_SET_CFG(fd, NULL, NULL, RGN_SDK_UPDATE_CANVAS, Handle);
 }
 
-int rgn_invert_color(int fd, int Handle, MMF_CHN_S *pstChn, void *pu32Color)
-{
-	return SDK_CTRL_SET_CFG(fd, (void *)pstChn, pu32Color, RGN_SDK_INVERT_COLOR, Handle);
-}
-
 int rgn_set_chn_palette(int fd, int Handle, const MMF_CHN_S *pstChn, RGN_PALETTE_S *pstPalette)
 {
 	return SDK_CTRL_SET_CFG(fd, (void *)pstChn, (void *)pstPalette, RGN_SDK_SET_CHN_PALETTE, Handle);

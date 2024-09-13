@@ -316,6 +316,78 @@ CVI_S32 SAMPLE_COMM_VPSS_UnBind_VPSS(VPSS_GRP VpssGrpSrc, VPSS_CHN VpssChnSrc, V
 	return CVI_SUCCESS;
 }
 
+CVI_S32 SAMPLE_COMM_VDEC_Bind_VENC(VDEC_CHN VdecChn, VENC_CHN VencChn)
+{
+	MMF_CHN_S stSrcChn;
+	MMF_CHN_S stDestChn;
+
+	stSrcChn.enModId = CVI_ID_VDEC;
+	stSrcChn.s32DevId = 0;
+	stSrcChn.s32ChnId = VdecChn;
+
+	stDestChn.enModId = CVI_ID_VENC;
+	stDestChn.s32DevId = 0;
+	stDestChn.s32ChnId = VencChn;
+
+	CHECK_RET(CVI_SYS_Bind(&stSrcChn, &stDestChn), "CVI_SYS_Bind(VDEC-VENC)");
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 SAMPLE_COMM_VDEC_UnBind_VENC(VDEC_CHN VdecChn, VENC_CHN VencChn)
+{
+	MMF_CHN_S stSrcChn;
+	MMF_CHN_S stDestChn;
+
+	stSrcChn.enModId = CVI_ID_VDEC;
+	stSrcChn.s32DevId = 0;
+	stSrcChn.s32ChnId = VdecChn;
+
+	stDestChn.enModId = CVI_ID_VENC;
+	stDestChn.s32DevId = 0;
+	stDestChn.s32ChnId = VencChn;
+
+	CHECK_RET(CVI_SYS_UnBind(&stSrcChn, &stDestChn), "CVI_SYS_UnBind(VDEC-VENC)");
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 SAMPLE_COMM_VDEC_Bind_VO(VDEC_CHN VdecChn, VO_LAYER VoLayer, VO_CHN VoChn)
+{
+	MMF_CHN_S stSrcChn;
+	MMF_CHN_S stDestChn;
+
+	stSrcChn.enModId = CVI_ID_VDEC;
+	stSrcChn.s32DevId = 0;
+	stSrcChn.s32ChnId = VdecChn;
+
+	stDestChn.enModId = CVI_ID_VO;
+	stDestChn.s32DevId = VoLayer;
+	stDestChn.s32ChnId = VoChn;
+
+	CHECK_RET(CVI_SYS_Bind(&stSrcChn, &stDestChn), "CVI_SYS_UnBind(VDEC-VO)");
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 SAMPLE_COMM_VDEC_UnBind_VO(VDEC_CHN VdecChn, VO_LAYER VoLayer, VO_CHN VoChn)
+{
+	MMF_CHN_S stSrcChn;
+	MMF_CHN_S stDestChn;
+
+	stSrcChn.enModId = CVI_ID_VDEC;
+	stSrcChn.s32DevId = 0;
+	stSrcChn.s32ChnId = VdecChn;
+
+	stDestChn.enModId = CVI_ID_VO;
+	stDestChn.s32DevId = VoLayer;
+	stDestChn.s32ChnId = VoChn;
+
+	CHECK_RET(CVI_SYS_UnBind(&stSrcChn, &stDestChn), "CVI_SYS_UnBind(VDEC-VO)");
+
+	return CVI_SUCCESS;
+}
+
 /* SAMPLE_COMM_FRAME_SaveToFile:
  *   Save videoframe to the file
  *

@@ -118,17 +118,6 @@ CVI_S32 CVI_RGN_GetCanvasInfo(RGN_HANDLE Handle, RGN_CANVAS_INFO_S *pstCanvasInf
 CVI_S32 CVI_RGN_UpdateCanvas(RGN_HANDLE Handle);
 
 /**
- * @brief Get display attribute from chn.
- *
- * @param Handle(In), RGN ID.
- * @param pstChn(In), module chn.
- * @param pu32Color(In), color.
- * @return CVI_S32 Return CVI_SUCCESS if succeed.
- */
-CVI_S32 CVI_RGN_Invert_Color(RGN_HANDLE Handle, MMF_CHN_S *pstChn, CVI_U32 *pu32Color);
-
-
-/**
  * @brief Set Palette for LUT.
  *
  * @param Handle(In), RGN ID.

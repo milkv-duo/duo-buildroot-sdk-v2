@@ -36,8 +36,6 @@ struct gdc_task_param {
 	enum gdc_task_type type;
 	union {
 		ROTATION_E enRotation;
-		FISHEYE_ATTR_S stFishEyeAttr;
-		AFFINE_ATTR_S stAffineAttr;
 		LDC_ATTR_S stLDCAttr;
 	};
 };
@@ -63,18 +61,7 @@ int get_mesh_size(int *p_mesh_hor, int *p_mesh_ver);
 int set_mesh_size(int mesh_hor, int mesh_ver);
 void mesh_gen_get_size(SIZE_S in_size, SIZE_S out_size, CVI_U32 *mesh_id_size, CVI_U32 *mesh_tbl_size);
 void mesh_gen_rotation(SIZE_S in_size, SIZE_S out_size, ROTATION_E rot, uint64_t mesh_phy_addr, void *mesh_vir_addr);
-void mesh_gen_affine(SIZE_S in_size, SIZE_S out_size, const AFFINE_ATTR_S *pstAffineAttr, uint64_t mesh_phy_addr,
-		     void *mesh_vir_addr);
-void mesh_gen_fisheye(SIZE_S in_size, SIZE_S out_size, const FISHEYE_ATTR_S *pstFisheyeAttr, uint64_t mesh_phy_addr,
-		      void *mesh_vir_addr, ROTATION_E rot);
 CVI_S32 mesh_gen_ldc(SIZE_S in_size, SIZE_S out_size, const LDC_ATTR_S *pstLDCAttr,
 		     uint64_t mesh_phy_addr, void *mesh_vir_addr, ROTATION_E rot);
-
-// cnv
-void mesh_gen_cnv(const float *pfmesh_data, SIZE_S in_size, SIZE_S out_size, const FISHEYE_ATTR_S *pstFisheyeAttr,
-		  uint64_t mesh_phy_addr, void *mesh_vir_addr);
-
-void get_cnv_warp_mesh_tbl(SIZE_S in_size, SIZE_S out_size, const AFFINE_ATTR_S *pstAffineAttr, uint64_t mesh_phy_addr,
-			   void *mesh_vir_addr);
 
 #endif // MODULES_VPU_INCLUDE_GDC_MESH_H_

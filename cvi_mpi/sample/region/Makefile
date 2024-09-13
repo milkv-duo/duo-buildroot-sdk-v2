@@ -7,7 +7,7 @@ include ../sample.mk
 
 SDIR = $(PWD)
 SRCS = $(wildcard $(SDIR)/*.c)
-INCS = -I$(MW_INC) -I$(ISP_INC) -I../common -I$(KERNEL_INC)
+INCS = -I$(MW_INC) -I$(ISP_INC) -I../common -I$(KERNEL_INC) -I$(SENSOR_LIST_INC)
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 

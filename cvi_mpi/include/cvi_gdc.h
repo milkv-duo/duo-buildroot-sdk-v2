@@ -44,17 +44,6 @@ CVI_S32 CVI_GDC_EndJob(GDC_HANDLE hHandle);
 CVI_S32 CVI_GDC_CancelJob(GDC_HANDLE hHandle);
 
 /**
- * @brief Add a fisheye task to a gdc job
- *
- * @param hHandle(In), handle creat by CVI_GDC_BeginJob
- * @param pstTask(In), GDC task attribute
- * @param pstFisheyeAttr(In), for further settings
- * @return CVI_S32 Return CVI_SUCCESS if succeed
- */
-CVI_S32 CVI_GDC_AddCorrectionTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask
-	, const FISHEYE_ATTR_S *pstFisheyeAttr);
-
-/**
  * @brief Add a rotation task to a gdc job
  *
  * @param hHandle(In), handle creat by CVI_GDC_BeginJob
@@ -65,18 +54,9 @@ CVI_S32 CVI_GDC_AddCorrectionTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pst
 CVI_S32 CVI_GDC_AddRotationTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask, ROTATION_E enRotation);
 
 /**
- * @brief Add a affine task to a gdc job
- *
- * @param hHandle(In), handle creat by CVI_GDC_BeginJob
- * @param pstTask(In), GDC task attribute
- * @param pstAffineAttr(In), for further settings
- * @return CVI_S32 Return CVI_SUCCESS if succeed
- */
-CVI_S32 CVI_GDC_AddAffineTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask, const AFFINE_ATTR_S *pstAffineAttr);
-
-/**
  * @brief Add a LDC task to a gdc job
  *
+ * @param hHandle(In), handle creat by CVI_GDC_BeginJob
  * @param pstTask(In), GDC task attribute.
  * @param pstLDCAttr(In), GDC LDC attribute
  * @param enRotation(In), for further settings
@@ -86,32 +66,12 @@ CVI_S32 CVI_GDC_AddLDCTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask
 	, const LDC_ATTR_S *pstLDCAttr, ROTATION_E enRotation);
 
 /**
- * @brief this function is abandoned, do not support yet.
- */
-CVI_S32 CVI_GDC_AddCnvWarpTask(const float *pfmesh_data, GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask
-	, const FISHEYE_ATTR_S *pstAffineAttr, bool *bReNew);
-
-/**
- * @brief this function is abandoned, do not support yet.
- */
-CVI_S32 CVI_GDC_AddCorrectionTaskCNV(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask
-	, const FISHEYE_ATTR_S *pstFishEyeAttr, uint8_t *p_tbl, uint8_t *p_idl, uint32_t *tbl_param);
-
-/**
- * @brief set meshsize for GDC
- *
- * @param nMeshHor(In), mesh counts horizontal
- * @param nMeshVer(In), mesh counts vertical
- * @return CVI_S32 Return CVI_SUCCESS if succeed
- */
-CVI_S32 CVI_GDC_SetMeshSize(int nMeshHor, int nMeshVer);
-
-/**
  * @brief gen GDC LDC(Lens Distortion Correction) mesh table
  *
  * @param u32Width(In), mesh region width
  * @param u32Height(In), mesh region height
  * @param pstLDCAttr(In), GDC LDC attribute
+ * @param name(In), mesh name
  * @param pu64PhyAddr(Out), mesh table physical addr in memory
  * @param ppVirAddr(Out), mesh table virtual addr in memory
  * @return CVI_S32 Return CVI_SUCCESS if succeed
@@ -119,6 +79,17 @@ CVI_S32 CVI_GDC_SetMeshSize(int nMeshHor, int nMeshVer);
 CVI_S32 CVI_GDC_GenLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const LDC_ATTR_S *pstLDCAttr
 	, const char *name, CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr);
 
+/**
+ * @brief load GDC LDC(Lens Distortion Correction) mesh table
+ *
+ * @param u32Width(In), mesh region width
+ * @param u32Height(In), mesh region height
+ * @param fileNname(In): mesh file name
+ * @param tskName(In): task name
+ * @param pu64PhyAddr(Out), mesh table physical addr in memory
+ * @param ppVirAddr(Out), mesh table virtual addr in memory
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
 CVI_S32 CVI_GDC_LoadLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const char *fileNname
 	, const char *tskName, CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr);
 

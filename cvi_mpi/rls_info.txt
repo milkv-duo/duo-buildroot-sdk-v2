@@ -59,6 +59,8 @@
 ./lib/libcvi_RES1.so
 ./lib/libcvi_ssp.a
 ./lib/libcvi_ssp.so
+./lib/libcvi_ssp2.a
+./lib/libcvi_ssp2.so
 ./lib/libcvi_VoiceEngine.a
 ./lib/libcvi_VoiceEngine.so
 ./lib/libcvi_vqe.a

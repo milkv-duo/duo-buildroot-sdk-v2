@@ -57,6 +57,7 @@ GDC_INC = $(MW_PATH)/modules/gdc/include
 RGN_INC = $(MW_PATH)/modules/rgn/include
 AUD_INC = $(MW_PATH)/modules/audio/include
 BIN_INC = $(MW_PATH)/modules/bin/include
+SENSOR_LIST_INC = $(MW_PATH)/component/isp/common
 
 MODULES_DIR = $(shell if [ -d $(MW_PATH)/modules ]; then echo "exist"; else echo "noexist"; fi)
 
@@ -158,10 +159,6 @@ endif
 
 ifeq ($(FPGA_PORTING), true)
 CFLAGS += -DFPGA_PORTING
-endif
-
-ifeq ($(CONFIG_DDR_64MB_SIZE), y)
-CFLAGS += -DDDR_64MB_SIZE
 endif
 
 SAMPLE_STATIC ?= 1
