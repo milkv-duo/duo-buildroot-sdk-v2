@@ -23,7 +23,7 @@ ifeq ($(DESTDIR),)
 	DESTDIR := $(shell pwd)/install
 endif
 
-INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH)
+INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH) -I$(SENSOR_LIST_INC)
 INCS += -I$(ISP_COMMON_DIR)/raw_dump/inc
 
 OBJS = $(patsubst $(SDIR)/%.cpp, $(TMP_FOLDER)/%.o, $(wildcard $(SDIR)/*.cpp))

@@ -469,61 +469,6 @@ CVI_S32 set_raw_replay_data(const CVI_VOID *header, const CVI_VOID *data,
 		return CVI_FAILURE;
 	}
 
-	if (curFrame == 0) {
-
-		if (access("/mnt/data/rawTestFlag", F_OK) == 0) {
-
-			LOGOUT("save auto test data......\n");
-
-			//system("mkdir -p /mnt/data/rawTest");
-			char path[_BUFF_LEN] = {0};
-			char cmd[_BUFF_LEN] = {0};
-
-			const char *prefix = NULL;
-
-			CVI_U32 chip_id = 0;
-
-			CVI_SYS_GetChipId(&chip_id);
-
-			printf("error: unknown chip......\n");
-
-			snprintf(path, _BUFF_LEN, "%s/%s", prefix,
-				pRawReplayCtx->pRawHeader[0].enWDR ? "wdr" : "sdr");
-
-			snprintf(cmd, _BUFF_LEN, "mkdir -p %s", path);
-
-			system(cmd);
-
-			snprintf(path, _BUFF_LEN, "%s/%s/header.bin", prefix,
-				pRawReplayCtx->pRawHeader[0].enWDR ? "wdr" : "sdr");
-
-			FILE *fp = NULL;
-
-			fp = fopen(path, "wb");
-			if (fp == NULL) {
-				LOGOUT("fopen %s failed!!!\n", path);
-			} else {
-				fwrite(pRawReplayCtx->pRawHeader, sizeof(RAW_REPLAY_INFO), 1, fp);
-				fclose(fp);
-				fp = NULL;
-			}
-
-			LOGOUT("size: %d, %d\n", (CVI_U32) sizeof(RAW_REPLAY_INFO), rawFrameSize);
-
-			snprintf(path, _BUFF_LEN, "%s/%s/test.raw", prefix,
-				pRawReplayCtx->pRawHeader[0].enWDR ? "wdr" : "sdr");
-
-			fp = fopen(path, "wb");
-			if (fp == NULL) {
-				LOGOUT("fopen %s failed!!!\n", path);
-			} else {
-				fwrite(data, rawFrameSize, 1, fp);
-				fclose(fp);
-				fp = NULL;
-			}
-		}
-	}
-
 	return CVI_SUCCESS;
 }
 

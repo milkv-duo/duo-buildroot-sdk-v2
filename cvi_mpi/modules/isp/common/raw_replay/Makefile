@@ -10,7 +10,7 @@ ISP_BASE_PATH = $(PWD)/../../$(isp_chip_name)
 SDIR = $(PWD)
 SRCS = $(wildcard $(SDIR)/*.c)
 
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC)  -I../../algo
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(SENSOR_LIST_INC) -I../../algo
 
 # SOC Architecture
 ifeq ($(CHIP_ARCH), CV181X)

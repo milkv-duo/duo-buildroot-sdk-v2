@@ -137,11 +137,8 @@ static CVI_S32 isp_motion_ctrl_preprocess(VI_PIPE ViPipe, ISP_ALGO_RESULT_S *alg
 {
 	CVI_S32 ret = CVI_SUCCESS;
 	struct isp_motion_ctrl_runtime *runtime = _get_motion_ctrl_runtime(ViPipe);
-	ISP_CTX_S *pstIspCtx = NULL;
 	const ISP_VC_ATTR_S *motion_attr = NULL;
 	ISP_MOTION_STATS_INFO *motionInfo = NULL;
-
-	ISP_GET_CTX(ViPipe, pstIspCtx);
 
 	isp_motion_ctrl_get_motion_attr(ViPipe, &motion_attr);
 	isp_sts_ctrl_get_motion_sts(ViPipe, &motionInfo);
@@ -164,13 +161,6 @@ static CVI_S32 isp_motion_ctrl_preprocess(VI_PIPE ViPipe, ISP_ALGO_RESULT_S *alg
 
 	struct motion_param_in *ptParamIn = &(runtime->motion_param_in);
 
-	ptParamIn->frameCnt = motionInfo->frameCnt;
-	ptParamIn->gridWidth = motionInfo->gridWidth;
-	ptParamIn->gridHeight = motionInfo->gridHeight;
-	ptParamIn->motionStsBufSize = motionInfo->motionStsBufSize;
-	ptParamIn->motionMapAddr = ISP_PTR_CAST_PTR(motionInfo->motionStsData);
-	ptParamIn->imageWidth = pstIspCtx->stSysRect.u32Width;
-	ptParamIn->imageHeight = pstIspCtx->stSysRect.u32Height;
 	ptParamIn->motionThreshold = INTERPOLATE_LINEAR(ViPipe, INTPLT_POST_ISO, motion_attr->MotionThreshold);
 	runtime->process_updated = CVI_TRUE;
 
@@ -191,14 +181,6 @@ static CVI_S32 isp_motion_ctrl_process(VI_PIPE ViPipe)
 	if (runtime->process_updated == CVI_FALSE)
 		return ret;
 
-	//ALGO
-	isp_algo_motion_main(
-		(struct motion_param_in *)&runtime->motion_param_in,
-		(struct motion_param_out *)&runtime->motion_param_out);
-
-//	printf("motionLevel : %d, FrameCnt : %d\n",
-//		runtime->motion_param_out.motionLevel, runtime->motion_param_out.frameCnt);
-
 	runtime->process_updated = CVI_FALSE;
 
 	return ret;
@@ -209,16 +191,14 @@ static CVI_S32 isp_motion_ctrl_postprocess(VI_PIPE ViPipe)
 	CVI_S32 ret = CVI_SUCCESS;
 
 	struct isp_motion_ctrl_runtime *runtime = _get_motion_ctrl_runtime(ViPipe);
-	struct motion_param_out *ptParamOut = &(runtime->motion_param_out);
+	struct motion_param_in *ptParamIn = &(runtime->motion_param_in);
 	struct mlv_info m_i;
 
 	CVI_BOOL is_postprocess_update = ((runtime->postprocess_updated == CVI_TRUE) || (IS_MULTI_CAM()));
 
 	if (is_postprocess_update && !runtime->is_module_bypass) {
-		m_i.sensor_num	= ViPipe;
-		m_i.frm_num		= ptParamOut->frameCnt;
-		m_i.mlv			= ptParamOut->motionLevel;
-
+		m_i.raw_num	= ViPipe;
+		m_i.motion_th			= ptParamIn->motionThreshold;
 		CVI_VI_SetMotionLV(m_i);
 	}
 

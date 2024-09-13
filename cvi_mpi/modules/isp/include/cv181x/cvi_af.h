@@ -80,20 +80,20 @@ CVI_S32 CVI_AF_AutoFocus(VI_PIPE ViPipe);
  * [in]
  *    sID: get it by ViPipe
  * [out]
- *    fv: Focus value
+ *    pFv: Focus value
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_GetFv(VI_PIPE ViPipe, CVI_U32 *fv);
+CVI_S32 CVI_AF_GetFv(VI_PIPE ViPipe, CVI_U32 *pFv);
 /* CVI_AF_SetZoomSpeed:
  *    set Zoom motor rotational speed, generally not set
  * [in]
  *    sID: get it by ViPipe
- *	  speed: rotational speed
+ *	  eSpeed: rotational speed:4x/2x/1x/half
  * [out]
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetZoomSpeed(VI_PIPE ViPipe, CVI_U16 speed);
+CVI_S32 CVI_AF_SetZoomSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
 /* CVI_AF_SetZoom:
  *    set zoom motor rotational speed, generally not set
  * [in]
@@ -109,12 +109,12 @@ CVI_S32 CVI_AF_SetZoom(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U8 step);
  *    set focus motor rotational speed
  * [in]
  *    sID: get it by ViPipe
- *    speed: rotational speed
+ *    eSpeed: rotational speed:4x/2x/1x/half
  * [out]
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetFocusSpeed(VI_PIPE ViPipe, CVI_U16 speed);
+CVI_S32 CVI_AF_SetFocusSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
 /* AF_SetFocus:
  *    set focus motor rotational speed, generally not set
  * [in]

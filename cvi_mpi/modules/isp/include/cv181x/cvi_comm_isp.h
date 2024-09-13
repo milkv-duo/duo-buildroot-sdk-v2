@@ -56,6 +56,7 @@ extern "C" {
 #define AF_YOFFSET_MIN (2)
 #define MAX_AWB_LIB_NUM (VI_MAX_PIPE_NUM)
 #define MAX_AE_LIB_NUM (VI_MAX_PIPE_NUM)
+#define MAX_AF_LIB_NUM (VI_MAX_PIPE_NUM)
 #define LTM_DARK_CURVE_NODE_NUM (257)
 #define LTM_BRIGHT_CURVE_NODE_NUM (513)
 #define LTM_GLOBAL_CURVE_NODE_NUM (769)
@@ -731,11 +732,14 @@ typedef struct _ISP_AF_V_PARAM_S {
 	CVI_S8 s8VFltHpCoeff[FIR_V_GAIN_NUM]; /*RW; Range:[0x0, 0x1F]*/
 } ISP_AF_V_PARAM_S;
 
+#define AF_WEIGHT_ZONE_ROW	15
+#define AF_WEIGHT_ZONE_COLUMN	17
 typedef struct _ISP_FOCUS_STATISTICS_CFG_S {
 	ISP_AF_CFG_S stConfig;
 	ISP_AF_H_PARAM_S stHParam_FIR0;
 	ISP_AF_H_PARAM_S stHParam_FIR1;
 	ISP_AF_V_PARAM_S stVParam_FIR;
+	CVI_U8 au8Weight[AF_WEIGHT_ZONE_ROW][AF_WEIGHT_ZONE_COLUMN]; /*RW; Range:[0x0, 0xF]*/
 } ISP_FOCUS_STATISTICS_CFG_S;
 
 typedef struct _ISP_STATISTICS_CFG_S {
@@ -1057,10 +1061,12 @@ typedef enum _AF_STATUS {
 	AF_LOCATE_BEST_POS,
 	AF_FOCUSED,
 	AF_REVERSE_DIRECTION, //for hw limit
+	AF_CHASING_FOCUS,
 } AF_STATUS;
 
 typedef struct _ISP_FOCUS_ATTR_S {
 	CVI_U8 u8DebugMode;
+	CVI_U8 u8CalibMode;
 	CVI_U8 u8AFRunInterval;
 	CVI_BOOL bEnableChasingFocus;
 	CVI_BOOL bEnableReFocus;
@@ -1079,6 +1085,13 @@ typedef struct _ISP_FOCUS_ATTR_S {
 //-----------------------------------------------------------------------------
 //  FOCUS Info
 //-----------------------------------------------------------------------------
+typedef enum _ISP_AF_MOTOR_SPEED_E {
+	AF_MOTOR_SPEED_4X,
+	AF_MOTOR_SPEED_2X,
+	AF_MOTOR_SPEED_1X,
+	AF_MOTOR_SPEED_HALF,
+} ISP_AF_MOTOR_SPEED_E;
+
 typedef struct _ISP_AF_Q_INFO_S {
 	AF_STATUS eStatus;      /*R;*/
 	CVI_U32 u32PreFv;       /*R;*/
@@ -1086,11 +1099,13 @@ typedef struct _ISP_AF_Q_INFO_S {
 	CVI_U32 u32MaxFv;       /*R;*/
 	CVI_U32 u32Fv;          /*R;*/
 	AF_DIRECTION eZoomDir;  /*R;*/
-	CVI_U8 u8ZoomStep;      /*R;*/
+	CVI_U16 u16ZoomStep;      /*R;*/
 	CVI_U16 u16ZoomPos;     /*R;*/
 	AF_DIRECTION eFocusDir; /*R;*/
-	CVI_U8 u8FocusStep;     /*R;*/
+	CVI_U16 u16FocusStep;     /*R;*/
 	CVI_U16 u16FocusPos;    /*R;*/
+	ISP_AF_MOTOR_SPEED_E eZoomSpeed;  /*R;*/
+	ISP_AF_MOTOR_SPEED_E eFocusSpeed; /*R;*/
 } ISP_FOCUS_Q_INFO_S;
 
 typedef struct _ISP_DCF_CONST_INFO_S {

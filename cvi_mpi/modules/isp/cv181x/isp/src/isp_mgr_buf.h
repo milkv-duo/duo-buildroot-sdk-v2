@@ -188,6 +188,7 @@ struct isp_3a_shared_buffer {
 	ISP_FOCUS_Q_INFO_S stFocusQInfo;
 	ISP_FOCUS_ATTR_S stFocusAttr;
 	CVI_U32 u32AFParamUpdateFlag;
+	ISP_FOCUS_STATISTICS_CFG_S stAfStatCfg;
 };
 
 struct isp_csc_shared_buffer {
