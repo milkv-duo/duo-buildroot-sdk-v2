@@ -36,7 +36,7 @@ typedef enum {
 } spinor_status_e;
 static spinor_status_e spinor_status = Uninitialized;
 
-static void cvi_spi_nor_init(void)
+static void cvi_spi_nor_init(uint8_t bus_width)
 {
 	uint32_t reg;
 
@@ -50,9 +50,14 @@ static void cvi_spi_nor_init(void)
 	mmio_write_16(REG_BASE + REG_SPI_DLY_CTRL, BIT_SPI_DLY_CTRL_CET | BIT_SPI_DLY_CTRL_NEG_SAMPLE);
 	mmio_write_32(REG_SPI_CE_CTRL, 0);
 
-	reg = 0x003BA9;
-	reg &= ~(0xf << 16);
-	reg |= (6 << 16);
+	if (bus_width == 4) {
+		reg = 0x003BA9;
+		reg &= ~(0xf << 16);
+		reg |= (6 << 16);
+	} else {
+		reg = 0x003B81;
+		reg &= ~(0xf << 16);
+	}
 	mmio_write_32(REG_BASE + REG_SPI_TRAN_CSR, reg);
 
 	mmio_write_32(REG_BASE + REG_SPI_DMMR, 1);
@@ -65,7 +70,7 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 	debug("%s: sector %lx, count %lx, buf %p\n",
 	      __func__, sector, count, buf);
 	if (spinor_status != Initialized)
-		cvi_spi_nor_init();
+		cvi_spi_nor_init(1);
 
 	memcpy(buf, (void *)sector, count);
 
@@ -96,7 +101,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 		 * location in SDRAM
 		 */
 		if (spinor_status != Initialized) {
-			cvi_spi_nor_init();
+			cvi_spi_nor_init(1);
 			spinor_status = Initialized;
 		}
 		header = (const struct image_header *)(REG_BASE + SPL_BOOT_PART_OFFSET);
