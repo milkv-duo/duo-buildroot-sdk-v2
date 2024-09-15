@@ -11,7 +11,6 @@
 #include <string.h>
 #include <syslog.h>
 
-
 /**
  * \addtogroup core_vpss Vpss Helper Functions
  * \ingroup core_cvitdlcore
@@ -94,9 +93,9 @@ MMF_INIT_HELPER2(uint32_t enSrcWidth, uint32_t enSrcHeight, PIXEL_FORMAT_E enSrc
                  const uint32_t inBlkCount, uint32_t enDstWidth, uint32_t enDstHeight,
                  PIXEL_FORMAT_E enDstFormat, const uint32_t outBlkCount) {
   COMPRESS_MODE_E enCompressMode = COMPRESS_MODE_NONE;
-// Init SYS and Common VB,
-// Running w/ Vi don't need to do it again. Running Vpss along need init below
-// FIXME: Can only be init once in one pipeline
+  // Init SYS and Common VB,
+  // Running w/ Vi don't need to do it again. Running Vpss along need init below
+  // FIXME: Can only be init once in one pipeline
   VB_CONFIG_S stVbConf;
   memset(&stVbConf, 0, sizeof(VB_CONFIG_S));
   stVbConf.u32MaxPoolCnt = 2;

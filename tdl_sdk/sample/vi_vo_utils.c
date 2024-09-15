@@ -71,8 +71,8 @@ CVI_S32 InitVideoSystem(VideoSystemContext *vs_ctx, int _fps) {
   PIXEL_FORMAT_E Viformat = VI_PIXEL_FORMAT;
   int voType = OUTPUT_TYPE_RTSP;
 
-//****************************************************************
-// Init VI, VO, Vpss
+  //****************************************************************
+  // Init VI, VO, Vpss
 
   load_ion_totalmem();
 

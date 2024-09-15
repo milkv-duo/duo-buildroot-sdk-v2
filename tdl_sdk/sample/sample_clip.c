@@ -161,7 +161,7 @@ void *run_tdl_thread(void *args) {
     }
 
     CVI_VPSS_ReleaseChnFrame(0, 1, &stFrame);
-    float **probs = (float **)malloc(sizeof(float*));
+    float **probs = (float **)malloc(sizeof(float *));
     probs[0] = (float *)malloc(sizeof(float));
     float thres = 0.6;
     int function_id = 0;
@@ -169,14 +169,14 @@ void *run_tdl_thread(void *args) {
     free(image_features[0]);
     float max_prob = 0;
     int top1_id = -1;
-    for(int j = 0;j<line_count;j++){
-      if(probs[0][j]>max_prob){
+    for (int j = 0; j < line_count; j++) {
+      if (probs[0][j] > max_prob) {
         max_prob = probs[0][j];
         top1_id = j;
       }
     }
-    if(max_prob < thres){
-        top1_id = -1;
+    if (max_prob < thres) {
+      top1_id = -1;
     }
 
     {
@@ -480,7 +480,7 @@ int main(int argc, char *argv[]) {
     }
     CVI_VPSS_ReleaseChnFrame(0, 1, &stFrame);
 
-    float **probs = (float **)malloc(sizeof(float*));
+    float **probs = (float **)malloc(sizeof(float *));
     probs[0] = (float *)malloc(sizeof(float));
     float thres = 0.6;
     int function_id = 0;
@@ -488,14 +488,14 @@ int main(int argc, char *argv[]) {
     free(image_features[0]);
     float max_prob = 0;
     int top1_id = -1;
-    for(int j = 0;j<line_count;j++){
-      if(probs[0][j]>max_prob){
+    for (int j = 0; j < line_count; j++) {
+      if (probs[0][j] > max_prob) {
         max_prob = probs[0][j];
         top1_id = j;
       }
     }
-    if(max_prob < thres){
-        top1_id = -1;
+    if (max_prob < thres) {
+      top1_id = -1;
     }
 
     {

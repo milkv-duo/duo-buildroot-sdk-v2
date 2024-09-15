@@ -141,6 +141,7 @@ int face_align(const cv::Mat &image, cv::Mat &aligned, const cvtdl_face_info_t &
 
 int face_align_gdc(const VIDEO_FRAME_INFO_S *inFrame, VIDEO_FRAME_INFO_S *outFrame,
                    const cvtdl_face_info_t &face_info) {
+#if defined(CV183X) || defined(CV186X)
   if (inFrame->stVFrame.enPixelFormat != PIXEL_FORMAT_RGB_888_PLANAR &&
       inFrame->stVFrame.enPixelFormat != PIXEL_FORMAT_YUV_PLANAR_420) {
     return -1;
@@ -184,6 +185,10 @@ int face_align_gdc(const VIDEO_FRAME_INFO_S *inFrame, VIDEO_FRAME_INFO_S *outFra
     return -1;
   }
   return 0;
+#else
+  LOGE("face_align_gdc only supported on CV183X or CV186X");
+  return CVI_TDL_ERR_NOT_YET_IMPLEMENTED;
+#endif
 }
 
 }  // namespace cvitdl

@@ -29,7 +29,7 @@ Clip_Image::Clip_Image() : Core(CVI_MEM_DEVICE) {
   // m_preprocess_param[0].mean[1] = 1.7465649;
   // m_preprocess_param[0].mean[2] = 1.4802198;
 
-  //use fused_precess w4f16 model
+  // use fused_precess w4f16 model
   m_preprocess_param[0].factor[0] = 1;
   m_preprocess_param[0].factor[1] = 1;
   m_preprocess_param[0].factor[2] = 1;
@@ -47,11 +47,11 @@ int Clip_Image::inference(VIDEO_FRAME_INFO_S* frame, cvtdl_clip_feature* clip_fe
   int width = frame->stVFrame.u32Width;
   m_vpss_config[0].crop_attr.enCropCoordinate = VPSS_CROP_RATIO_COOR;
   int left_up = 0;
-  if (width>height){
+  if (width > height) {
     left_up = (width - height) / 2;
     m_vpss_config[0].crop_attr.stCropRect = {left_up, 0, height, height};
-  }else{
-    left_up = (height-width) / 2;
+  } else {
+    left_up = (height - width) / 2;
     m_vpss_config[0].crop_attr.stCropRect = {0, left_up, width, width};
   }
   std::vector<VIDEO_FRAME_INFO_S*> frames = {frame};
