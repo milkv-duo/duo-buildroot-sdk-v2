@@ -1,10 +1,14 @@
 #pragma once
-
 typedef enum {
 	RAW_12_BIT,
 	RAW_16_BIT
 } RAW_BITS;
 
+typedef struct {
+	CVI_U16 awb_rgain;
+	CVI_U16 awb_ggain;
+	CVI_U16 awb_bgain;
+} PQ_PARAMETER_S;
 
 int Bayer_12bit_2_16bit(uint8_t *bayerBuffer, uint16_t *outBuffer,
 		uint16_t width, uint16_t height, uint16_t stride);
@@ -26,4 +30,6 @@ void CLASS_FREE(cvtdl_class_meta_t *cls_meta);
 int get_vi_raw(int pipe, VIDEO_FRAME_INFO_S *frame, int *p_frame_num);
 
 int get_file_raw(std::string &raw_path, VIDEO_FRAME_INFO_S *frame, uint32_t height, uint32_t width, uint32_t buffer_size);
+
+int get_pq_parameter(int pipe, PQ_PARAMETER_S *p_pq_param);
 

@@ -79,3 +79,7 @@ MW_AUDIO_LIB ?= -L$(MW_DIR)/lib -ldl -lcvi_audio -lcvi_vqe -lae -lcvi_VoiceEngin
 
 AISDK_DIR ?= $(PWD)/../cviai
 AISDK_INC ?= -I$(AISDK_DIR)/include
+
+TPU_SDK_DIR ?= $(PWD)/../libsophon
+TPU_SDK_INC ?= -I$(TPU_SDK_DIR)/bmlib/include -I$(TPU_SDK_DIR)/tpu-runtime/include
+
