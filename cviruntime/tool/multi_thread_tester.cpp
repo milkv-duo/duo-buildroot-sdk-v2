@@ -107,7 +107,9 @@ int main(int argc, const char **argv) {
 #include <sched.h>
   sched_yield();
 #else
-  pthread_yield();
+  // pthread_yield();
+#include <sched.h>
+  sched_yield();
 #endif
   for (int i = 0; i < thread_num; i++) {
     if (pthread_join(thread[i], NULL)) {

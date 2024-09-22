@@ -9,9 +9,11 @@ tools
 * test_cvimodel
 
 ## dependency
-
-cvibuilder (for cvimodel_generated.h)
-bmkernel (if run bmkernel directly)
+ninja
+flatbuffers（https://github.com/google/flatbuffers）
+cvibuilder (for cvimodel_generated.h)（https://github.com/sophgo/cvibuilder）
+cvikernel (if run cvikernel directly)（https://github.com/sophgo/cvibuilder）
+cnpy （for cnpy.h）（https://github.com/wwwuxy/cnpy-for-tpu_mlir）
 cmodel (if RUNTIME=CMODEL)
 
 ## build
@@ -19,23 +21,27 @@ cmodel (if RUNTIME=CMODEL)
 assuming install to ../install
 
 assuming support install to ../install
-assuming cvibuilder install to ../install
-assuming bmkernel install to ../install
+assuming flatbuffers install to ../flatbuffers
+assuming cvibuilder install to ../cvibuild
+assuming cvikernel install to ../cvikernel
+assuming cnpy install to ../cnpy
 assuming cmodel install to ../install
 
 ```
 $ cd runtime
 $ mkdir build
 $ cd build
-$ cmake -G Ninja -DCHIP=BM1880v2 -DRUNTIME=CMODEL -DSUPPORT_PATH=../install -DCVIBUILDER_PATH=../install -DCVIKERNEL_PATH=../install -DCMODEL_PATH=../install -DCMAKE_INSTALL_PREFIX=../../install ..
+for cv系列芯片
+$ cmake -G Ninja -DCHIP=cv181x -DRUNTIME=SOC -DFLATBUFFERS_PATH=../flatbuffers -DCVIBUILDER_PATH=../cvibuilder/build -DCVIKERNEL_PATH=../cvikernel/install_cvikernel -DCMAKE_INSTALL_PREFIX=../install ..
+
+for bm系列芯片
+$ cmake -G Ninja -DCHIP=BM1880v2 -DRUNTIME=SOC -DFLATBUFFERS_PATH=/../flatbuffers -DCVIBUILDER_PATH=/../cvibuilder/build -DCVIKERNEL_PATH=/../cvikernel/install_bmkernel -DCNPY_PATH=/../cnpy -DCMAKE_INSTALL_PREFIX=../install ..
 
 Build
-$ cmake --build .
-$ cmake --build . -- -v
+$ ninja
 
 Install
-$ cmake --build . --target install
-$ cmake --build . --target install -- -v
+$ ninja install
 
 Test
 $ cmake --build . --target test -- -v
@@ -46,17 +52,12 @@ $ xargs rm < install_manifest.txt
 
 ## output
 
-## test
+```
+install/lib/
+├── libcviruntime.so
+└── libcviruntime-static.a
+```
 
-'''
-$ cd runtime/build
-# cp bmnet/tests/regression/build/bm1880v2/caffe/resnet50/BM1880v2_resnet50_1.bmodel
-$ ./test/test_bmnet_bmodel \
-    /data/release/bmnet_models/resnet50/int8/resnet50_input_1_3_224_224.bin \
-    BM1880v2_resnet50_1.bmodel \
-    BM1880v2_resnet50_1_output.bin \
-    1 3 224 224
-'''
 
 ## TODO
 
