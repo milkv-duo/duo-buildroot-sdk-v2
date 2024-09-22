@@ -15,7 +15,7 @@ function(compile_fbs)
     add_custom_command(OUTPUT ${target_header}
       DEPENDS ${fbs_file}
       COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/cvibuilder
-      COMMAND ${FLATBUFFERS_PATH}/bin/flatc -o ${CMAKE_CURRENT_BINARY_DIR}/include/cvibuilder --cpp ${fbs_file}
+      COMMAND ${FLATBUFFERS_PATH}/flatc -o ${CMAKE_CURRENT_BINARY_DIR}/include/cvibuilder --cpp ${fbs_file}
     )
     set(targets ${targets} ${target_header})
   endforeach()
