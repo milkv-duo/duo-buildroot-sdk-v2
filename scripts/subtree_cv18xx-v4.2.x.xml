@@ -14,5 +14,5 @@
     <project name="oss" path="oss" sync-s="true" revision="master"/>
     <project name="cvi_mpi" path="cvi_mpi"/>
     <project name="isp_tuning" path="isp_tuning"/>
-    <project name="cvi_alios" path="cvi_alios"/>
+    <project name="cvi_alios_open" path="cvi_alios"/>
 </manifest>
