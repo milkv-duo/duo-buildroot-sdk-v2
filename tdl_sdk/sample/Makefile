@@ -74,6 +74,7 @@ MW_LIB_PATH = $(MW_PATH)/lib
 MW_INC_PATH = $(MW_PATH)/include
 MW_PANEL_INC_PATH = ${MW_PATH}/include/panel
 MW_SAMPLE_PATH = $(MW_PATH)/sample/common
+MW_SENSOR_INC_PATH = $(MW_PATH)/component/isp/common
 MW_3RD_LIB_PATH = $(MW_LIB_PATH)/3rd
 ifeq ($(origin MW_PANEL_BOARD_INC_PATH), undefined)
   MW_PANEL_BOARD_INC_PATH := $(MW_PATH)/include
@@ -203,6 +204,7 @@ CFLAGS += -I$(SDK_INC_PATH) \
           -I$(MW_ISP_INC_PATH) \
 		  -I$(MW_PANEL_INC_PATH) \
 		  -I$(MW_PANEL_BOARD_INC_PATH) \
+		  -I$(MW_SENSOR_INC_PATH) \
 		  -I$(MW_LINUX_INC_PATH) \
 		  -I$(MW_INC_PATH) \
 		  -I$(MW_INC_PATH)/linux \

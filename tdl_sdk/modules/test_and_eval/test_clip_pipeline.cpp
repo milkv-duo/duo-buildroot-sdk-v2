@@ -166,8 +166,8 @@ int main(int argc, char* argv[]) {
 
   float thres = atof(argv[6]);
   int function_id = 0;
-  float **probs = (float **)malloc(sizeof(float*));
-  probs[0] = (float *)malloc(sizeof(float));
+  float** probs = (float**)malloc(sizeof(float*));
+  probs[0] = (float*)malloc(sizeof(float));
   ret = CVI_TDL_Set_ClipPostprocess(text_features, text_file_list.size(), image_features,
                                     image_file_list.size(), probs);
 
@@ -183,21 +183,21 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < image_file_list.size(); i++) {
     float max_prob = 0;
     int top1_id = -1;
-    for(int j = 0; j < text_file_list.size(); j++){
-      if(probs[i][j]>max_prob){
+    for (int j = 0; j < text_file_list.size(); j++) {
+      if (probs[i][j] > max_prob) {
         max_prob = probs[i][j];
         top1_id = j;
       }
     }
-    if(max_prob < thres){
-        top1_id = -1;
+    if (max_prob < thres) {
+      top1_id = -1;
     }
     std::cout << top1_id << " ";
     outfile << image_file_list[i] << ":" << top1_id << std::endl;
   }
   std::cout << std::endl;
   outfile.close();
-  for(int i=0; i<image_file_list.size();i++){
+  for (int i = 0; i < image_file_list.size(); i++) {
     free(probs[i]);
   }
   free(probs);

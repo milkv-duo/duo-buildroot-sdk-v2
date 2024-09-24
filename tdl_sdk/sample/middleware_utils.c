@@ -14,14 +14,14 @@ CVI_S32 SAMPLE_TDL_Get_VI_Config(SAMPLE_VI_CONFIG_S *pstViConfig) {
   // Default sensor config parameters
 
   SAMPLE_INI_CFG_S stIniCfg = {
-    .enSource = VI_PIPE_FRAME_SOURCE_DEV,
-    .devNum = 1,
-    .enSnsType[0] = SONY_IMX327_MIPI_2M_30FPS_12BIT,
-    .enWDRMode[0] = WDR_MODE_NONE,
-    .s32BusId[0] = 3,
-    .s32SnsI2cAddr[0] = -1,
-    .MipiDev[0] = 0xFF,
-    .u8UseMultiSns = 0,
+      .enSource = VI_PIPE_FRAME_SOURCE_DEV,
+      .devNum = 1,
+      .enSnsType[0] = SONY_IMX327_MIPI_2M_30FPS_12BIT,
+      .enWDRMode[0] = WDR_MODE_NONE,
+      .s32BusId[0] = 3,
+      .s32SnsI2cAddr[0] = -1,
+      .MipiDev[0] = 0xFF,
+      .u8UseMultiSns = 0,
   };
 
   // Get config from ini if found.
