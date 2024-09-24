@@ -1,5 +1,6 @@
 #include "core/cvi_tdl_types_mem.h"
 #include <string.h>
+#include <cvi_tdl_log.hpp>
 #include "core/cvi_tdl_types_mem_internal.h"
 // Free
 

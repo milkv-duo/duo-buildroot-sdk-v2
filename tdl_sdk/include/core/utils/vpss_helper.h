@@ -704,8 +704,13 @@ CREATE_ION_HELPER(VIDEO_FRAME_INFO_S *vbFrame, CVI_U32 srcWidth, CVI_U32 srcHeig
   }
 
   CVI_U32 u32MapSize = vFrame->u32Length[0] + vFrame->u32Length[1] + vFrame->u32Length[2];
+#ifdef CONFIG_ALIOS
+  int ret = CVI_SYS_IonAlloc64Align(&vFrame->u64PhyAddr[0], (CVI_VOID **)&vFrame->pu8VirAddr[0],
+                                    alloc_name, u32MapSize);
+#else
   int ret = CVI_SYS_IonAlloc(&vFrame->u64PhyAddr[0], (CVI_VOID **)&vFrame->pu8VirAddr[0],
                              alloc_name, u32MapSize);
+#endif
   if (ret != CVI_SUCCESS) {
     syslog(LOG_ERR, "Cannot allocate ion, size: %d, ret=%#x\n", u32MapSize, ret);
     return CVI_FAILURE;
