@@ -25,4 +25,4 @@
 | buildroot-2021.05          | buildroot-2021.05                   | https://github.com/sophgo/buildroot-2021.05.git          | sg200x-dev    | 5b7acd1b     |
 | ive                        | ive                                 | https://github.com/sophgo/ive.git                        | master        | 87cf68f      |
 | cvi_rtsp                   | cvi_rtsp                            | https://github.com/sophgo/cvi_rtsp.git                   | master        | 3ef7aca      |
-| tdl_sdk                    | tdl_sdk                             | https://github.com/sophgo/tdl_sdk.git                    | master        | 696b1a70     |
+| tdl_sdk                    | tdl_sdk                             | https://github.com/sophgo/tdl_sdk.git                    | master        | 2e43b6e6     |
