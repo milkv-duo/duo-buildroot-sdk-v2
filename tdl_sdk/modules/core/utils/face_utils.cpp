@@ -1,6 +1,7 @@
 #include "face_utils.hpp"
 #include "cvi_tdl_log.hpp"
 
+#include <core/core/cvtdl_errno.h>
 #include <cvi_gdc.h>
 #include <algorithm>
 #include "cvi_comm.h"
