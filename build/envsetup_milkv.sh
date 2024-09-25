@@ -348,6 +348,7 @@ function build_sdk()
   if [[ "$CHIP_ARCH" != CV180X ]] && [[ "$1" = ai ]]; then
     mkdir -p "$SYSTEM_OUT_DIR"/usr/bin/"$1"
     cp -a "$SDK_INSTALL_PATH"/bin/sample_* "$SYSTEM_OUT_DIR"/usr/bin/"$1"
+    cp -a "${SDK_INSTALL_PATH}/sample/3rd/rtsp/lib/libcvi_rtsp.so" "$SYSTEM_OUT_DIR"/lib/
   fi
 }
 
