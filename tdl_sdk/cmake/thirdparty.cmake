@@ -3,7 +3,7 @@ project(thirdparty_fetchcontent)
 if (NOT IS_DIRECTORY  "${BUILD_DOWNLOAD_DIR}/libeigen-src")
 FetchContent_Declare(
   libeigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_REPOSITORY https://github.com/milkv-duo/eigen.git
   GIT_TAG origin/master
 )
 FetchContent_MakeAvailable(libeigen)
