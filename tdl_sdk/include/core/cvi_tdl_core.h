@@ -253,7 +253,16 @@ DLL_EXPORT CVI_S32 CVI_TDL_DestroyHandle(cvitdl_handle_t handle);
  */
 DLL_EXPORT CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
                                      const char *filepath);
-
+/**
+ * @brief Get model input data tpye.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model Supported model id.
+ * @param filepath File path to the cvimodel file.
+ * @return int Return CVI_TDL_SUCCESS if load model succeed.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_GetModelInputTpye(cvitdl_handle_t handle,
+                                             CVI_TDL_SUPPORTED_MODEL_E model, int *inputDTpye);
 /**
  * @brief Open model with given file path.
  *

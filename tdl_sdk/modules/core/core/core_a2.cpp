@@ -43,6 +43,14 @@ void Core::cleanupError() {
   }
 }
 
+int Core::getModelInputDType() {
+  if (net_info != nullptr) {
+    return net_info->input_dtypes[0];
+  }
+  LOGE("get model input data type failed\n");
+  return CVI_TDL_ERR_OPEN_MODEL;
+}
+
 int Core::modelOpen(const char *filepath) {
   if (mp_mi == nullptr || mp_mi->handle != nullptr) {
     LOGE("failed to open model: \"%s\" has already opened.\n", filepath);
@@ -210,6 +218,13 @@ void Core::setupInputTensorInfo(const bm_net_info_t *net_info, CvimodelInfo *p_m
     tinfo.tensor_elem = bmrt_shape_count(&stages.input_shapes[i]);
     tinfo.tensor_size = tinfo.tensor_elem * bmrt_data_type_size(net_info->input_dtypes[i]);
     tinfo.data_type = net_info->input_dtypes[i];
+
+    if (tinfo.data_type == 2) {
+      mp_mi->conf.input_mem_type = 2;
+    } else if (tinfo.data_type == 0) {
+      mp_mi->conf.input_mem_type = 1;
+    }
+
     tinfo.qscale = net_info->input_scales[i];
     if (mp_mi->conf.input_mem_type == CVI_MEM_SYSTEM) {
       tinfo.raw_pointer = p_mi->in.raw_pointer[i];

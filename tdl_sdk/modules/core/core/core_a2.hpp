@@ -102,6 +102,8 @@ class Core {
   virtual ~Core() = default;
   int modelOpen(const char *filepath);
   int getInputMemType();
+  int getModelInputDType();
+
   const char *getModelFilePath() const { return m_model_file.c_str(); }
   int modelClose();
   int setVpssTimeout(uint32_t timeout);

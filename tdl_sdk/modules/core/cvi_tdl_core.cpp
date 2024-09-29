@@ -444,6 +444,19 @@ CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E conf
   return CVI_TDL_SUCCESS;
 }
 
+CVI_S32 CVI_TDL_GetModelInputTpye(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
+                                  int *inputDTpye) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  Core *instance = getInferenceInstance(config, ctx);
+  if (instance != nullptr) {
+    *inputDTpye = instance->getModelInputDType();
+  } else {
+    LOGE("Cannot create model: %s\n", CVI_TDL_GetModelName(config));
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+  return CVI_TDL_SUCCESS;
+}
+
 #ifndef CV186X
 CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
                                      int8_t *buf, uint32_t size) {
