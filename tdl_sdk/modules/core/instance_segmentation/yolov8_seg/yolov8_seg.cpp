@@ -28,6 +28,7 @@ static void convert_det_struct(const Detections &dets, cvtdl_object_t *obj, int 
   obj->height = im_height;
   obj->width = im_width;
   memset(obj->info, 0, sizeof(cvtdl_object_info_t) * obj->size);
+
   for (uint32_t i = 0; i < obj->size; ++i) {
     obj->info[i].bbox.x1 = dets[i]->x1;
     obj->info[i].bbox.y1 = dets[i]->y1;
@@ -306,6 +307,12 @@ void YoloV8Seg::outputParser(const int image_width, const int image_height, cons
     int x2 = static_cast<int>(round(obj_meta->info[i].bbox.x2 / proto_stride));
     int y1 = static_cast<int>(round(obj_meta->info[i].bbox.y1 / proto_stride));
     int y2 = static_cast<int>(round(obj_meta->info[i].bbox.y2 / proto_stride));
+    if (obj_meta->info[i].mask_properity == NULL) {
+      obj_meta->info[i].mask_properity = (cvtdl_mask_meta *)malloc(sizeof(cvtdl_mask_meta));
+      if (obj_meta->info[i].mask_properity == NULL) {
+        LOGE("Failed to allocate memory for mask_properity\n");
+      }
+    }
     obj_meta->info[i].mask_properity->mask = (uint8_t *)calloc(proto_hw, sizeof(uint8_t));
     for (int j = y1; j < y2; ++j) {
       for (int k = x1; k < x2; ++k) {
