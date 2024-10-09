@@ -3,9 +3,9 @@
 
 #include <cvi_gdc.h>
 #include <algorithm>
+#include "core/core/cvtdl_errno.h"
 #include "cvi_comm.h"
 #include "opencv2/imgproc.hpp"
-#include "core/core/cvtdl_errno.h"
 
 using namespace std;
 
