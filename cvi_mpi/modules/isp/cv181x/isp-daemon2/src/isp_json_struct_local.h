@@ -16,10 +16,10 @@
 #include "cvi_ae.h"
 #include "cvi_awb.h"
 #include "cvi_af.h"
-#include "json.h"
+#include "cvi_json.h"
 
 // -----------------------------------------------------------------------------
-#define JSON	struct json_object
+#define JSON	struct cvi_json_object
 
 // -----------------------------------------------------------------------------
 // ISP Pre-RAW

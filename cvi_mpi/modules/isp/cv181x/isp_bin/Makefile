@@ -5,8 +5,8 @@ ifeq ($(PARAM_FILE), )
 endif
 
 # 3rdparty lib
-TRD_LIB_INCLUDE_PATH = $(MW_PATH)/modules/bin/3rd_lib/include
-TRD_LIB_PATH = $(MW_PATH)/modules/bin/3rd_lib/$(SDK_VER)
+TRD_LIB_INCLUDE_PATH = $(MW_PATH)/modules/bin/prebuilt/include
+TRD_LIB_PATH = $(MW_PATH)/modules/bin/prebuilt/$(SDK_VER)
 
 INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(ISP_INC) -Iinc -Isrc
 INCS += -I$(TRD_LIB_INCLUDE_PATH)/cvi_json-c -I../../algo

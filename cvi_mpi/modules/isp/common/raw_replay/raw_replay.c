@@ -354,7 +354,7 @@ CVI_S32 set_raw_replay_data(const CVI_VOID *header, const CVI_VOID *data,
 				pRawReplayCtx->u64PhyAddr[1] = pRawReplayCtx->u64PhyAddr[0] + pRawReplayCtx->u32BlkSize / 2;
 				pRawReplayCtx->pu8VirAddr[1] = pRawReplayCtx->pu8VirAddr[0] + pRawReplayCtx->u32BlkSize / 2;
 			}
-			LOGOUT("create vb pool cnt: %d, blksize: %d phyAddr: %"PRId64"\n", 1,
+			LOGOUT("create vb pool cnt: %d, blksize: %d phyAddr: %#llx\n", 1,
 				cfg.u32BlkSize, pRawReplayCtx->u64PhyAddr[0]);
 		}
 

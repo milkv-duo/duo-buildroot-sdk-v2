@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../../Makefile.param
 	include $(PARAM_FILE)
 endif
 
@@ -23,7 +23,7 @@ ifeq ($(DESTDIR),)
 	DESTDIR := $(shell pwd)/install
 endif
 
-INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH) -I$(SENSOR_LIST_INC)
+INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/3rdparty/inih -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH) -I$(SENSOR_LIST_INC)
 INCS += -I$(ISP_COMMON_DIR)/raw_dump/inc
 
 OBJS = $(patsubst $(SDIR)/%.cpp, $(TMP_FOLDER)/%.o, $(wildcard $(SDIR)/*.cpp))
@@ -45,7 +45,7 @@ MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-
 
 LIBS += $(MW_LIBS) -latomic
 LIBS += -lsys -lvenc -lvdec -lvi -lvpss -lvo -lrgn -lgdc -lisp -lisp_algo -lawb -lae -laf -lsample -lcvi_bin -lcvi_bin_isp -lsns_full -lini
-LIBS += -ljson-c -lcvi_ispd2
+LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2
 

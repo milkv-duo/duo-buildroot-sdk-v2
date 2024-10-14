@@ -9,8 +9,6 @@ CVI_ISPD2_PATH = $(MW_PATH)/modules/isp/$(isp_chip_dir)/isp-daemon2/build
 # Defines the files that need to be packaged into isp_tool_daemon.tar.gz
 # isp-daemon2 dynamic library
 file += $(CVI_ISPD2_PATH)/libcvi_ispd2.so
-file += $(CVI_ISPD2_PATH)/libuv.so*
-file += $(CVI_ISPD2_PATH)/libjson-c.so*
 
 # mw dynamic library
 file += $(MW_LIB)/libawb.so
