@@ -5,6 +5,7 @@ host-tools
 isp_tuning
 linux_5.10
 cvi_mpi
+cvi_alios
 opensbi
 osdrv
 ramdisk
@@ -18,4 +19,7 @@ cvibuilder
 cnpy
 flatbuffers
 install
+tdl_sdk
+ive
+cvi_rtsp
 
