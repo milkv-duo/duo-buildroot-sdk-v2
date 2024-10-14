@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/param.h>
+#include <sys/wait.h>
 #include <inttypes.h>
 
 #include <fcntl.h>		/* low-level i/o */
@@ -26,6 +27,20 @@
 static SAMPLE_VI_CONFIG_S g_stViConfig;
 static SAMPLE_INI_CFG_S g_stIniCfg;
 
+static void sys_handle_signal(int nSignal, siginfo_t *si, void *arg)
+{
+	UNUSED(nSignal);
+	UNUSED(si);
+	UNUSED(arg);
+
+	if (g_stViConfig.s32WorkingViNum != 0) {
+		SAMPLE_COMM_VI_DestroyIsp(&g_stViConfig);
+		SAMPLE_COMM_VI_DestroyVi(&g_stViConfig);
+	}
+	SAMPLE_COMM_SYS_Exit();
+	exit(1);
+}
+
 static int sys_vi_init(void)
 {
 	MMF_VERSION_S stVersion;
@@ -36,6 +51,9 @@ static int sys_vi_init(void)
 	SIZE_S stSize;
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	LOG_LEVEL_CONF_S log_conf;
+	CVI_U32 Vb_cnt;
+	VB_CONFIG_S stVbConf;
+	CVI_U32 u32BlkSize, u32BlkRotSize;
 
 	CVI_SYS_GetVersion(&stVersion);
 	SAMPLE_PRT("MMF Version:%s\n", stVersion.version);
@@ -67,24 +85,76 @@ static int sys_vi_init(void)
 	/************************************************
 	 * step2:  Get input size
 	 ************************************************/
-	s32Ret = SAMPLE_COMM_VI_GetSizeBySensor(stIniCfg.enSnsType[0], &enPicSize);
-	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_VI_GetSizeBySensor failed with %#x\n", s32Ret);
-		return s32Ret;
+	memset(&stVbConf, 0, sizeof(VB_CONFIG_S));
+	stVbConf.u32MaxPoolCnt = 0;
+
+	for (CVI_S32 i = 0; i < stViConfig.s32WorkingViNum; i++) {
+		Vb_cnt = 3;
+		bool createNewPool = true;
+
+		s32Ret = SAMPLE_COMM_VI_GetSizeBySensor(stIniCfg.enSnsType[i], &enPicSize);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_VI_GetSizeBySensor failed with %#x\n", s32Ret);
+			return s32Ret;
+		}
+
+		s32Ret = SAMPLE_COMM_SYS_GetPicSize(enPicSize, &stSize);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_SYS_GetPicSize failed with %#x\n", s32Ret);
+			return s32Ret;
+		}
+
+		u32BlkSize = COMMON_GetPicBufferSize(stSize.u32Width, stSize.u32Height,
+					stViConfig.astViInfo[i].stChnInfo.enPixFormat,
+					DATA_BITWIDTH_8, COMPRESS_MODE_NONE, DEFAULT_ALIGN);
+		u32BlkRotSize = COMMON_GetPicBufferSize(stSize.u32Height, stSize.u32Width,
+					stViConfig.astViInfo[i].stChnInfo.enPixFormat,
+					DATA_BITWIDTH_8, COMPRESS_MODE_NONE, DEFAULT_ALIGN);
+		u32BlkSize = u32BlkSize > u32BlkRotSize ? u32BlkSize : u32BlkRotSize;
+
+		for (CVI_U32 j = 0; j < stVbConf.u32MaxPoolCnt; j++) {
+			if (stVbConf.astCommPool[j].u32BlkSize == u32BlkSize) {
+				stVbConf.astCommPool[j].u32BlkCnt += Vb_cnt;
+				createNewPool = false;
+				break;
+			}
+		}
+		if (createNewPool) {
+			stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkSize = u32BlkSize;
+			stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkCnt = Vb_cnt;
+			stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].enRemapMode = VB_REMAP_MODE_CACHED;
+			SAMPLE_PRT("set VBpool [%d] %d:%d, BlkCnt= %d, Size = %d\n",
+						stVbConf.u32MaxPoolCnt, stSize.u32Width, stSize.u32Height,
+						stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkCnt,
+						stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkSize);
+			stVbConf.u32MaxPoolCnt++;
+		} else {
+			SAMPLE_PRT("set VBpool [%d] %d:%d, BlkCnt= %d, Size = %d\n",
+						stVbConf.u32MaxPoolCnt, stSize.u32Width, stSize.u32Height,
+						stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkCnt,
+						stVbConf.astCommPool[stVbConf.u32MaxPoolCnt].u32BlkSize);
+		}
 	}
 
-	s32Ret = SAMPLE_COMM_SYS_GetPicSize(enPicSize, &stSize);
-	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_SYS_GetPicSize failed with %#x\n", s32Ret);
-		return s32Ret;
+	if (stVbConf.u32MaxPoolCnt == 1) {
+		stVbConf.astCommPool[0].u32BlkCnt += 2;
 	}
 
 	/************************************************
 	 * step3:  Init modules
 	 ************************************************/
-	s32Ret = SAMPLE_PLAT_SYS_INIT(stSize);
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof(struct sigaction));
+	sigemptyset(&sa.sa_mask);
+	sa.sa_sigaction = sys_handle_signal;
+	sa.sa_flags = SA_SIGINFO|SA_RESETHAND; // Reset signal handler to system default after signal triggered
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+
+	s32Ret = SAMPLE_COMM_SYS_Init(&stVbConf);
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "sys init failed. s32Ret: 0x%x !\n", s32Ret);
+		CVI_TRACE_LOG(CVI_DBG_ERR, "system init failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 
@@ -154,7 +224,7 @@ static CVI_S32 _vi_get_chn_frame(CVI_U8 chn)
 				stVideoFrame.stVFrame.pu8VirAddr[i] = vir_addr + plane_offset;
 				plane_offset += stVideoFrame.stVFrame.u32Length[i];
 				CVI_TRACE_LOG(CVI_DBG_WARN,
-					   "plane(%d): paddr(%#"PRIx64") vaddr(%p) stride(%d) length(%d)\n",
+					   "plane(%d): paddr(%#llx) vaddr(%p) stride(%d) length(%d)\n",
 					   i, stVideoFrame.stVFrame.u64PhyAddr[i],
 					   stVideoFrame.stVFrame.pu8VirAddr[i],
 					   stVideoFrame.stVFrame.u32Stride[i],
@@ -337,7 +407,7 @@ static CVI_S32 sensor_dump_raw(void)
 				stVideoFrame[j].stVFrame.pu8VirAddr[0]
 					= CVI_SYS_Mmap(stVideoFrame[j].stVFrame.u64PhyAddr[0]
 					  , stVideoFrame[j].stVFrame.u32Length[0]);
-				CVI_TRACE_LOG(CVI_DBG_WARN, "paddr(%#"PRIx64") vaddr(%p)\n",
+				CVI_TRACE_LOG(CVI_DBG_WARN, "paddr(%#llx) vaddr(%p)\n",
 							stVideoFrame[j].stVFrame.u64PhyAddr[0],
 							stVideoFrame[j].stVFrame.pu8VirAddr[0]);
 
@@ -455,16 +525,16 @@ int sensor_dump(void)
 	char img_name[128] = {0, };
 
 	CVI_TRACE_LOG(CVI_DBG_WARN, "dump addr:\n");
-	scanf("%"PRIx64"", &addr);
+	scanf("%llx", &addr);
 	CVI_TRACE_LOG(CVI_DBG_WARN, "dump size(0\1):\n");
 	scanf("%x", &size);
 
-	snprintf(img_name, sizeof(img_name), "register_%"PRIx64".bin", addr);
+	snprintf(img_name, sizeof(img_name), "register_%llx.bin", addr);
 
 	output = fopen(img_name, "wb");
 	if (output == NULL) {
 		memset(img_name, 0x0, sizeof(img_name));
-		snprintf(img_name, sizeof(img_name), "register_%"PRIx64".bin", addr);
+		snprintf(img_name, sizeof(img_name), "register_%llx.bin", addr);
 		output = fopen(img_name, "wb");
 		if (output == NULL) {
 			CVI_TRACE_LOG(CVI_DBG_ERR, "fopen fail\n");

@@ -1134,7 +1134,6 @@ CVI_S32 OpenAACEncoder(CVI_VOID *pEncoderAttr, CVI_VOID **ppEncoder)
 	return CVI_SUCCESS;
 }
 
-#ifdef CVI_MODIFIED
 CVI_S32 EncodeAACFrm(CVI_VOID *pEncoder, CVI_S16 *inputdata,
 							CVI_U8 *pu8Outbuf,
 							CVI_S32 s32InputSizeBytes, CVI_U32 *pu32OutLen)
@@ -1203,105 +1202,6 @@ CVI_S32 EncodeAACFrm(CVI_VOID *pEncoder, CVI_S16 *inputdata,
 #endif
 	return s32Ret;
 }
-#else  //original  setup
-CVI_S32 EncodeAACFrm(CVI_VOID *pEncoder, const AUDIO_FRAME_S *pstData,
-			CVI_U8 *pu8Outbuf, CVI_U32 *pu32OutLen)
-{
-	CVI_S32 s32Ret = CVI_SUCCESS;
-	AENC_AAC_ENCODER_S *pstEncoder = CVI_NULL;
-	CVI_U32 u32PtNums;
-	CVI_S32 i;
-	CVI_S16 aData[AACENC_BLOCKSIZE * 2 * MAX_CHANNELS];
-	CVI_S16 s16Len = 0;
-
-	CVI_U32 u32WaterLine;
-
-	CVI_AUDIO_ASSERT(pEncoder != CVI_NULL);
-	CVI_AUDIO_ASSERT(pstData != CVI_NULL);
-	CVI_AUDIO_ASSERT(pu8Outbuf != CVI_NULL);
-	CVI_AUDIO_ASSERT(pu32OutLen != CVI_NULL);
-
-	pstEncoder = (AENC_AAC_ENCODER_S *)pEncoder;
-
-	if (pstEncoder->stAACAttr.enSoundMode == AUDIO_SOUND_MODE_STEREO) {
-		/* whether the sound mode of frame and channel is match  */
-		if (pstData->enSoundmode != AUDIO_SOUND_MODE_STEREO) {
-			printf("[Func]:%s [Line]:%d [Info]:%s\n",
-			__func__, __LINE__,
-			"AAC encode receive a frame which not match its Soundmode");
-			return CVI_ERR_AENC_ILLEGAL_PARAM;
-		}
-	}
-
-	/*WaterLine, equals to the frame sample frame of protocol*/
-	if (pstEncoder->stAACAttr.enAACType == AAC_TYPE_AACLC)
-		u32WaterLine = AACLC_SAMPLES_PER_FRAME;
-	else if (pstEncoder->stAACAttr.enAACType == AAC_TYPE_EAAC ||
-	pstEncoder->stAACAttr.enAACType == AAC_TYPE_EAACPLUS)
-		u32WaterLine = AACPLUS_SAMPLES_PER_FRAME;
-	else if (pstEncoder->stAACAttr.enAACType == AAC_TYPE_AACLD ||
-		pstEncoder->stAACAttr.enAACType == AAC_TYPE_AACELD)
-		u32WaterLine = AACLD_SAMPLES_PER_FRAME;
-	else {
-		printf("[Func]:%s [Line]:%d [Info]:%s\n", __func__, __LINE__, "invalid AAC coder type");
-		return CVI_ERR_AENC_ILLEGAL_PARAM;
-	}
-	/* calculate point number */
-	u32PtNums = pstData->u32Len / (pstData->enBitwidth + 1);
-
-	/*if frame sample larger than protocol sample, reject to receive, or buffer will be overflow*/
-	if (u32PtNums != u32WaterLine) {
-		printf("[Func]:%s [Line]:%d [Info]:invalid u32PtNums%d for AACType:%d\n",
-			   __func__, __LINE__, u32PtNums, pstEncoder->stAACAttr.enAACType);
-		return CVI_ERR_AENC_ILLEGAL_PARAM;
-	}
-
-	/* AAC encoder need interleaved data,here change LLLRRR to LRLRLR */
-	/* AACLC will encode 1024*2 point, and AACplus encode 2048*2 point*/
-	if (pstEncoder->stAACAttr.enSoundMode == AUDIO_SOUND_MODE_STEREO) {
-		s16Len = u32WaterLine;
-		for (i = s16Len - 1; i >= 0; i--) {
-			aData[2 * i] = *((CVI_S16 *)pstData->u64VirAddr[0] + i);
-			aData[2 * i + 1] = *((CVI_S16 *)pstData->u64VirAddr[1] + i);
-		}
-	} else {
-		CVI_S16 *temp = (CVI_S16 *)pstData->u64VirAddr[0];
-
-		s16Len = u32WaterLine;
-		for (i = s16Len - 1; i >= 0; i--)
-			aData[i] = *(temp + i);
-
-	}
-
-#ifdef DUMP_AACENC
-	//if (cnt_aenc > 0)
-	{
-		fwrite((CVI_U8 *)aData, 1,
-		(pstEncoder->stAACAttr.enSoundMode == AUDIO_SOUND_MODE_STEREO) ? u32count * 2 : u32count, pfdin_ENC);
-	}
-#endif
-
-	CVI_S32 s32InputBytes = u32WaterLine * 2;  //input bytes per frame
-
-	s32Ret = AACEncoderFrame_Adp(pstEncoder->pstAACState, aData, pu8Outbuf, s32InputBytes,
-			(CVI_S32 *)pu32OutLen);
-	if (s32Ret != CVI_SUCCESS)
-		printf("[Func]:%s [Line]:%d [Info]:%s\n", __func__, __LINE__, "AAC encode failed");
-
-#ifdef DUMP_AACENC
-	//printf("~~~~~~~~~strlen:%d~~~~~~\n", *((CVI_S32*)pu32OutLen));
-	//if (cnt_aenc > 0)
-	{
-		CVI_U8 *pu8TestNum = pu8Outbuf + 1;
-
-
-		fwrite((CVI_U8 *)pu8Outbuf, 1, *((CVI_S32 *)pu32OutLen), pfdout_ENC);
-		cnt_aenc--;
-	}
-#endif
-	return s32Ret;
-}
-#endif
 
 CVI_S32 CloseAACEncoder(CVI_VOID *pEncoder)
 {
@@ -1625,7 +1525,6 @@ CVI_S32 CVI_MPI_ADEC_AacDeInit(CVI_VOID)
 	return CVI_SUCCESS;
 }
 
-//#if 1//def CVI_MODIFIED
 #define FILE_NAME_LEN	128
 #define AUDIO_BUFFER_MAX  (50 * 60 * 1024)
 char *input_filename;

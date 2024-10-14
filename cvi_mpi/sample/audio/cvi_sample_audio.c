@@ -21,7 +21,6 @@
 #include <sys/time.h>
 //#include "cvi_sample_comm.h"
 //#include "sample_comm.h"
-#include "acodec.h"
 #include "cvi_audio_dl_adp.h"
 #include "cvi_audio_parse_param.h"
 //#ifdef SUPPORT_EXTERNAL_AAC
@@ -380,6 +379,12 @@ void *AudioAigetdata(void *argv)
 				       stFrame.u32Len * channels * 2);
 		else
 			printf("[warn] AudAigetdata get data 0\n");
+
+		s32Ret = CVI_AI_ReleaseFrame(AiDev, AiChn, &stFrame, &stAecFrm);
+		if (s32Ret) {
+			printf("[error] ai releaseframe error\n");
+			return NULL;
+		}
 	}
 
 	printf("AudAigetdata   out.\n");
@@ -1078,6 +1083,11 @@ CVI_S32 SAMPLE_AUDIO_AI_AENC_USER_GET_MODE(void *argv)
 
 		fwrite(stStream.pStream, 1, stStream.u32Len, fpAenc);
 
+		s32Ret = CVI_AI_ReleaseFrame(AiDev, AiChn, &stFrame, &stAecFrm);
+		if (s32Ret) {
+			printf("[error] ai releaseframe error\n");
+			break;
+		}
 	}
 
 ERROR:
@@ -1565,6 +1575,11 @@ CVI_S32 SAMPLE_AUDIO_RECORD_PCM_FORMAT_FILE(void *argv)
 
 		fwrite(stFrame.u64VirAddr[0], 1, stFrame.u32Len * s32OutputChnCnt * 2, fpAi);
 
+		s32Ret = CVI_AI_ReleaseFrame(AiDev, AiChn, &stFrame, &stAecFrm);
+		if (s32Ret) {
+			printf("[error] ai releaseframe error\n");
+			break;
+		}
 	}
 
 
@@ -1764,453 +1779,6 @@ CVI_S32 SAMPLE_AUDIO_DEBUG_GET_VOLUME(ST_AudioUnitTestCfg *testCfg)
 	return CVI_SUCCESS;
 }
 
-
-CVI_S32 SAMPLE_AUDIO_DEBUG_IOCTL_TEST(CVI_VOID)
-{
-	printf("Enter %s\n", __func__);
-	SAMPLE_COMM_AUDIO_CfgAcodec_Test();
-	return CVI_SUCCESS;
-}
-
-/* config codec */
-CVI_S32 SAMPLE_COMM_AUDIO_CfgAcodec_Test(void)
-{
-	CVI_S32 s32Ret = CVI_SUCCESS;
-
-	printf("[%s][%d]\n", __func__, __LINE__);
-
-	/*** INNER AUDIO CODEC ***/
-	CVI_S32 fdAcodec_adc = -1;
-	CVI_S32 fdAcodec_dac = -1;
-	CVI_S32 s32Cmd = -1;
-	CVI_U32 u32Val = 0;
-
-	printf("IOCTL %s\n", __func__);
-
-	fdAcodec_adc = open(ACODEC_ADC, O_RDWR);
-	if (fdAcodec_adc < 0) {
-		printf("%s: can't open Acodec,%s\n", __func__, ACODEC_ADC);
-		s32Ret = CVI_FAILURE;
-		goto FINAL_STEPS;
-	}
-
-	fdAcodec_dac = open(ACODEC_DAC, O_RDWR);
-	if (fdAcodec_dac < 0) {
-		printf("%s: can't open Acodec,%s\n", __func__, ACODEC_DAC);
-		//return CVI_FAILURE;
-		s32Ret = CVI_FAILURE;
-		goto FINAL_STEPS;
-	}
-
-	/* Step1 print out the debug option ------start */
-	printf("Correspond cmd as below------------------------------\n");
-	printf("0:ACODEC_SOFT_RESET_CTRL\n");
-	printf("1:ACODEC_SET_I2S1_FS\n");
-	printf("2:ACODEC_SET_INPUT_VOL\n");
-	printf("3:ACODEC_GET_INPUT_VOL\n");
-	printf("4:ACODEC_SET_OUTPUT_VOL\n");
-	printf("5:ACODEC_GET_OUTPUT_VOL\n");
-	printf("6:ACODEC_SET_MIXER_MIC\n");
-	printf("7:ACODEC_SET_GAIN_MICL\n");
-	printf("8:ACODEC_SET_GAIN_MICR\n");
-	printf("9:ACODEC_SET_DACL_VOL\n");
-	printf("10:ACODEC_SET_DACR_VOL\n");
-	printf("11:ACODEC_SET_ADCL_VOL\n");
-	printf("12:ACODEC_SET_ADCR_VOL\n");
-	printf("13:ACODEC_SET_MICL_MUTE\n");
-	printf("14:ACODEC_SET_MICR_MUTE\n");
-	printf("15:ACODEC_SET_DACL_MUTE\n");
-	printf("16:ACODEC_SET_DACR_MUTE\n");
-	printf("17:ACODEC_GET_GAIN_MICL\n");
-	printf("18:ACODEC_GET_GAIN_MICR\n");
-	printf("19:ACODEC_GET_DACL_VOL\n");
-	printf("20:ACODEC_GET_DACR_VOL\n");
-	printf("21:ACODEC_GET_ADCL_VOL\n");
-	printf("22:ACODEC_GET_ADCR_VOL\n");
-	printf("23:ACODEC_SET_PD_DACL\n");
-	printf("24:ACODEC_SET_PD_DACR\n");
-	printf("25:ACODEC_SET_PD_ADCL\n");
-	printf("26:ACODEC_SET_PD_ADCR\n");
-	printf("27:ACODEC_SET_PD_LINEINL\n");
-	printf("28:ACODEC_SET_PD_LINEINR\n");
-	printf("29:ACODEC_SET_DAC_DE_EMPHASIS\n");
-	printf("30:ACODEC_SET_ADC_HP_FILTER\n");
-	printf("-----------------------------------------------------------\n");
-	/* Step1 print out the debug option ------end */
-	/* Step2 Trigger cmd start */
-
-
-	ACODEC_VOL_CTRL vol_ctrl;
-
-	if (ioctl(fdAcodec_adc, ACODEC_SET_I2S1_FS, &u32Val))
-		printf("%s: failed at line[%d]\n", __func__, __LINE__);
-	else
-		printf("[%s]get value in line[%d]: val = [%d]\n", __func__, __LINE__, u32Val);
-
-	if (ioctl(fdAcodec_dac, ACODEC_SET_I2S1_FS, &u32Val))
-		printf("%s: failed at line[%d]\n", __func__, __LINE__);
-	else
-		printf("[%s]get value in line[%d]: val = [%d]\n", __func__, __LINE__, u32Val);
-
-	printf("\n ------------------------------\n");
-	printf("Please Enter command\t");
-	printf("\n");
-	scanf("%d", &s32Cmd);
-	printf("---->[%d]\n", s32Cmd);
-
-
-	switch (s32Cmd) {
-	case 0:
-		if (ioctl(fdAcodec_adc, ACODEC_SOFT_RESET_CTRL, &u32Val)) {
-			/* test reset fdAcodec_adc */
-			printf("fdAcodec_adc ioctl reset err!\n");
-		} else
-			printf("fdAcodec_adc ACODEC_SOFT_RESET_CTRL ok!\n");
-
-		if (ioctl(fdAcodec_dac, ACODEC_SOFT_RESET_CTRL, &u32Val)) {
-			/* test reset fdAcodec_adc */
-			printf("fdAcodec_dac ioctl reset err!\n");
-		} else
-			printf("fdAcodec_dac ACODEC_SOFT_RESET_CTRL ok!\n");
-
-		break;
-	case 1:
-		printf("enter i2s_fs:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_I2S1_FS, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_I2S1_FS [%d]ok!\n", u32Val);
-
-		break;
-	case 2:
-		printf("enter _INPUT_VOL[24-0, 0:mute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_INPUT_VOL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_INPUT_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 3:
-
-		if (ioctl(fdAcodec_adc, ACODEC_GET_INPUT_VOL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_GET_INPUT_VOL [%d]ok!\n", u32Val);
-
-
-		break;
-	case 4:
-		printf("enter OUTPUT_VOL[32-0, 0:mute]:\t");
-
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_OUTPUT_VOL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_OUTPUT_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 5:
-		if (ioctl(fdAcodec_dac, ACODEC_GET_OUTPUT_VOL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_GET_OUTPUT_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 6:
-		printf("enter ACODEC_SET_MIXER_MIC[0:line_in, 1:mic_in]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_MIXER_MIC, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_MIXER_MIC [%d]ok!\n", u32Val);
-
-		break;
-	case 7:
-		printf("enter ACODEC_SET_GAIN_MICL:\n");
-		printf("[24~0] 0:mute\n");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_GAIN_MICL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_GAIN_MICL [%d]ok!\n", u32Val);
-
-		break;
-	case 8:
-		printf("enter ACODEC_SET_GAIN_MICR:\n");
-		printf("[24~0] 0:mute\n");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_GAIN_MICR, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_GAIN_MICR [%d]ok!\n", u32Val);
-
-		break;
-	case 9:
-		vol_ctrl.vol_ctrl_mute = 0x0;
-		printf("enter  ACODEC_SET_DACL_VOL[32-0, 0:mute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (u32Val == 0) {
-			printf("vol_ctrl.vol_ctrl_mute set 1\n");
-			vol_ctrl.vol_ctrl_mute = 1;
-		} else {
-			printf("vol_ctrl.vol_ctrl_mute set 0\n");
-			vol_ctrl.vol_ctrl_mute = 0;
-		}
-		vol_ctrl.vol_ctrl = u32Val;
-		if (ioctl(fdAcodec_dac, ACODEC_SET_DACL_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_DACL_VOL [%d]ok!\n", u32Val);
-
-		break;
-
-	case 10:
-		vol_ctrl.vol_ctrl_mute = 0x0;
-		printf("enter  ACODEC_SET_DACL_VOL[32-0, 0:mute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (u32Val == 0) {
-			printf("vol_ctrl.vol_ctrl_mute set 1\n");
-			vol_ctrl.vol_ctrl_mute = 1;
-		} else {
-			printf("vol_ctrl.vol_ctrl_mute set 0\n");
-			vol_ctrl.vol_ctrl_mute = 0;
-		}
-		vol_ctrl.vol_ctrl = u32Val;
-		if (ioctl(fdAcodec_dac, ACODEC_SET_DACR_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_DACR_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 11:
-		vol_ctrl.vol_ctrl_mute = 0x0;
-		printf("enter  ACODEC_SET_ADCL_VOL mic[24-0, 0:mute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (u32Val == 0)
-			vol_ctrl.vol_ctrl_mute = 1;
-		else
-			vol_ctrl.vol_ctrl_mute = 0;
-		vol_ctrl.vol_ctrl = u32Val;
-		if (ioctl(fdAcodec_adc, ACODEC_SET_ADCL_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_ADCL_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 12:
-		vol_ctrl.vol_ctrl_mute = 0x0;
-		printf("enter  ACODEC_SET_ADCR_VOL  mic[24-0, 0:mute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (u32Val == 0)
-			vol_ctrl.vol_ctrl_mute = 1;
-		else
-			vol_ctrl.vol_ctrl_mute = 0;
-		vol_ctrl.vol_ctrl = u32Val;
-		if (ioctl(fdAcodec_adc, ACODEC_SET_ADCR_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_ADCR_VOL [%d]ok!\n", u32Val);
-
-		break;
-	case 13:
-		printf("enter  ACODEC_SET_MICL_MUTE[1:mute, 0:umute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_MICL_MUTE, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_MICL_MUTE [%d]ok!\n", u32Val);
-
-		break;
-	case 14:
-		printf("enter  ACODEC_SET_MICR_MUTE[1:mute, 0:umute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_MICR_MUTE, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_MICR_MUTE [%d]ok!\n", u32Val);
-
-		break;
-	case 15:
-		printf("enter  ACODEC_SET_DACL_MUTE[1:mute, 0:umute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_DACL_MUTE, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_DACL_MUTE [%d]ok!\n", u32Val);
-
-		break;
-	case 16:
-		printf("enter  ACODEC_SET_DACR_MUTE[1:mute, 0:umute]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_DACR_MUTE, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_DACR_MUTE [%d]ok!\n", u32Val);
-
-		break;
-	case 17:
-		if (ioctl(fdAcodec_adc, ACODEC_GET_GAIN_MICL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_GET_GAIN_MICL [%d]ok!\n", u32Val);
-
-		break;
-	case 18:
-		if (ioctl(fdAcodec_adc, ACODEC_GET_GAIN_MICR, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_GET_GAIN_MICR [%d]ok!\n", u32Val);
-
-		break;
-	case 19:
-		if (ioctl(fdAcodec_dac, ACODEC_GET_DACL_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_GET_DACL_VOL mute[%d] [%d]ok!\n",
-			       vol_ctrl.vol_ctrl_mute, vol_ctrl.vol_ctrl);
-
-
-		break;
-	case 20:
-		if (ioctl(fdAcodec_dac, ACODEC_GET_DACR_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_GET_DACR_VOL mute[%d] [%d]ok!\n",
-			       vol_ctrl.vol_ctrl_mute, vol_ctrl.vol_ctrl);
-		break;
-	case 21:
-		if (ioctl(fdAcodec_adc, ACODEC_GET_ADCL_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_GET_ADCL_VOL mute[%d] [%d]ok!\n",
-			       vol_ctrl.vol_ctrl_mute, vol_ctrl.vol_ctrl);
-		break;
-	case 22:
-		if (ioctl(fdAcodec_adc, ACODEC_GET_ADCR_VOL, &vol_ctrl))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_GET_ADCR_VOL mute[%d] [%d]ok!\n",
-			       vol_ctrl.vol_ctrl_mute, vol_ctrl.vol_ctrl);
-		break;
-	case 23:
-		printf("enter  ACODEC_SET_PD_DACL[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_PD_DACL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_PD_DACL[%d]ok!\n",
-			       u32Val);
-		break;
-	case 24:
-		printf("enter  ACODEC_SET_PD_DACR[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_PD_DACR, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_PD_DACR[%d]ok!\n",
-			       u32Val);
-		break;
-	case 25:
-		printf("enter  ACODEC_SET_PD_ADCL[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_PD_ADCL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_PD_ADCL[%d]ok!\n",
-			       u32Val);
-		break;
-	case 26:
-		printf("enter  ACODEC_SET_PD_ADCR[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_PD_ADCR, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_PD_ADCR[%d]ok!\n",
-			       u32Val);
-		break;
-
-	case 27:
-		printf("enter  ACODEC_SET_PD_LINEINL[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_PD_LINEINL, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_PD_LINEINL[%d]ok!\n",
-			       u32Val);
-		break;
-	case 28:
-		printf("enter  ACODEC_SET_PD_LINEINR[0:power up, 1:power down]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_PD_LINEINR, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_PD_LINEINR[%d]ok!\n",
-			       u32Val);
-		break;
-	case 29:
-		printf("enter  ACODEC_SET_DAC_DE_EMPHASIS[0:enable, 1:cancel]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_dac, ACODEC_SET_DAC_DE_EMPHASIS, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_dac ACODEC_SET_DAC_DE_EMPHASIS[%d]ok!\n",
-			       u32Val);
-		break;
-	case 30:
-		printf("enter  ACODEC_SET_ADC_HP_FILTER[0:enable, 1:cancel]:\t");
-		scanf("%d", &u32Val);
-		printf("\n Enter[%d]\n", u32Val);
-		if (ioctl(fdAcodec_adc, ACODEC_SET_ADC_HP_FILTER, &u32Val))
-			printf("ioctl err!\n");
-		else
-			printf("fdAcodec_adc ACODEC_SET_ADC_HP_FILTER[%d]ok!\n",
-			       u32Val);
-		break;
-	default:
-		printf("Not support this command[%s][%d]\n", __func__, __LINE__);
-		break;
-	}
-	/* Step2 Trigger cmd end */
-
-FINAL_STEPS:
-	if (fdAcodec_adc > 0)
-		close(fdAcodec_adc);
-	if (fdAcodec_dac > 0)
-		close(fdAcodec_dac);
-
-
-	if (s32Ret != CVI_SUCCESS) {
-		printf("%s:SAMPLE_INNER_CODEC_CfgAudio_Test failed\n", __func__);
-		return s32Ret;
-	}
-
-	return CVI_SUCCESS;
-}
-
-
 void *VQE_RECORD_GET_FRAME(void *parg)
 {
 
@@ -2249,6 +1817,13 @@ void *VQE_RECORD_GET_FRAME(void *parg)
 
 		fwrite(stFrame.u64VirAddr[0], 1, (stFrame.u32Len * s32ChnCnt * 2), fp_rec);
 
+		s32Ret = CVI_AI_ReleaseFrame(pstVqeRecord->AiDev, pstVqeRecord->AiChn,
+					 &stFrame,
+					 &stAecFrm);
+		if (s32Ret) {
+			printf("[error] ai releaseframe error\n");
+			break;
+		}
 	}
 
 	pstVqeRecord->record_status = AEC_LOOP_RECORD_STOP;
@@ -2558,7 +2133,7 @@ CVI_S32 main(int argc, char *argv[])
 	}
 	case 9: {
 		printf("[cviaudio] ioctl_test!\n");
-		SAMPLE_AUDIO_DEBUG_IOCTL_TEST();
+		printf("IOCTL Test is no longer supported\n");
 		printf("[cviaudio] ioctl_test!...end\n");
 		break;
 	}

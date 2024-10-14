@@ -11,9 +11,9 @@ INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I./inc -I$(SENSOR_
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 
-TARGET = sensor_test
+TARGET = sample_sensor_test
 ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
-TARGET = sensor_test_asan
+TARGET = sample_sensor_test_asan
 endif
 
 PKG_CONFIG_PATH = $(MW_PATH)/pkgconfig
@@ -22,7 +22,7 @@ REQUIRES = cvi_common cvi_sample
 MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
 
 LIBS = $(MW_LIBS)
-LIBS += -lcvi_ispd2 -ljson-c -lsys
+LIBS += -lcvi_ispd2 -lsys
 ifeq ($(MULTI_PROCESS_SUPPORT), 1)
 DEFS += -DRPC_MULTI_PROCESS
 LIBS += -lnanomsg

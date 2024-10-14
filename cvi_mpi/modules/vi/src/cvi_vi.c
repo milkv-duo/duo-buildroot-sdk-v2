@@ -297,7 +297,7 @@ static CVI_S32 _vi_update_ldc_mesh(VI_PIPE ViPipe, VI_CHN ViChn,
 	if (paddr_old && paddr_old != DEFAULT_MESH_PADDR)
 		CVI_SYS_IonFree(paddr_old, vaddr_old);
 
-	CVI_TRACE_VI(CVI_DBG_DEBUG, "ViPipe(%d) ViChn(%d) mesh base(%#"PRIx64") vaddr(%p)\n"
+	CVI_TRACE_VI(CVI_DBG_DEBUG, "ViPipe(%d) ViChn(%d) mesh base(%#llx) vaddr(%p)\n"
 		, ViPipe, ViChn, paddr, vaddr);
 
 	CVI_S32 fd = get_vi_fd();

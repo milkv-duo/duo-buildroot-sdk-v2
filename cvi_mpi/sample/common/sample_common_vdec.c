@@ -642,7 +642,7 @@ RETRY_GET_FRAME:
 						stVFrame.stVFrame.u32Stride[i] * stVFrame.stVFrame.u32Height);
 			}
 
-			CVI_VDEC_DISP("PTS = %"PRId64", u32TimeRef = %d\n",
+			CVI_VDEC_DISP("PTS = %llu, u32TimeRef = %d\n",
 					pstVFrame->u64PTS, pstVFrame->u32TimeRef);
 
 			if (pstVdecThreadParam->bDumpYUV == 1) {

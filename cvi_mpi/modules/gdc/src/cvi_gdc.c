@@ -358,7 +358,7 @@ CVI_S32 CVI_GDC_LoadLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const char *fil
 	}
 	rewind(fp);
 
-	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#"PRIx64", vir addr:%p.\n",
+	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#llx, vir addr:%p.\n",
 		mesh_size, paddr, vaddr);
 
 	fread(vaddr, mesh_size, 1, fp);
@@ -491,7 +491,7 @@ CVI_S32 CVI_GDC_DumpMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr)
 		return CVI_ERR_GDC_NOT_SUPPORT;
 	}
 
-	CVI_TRACE_GDC(CVI_DBG_DEBUG, "dump mesh size:%d, mesh phy addr:%#"PRIx64", vir addr:%p.\n",
+	CVI_TRACE_GDC(CVI_DBG_DEBUG, "dump mesh size:%d, mesh phy addr:%#llx, vir addr:%p.\n",
 		meshSize, phyMesh, virMesh);
 
 	fp = fopen(filePath, "wb");
@@ -589,7 +589,7 @@ CVI_S32 CVI_GDC_LoadMesh(MESH_DUMP_ATTR_S *pMeshDumpAttr, const LDC_ATTR_S *pstL
 	}
 	memset(virMesh, 0 , mesh_size);
 
-	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#"PRIx64", vir addr:%p.\n",
+	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#llx, vir addr:%p.\n",
 		mesh_size, phyMesh, virMesh);
 	pmesh->paddr = phyMesh;
 	pmesh->vaddr = virMesh;
@@ -714,7 +714,7 @@ CVI_S32 CVI_GDC_LoadMeshWithBuf(MESH_DUMP_ATTR_S *pMeshDumpAttr, const LDC_ATTR_
 		return CVI_ERR_GDC_NOMEM;
 	}
 	memset(virMesh, 0 , mesh_size);
-	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#"PRIx64", vir addr:%p.\n",
+	CVI_TRACE_GDC(CVI_DBG_DEBUG, "load mesh size:%d, mesh phy addr:%#llx, vir addr:%p.\n",
 		mesh_size, phyMesh, virMesh);
 	pmesh->paddr = phyMesh;
 	pmesh->vaddr = virMesh;

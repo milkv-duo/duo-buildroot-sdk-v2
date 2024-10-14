@@ -8,7 +8,7 @@ include ../sample.mk
 PANEL_INC =../../component/panel/$(shell echo $(CVIARCH) | tr A-Z a-z)
 SDIR = $(PWD)
 SRCS = $(wildcard $(SDIR)/*.c)
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(PANEL_INC) -I$(SENSOR_LIST_INC) -Iinclude
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(PANEL_INC) -I$(SENSOR_LIST_INC) -Iinclude -I$(MW_PATH)/3rdparty/inih
 OBJS = $(patsubst %.c, %.o, $(SRCS))
 DEPS = $(SRCS:.c=.d)
 TARGET_A = $(MW_LIB)/libsample.a

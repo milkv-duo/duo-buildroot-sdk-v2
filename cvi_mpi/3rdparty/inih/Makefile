@@ -15,7 +15,7 @@ TARGET_SO = $(MW_3RD_LIB)/libini.so
 EXTRA_CFLAGS = $(INCS)
 
 .PHONY : all
-all : $(TARGET_A) $(TARGET_SO) install
+all : $(TARGET_A) $(TARGET_SO)
 
 $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
@@ -28,9 +28,6 @@ $(TARGET_A): $(OBJS)
 $(TARGET_SO): $(OBJS)
 	@$(LD) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $@ --start-group $(OBJS) --end-group
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $@)
-
-install:
-	@cp ini.h $(MW_INC)
 
 clean:
 	@rm -f $(OBJS) $(DEPS) $(TARGET_A) $(TARGET_SO) $(MW_INC)/ini.h

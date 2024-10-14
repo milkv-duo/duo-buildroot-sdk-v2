@@ -279,7 +279,7 @@ CVI_S32 SAMPLE_COMM_VENC_SaveStream(PAYLOAD_TYPE_E enType,
 			return CVI_FAILURE;
 		}
 
-		CVI_VENC_BS("pack[%d], PTS = %"PRId64", DataType = %d\n",
+		CVI_VENC_BS("pack[%d], PTS = %llu, DataType = %d\n",
 				i, ppack->u64PTS, dataType);
 		CVI_VENC_BS("Addr = %p, Len = 0x%X, Offset = 0x%X\n",
 				ppack->pu8Addr, ppack->u32Len, ppack->u32Offset);

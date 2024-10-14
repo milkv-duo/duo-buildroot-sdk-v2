@@ -730,7 +730,7 @@ CVI_S32 CVI_SYS_IonFree(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr)
 
 	ion_data = hashmapGet(ionHashmap, (void *)(uintptr_t)u64PhyAddr);
 	if (ion_data == NULL) {
-		CVI_TRACE_SYS(CVI_DBG_ERR, "u64PhyAddr(0x%"PRIx64") not found in ion.\n", u64PhyAddr);
+		CVI_TRACE_SYS(CVI_DBG_ERR, "u64PhyAddr(0x%llx) not found in ion.\n", u64PhyAddr);
 		return CVI_ERR_SYS_ILLEGAL_PARAM;
 	}
 	hashmapRemove(ionHashmap, (void *)(uintptr_t)u64PhyAddr);

@@ -546,7 +546,6 @@ CVI_S32 SAMPLE_COMM_REGION_AttachToChn(CVI_S32 HandleNum, RGN_TYPE_E enType, MMF
 		if (enType == OVERLAY_RGN) {
 			stChnAttr.unChnAttr.stOverlayChn.stPoint.s32X = 20 + 200 * (i - OverlayMinHandle);
 			stChnAttr.unChnAttr.stOverlayChn.stPoint.s32Y = 20 + 200 * (i - OverlayMinHandle);
-			stChnAttr.unChnAttr.stOverlayChn.u32Layer = (i - OverlayMinHandle);
 		}
 		if (enType == OVERLAYEX_RGN) {
 			stChnAttr.unChnAttr.stOverlayExChn.stPoint.s32X = 20 + 200 * (i - OverlayExMinHandle);
@@ -556,7 +555,6 @@ CVI_S32 SAMPLE_COMM_REGION_AttachToChn(CVI_S32 HandleNum, RGN_TYPE_E enType, MMF
 		if (enType == COVER_RGN) {
 			stChnAttr.unChnAttr.stCoverChn.stRect.s32X = 20 + 200 * (i - CoverMinHandle);
 			stChnAttr.unChnAttr.stCoverChn.stRect.s32Y = 20 + 200 * (i - CoverMinHandle);
-			stChnAttr.unChnAttr.stCoverChn.u32Layer = (i - CoverMinHandle);
 		}
 		if (enType == COVEREX_RGN) {
 			stChnAttr.unChnAttr.stCoverExChn.stRect.s32X = 20 + 200 * (i - CoverExMinHandle);
@@ -566,7 +564,6 @@ CVI_S32 SAMPLE_COMM_REGION_AttachToChn(CVI_S32 HandleNum, RGN_TYPE_E enType, MMF
 		if (enType == MOSAIC_RGN) {
 			stChnAttr.unChnAttr.stMosaicChn.stRect.s32X = 20 + 200 * (i - MosaicMinHandle);
 			stChnAttr.unChnAttr.stMosaicChn.stRect.s32Y = 20 + 200 * (i - MosaicMinHandle);
-			stChnAttr.unChnAttr.stMosaicChn.u32Layer = i - MosaicMinHandle;
 		}
 		s32Ret = SAMPLE_REGION_AttachToChn(i, pstChn, &stChnAttr);
 		if (s32Ret != CVI_SUCCESS) {

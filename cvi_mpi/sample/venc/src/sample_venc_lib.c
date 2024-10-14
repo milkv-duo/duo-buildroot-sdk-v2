@@ -2091,7 +2091,7 @@ static CVI_S32 _SAMPLE_VENC_writeFrame(VIDEO_FRAME_INFO_S *pstVideoFrame, FILE *
 		pstVFrame->pu8VirAddr[i]
 			= CVI_SYS_Mmap(pstVFrame->u64PhyAddr[i], pstVFrame->u32Length[i]);
 
-		CVI_TRACE_LOG(CVI_DBG_INFO, "plane(%d): paddr(%#"PRIx64") vaddr(%p) stride(%d)\n",
+		CVI_TRACE_LOG(CVI_DBG_INFO, "plane(%d): paddr(%#llx) vaddr(%p) stride(%d)\n",
 			   i, pstVFrame->u64PhyAddr[i],
 			   pstVFrame->pu8VirAddr[i],
 			   pstVFrame->u32Stride[i]);
@@ -3429,7 +3429,7 @@ static CVI_S32 _SAMPLE_VENC_SendOneFrame(vencChnCtx *pvecc)
 		userFrameInfo.stUserRcInfo.u64QpMapPhyAddr =
 			(uintptr_t) pvecc->pu8QpMap;
 
-		CVI_VENC_TRACE("u64QpMapPhyAddr = %"PRIx64"\n",
+		CVI_VENC_TRACE("u64QpMapPhyAddr = %llx\n",
 				userFrameInfo.stUserRcInfo.u64QpMapPhyAddr);
 		CVI_VENC_TRACE("pu8QpMap = %p\n", pvecc->pu8QpMap);
 

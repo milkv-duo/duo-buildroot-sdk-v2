@@ -8,7 +8,7 @@ SDIR = $(PWD)/src
 SRCS := $(wildcard $(SDIR)/*.c)
 
 # 3rdparty lib
-TRD_INCLUDE_PATH = $(PWD)/3rd_lib/include
+TRD_INCLUDE_PATH = $(PWD)/prebuilt/include
 
 ifneq ($(findstring $(CHIP_ARCH), MARS PHOBOS CV181X CV180X),)
 ISP_BIN_DIR = $(MW_PATH)/modules/isp/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)/isp_bin/inc

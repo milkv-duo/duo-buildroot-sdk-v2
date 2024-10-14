@@ -11,9 +11,9 @@ INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I$(SENSOR_LIST_INC
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 
-TARGET = ir_auto
+TARGET = sample_ir_auto
 ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
-TARGET = ir_auto_asan
+TARGET = sample_ir_auto_asan
 endif
 
 PKG_CONFIG_PATH = $(MW_PATH)/pkgconfig

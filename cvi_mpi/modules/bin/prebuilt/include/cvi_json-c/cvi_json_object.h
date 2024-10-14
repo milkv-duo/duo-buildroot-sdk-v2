@@ -351,12 +351,13 @@ JSON_EXPORT struct lh_table *cvi_json_object_get_object(const struct cvi_json_ob
 /** Get the size of an object in terms of the number of fields it has.
  * @param obj the cvi_json_object whose length to return
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+
 JSON_EXPORT int cvi_json_object_object_length(const struct cvi_json_object *obj);
 
 /** Get the sizeof (struct cvi_json_object).
  * @returns a size_t with the sizeof (struct cvi_json_object)
  */
+#ifndef REMOVE_UNUSED_FUNCTION
 JSON_C_CONST_FUNCTION(JSON_EXPORT size_t cvi_json_c_object_sizeof(void));
 #endif
 /** Add an object field to a cvi_json_object of type cvi_json_type_object
@@ -608,10 +609,10 @@ JSON_EXPORT int cvi_json_object_array_add(struct cvi_json_object *obj, struct cv
  * @param idx the index to insert the element at
  * @param val the cvi_json_object to be added
  */
-#ifndef REMOVE_UNUSED_FUNCTIO
+
 JSON_EXPORT int cvi_json_object_array_put_idx(struct cvi_json_object *obj, size_t idx,
                                           struct cvi_json_object *val);
-#endif
+
 /** Get the element at specified index of array `obj` (which must be a cvi_json_object of type cvi_json_type_array)
  *
  * *No* reference counts will be changed, and ownership of the returned
@@ -924,7 +925,7 @@ JSON_EXPORT double cvi_json_object_get_double(const struct cvi_json_object *obj)
  * @param new_value the value to be set
  * @returns 1 if value is set correctly, 0 otherwise
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+
 JSON_EXPORT int cvi_json_object_set_double(struct cvi_json_object *obj, double new_value);
 
 /* string type methods */
@@ -938,7 +939,7 @@ JSON_EXPORT int cvi_json_object_set_double(struct cvi_json_object *obj, double n
  * @see cvi_json_object_new_string_len()
  */
 JSON_EXPORT struct cvi_json_object *cvi_json_object_new_string(const char *s);
-#endif
+
 /** Create a new empty cvi_json_object of type cvi_json_type_string and allocate
  * len characters for the new string.
  *
@@ -968,7 +969,7 @@ JSON_EXPORT struct cvi_json_object *cvi_json_object_new_string_len(const char *s
  * @returns a string or NULL
  */
 JSON_EXPORT const char *cvi_json_object_get_string(struct cvi_json_object *obj);
-#ifndef REMOVE_UNUSED_FUNCTION
+
 /** Get the string length of a cvi_json_object
  *
  * If the passed object is not of type cvi_json_type_string then zero
@@ -1004,7 +1005,7 @@ JSON_EXPORT int cvi_json_object_set_string_len(cvi_json_object *obj, const char 
  * It always returns NULL, and it is entirely acceptable to simply use NULL directly.
  */
 JSON_EXPORT struct cvi_json_object *cvi_json_object_new_null(void);
-
+#ifndef REMOVE_UNUSED_FUNCTION
 /** Check if two cvi_json_object's are equal
  *
  * If the passed objects are equal 1 will be returned.

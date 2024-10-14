@@ -285,7 +285,7 @@ extern cvi_json_bool cvi_lh_table_lookup_ex(struct lh_table *t, const void *k, v
  * @return -1 if it was not found.
  */
 #ifndef REMOVE_UNUSED_FUNCTION
-extern int lh_table_delete_entry(struct lh_table *t, struct lh_entry *e);
+extern int cvi_lh_table_delete_entry(struct lh_table *t, struct lh_entry *e);
 
 /**
  * Delete a record from the table.
@@ -297,10 +297,10 @@ extern int lh_table_delete_entry(struct lh_table *t, struct lh_entry *e);
  * @return 0 if the item was deleted.
  * @return -1 if it was not found.
  */
-extern int lh_table_delete(struct lh_table *t, const void *k);
-
-extern int lh_table_length(struct lh_table *t);
+extern int cvi_lh_table_delete(struct lh_table *t, const void *k);
 #endif
+extern int cvi_lh_table_length(struct lh_table *t);
+
 /**
  * Resizes the specified table.
  *

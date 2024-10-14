@@ -639,6 +639,19 @@ typedef struct _SAMPLE_INI_CFG_S {
 	CVI_U8			u8SwitchPol[VI_MAX_DEV_NUM];
 } SAMPLE_INI_CFG_S;
 
+typedef struct _AudioUnitTestCfg {
+	CVI_S32 channels;
+	CVI_S32 Time_in_second;
+	CVI_S32 sample_rate;
+	CVI_CHAR  format[64]; //pcm/ g711//g726...
+	CVI_S32 period_size;
+	CVI_S32 bitdepth;
+	CVI_S32 unit_test;
+	CVI_S32 s32TestMode;
+	CVI_CHAR filename[256];
+	CVI_BOOL bOptCfg;
+} ST_AudioUnitTestCfg;
+
 extern RGN_RGBQUARD_S overlay_palette[256];
 
 /********************************************************

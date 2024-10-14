@@ -193,7 +193,7 @@ void dump_data_u64(const CVI_U64 *data, CVI_S32 count, const CVI_CHAR *desc)
 	CVI_S32 i;
 	printf("%s\n", desc);
 	for (i = 0; i < count; ++i) {
-		printf("%016jX ", data[i]);
+		printf("%016jX ", (uintmax_t)data[i]);
 		if ((i + 1) % 2 == 0 || i + 1 == count) {
 			printf(" ");
 			if ((i + 1) % 4 == 0) {
@@ -662,7 +662,7 @@ CVI_S32 CVI_IVE_CompareIveImage(IVE_IMAGE_S *pstImage1, IVE_IMAGE_S *pstImage2)
 				printf("Compare failed, at y = %d, x = %d, n = %d\n",
 					   y, idx, n);
 				printf("  A = 0x%016jX, B = 0x%016jX\n",
-					   pData1_U64[idx], pData2_U64[idx]);
+					   (uintmax_t)pData1_U64[idx], (uintmax_t)pData2_U64[idx]);
 				dump_data_u64(pData1_U64, u32Width, "A");
 				dump_data_u64(pData2_U64, u32Width, "B");
 				s32Succ = CVI_FAILURE;

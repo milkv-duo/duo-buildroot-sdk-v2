@@ -39,7 +39,7 @@ extern "C" {
  *
  * Returns NULL on failure.  See cvi_json_util_get_last_err() for details.
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+
 JSON_EXPORT struct cvi_json_object *cvi_json_object_from_file(const char *filename);
 
 /**
@@ -100,7 +100,7 @@ JSON_EXPORT int cvi_json_object_to_fd(int fd, struct cvi_json_object *obj, int f
  */
 
 JSON_EXPORT const char *cvi_json_util_get_last_err(void);
-#endif
+
 /* these parsing helpers return zero on success */
 JSON_EXPORT int cvi_json_parse_int64(const char *buf, int64_t *retval);
 JSON_EXPORT int cvi_json_parse_uint64(const char *buf, uint64_t *retval);

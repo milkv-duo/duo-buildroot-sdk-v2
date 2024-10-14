@@ -44,7 +44,7 @@ extern "C" {
  *
  * @return negative if an error (or not found), or 0 if succeeded
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+// #ifndef REMOVE_UNUSED_FUNCTION
 JSON_EXPORT int cvi_json_pointer_get(struct cvi_json_object *obj, const char *path,
                                  struct cvi_json_object **res);
 
@@ -121,4 +121,4 @@ JSON_EXPORT int cvi_json_pointer_setf(struct cvi_json_object **obj, struct cvi_j
 }
 #endif
 
-#endif
+// #endif

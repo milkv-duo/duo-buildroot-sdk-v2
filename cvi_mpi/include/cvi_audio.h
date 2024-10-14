@@ -27,9 +27,11 @@ extern "C"
 #endif
 #endif /* __cplusplus */
 
-#ifdef CVI_MODIFIED
+/**
+ * @brief Perform audio debugging operations
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
 CVI_S32 CVI_AUDIO_DEBUG(void);
-#endif
 
 /* =====Audio function api===== */
 

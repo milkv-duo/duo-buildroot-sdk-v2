@@ -184,7 +184,7 @@ typedef struct cvi_json_tokener cvi_json_tokener;
  *
  * @return a generic error message is returned if an invalid error value is provided.
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+
 JSON_EXPORT const char *cvi_json_tokener_error_desc(enum cvi_json_tokener_error jerr);
 
 /**
@@ -197,7 +197,7 @@ JSON_EXPORT const char *cvi_json_tokener_error_desc(enum cvi_json_tokener_error 
  * @see cvi_json_tokener_error_desc().
  */
 JSON_EXPORT enum cvi_json_tokener_error cvi_json_tokener_get_error(struct cvi_json_tokener *tok);
-#endif
+
 /**
  * Allocate a new cvi_json_tokener.
  * When done using that to parse objects, free it with cvi_json_tokener_free().
@@ -242,9 +242,9 @@ JSON_EXPORT struct cvi_json_object *cvi_json_tokener_parse_verbose(const char *s
 /**
  * Set flags that control how parsing will be done.
  */
-#ifndef REMOVE_UNUSED_FUNCTION
+
 JSON_EXPORT void cvi_json_tokener_set_flags(struct cvi_json_tokener *tok, int flags);
-#endif
+
 /**
  * Parse a string and return a non-NULL cvi_json_object if a valid JSON value
  * is found.  The string does not need to be a JSON object or array;
