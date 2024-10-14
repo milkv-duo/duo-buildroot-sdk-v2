@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include "acodec.h"
 
 #define ACODEC_ADC "/dev/cvitekaadc"
 
