@@ -64,6 +64,9 @@ static const struct flash_info cvitek_parts[] = {
 	},
 	{ "JY25VQ128A", CVI_INFO(0x1c4018, 0x0, 64 * 1024, 256, 0, 0,
 			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)
+		.fixups = &sr2_bit1_qe_fixups },
+	{ "GM25Q64A", CVI_INFO(0x1c4017, 0x0, 64 * 1024, 128, 0, 0,
+			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)
 		.fixups = &sr_bit1_qe_fixups },
 	{ "JY25VQ64A", CVI_INFO(0x4a4017, 0x0, 64 * 1024, 128, 0, 0,
 			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)

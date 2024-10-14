@@ -1424,7 +1424,7 @@ static void restore_rtc_reg(struct sdhci_cvi_host *cvi_host) {}
 static void save_reg(struct sdhci_host *host, struct sdhci_cvi_host *cvi_host)
 {
 	save_rtc_reg(cvi_host);
-	cvi_host->reg_ctrl2 = sdhci_readl(host, SDHCI_HOST_CONTROL2);
+	cvi_host->reg_ctrl2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	cvi_host->reg_clk_ctrl = sdhci_readl(host, SDHCI_CLOCK_CONTROL);
 	cvi_host->reg_host_ctrl = sdhci_readl(host, SDHCI_HOST_CONTROL);
 }
@@ -1434,7 +1434,7 @@ static void restore_reg(struct sdhci_host *host, struct sdhci_cvi_host *cvi_host
 	restore_rtc_reg(cvi_host);
 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
-	sdhci_writel(host, cvi_host->reg_ctrl2, SDHCI_HOST_CONTROL2);
+	sdhci_writew(host, cvi_host->reg_ctrl2, SDHCI_HOST_CONTROL2);
 	sdhci_writel(host, cvi_host->reg_clk_ctrl, SDHCI_CLOCK_CONTROL);
 	sdhci_writel(host, cvi_host->reg_host_ctrl, SDHCI_HOST_CONTROL);
 }

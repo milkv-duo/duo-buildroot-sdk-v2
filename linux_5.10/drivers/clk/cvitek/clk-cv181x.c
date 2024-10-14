@@ -140,7 +140,7 @@
 #define REG_PLL_G2_CSR_NUM		(REG_CAM1PLL_CSR / 4 - REG_MIPIMPLL_CSR / 4 + 1)
 #define REG_PLL_G2_CSR_START		REG_MIPIMPLL_CSR
 
-#define REG_PLL_G6_CSR_NUM		(REG_FPLL_CSR / 4 - REG_MPLL_CSR / 4 + 1)
+#define REG_PLL_G6_CSR_NUM		(REG_TPLL_CSR / 4 - REG_MPLL_CSR / 4 + 1)
 #define REG_PLL_G6_CSR_START		REG_MPLL_CSR
 
 #define REG_CLK_EN_NUM			(REG_CLK_EN_4 / 4 - REG_CLK_EN_0 / 4 + 1)
@@ -180,7 +180,6 @@ static DEFINE_SPINLOCK(cv181x_clk_lock);
 struct cv181x_clock_data {
 	void __iomem *base;
 	spinlock_t *lock;
-	struct clk_hw_onecell_data hw_data;
 #ifdef CONFIG_PM_SLEEP
 	uint32_t clken_saved_regs[REG_CLK_EN_NUM];
 	uint32_t clksel_saved_regs[REG_CLK_SEL_NUM];
@@ -194,6 +193,7 @@ struct cv181x_clock_data {
 	uint32_t cam1pll_ssc_syn_set_saved_reg;
 	uint32_t pll_g6_csr_saved_regs[REG_PLL_G6_CSR_NUM];
 #endif /* CONFIG_PM_SLEEP */
+	struct clk_hw_onecell_data hw_data;
 };
 
 struct cv181x_gate {
@@ -2628,35 +2628,53 @@ static const struct of_device_id cvi_clk_match_ids_tables[] = {
 };
 
 #ifdef CONFIG_PM_SLEEP
+static void cv181x_clk_readl(volatile void __iomem *from, const void *to, size_t count)
+{
+        while (count--) {
+                *(u32 *)to = __raw_readl(from);
+                from += 4;
+                to += 4;
+        }
+}
+
+static void cv181x_clk_writel(volatile void __iomem *to, const void *from, size_t count)
+{
+        while (count--) {
+                __raw_writel(*(u32 *)from, to);
+                from += 4;
+                to += 4;
+        }
+}
+
 static int cv181x_clk_suspend(void)
 {
-	memcpy_fromio(clk_data->clken_saved_regs,
-		      clk_data->base + REG_CLK_EN_START,
-		      REG_CLK_EN_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_CLK_EN_START,
+		clk_data->clken_saved_regs,
+		REG_CLK_EN_NUM);
 
-	memcpy_fromio(clk_data->clksel_saved_regs,
-		      clk_data->base + REG_CLK_SEL_START,
-		      REG_CLK_SEL_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_CLK_SEL_START,
+		clk_data->clksel_saved_regs,
+		REG_CLK_SEL_NUM);
 
-	memcpy_fromio(clk_data->clkbyp_saved_regs,
-		      clk_data->base + REG_CLK_BYP_START,
-		      REG_CLK_BYP_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_CLK_BYP_START,
+			clk_data->clkbyp_saved_regs,
+			REG_CLK_BYP_NUM);
 
-	memcpy_fromio(clk_data->clkdiv_saved_regs,
-		      clk_data->base + REG_CLK_DIV_START,
-		      REG_CLK_DIV_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_CLK_DIV_START,
+			clk_data->clkdiv_saved_regs,
+			REG_CLK_DIV_NUM);
 
-	memcpy_fromio(clk_data->g2_clkdiv_saved_regs,
-		      clk_data->base + REG_CLK_G2_DIV_START,
-		      REG_CLK_G2_DIV_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_CLK_G2_DIV_START,
+			clk_data->g2_clkdiv_saved_regs,
+			REG_CLK_G2_DIV_NUM);
 
-	memcpy_fromio(clk_data->pll_g2_csr_saved_regs,
-		      clk_data->base + REG_PLL_G2_CSR_START,
-		      REG_PLL_G2_CSR_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_PLL_G2_CSR_START,
+			clk_data->pll_g2_csr_saved_regs,
+			REG_PLL_G2_CSR_NUM);
 
-	memcpy_fromio(clk_data->pll_g6_csr_saved_regs,
-		      clk_data->base + REG_PLL_G6_CSR_START,
-		      REG_PLL_G6_CSR_NUM * 4);
+	cv181x_clk_readl(clk_data->base + REG_PLL_G6_CSR_START,
+			clk_data->pll_g6_csr_saved_regs,
+			REG_PLL_G6_CSR_NUM);
 
 	clk_data->a0pll_ssc_syn_set_saved_reg =
 		readl(clk_data->base + REG_APLL_SSC_SYN_SET);
@@ -2681,25 +2699,28 @@ static void cv181x_clk_resume(void)
 	writel(0xffffffff, clk_data->base + REG_CLK_BYP_0);
 	writel(0xffffffff, clk_data->base + REG_CLK_BYP_1);
 
-	memcpy_toio(clk_data->base + REG_CLK_EN_START,
-		    clk_data->clken_saved_regs,
-		    REG_CLK_EN_NUM * 4);
+	// workaroumd
+	clk_data->clken_saved_regs[0] |= 0x10;
 
-	memcpy_toio(clk_data->base + REG_CLK_SEL_START,
-		    clk_data->clksel_saved_regs,
-		    REG_CLK_SEL_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_CLK_EN_START,
+			clk_data->clken_saved_regs,
+			REG_CLK_EN_NUM);
 
-	memcpy_toio(clk_data->base + REG_CLK_DIV_START,
-		    clk_data->clkdiv_saved_regs,
-		    REG_CLK_DIV_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_CLK_SEL_START,
+			clk_data->clksel_saved_regs,
+			REG_CLK_SEL_NUM);
 
-	memcpy_toio(clk_data->base + REG_CLK_G2_DIV_START,
-		    clk_data->g2_clkdiv_saved_regs,
-		    REG_CLK_G2_DIV_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_CLK_DIV_START,
+			clk_data->clkdiv_saved_regs,
+			REG_CLK_DIV_NUM);
 
-	// memcpy_toio(clk_data->base + REG_PLL_G6_CSR_START,
-	// clk_data->pll_g6_csr_saved_regs,
-	// REG_PLL_G6_CSR_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_CLK_G2_DIV_START,
+			clk_data->g2_clkdiv_saved_regs,
+			REG_CLK_G2_DIV_NUM);
+
+	cv181x_clk_writel(clk_data->base + REG_PLL_G6_CSR_START,
+			clk_data->pll_g6_csr_saved_regs,
+			REG_PLL_G6_CSR_NUM);
 
 	/* wait for pll setting updated */
 	while (readl(clk_data->base + REG_PLL_G6_STATUS) & 0x7) {
@@ -2757,17 +2778,17 @@ static void cv181x_clk_resume(void)
 		writel(regval, clk_data->base + REG_CAM1PLL_SSC_SYN_CTRL);
 	}
 
-	memcpy_toio(clk_data->base + REG_PLL_G2_CSR_START,
-		    clk_data->pll_g2_csr_saved_regs,
-		    REG_PLL_G2_CSR_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_PLL_G2_CSR_START,
+			clk_data->pll_g2_csr_saved_regs,
+			REG_PLL_G2_CSR_NUM);
 
 	/* wait for pll setting updated */
 	while (readl(clk_data->base + REG_PLL_G2_STATUS) & 0x1F) {
 	}
 
-	memcpy_toio(clk_data->base + REG_CLK_BYP_START,
-		    clk_data->clkbyp_saved_regs,
-		    REG_CLK_BYP_NUM * 4);
+	cv181x_clk_writel(clk_data->base + REG_CLK_BYP_START,
+			clk_data->clkbyp_saved_regs,
+			REG_CLK_BYP_NUM);
 }
 
 static struct syscore_ops cv181x_clk_syscore_ops = {
