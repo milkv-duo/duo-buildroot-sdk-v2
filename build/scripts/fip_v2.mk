@@ -25,7 +25,7 @@ fsbl%: export FSBL_SECURE_BOOT_SUPPORT=${CONFIG_FSBL_SECURE_BOOT_SUPPORT}
 fsbl%: export ARCH=$(call qstrip,${CONFIG_ARCH})
 fsbl%: export OD_CLK_SEL=${CONFIG_OD_CLK_SEL}
 fsbl%: export VC_CLK_OVERDRIVE=${CONFIG_VC_CLK_OVERDRIVE}
-fsbl%: export KERNEL_SUSPEND=${CONFIG_KERNEL_SUSPEND}
+fsbl%: export SUSPEND=${CONFIG_SUSPEND}
 fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ]; then echo "y";else echo "n";fi)
 fsbl%: export BUILD_BOOT0=${CONFIG_ENABLE_BOOT0}
 fsbl%: export BUILD_FASTBOOT0=${CONFIG_ENABLE_FASTBOOT0}

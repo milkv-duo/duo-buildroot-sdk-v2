@@ -892,13 +892,6 @@
 		};
 	};
 
-#if 1
-	cvipctrl: pinctrl@3001000 {
-		compatible = "cvitek,pinctrl-cv182x";
-		reg = <0 0x03001000 0 0x1000>;
-	};
-#endif
-
 	cviaudio_core {
 		compatible = "cvitek,audio";
 	};
@@ -913,6 +906,10 @@
 #endif
 		};
 
+	cvipctrl: pinctrl@3001000 {
+		compatible = "cvitek,pinctrl-cv181x";
+		reg = <0 0x03001000 0 0x1000>;
+	};
 
 	aliases {
 		i2c0 = &i2c0;
