@@ -2068,7 +2068,8 @@ static CVI_VOID _vpss_chl_frame_rate_ctrl(struct cvi_vpss_ctx *ctx)
 		return;
 
 	for (VpssChn = 0; VpssChn < ctx->chnNum; ++VpssChn) {
-		if (!ctx->stChnCfgs[VpssChn].isEnabled || !ctx->stChnCfgs[VpssChn].stChnWorkStatus.u32SendOk)
+		if (!ctx->stChnCfgs[VpssChn].isEnabled || !ctx->stChnCfgs[VpssChn].stChnWorkStatus.u32SendOk
+					|| ctx->stChnCfgs[VpssChn].is_cfg_changed)
 			continue;
 		if (FRC_INVALID(ctx, VpssChn))
 			continue;
@@ -2630,7 +2631,7 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 		if (_vpss_check_gdc_job(chn, blk, vpss_ctx) != CVI_TRUE)
 			vb_done_handler(chn, CHN_TYPE_OUT, blk);
 
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
+		CVI_TRACE_VPSS(CVI_DBG_NOTICE, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
 		_update_vpss_chn_proc(workingGrp, VpssChn);
 	} while (++VpssChn < vpss_ctx->chnNum);
 	mutex_unlock(&vpssCtx[workingGrp]->lock);
@@ -2955,7 +2956,7 @@ static CVI_VOID vpss_handle_frame_done(struct vpss_handler_ctx *ctx)
 		if (_vpss_check_gdc_job(chn, blk, vpss_ctx) != CVI_TRUE)
 			vb_done_handler(chn, CHN_TYPE_OUT, blk);
 
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
+		CVI_TRACE_VPSS(CVI_DBG_NOTICE, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
 		_update_vpss_chn_proc(workingGrp, VpssChn);
 	} while (++VpssChn < vpss_ctx->chnNum);
 

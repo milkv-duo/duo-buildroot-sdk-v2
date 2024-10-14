@@ -7,9 +7,9 @@
 #include "vb.h"
 #include "queue.h"
 
-uint32_t vb_max_pools = 512;
+CVI_U32 vb_max_pools = 512;
 module_param(vb_max_pools, uint, 0644);
-uint32_t vb_pool_max_blk = 64;
+CVI_U32 vb_pool_max_blk = 64;
 module_param(vb_pool_max_blk, uint, 0644);
 
 static struct cvi_vb_cfg stVbConfig;
@@ -71,7 +71,7 @@ static inline bool isPoolInited(VB_POOL poolId)
 	return (vbPool[poolId].memBase == 0) ? CVI_FALSE : CVI_TRUE;
 }
 
-static bool _vb_hash_find(uint64_t u64PhyAddr, struct vb_s **vb, bool del)
+static bool _vb_hash_find(CVI_U64 u64PhyAddr, struct vb_s **vb, bool del)
 {
 	bool is_found = false;
 	struct vb_s *obj;
@@ -92,7 +92,7 @@ static bool _vb_hash_find(uint64_t u64PhyAddr, struct vb_s **vb, bool del)
 
 static bool _is_vb_all_released(void)
 {
-	uint32_t i;
+	CVI_U32 i;
 
 	for (i = 0; i < vb_max_pools; ++i) {
 		if (isPoolInited(i)) {
@@ -105,7 +105,7 @@ static bool _is_vb_all_released(void)
 	return true;
 }
 
-int32_t vb_print_pool(VB_POOL poolId)
+CVI_S32 vb_print_pool(VB_POOL poolId)
 {
 	struct vb_s *vb;
 	int bkt, i;
@@ -134,7 +134,7 @@ int32_t vb_print_pool(VB_POOL poolId)
 }
 EXPORT_SYMBOL_GPL(vb_print_pool);
 
-static int32_t _vb_set_config(struct cvi_vb_cfg *vb_cfg)
+static CVI_S32 _vb_set_config(struct cvi_vb_cfg *vb_cfg)
 {
 	int i;
 
@@ -203,13 +203,13 @@ static void _vb_cleanup(void)
 	mutex_destroy(&poolLock);
 }
 
-static int32_t _vb_create_pool(struct cvi_vb_pool_cfg *config, bool isComm)
+static CVI_S32 _vb_create_pool(struct cvi_vb_pool_cfg *config, bool isComm)
 {
-	uint32_t poolSize;
+	CVI_U32 poolSize;
 	struct vb_s *p;
 	bool isCache;
 	char ion_name[10];
-	int32_t ret, i;
+	CVI_S32 ret, i;
 	VB_POOL poolId = config->pool_id;
 	void *ion_v = NULL;
 
@@ -217,7 +217,7 @@ static int32_t _vb_create_pool(struct cvi_vb_pool_cfg *config, bool isComm)
 	isCache = (config->remap_mode == VB_REMAP_MODE_CACHED);
 
 	snprintf(ion_name, 10, "VbPool%d", poolId);
-	ret = sys_ion_alloc(&vbPool[poolId].memBase, &ion_v, (uint8_t *)ion_name, poolSize, isCache);
+	ret = sys_ion_alloc(&vbPool[poolId].memBase, &ion_v, (CVI_U8 *)ion_name, poolSize, isCache);
 	if (ret) {
 		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "sys_ion_alloc fail! ret(%d)\n", ret);
 		return ret;
@@ -263,10 +263,10 @@ static int32_t _vb_create_pool(struct cvi_vb_pool_cfg *config, bool isComm)
 	return 0;
 }
 
-static int32_t _vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
+static CVI_S32 _vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 {
 	struct vb_s *p;
-	int32_t i;
+	CVI_S32 i;
 	VB_POOL poolId = config->pool_id;
 
 	STAILQ_INIT(&vbPool[poolId].reqQ);
@@ -308,7 +308,7 @@ static int32_t _vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 	return 0;
 }
 
-static int32_t _vb_destroy_pool(VB_POOL poolId)
+static CVI_S32 _vb_destroy_pool(VB_POOL poolId)
 {
 	struct vb_pool *pstPool = &vbPool[poolId];
 	struct vb_s *vb, *tmp_vb;
@@ -349,10 +349,10 @@ static int32_t _vb_destroy_pool(VB_POOL poolId)
 	return 0;
 }
 
-static int32_t _vb_init(void)
+static CVI_S32 _vb_init(void)
 {
-	uint32_t i;
-	int32_t ret;
+	CVI_U32 i;
+	CVI_S32 ret;
 
 	mutex_lock(&g_lock);
 	if (atomic_read(&ref_count) == 0) {
@@ -393,7 +393,7 @@ VB_INIT_FAIL:
 	return ret;
 }
 
-static int32_t _vb_exit(void)
+static CVI_S32 _vb_exit(void)
 {
 	int i;
 
@@ -421,7 +421,7 @@ static int32_t _vb_exit(void)
 	return 0;
 }
 
-VB_POOL find_vb_pool(uint32_t u32BlkSize)
+VB_POOL find_vb_pool(CVI_U32 u32BlkSize)
 {
 	VB_POOL Pool = VB_INVALID_POOLID;
 	int i;
@@ -441,10 +441,10 @@ VB_POOL find_vb_pool(uint32_t u32BlkSize)
 }
 EXPORT_SYMBOL_GPL(find_vb_pool);
 
-static VB_BLK _vb_get_block_static(uint32_t u32BlkSize)
+static VB_BLK _vb_get_block_static(CVI_U32 u32BlkSize)
 {
-	int32_t ret = CVI_SUCCESS;
-	uint64_t phy_addr = 0;
+	CVI_S32 ret = CVI_SUCCESS;
+	CVI_U64 phy_addr = 0;
 	void *ion_v = NULL;
 
 	//allocate with ion
@@ -494,7 +494,7 @@ static VB_BLK _vb_get_block(struct vb_pool *pool, CVI_U32 u32BlkSize, MOD_ID_E m
 	return (VB_BLK)p;
 }
 
-static int32_t _vb_get_blk_info(struct cvi_vb_blk_info *blk_info)
+static CVI_S32 _vb_get_blk_info(struct cvi_vb_blk_info *blk_info)
 {
 	VB_BLK blk = (VB_BLK)blk_info->blk;
 	struct vb_s *vb;
@@ -509,7 +509,7 @@ static int32_t _vb_get_blk_info(struct cvi_vb_blk_info *blk_info)
 	return 0;
 }
 
-static int32_t _vb_get_pool_cfg(struct cvi_vb_pool_cfg *pool_cfg)
+static CVI_S32 _vb_get_pool_cfg(struct cvi_vb_pool_cfg *pool_cfg)
 {
 	VB_POOL poolId = pool_cfg->pool_id;
 
@@ -530,7 +530,7 @@ static int32_t _vb_get_pool_cfg(struct cvi_vb_pool_cfg *pool_cfg)
 /**************************************************************************
  *   global APIs.
  **************************************************************************/
-int32_t vb_get_pool_info(struct vb_pool **pool_info)
+CVI_S32 vb_get_pool_info(struct vb_pool **pool_info)
 {
 	CHECK_VB_HANDLE_NULL(pool_info);
 	CHECK_VB_HANDLE_NULL(vbPool);
@@ -553,7 +553,7 @@ void vb_cleanup(void)
 	CVI_TRACE_BASE(CVI_BASE_DBG_INFO, "done\n");
 }
 
-int32_t vb_get_config(struct cvi_vb_cfg *pstVbConfig)
+CVI_S32 vb_get_config(struct cvi_vb_cfg *pstVbConfig)
 {
 	if (!pstVbConfig) {
 		CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "vb_get_config NULL ptr!\n");
@@ -565,10 +565,10 @@ int32_t vb_get_config(struct cvi_vb_cfg *pstVbConfig)
 }
 EXPORT_SYMBOL_GPL(vb_get_config);
 
-int32_t vb_create_pool(struct cvi_vb_pool_cfg *config)
+CVI_S32 vb_create_pool(struct cvi_vb_pool_cfg *config)
 {
-	uint32_t i;
-	int32_t ret;
+	CVI_U32 i;
+	CVI_S32 ret;
 
 	config->pool_id = VB_INVALID_POOLID;
 	if ((config->blk_size == 0) || (config->blk_cnt == 0)
@@ -606,10 +606,10 @@ int32_t vb_create_pool(struct cvi_vb_pool_cfg *config)
 }
 EXPORT_SYMBOL_GPL(vb_create_pool);
 
-int32_t vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
+CVI_S32 vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 {
-	uint32_t i;
-	int32_t ret;
+	CVI_U32 i;
+	CVI_S32 ret;
 
 	config->pool_id = VB_INVALID_POOLID;
 	if ((config->blk_cnt == 0) || (config->blk_cnt > vb_pool_max_blk)) {
@@ -645,7 +645,7 @@ int32_t vb_create_ex_pool(struct cvi_vb_pool_ex_cfg *config)
 }
 EXPORT_SYMBOL_GPL(vb_create_ex_pool);
 
-int32_t vb_destroy_pool(VB_POOL poolId)
+CVI_S32 vb_destroy_pool(VB_POOL poolId)
 {
 	CHECK_VB_POOL_VALID_STRONG(poolId);
 
@@ -660,7 +660,7 @@ EXPORT_SYMBOL_GPL(vb_destroy_pool);
  * @param VbPool: the pool of the vb belonging.
  * @param isExternal: if the buffer is not allocated by mmf
  */
-VB_BLK vb_create_block(uint64_t phyAddr, void *virAddr, VB_POOL VbPool, bool isExternal)
+VB_BLK vb_create_block(CVI_U64 phyAddr, void *virAddr, VB_POOL VbPool, bool isExternal)
 {
 	struct vb_s *p = NULL;
 
@@ -682,7 +682,7 @@ VB_BLK vb_create_block(uint64_t phyAddr, void *virAddr, VB_POOL VbPool, bool isE
 }
 EXPORT_SYMBOL_GPL(vb_create_block);
 
-VB_BLK vb_get_block_with_id(VB_POOL poolId, uint32_t u32BlkSize, MOD_ID_E modId)
+VB_BLK vb_get_block_with_id(VB_POOL poolId, CVI_U32 u32BlkSize, MOD_ID_E modId)
 {
 	VB_BLK blk = VB_INVALID_HANDLE;
 
@@ -727,13 +727,13 @@ get_vb_done:
 }
 EXPORT_SYMBOL_GPL(vb_get_block_with_id);
 
-int32_t vb_release_block(VB_BLK blk)
+CVI_S32 vb_release_block(VB_BLK blk)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
 	struct vb_s *vb_tmp;
 	struct vb_pool *pool;
 	int cnt;
-	int32_t result;
+	CVI_S32 result;
 	bool bReq = false;
 	struct vb_req *req, *tmp;
 
@@ -760,7 +760,7 @@ int32_t vb_release_block(VB_BLK blk)
 
 		//free VB_STATIC_POOLID
 		if (vb->vb_pool == VB_STATIC_POOLID) {
-			int32_t ret = 0;
+			CVI_S32 ret = 0;
 
 			ret = sys_ion_free(vb->phy_addr);
 			_vb_hash_find(vb->phy_addr, &vb_tmp, true);
@@ -829,7 +829,7 @@ int32_t vb_release_block(VB_BLK blk)
 }
 EXPORT_SYMBOL_GPL(vb_release_block);
 
-VB_BLK vb_physAddr2Handle(uint64_t u64PhyAddr)
+VB_BLK vb_physAddr2Handle(CVI_U64 u64PhyAddr)
 {
 	struct vb_s *vb = NULL;
 
@@ -846,7 +846,7 @@ VB_BLK vb_physAddr2Handle(uint64_t u64PhyAddr)
 }
 EXPORT_SYMBOL_GPL(vb_physAddr2Handle);
 
-uint64_t vb_handle2PhysAddr(VB_BLK blk)
+CVI_U64 vb_handle2PhysAddr(VB_BLK blk)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
 
@@ -891,7 +891,7 @@ VB_POOL vb_handle2PoolId(VB_BLK blk)
 }
 EXPORT_SYMBOL_GPL(vb_handle2PoolId);
 
-int32_t vb_inquireUserCnt(VB_BLK blk, uint32_t *pCnt)
+CVI_S32 vb_inquireUserCnt(VB_BLK blk, CVI_U32 *pCnt)
 {
 	struct vb_s *vb = (struct vb_s *)blk;
 
@@ -910,7 +910,7 @@ EXPORT_SYMBOL_GPL(vb_inquireUserCnt);
  * @param chn: info of the module which needs this helper.
  */
 void vb_acquire_block(vb_acquire_fp fp, MMF_CHN_S chn,
-	uint32_t u32BlkSize, VB_POOL VbPool)
+	CVI_U32 u32BlkSize, VB_POOL VbPool)
 {
 	struct vb_req *req = NULL;
 
@@ -951,7 +951,7 @@ void vb_acquire_block(vb_acquire_fp fp, MMF_CHN_S chn,
 }
 EXPORT_SYMBOL_GPL(vb_acquire_block);
 
-void vb_cancel_block(MMF_CHN_S chn, uint32_t u32BlkSize, VB_POOL VbPool)
+void vb_cancel_block(MMF_CHN_S chn, CVI_U32 u32BlkSize, VB_POOL VbPool)
 {
 	struct vb_req *req, *tmp;
 
@@ -1090,7 +1090,7 @@ long vb_ctrl(struct vb_ext_control *p)
 		if (block == VB_INVALID_HANDLE)
 			ret = -ENOMEM;
 		else {
-			ctrl_cfg.vb_blk_cfg.blk = (uint64_t)block;
+			ctrl_cfg.vb_blk_cfg.blk = (CVI_U64)block;
 			if (copy_to_user(p->ptr, &ctrl_cfg.vb_blk_cfg, sizeof(struct cvi_vb_blk_cfg))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_GET_BLOCK copy_to_user failed.\n");
 				ret = -ENOMEM;
@@ -1120,7 +1120,7 @@ long vb_ctrl(struct vb_ext_control *p)
 		if (block == VB_INVALID_HANDLE)
 			ret = -EINVAL;
 		else {
-			ctrl_cfg.vb_blk_info.blk = (uint64_t)block;
+			ctrl_cfg.vb_blk_info.blk = (CVI_U64)block;
 			if (copy_to_user(p->ptr, &ctrl_cfg.vb_blk_info, sizeof(struct cvi_vb_blk_info))) {
 				CVI_TRACE_BASE(CVI_BASE_DBG_ERR, "VB_IOCTL_PHYS_TO_HANDLE copy_to_user failed.\n");
 				ret = -ENOMEM;
@@ -1168,7 +1168,7 @@ long vb_ctrl(struct vb_ext_control *p)
 	}
 
 	case VB_IOCTL_GET_POOL_MAX_CNT: {
-		p->value = (int32_t)vb_max_pools;
+		p->value = (CVI_S32)vb_max_pools;
 		break;
 	}
 

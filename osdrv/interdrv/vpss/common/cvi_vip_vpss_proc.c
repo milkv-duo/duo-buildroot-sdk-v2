@@ -363,6 +363,8 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 					strncpy(c, "180", sizeof(c));
 				else if (pVpssCtx[i]->stChnCfgs[j].enRotation == ROTATION_270)
 					strncpy(c, "270", sizeof(c));
+				else if (pVpssCtx[i]->stChnCfgs[j].enRotation == ROTATION_XY_FLIP)
+					strncpy(c, "xy_flip", sizeof(c));
 				else
 					strncpy(c, "Invalid", sizeof(c));
 

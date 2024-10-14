@@ -164,12 +164,14 @@ CVI_S32 vpss_set_rgn_mosaic_cfg(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, struct cvi_r
 	return CVI_SUCCESS;
 }
 
-CVI_S32 vpss_get_rgn_ow_addr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, CVI_U32 layer, RGN_HANDLE handle, CVI_U64 *addr)
+CVI_S32 vpss_get_rgn_ow_addr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, CVI_U32 layer,
+			     RGN_HANDLE handle, CVI_U64 *addr, CVI_BOOL *ip_idle)
 {
 	CVI_S32 ret, dev_idx, i;
 	CVI_U8 ow_inst;
 	MMF_CHN_S stChn;
 	struct cvi_vpss_ctx **pVpssCtx = vpss_get_shdw_ctx();
+	struct sclr_status status;
 
 	ret = MOD_CHECK_NULL_PTR(CVI_ID_VPSS, addr);
 	if (ret != CVI_SUCCESS)
@@ -196,6 +198,8 @@ CVI_S32 vpss_get_rgn_ow_addr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, CVI_U32 layer, 
 		return CVI_FAILURE;
 	}
 
+	status = sclr_get_status(dev_idx);
+	*ip_idle = (CVI_BOOL)status.gop_idle;
 	sclr_gop_ow_get_addr(dev_idx, layer, ow_inst, addr);
 	mutex_unlock(&pVpssCtx[VpssGrp]->lock);
 

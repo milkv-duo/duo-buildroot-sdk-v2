@@ -44,8 +44,8 @@ typedef double                  CVI_DOUBLE;
 typedef void                    CVI_VOID;
 typedef unsigned char           CVI_BOOL;
 
-typedef uint64_t                CVI_U64;
-typedef int64_t                 CVI_S64;
+typedef unsigned long long int  CVI_U64;
+typedef long long int           CVI_S64;
 
 typedef unsigned int            CVI_SIZE_T;
 

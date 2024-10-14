@@ -72,12 +72,12 @@ static int rgn_proc_show(struct seq_file *m, void *v)
 
 	// Region chn status of overlay
 	seq_puts(m, "\n------REGION CHN STATUS OF OVERLAY----------------------------------------\n");
-	seq_printf(m, "%10s%10s%10s%10s%10s%10s%10s%10s%10s\n",
-		"Hdl", "Type", "Mod", "Dev", "Chn", "bShow", "X", "Y", "Layer");
+	seq_printf(m, "%10s%10s%10s%10s%10s%10s%10s%10s\n",
+		"Hdl", "Type", "Mod", "Dev", "Chn", "bShow", "X", "Y");
 
 	for (i = 0; i < RGN_MAX_NUM; ++i) {
 		if (prgnCtx[i].stRegion.enType == OVERLAY_RGN && prgnCtx[i].bCreated && prgnCtx[i].bUsed) {
-			seq_printf(m, "%7s%3d%10d%10s%10d%10d%10s%10d%10d%10d\n",
+			seq_printf(m, "%7s%3d%10d%10s%10d%10d%10s%10d%10d\n",
 				"#",
 				prgnCtx[i].Handle,
 				prgnCtx[i].stRegion.enType,
@@ -86,8 +86,7 @@ static int rgn_proc_show(struct seq_file *m, void *v)
 				prgnCtx[i].stChn.s32ChnId,
 				(prgnCtx[i].stChnAttr.bShow) ? "Y" : "N",
 				prgnCtx[i].stChnAttr.unChnAttr.stOverlayChn.stPoint.s32X,
-				prgnCtx[i].stChnAttr.unChnAttr.stOverlayChn.stPoint.s32Y,
-				prgnCtx[i].stChnAttr.unChnAttr.stOverlayChn.u32Layer);
+				prgnCtx[i].stChnAttr.unChnAttr.stOverlayChn.stPoint.s32Y);
 		}
 	}
 
@@ -103,14 +102,14 @@ static int rgn_proc_show(struct seq_file *m, void *v)
 
 	// Region chn status of rect cover
 	seq_puts(m, "\n------REGION CHN STATUS OF RECT COVER-------------------------------------\n");
-	seq_printf(m, "%10s%10s%10s%10s%10s%10s\n%10s%10s%10s%10s%10s%10s%10s\n\n",
+	seq_printf(m, "%10s%10s%10s%10s%10s%10s\n%10s%10s%10s%10s%10s%10s\n\n",
 		"Hdl", "Type", "Mod", "Dev", "Chn", "bShow",
-		"X", "Y", "W", "H", "Color", "Layer", "CoorType");
+		"X", "Y", "W", "H", "Color", "CoorType");
 
 	for (i = 0; i < RGN_MAX_NUM; ++i) {
 		if (prgnCtx[i].stRegion.enType == COVER_RGN && prgnCtx[i].bCreated && prgnCtx[i].bUsed
 			&& prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.enCoverType == AREA_RECT) {
-			seq_printf(m, "%7s%3d%10d%10s%10d%10d%10s\n%10d%10d%10d%10d%10X%10d%10s\n",
+			seq_printf(m, "%7s%3d%10d%10s%10d%10d%10s\n%10d%10d%10d%10d%10X%10s\n",
 				"#",
 				prgnCtx[i].Handle,
 				prgnCtx[i].stRegion.enType,
@@ -123,7 +122,6 @@ static int rgn_proc_show(struct seq_file *m, void *v)
 				prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.stRect.u32Width,
 				prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.stRect.u32Height,
 				prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.u32Color,
-				prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.u32Layer,
 				(prgnCtx[i].stChnAttr.unChnAttr.stCoverChn.enCoordinate == RGN_ABS_COOR) ?
 					"ABS" : "RATIO");
 		}
@@ -209,6 +207,40 @@ static int rgn_proc_show(struct seq_file *m, void *v)
 				prgnCtx[i].stChnAttr.unChnAttr.stOverlayExChn.stPoint.s32X,
 				prgnCtx[i].stChnAttr.unChnAttr.stOverlayExChn.stPoint.s32Y,
 				prgnCtx[i].stChnAttr.unChnAttr.stOverlayExChn.u32Layer);
+		}
+	}
+
+	// Region status of mosaic
+	seq_puts(m, "\n------REGION STATUS OF MOSAIC--------------------------------------------\n");
+	seq_printf(m, "%10s%10s%10s\n", "Hdl", "Type", "Used");
+	for (i = 0; i < RGN_MAX_NUM; ++i) {
+		if (prgnCtx[i].stRegion.enType == MOSAIC_RGN && prgnCtx[i].bCreated) {
+			seq_printf(m, "%7s%3d%10d%10s\n", "#", prgnCtx[i].Handle, prgnCtx[i].stRegion.enType,
+				(prgnCtx[i].bUsed) ? "Y" : "N");
+		}
+	}
+
+	// Region chn status of mosaic
+	seq_puts(m, "\n------REGION CHN STATUS OF MOSAIC-----------------------------------\n");
+	seq_printf(m, "%10s%10s%10s%10s%10s%10s\n%10s%10s%10s%10s%10s\n\n",
+		"Hdl", "Type", "Mod", "Dev", "Chn", "bShow",
+		"X", "Y", "W", "H", "BlkSize");
+
+	for (i = 0; i < RGN_MAX_NUM; ++i) {
+		if (prgnCtx[i].stRegion.enType == MOSAIC_RGN && prgnCtx[i].bCreated && prgnCtx[i].bUsed) {
+			seq_printf(m, "%7s%3d%10d%10s%10d%10d%10s\n%10d%10d%10d%10d%10s\n",
+				"#",
+				prgnCtx[i].Handle,
+				prgnCtx[i].stRegion.enType,
+				MOD_STRING[prgnCtx[i].stChn.enModId],
+				prgnCtx[i].stChn.s32DevId,
+				prgnCtx[i].stChn.s32ChnId,
+				(prgnCtx[i].stChnAttr.bShow) ? "Y" : "N",
+				prgnCtx[i].stChnAttr.unChnAttr.stMosaicChn.stRect.s32X,
+				prgnCtx[i].stChnAttr.unChnAttr.stMosaicChn.stRect.s32Y,
+				prgnCtx[i].stChnAttr.unChnAttr.stMosaicChn.stRect.u32Width,
+				prgnCtx[i].stChnAttr.unChnAttr.stMosaicChn.stRect.u32Height,
+				(prgnCtx[i].stChnAttr.unChnAttr.stMosaicChn.enBlkSize) ? "16*16" : "8*8");
 		}
 	}
 

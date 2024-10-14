@@ -1,4 +1,5 @@
 #include "cvi_vb_proc.h"
+#include "sys.h"
 
 #define VB_PROC_NAME			"vb"
 #define VB_PROC_PERMS			(0644)
@@ -6,9 +7,9 @@
 /*************************************************************************
  *	VB proc functions
  *************************************************************************/
-static int32_t _get_vb_modIds(struct vb_pool *pool, uint32_t blk_idx, uint64_t *modIds)
+static CVI_S32 _get_vb_modIds(struct vb_pool *pool, CVI_U32 blk_idx, CVI_U64 *modIds)
 {
-	uint64_t phyAddr;
+	CVI_U64 phyAddr;
 	VB_BLK blk;
 
 	phyAddr = pool->memBase + (blk_idx * pool->blk_size);
@@ -22,11 +23,16 @@ static int32_t _get_vb_modIds(struct vb_pool *pool, uint32_t blk_idx, uint64_t *
 
 static void _show_vb_status(struct seq_file *m)
 {
-	uint32_t i, j, k;
-	uint32_t mod_sum[CVI_ID_BUTT];
-	int32_t ret;
-	uint64_t modIds;
+	CVI_U32 i, j, k, n;
+	CVI_U32 mod_sum[CVI_ID_BUTT];
+	CVI_S32 ret;
+	CVI_U64 modIds;
+	CVI_U32 show_cnt;
 	struct vb_pool *pstVbPool = NULL;
+	CVI_U32 show_mod_ids[] = {CVI_ID_VI, CVI_ID_VPSS, CVI_ID_VO, CVI_ID_RGN, CVI_ID_GDC,
+		CVI_ID_IVE, CVI_ID_VENC, CVI_ID_VDEC, CVI_ID_USER};
+
+	show_cnt = sizeof(show_mod_ids) / sizeof(show_mod_ids[0]);
 
 	seq_printf(m, "\nModule: [VB], Build Time[%s]\n", UTS_VERSION);
 	seq_puts(m, "-----VB PUB CONFIG-----------------------------------------------------------------------------------------------------------------\n");
@@ -62,36 +68,33 @@ static void _show_vb_status(struct seq_file *m)
 			seq_puts(m, "\n");
 
 			memset(mod_sum, 0, sizeof(mod_sum));
-			seq_puts(m, "BLK\tBASE\tVB\tSYS\tRGN\tCHNL\tVDEC\tVPSS\tVENC\tH264E\tJPEGE\tMPEG4E\tH265E\tJPEGD\tVO\tVI\tDIS\n");
-			seq_puts(m, "RC\tAIO\tAI\tAO\tAENC\tADEC\tAUD\tVPU\tISP\tIVE\tUSER\tPROC\tLOG\tH264D\tGDC\tPHOTO\tFB\n");
+			seq_puts(m, "BLK");
+			for (k = 0; k < show_cnt; k++)
+				seq_printf(m, "\t%s", sys_get_modname(show_mod_ids[k]));
+
 			for (j = 0; j < pstVbPool[i].blk_cnt; ++j) {
-				seq_printf(m, "%s%d\t", "#", j);
+				seq_printf(m, "\n%s%d", "#", j);
 				if (_get_vb_modIds(&pstVbPool[i], j, &modIds) != 0) {
-					for (k = 0; k < CVI_ID_BUTT; ++k) {
-						seq_puts(m, "e\t");
-						if (k == CVI_ID_DIS || k == CVI_ID_FB)
-							seq_puts(m, "\n");
+					for (k = 0; k < show_cnt; ++k) {
+						seq_puts(m, "\te");
 					}
 					continue;
 				}
 
-				for (k = 0; k < CVI_ID_BUTT; ++k) {
-					if (modIds & BIT(k)) {
-						seq_puts(m, "1\t");
-						mod_sum[k]++;
+				for (k = 0; k < show_cnt; ++k) {
+					n = show_mod_ids[k];
+					if (modIds & BIT(n)) {
+						seq_puts(m, "\t1");
+						mod_sum[n]++;
 					} else
-						seq_puts(m, "0\t");
-
-					if (k == CVI_ID_DIS || k == CVI_ID_FB)
-						seq_puts(m, "\n");
+						seq_puts(m, "\t0");
 				}
 			}
 
-			seq_puts(m, "Sum\t");
-			for (k = 0; k < CVI_ID_BUTT; ++k) {
-				seq_printf(m, "%d\t", mod_sum[k]);
-				if (k == CVI_ID_DIS || k == CVI_ID_FB)
-					seq_puts(m, "\n");
+			seq_puts(m, "\nSum");
+			for (k = 0; k < show_cnt; ++k) {
+				n = show_mod_ids[k];
+				seq_printf(m, "\t%d", mod_sum[n]);
 			}
 			mutex_unlock(&pstVbPool[i].lock);
 			seq_puts(m, "\n-----------------------------------------------------------------------------------------------------------------------------------\n");

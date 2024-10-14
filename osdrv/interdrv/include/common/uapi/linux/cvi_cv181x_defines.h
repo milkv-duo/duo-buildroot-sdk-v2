@@ -76,66 +76,59 @@ extern "C" {
 #define JPEGD_MAX_HEIGHT        1920         /* jpeg decode max height */
 
 /* For Region */
-#define RGN_MIN_WIDTH             2
-#define RGN_MIN_HEIGHT            2
+#define RGN_MIN_WIDTH             2         /* minimum width of region */
+#define RGN_MIN_HEIGHT            2         /* minimum height of region */
 
-#define RGN_COVER_MAX_WIDTH       2880
-#define RGN_COVER_MAX_HEIGHT      4096
-#define RGN_COVER_MIN_X           0
-#define RGN_COVER_MIN_Y           0
-#define RGN_COVER_MAX_X           (RGN_COVER_MAX_WIDTH - RGN_MIN_WIDTH)
-#define RGN_COVER_MAX_Y           (RGN_COVER_MAX_HEIGHT - RGN_MIN_HEIGHT)
+#define RGN_COVER_MAX_WIDTH       2880      /* maximum width of COVER region */
+#define RGN_COVER_MAX_HEIGHT      4096      /* maximum height of COVER region */
+#define RGN_COVER_MIN_X           0         /* minimum X coordinate of start position of COVER region */
+#define RGN_COVER_MIN_Y           0         /* minimum Y coordinate of start position of COVER region */
+#define RGN_COVER_MAX_X           (RGN_COVER_MAX_WIDTH - RGN_MIN_WIDTH)             /* maximum X coordinate of start position of COVER region */
+#define RGN_COVER_MAX_Y           (RGN_COVER_MAX_HEIGHT - RGN_MIN_HEIGHT)           /* maximum Y coordinate of start position of COVER region */
 
-#define RGN_COVEREX_MAX_NUM       4
-#define RGN_COVEREX_MAX_WIDTH     2880
-#define RGN_COVEREX_MAX_HEIGHT    4096
-#define RGN_COVEREX_MIN_X         0
-#define RGN_COVEREX_MIN_Y         0
-#define RGN_COVEREX_MAX_X         (RGN_COVEREX_MAX_WIDTH - RGN_MIN_WIDTH)
-#define RGN_COVEREX_MAX_Y         (RGN_COVEREX_MAX_HEIGHT - RGN_MIN_HEIGHT)
+#define RGN_COVEREX_MAX_NUM       4         /* maximum number of COVEREX region */
+#define RGN_COVEREX_MAX_WIDTH     2880      /* maximum width of COVEREX region */
+#define RGN_COVEREX_MAX_HEIGHT    4096      /* maximum height of COVEREX region */
+#define RGN_COVEREX_MIN_X         0         /* minimum X coordinate of start position of COVEREX region */
+#define RGN_COVEREX_MIN_Y         0         /* minimum Y coordinate of start position of COVEREX region */
+#define RGN_COVEREX_MAX_X         (RGN_COVEREX_MAX_WIDTH - RGN_MIN_WIDTH)           /* maximum X coordinate of start position of COVEREX region */
+#define RGN_COVEREX_MAX_Y         (RGN_COVEREX_MAX_HEIGHT - RGN_MIN_HEIGHT)         /* maximum Y coordinate of start position of COVEREX region */
 
-#define RGN_OVERLAY_MAX_WIDTH     2880
-#define RGN_OVERLAY_MAX_HEIGHT    4096
-#define RGN_OVERLAY_MIN_X         0
-#define RGN_OVERLAY_MIN_Y         0
-#define RGN_OVERLAY_MAX_X         (RGN_OVERLAY_MAX_WIDTH - RGN_MIN_WIDTH)
-#define RGN_OVERLAY_MAX_Y         (RGN_OVERLAY_MAX_HEIGHT - RGN_MIN_HEIGHT)
+#define RGN_OVERLAY_MAX_WIDTH     2880      /* maximum width of OVERLAY region */
+#define RGN_OVERLAY_MAX_HEIGHT    4096      /* maximum height of OVERLAY region */
+#define RGN_OVERLAY_MIN_X         0         /* minimum X coordinate of start position of OVERLAY region */
+#define RGN_OVERLAY_MIN_Y         0         /* minimum Y coordinate of start position of OVERLAY region */
+#define RGN_OVERLAY_MAX_X         (RGN_OVERLAY_MAX_WIDTH - RGN_MIN_WIDTH)           /* maximum X coordinate of start position of OVERLAY region */
+#define RGN_OVERLAY_MAX_Y         (RGN_OVERLAY_MAX_HEIGHT - RGN_MIN_HEIGHT)         /* maximum Y coordinate of start position of OVERLAY region */
 
-#define RGN_OVERLAYEX_MAX_WIDTH   2880
-#define RGN_OVERLAYEX_MAX_HEIGHT  4096
-#define RGN_OVERLAYEX_MIN_X       0
-#define RGN_OVERLAYEX_MIN_Y       0
-#define RGN_OVERLAYEX_MAX_X       (RGN_OVERLAYEX_MAX_WIDTH - RGN_MIN_WIDTH)
-#define RGN_OVERLAYEX_MAX_Y       (RGN_OVERLAYEX_MAX_HEIGHT - RGN_MIN_HEIGHT)
+#define RGN_MOSAIC_MAX_NUM        8         /* maximum number of MOSAIC region */
+#define RGN_MOSAIC_X_ALIGN        8         /* alignment X coordinate of MOSAIC region */
+#define RGN_MOSAIC_Y_ALIGN        8         /* alignment Y coordinate of MOSAIC region */
+#define RGN_MOSAIC_WIDTH_ALIGN    8         /* alignment width of MOSAIC region */
+#define RGN_MOSAIC_HEIGHT_ALIGN   8         /* alignment height of MOSAIC region */
 
-#define RGN_MOSAIC_MAX_NUM        8
-#define RGN_MOSAIC_X_ALIGN        4
-#define RGN_MOSAIC_Y_ALIGN        2
-#define RGN_MOSAIC_WIDTH_ALIGN    4
-#define RGN_MOSAIC_HEIGHT_ALIGN   4
-
-#define RGN_MOSAIC_MIN_WIDTH      8
-#define RGN_MOSAIC_MIN_HEIGHT     8
-#define RGN_MOSAIC_MAX_WIDTH      2880
-#define RGN_MOSAIC_MAX_HEIGHT     4096
-#define RGN_MOSAIC_MIN_X          0
-#define RGN_MOSAIC_MIN_Y          0
-#define RGN_MOSAIC_MAX_X          (RGN_MOSAIC_MAX_WIDTH - RGN_MOSAIC_MIN_WIDTH)
-#define RGN_MOSAIC_MAX_Y          (RGN_MOSAIC_MAX_HEIGHT - RGN_MOSAIC_MIN_HEIGHT)
+#define RGN_MOSAIC_MIN_WIDTH      8         /* minimum width of MOSAIC region */
+#define RGN_MOSAIC_MIN_HEIGHT     8         /* minimum height of MOSAIC region */
+#define RGN_MOSAIC_MAX_WIDTH      2880      /* maximum width of MOSAIC region */
+#define RGN_MOSAIC_MAX_HEIGHT     4096      /* maximum height of MOSAIC region */
+#define RGN_MOSAIC_MIN_X          0         /* minimum X coordinate of start position of MOSAIC region */
+#define RGN_MOSAIC_MIN_Y          0         /* minimum Y coordinate of start position of MOSAIC region */
+#define RGN_MOSAIC_MAX_X          (RGN_MOSAIC_MAX_WIDTH - RGN_MOSAIC_MIN_WIDTH)     /* maximum X coordinate of start position of MOSAIC region */
+#define RGN_MOSAIC_MAX_Y          (RGN_MOSAIC_MAX_HEIGHT - RGN_MOSAIC_MIN_HEIGHT)   /* maximum Y coordinate of start position of MOSAIC region */
 
 // vpss rgn define
-#define RGN_MAX_LAYER_VPSS        2
-#define RGN_ODEC_LAYER_VPSS       0
-#define RGN_NORMAL_LAYER_VPSS     1
-#define RGN_MAX_NUM_VPSS          8
-#define RGN_EX_MAX_NUM_VPSS       16
-#define RGN_EX_MAX_WIDTH          2880
+#define RGN_MAX_LAYER_VPSS        2         /* maximum number of region layer of VPSS */
+#define RGN_ODEC_LAYER_VPSS       0         /* ODEC region layer of VPSS */
+#define RGN_NORMAL_LAYER_VPSS     1         /* NORMAL region layer of VPSS */
+#define RGN_MAX_NUM_VPSS          8         /* maximum number of region of VPSS */
+#define RGN_EX_MAX_NUM_VPSS       16        /* maximum number of extended region of VPSS */
+#define RGN_EX_MAX_WIDTH          2880      /* maximum width of extended region */
 
 // vo rgn define
-#define RGN_MAX_NUM_VO            8
+#define RGN_MAX_NUM_VO            8         /* maximum number of region of VO */
 
-#define RGN_MAX_BUF_NUM           2
-#define RGN_MAX_NUM               108
+#define RGN_MAX_BUF_NUM           2         /* maximum number of buffer of region */
+#define RGN_MAX_NUM               108       /* maximum number of region */
 
 /*************************************/
 #define VENC_MAX_SSE_NUM            8
@@ -190,6 +183,16 @@ extern "C" {
 #define AO_SYSCHN_CHNID         (AO_MAX_CHN_NUM - 1) /* system channel id */
                                         /* max channel num of input/output device */
 #define AIO_MAX_CHN_NUM         ((AO_MAX_CHN_NUM > AI_MAX_CHN_NUM) ? AO_MAX_CHN_NUM:AI_MAX_CHN_NUM)
+
+#define CVI_MAX_AUDIO_FRAME_NUM    300       /* max count of audio frame in Buffer */
+#define CVI_AUD_MAX_VOICE_POINT_NUM    1280      /* max sample per frame for voice encode */
+#define CVI_AUD_MAX_AUDIO_POINT_NUM    2048     /* max sample per frame for all encoder */
+#define CVI_AUD_MAX_CHANNEL_NUM      3         /* Maximum number of audio channels supported */
+#define CVI_MAX_AUDIO_STREAM_LEN   (4 * 4096)  /* Maximum length of an audio stream in bytes */
+
+#define MAX_AUDIO_FILE_PATH_LEN	256           /* Maximum length of the file path for an audio file */
+#define MAX_AUDIO_FILE_NAME_LEN	256           /* Maximum length of the file name for an audio file */
+#define MAX_AUDIO_VQE_CUSTOMIZE_NAME	64      /* Maximum length of the name for a custom VQE setting */
 
 /* For VPSS */
 #define VPSS_IP_NUM              2   /* VPSS IP num */

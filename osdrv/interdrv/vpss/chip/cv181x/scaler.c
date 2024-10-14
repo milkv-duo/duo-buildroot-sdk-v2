@@ -5749,6 +5749,7 @@ bool sclr_left_tile(u8 inst, u16 src_l_w)
 	pr_debug("gop_cfg of layer %d:%#x\n", layer, gop_cfg.gop_ctrl.raw);
 	sclr_gop_set_cfg(inst, layer, &gop_cfg, false);
 
+#ifdef __CV181X__
 	//layer 1 cfg by gop1_cfg
 	layer = 1;
 	gop_cfg = *sclr_gop_get_cfg(inst, layer);
@@ -5775,6 +5776,7 @@ bool sclr_left_tile(u8 inst, u16 src_l_w)
 		}
 	pr_debug("gop_cfg of layer %d:%#x\n", layer, gop_cfg.gop_ctrl.raw);
 	sclr_gop_set_cfg(inst, layer, &gop_cfg, false);
+#endif
 
 	sclr_reg_force_up(inst);
 	return true;
@@ -5879,6 +5881,7 @@ bool sclr_right_tile(u8 inst, u16 src_offset)
 	pr_debug("gop_cfg of layer %d:%#x\n", layer, gop_cfg.gop_ctrl.raw);
 	sclr_gop_set_cfg(inst, layer, &gop_cfg, false);
 
+#ifdef __CV181X__
 	//check gop1 - layer 1 of gop
 	layer = 1;
 	gop_cfg = *sclr_gop_get_cfg(inst, layer);
@@ -5908,6 +5911,7 @@ bool sclr_right_tile(u8 inst, u16 src_offset)
 	pr_debug("gop_cfg of layer %d:%#x\n", layer, gop_cfg.gop_ctrl.raw);
 	sclr_gop_set_cfg(inst, layer, &gop_cfg, false);
 	sclr_reg_force_up(inst);
+#endif
 
 	sc->tile_enable = false;
 	return true;
