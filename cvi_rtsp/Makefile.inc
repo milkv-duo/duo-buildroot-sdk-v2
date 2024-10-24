@@ -47,7 +47,7 @@ ifeq ($(MW_VER), v2)
     PKG_CONFIG_PATH = $(MW_DIR)/pkgconfig
     MW_INC ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --cflags --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample) -I$(KERNEL_INC)
     MW_LIB ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample)
-    # for cviai
+    # for tdl_sdk
     CFLAGS += -D_MIDDLEWARE_V2_=1
 
     MW_INC += -I$(MW_DIR)/include/isp/$(CHIP_ARCH_LOWERCASE)
@@ -77,7 +77,7 @@ endif
 
 MW_AUDIO_LIB ?= -L$(MW_DIR)/lib -ldl -lcvi_audio -lcvi_vqe -lae -lcvi_VoiceEngine -lcvi_RES1 -L/$(MW_DIR)/lib/3rd -ltinyalsa
 
-AISDK_DIR ?= $(PWD)/../cviai
+AISDK_DIR ?= $(PWD)/../tdl_sdk
 AISDK_INC ?= -I$(AISDK_DIR)/include
 
 TPU_SDK_DIR ?= $(PWD)/../libsophon
