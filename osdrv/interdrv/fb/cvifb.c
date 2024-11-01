@@ -727,7 +727,7 @@ int cvifb_probe(struct platform_device *pdev)
 	len = pitch * info->var.yres * (1 + double_buffer);
 
 	// clear the framebuffer.
-	memset_io(info->screen_base, 0x00, info->screen_size);
+	//memset_io(info->screen_base, 0x00, info->screen_size);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) && defined(__riscv)
 	arch_sync_dma_for_device(info->fix.smem_start, info->fix.smem_len, DMA_TO_DEVICE);
 #else
