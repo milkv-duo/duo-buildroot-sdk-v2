@@ -47,6 +47,7 @@ static int scale;
 static bool fb_on_sc;
 static int rdma_window;
 static int option;
+static int vbpp = 32;
 
 static const struct fb_fix_screeninfo cvifb_fix = {
 	.id =		"cvifb",
@@ -687,7 +688,7 @@ int cvifb_probe(struct platform_device *pdev)
 		sclr_disp_get_hw_timing(&timing);
 		info->var.xres = timing.hfde_end - timing.hfde_start + 1;
 		info->var.yres = timing.vfde_end - timing.vfde_start + 1;
-		info->var.bits_per_pixel = 16;
+		info->var.bits_per_pixel = vbpp;
 		info->var.xres_virtual = VXRES_SIZE(info->var.xres, info->var.bits_per_pixel);
 		info->var.yres_virtual =
 			double_buffer ? (info->var.yres * 2) : info->var.yres;
@@ -817,6 +818,9 @@ module_param(rdma_window, int, 0444);
 module_param(option, int, 0444);
 MODULE_PARM_DESC(mode_option, "Default video mode (320x240-32@60', etc)");
 MODULE_PARM_DESC(scale, "scale up of the fb canvas");
+
+module_param(vbpp, int, 0444);
+MODULE_PARM_DESC(vbpp, "bits per pixel");
 
 module_platform_driver(cvifb_driver);
 
