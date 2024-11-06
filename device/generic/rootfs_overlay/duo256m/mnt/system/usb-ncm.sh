@@ -2,7 +2,7 @@
 
 /etc/uhubon.sh device >> /tmp/ncm.log 2>&1
 /etc/run_usb.sh probe ncm >> /tmp/ncm.log 2>&1
-if test -e /usr/bin/burnd; then
+if test -e /mnt/system/burnd; then
   /etc/run_usb.sh probe acm >> /tmp/ncm.log 2>&1
 fi
 /etc/run_usb.sh start ncm >> /tmp/ncm.log 2>&1
@@ -18,7 +18,7 @@ fi
 
 sleep 2
 mkdir -p /lib/firmware
-if test -e /usr/bin/burnd; then
+if test -e /mnt/system/burnd; then
   burnd &
   if test -e /lib/firmware/arduino.elf; then
     sleep 2
