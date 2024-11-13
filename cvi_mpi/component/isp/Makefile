@@ -1,7 +1,9 @@
 SHELL = /bin/bash
+#
+ifneq ($(BUILD_PATH),)
 include $(BUILD_PATH)/.config
-include sensor.mk
-
+endif
+#
 chip_arch = $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 
 all:
@@ -11,7 +13,7 @@ all:
 	popd;
 
 clean:
-	@cd common; $(MAKE) clean; cd ../;
+	@cd common; $(MAKE) clean || exit 1; cd ../;
 	pushd sensor/$(chip_arch) && \
 	$(MAKE) clean && \
 	popd;

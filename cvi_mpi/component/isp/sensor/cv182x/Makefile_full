@@ -1,14 +1,17 @@
 SHELL = /bin/bash
-
+#
 ifeq ($(PARAM_FILE), )
-PARAM_FILE=../../../../Makefile.param
+PARAM_FILE=../../../../mpi_param.mk
 include $(PARAM_FILE)
 endif
+#
+ifneq ($(BUILD_PATH), )
 include ../../sensor.mk
-
+endif
+#
 SRCS = $(shell find $(sensor-y) -name '*.c')
 OBJS = $(SRCS:.c=.o) $(SENSOR_LIST_INC)/sensor_list.o
-
+#
 TARGET_A = $(MW_LIB)/libsns_full.a
 TARGET_SO = $(MW_LIB)/libsns_full.so
 

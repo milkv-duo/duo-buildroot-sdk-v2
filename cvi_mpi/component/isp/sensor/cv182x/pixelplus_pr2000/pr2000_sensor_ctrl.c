@@ -12,12 +12,8 @@
 #include <pthread.h>
 #include <signal.h>
 
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
+
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "cvi_vi.h"
 #include "pr2000_cmos_ex.h"

@@ -7,12 +7,7 @@
 #include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "gc02m1_cmos_ex.h"
 #define GC02M1_CHIP_ID_ADDR_H	0xf0
@@ -154,11 +149,6 @@ int gc02m1_write_register(VI_PIPE ViPipe, int addr, int data)
 	ret = read(g_fd[ViPipe], buf, gc02m1_addr_byte + gc02m1_data_byte);
 	syslog(LOG_INFO, "i2c w 0x%x 0x%x\n", addr, data);
 	return CVI_SUCCESS;
-}
-
-static void delay_ms(int ms)
-{
-	usleep(ms * 1000);
 }
 
 void gc02m1_standby(VI_PIPE ViPipe)

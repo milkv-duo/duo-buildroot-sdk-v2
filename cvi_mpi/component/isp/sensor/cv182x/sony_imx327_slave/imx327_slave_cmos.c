@@ -5,14 +5,9 @@
 #include <syslog.h>
 #include <errno.h>
 #include <unistd.h>
-#ifdef ARCH_CV182X
-#include "cvi_type.h"
-#include "cvi_comm_video.h"
-#include <linux/cvi_vip_snsr.h>
-#else
+
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
 #include "cvi_sns_ctrl.h"
@@ -645,8 +640,10 @@ static CVI_S32 cmos_get_isp_default(VI_PIPE ViPipe, ISP_CMOS_DEFAULT_S *pstDef)
 
 	memset(pstDef, 0, sizeof(ISP_CMOS_DEFAULT_S));
 
+#if defined(F18) || defined(F10)
 	memcpy(pstDef->stNoiseCalibration.CalibrationCoef,
 		&g_stIspNoiseCalibratio, sizeof(ISP_CMOS_NOISE_CALIBRATION_S));
+#endif
 
 	return CVI_SUCCESS;
 }

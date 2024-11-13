@@ -4,14 +4,8 @@
 #include <assert.h>
 #include <syslog.h>
 #include <errno.h>
-#ifdef ARCH_CV182X
-#include "cvi_type.h"
-#include "cvi_comm_video.h"
-#include <linux/cvi_vip_snsr.h>
-#else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
 #include "cvi_sns_ctrl.h"
@@ -82,7 +76,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define GC1084_SLAVE2_DGAIN_L_ADDR				0x00b2
 
 #define GC1084_SLAVE2_VTS_H_ADDR				0x0d41
-#define GC1084_SLAVE2_VTS_L_ADDR				0x0042
+#define GC1084_SLAVE2_VTS_L_ADDR				0x0d42
 #define GC1084_SLAVE2_VB_H_ADDR				0x0d79
 #define GC1084_SLAVE2_VB_L_ADDR				0x0d7a
 
@@ -193,7 +187,6 @@ static CVI_S32 cmos_fps_set(VI_PIPE ViPipe, CVI_FLOAT f32Fps, AE_SENSOR_DEFAULT_
 
 	if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
 		if ((f32Fps <= f32MaxFps) && (f32Fps >= f32MinFps)) {
-			f32Fps = 15;
 			u32VMAX = u32Vts * f32MaxFps / DIV_0_TO_1_FLOAT(f32Fps);
 		} else {
 			CVI_TRACE_SNS(CVI_DBG_ERR, "Unsupport Fps: %f\n", f32Fps);

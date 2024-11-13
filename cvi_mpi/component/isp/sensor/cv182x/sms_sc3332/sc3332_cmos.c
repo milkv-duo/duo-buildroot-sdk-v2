@@ -4,14 +4,8 @@
 #include <assert.h>
 #include <syslog.h>
 #include <errno.h>
-#ifdef ARCH_CV182X
-#include "cvi_type.h"
-#include "cvi_comm_video.h"
-#include <linux/cvi_vip_snsr.h>
-#else
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
 #include "cvi_sns_ctrl.h"
@@ -563,7 +557,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 	pstI2c_data = pstCfg0->snsCfg.astI2cData;
 
 	if ((pstSnsState->bSyncInit == CVI_FALSE) || (pstSnsRegsInfo->bConfig == CVI_FALSE)) {
-		pstCfg0->snsCfg.enSnsType = ISP_SNS_I2C_TYPE;
+		pstCfg0->snsCfg.enSnsType = SNS_I2C_TYPE;
 		pstCfg0->snsCfg.unComBus.s8I2cDev = g_aunSC3332_BusInfo[ViPipe].s8I2cDev;
 		pstCfg0->snsCfg.u8Cfg2ValidDelayMax = 0;
 		pstCfg0->snsCfg.use_snsr_sram = CVI_TRUE;
