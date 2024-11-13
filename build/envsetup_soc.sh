@@ -248,6 +248,13 @@ function clean_middleware()
   popd
 }
 
+function clean_middleware_all()
+{
+  pushd "$MW_PATH"
+  make clean_all
+  popd
+}
+
 function _build_tpu_sdk_env()
 {
   export SYSTEM_OUT_DIR OSS_TARBALL_PATH OSS_PATH
