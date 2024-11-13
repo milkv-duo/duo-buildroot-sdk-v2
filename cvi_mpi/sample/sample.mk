@@ -4,7 +4,8 @@ SENSOR1_TYPE ?= SONY_IMX327_MIPI_2M_30FPS_12BIT
 
 SNS_LIB = -lsns_full
 
-COMMON_DIR := $(PWD)/../common
+COMMON_DIR := $(CURDIR)/../common
+PANEL_DIR := $(CURDIR)/../../component/panel/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 
 CFLAGS += -DSENSOR0_TYPE=$(SENSOR0_TYPE)
 CFLAGS += -DSENSOR1_TYPE=$(SENSOR1_TYPE)
@@ -22,3 +23,4 @@ COMM_SRC := $(wildcard $(COMMON_DIR)/*.c)
 COMM_OBJ := $(COMM_SRC:%.c=%.o)
 COMM_INC := $(COMMON_DIR)
 COMM_DEPS = $(COMM_SRC:.c=.d)
+PANEL_INC := $(PANEL_DIR)

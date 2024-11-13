@@ -1,5 +1,5 @@
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../../Makefile.param
+	PARAM_FILE:=../../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
@@ -16,7 +16,6 @@ file += $(MW_LIB)/libae.so
 file += $(MW_LIB)/libaf.so
 file += $(MW_LIB)/libisp.so
 file += $(MW_LIB)/libisp_algo.so
-file += $(MW_LIB)/libsample.so
 file += $(MW_LIB)/libcvi_bin.so
 file += $(MW_LIB)/libcvi_bin_isp.so
 file += $(MW_LIB)/libsns_full.so

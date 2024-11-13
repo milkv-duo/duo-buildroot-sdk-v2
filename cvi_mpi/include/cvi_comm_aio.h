@@ -10,7 +10,7 @@
 
 #include <linux/cvi_common.h>
 #include <linux/cvi_errno.h>
-
+#include <linux/cvi_type.h>
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -381,30 +381,30 @@ typedef struct _CVI_HPF_CONFIG_S {
 
 typedef struct _CVI_EQ_CONFIG_S {
     int bandIdx;      /* Index of the EQ band */
-    uint32_t freq;    /* Frequency in Hz */
+    CVI_U32 freq;    /* Frequency in Hz */
     float QValue;     /* Quality factor of the EQ band */
     float gainDb;     /* Gain in decibels for the EQ band */
 } CVI_EQ_CONFIG_S;
 
 typedef struct _CVI_DRC_COMPRESSOR_PARAM {
-    uint32_t attackTimeMs; /* Attack time in milliseconds */
-    uint32_t releaseTimeMs; /* Release time in milliseconds */
-    uint16_t ratio; /* Compression ratio */
+    CVI_U32 attackTimeMs; /* Attack time in milliseconds */
+    CVI_U32 releaseTimeMs; /* Release time in milliseconds */
+    CVI_U16 ratio; /* Compression ratio */
     float thresholdDb; /* Threshold level in decibels */
 } CVI_DRC_COMPRESSOR_PARAM;
 
 typedef struct _CVI_DRC_LIMITER_PARAM {
-    uint32_t attackTimeMs;    /* Attack time in milliseconds */
-    uint32_t releaseTimeMs;   /* Release time in milliseconds */
+    CVI_U32 attackTimeMs;    /* Attack time in milliseconds */
+    CVI_U32 releaseTimeMs;   /* Release time in milliseconds */
     float thresholdDb;        /* Threshold in decibels */
     float postGain;           /* Post-gain in decibels */
 } CVI_DRC_LIMITER_PARAM;
 
 typedef struct _CVI_DRC_EXPANDER_PARAM {
-    uint32_t attackTimeMs; /* Attack time in milliseconds */
-    uint32_t releaseTimeMs; /* Release time in milliseconds */
-    uint32_t holdTimeMs; /* Hold time in milliseconds */
-    uint16_t ratio; /* Expansion ratio */
+    CVI_U32 attackTimeMs; /* Attack time in milliseconds */
+    CVI_U32 releaseTimeMs; /* Release time in milliseconds */
+    CVI_U32 holdTimeMs; /* Hold time in milliseconds */
+    CVI_U16 ratio; /* Expansion ratio */
     float thresholdDb; /* Threshold level in decibels */
     float minDb; /* Minimum level in decibels */
 } CVI_DRC_EXPANDER_PARAM;

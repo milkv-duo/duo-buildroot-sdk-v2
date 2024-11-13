@@ -1,10 +1,10 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../Makefile.param
+	PARAM_FILE:=../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -I../../common -I$(SENSOR_LIST_INC)
 OBJS = $(SRCS:.c=.o)

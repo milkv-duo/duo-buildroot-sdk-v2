@@ -1,13 +1,19 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c)
-INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I$(SENSOR_LIST_INC)
+SRCS += $(COMMON_DIR)/sample_common_sensor.c
+SRCS += $(COMMON_DIR)/sample_common_vi.c 
+SRCS += $(COMMON_DIR)/sample_common_isp.c 
+SRCS += $(COMMON_DIR)/sample_common_sys.c 
+SRCS += $(COMMON_DIR)/sample_common_platform.c 
+SRCS += $(COMMON_DIR)/sample_common_bin.c
+INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I$(SENSOR_LIST_INC) -I$(PANEL_INC) -I$(MW_PATH)/3rdparty/inih
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 
@@ -18,7 +24,6 @@ endif
 
 PKG_CONFIG_PATH = $(MW_PATH)/pkgconfig
 REQUIRES = cvi_common cvi_sample
-
 MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
 
 LIBS = $(MW_LIBS)
@@ -29,6 +34,8 @@ endif
 
 EXTRA_CFLAGS = $(INCS) $(DEFS)
 EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini
+EXTRA_LDFLAGS += $(MW_LIB)/libvi.a $(MW_LIB)/libvpss.a \
+				 $(MW_LIB)/libvo.a $(MW_LIB)/librgn.a $(MW_LIB)/libgdc.a
 
 # IVE_SUPPORT = 1
 ifeq ($(IVE_SUPPORT), 1)

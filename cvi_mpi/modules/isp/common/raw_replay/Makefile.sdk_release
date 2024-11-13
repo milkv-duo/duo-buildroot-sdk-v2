@@ -1,10 +1,10 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
-RELEASE_FOLDER = $(PWD)/bin
+RELEASE_FOLDER = $(CURDIR)/bin
 
 TARGET_A = $(MW_LIB)/libraw_replay.a
 TARGET_SO = $(MW_LIB)/libraw_replay.so

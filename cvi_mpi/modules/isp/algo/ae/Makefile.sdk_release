@@ -1,0 +1,20 @@
+SHELL = /bin/bash
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../mpi_param.mk
+	include $(PARAM_FILE)
+endif
+
+RELEASE_FOLDER = $(CURDIR)/bin
+
+TARGET_A = $(MW_LIB)/libae.a
+TARGET_SO = $(MW_LIB)/libae.so
+
+.PHONY: all clean
+.SILENT: all clean
+
+all:
+	@cp -f libae.a $(MW_LIB)
+	@cp -f libae.so $(MW_LIB)
+
+clean:
+	@rm -f $(TARGET_A) $(TARGET_SO)

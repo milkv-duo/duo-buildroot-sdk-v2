@@ -1906,7 +1906,7 @@ int main(int argc, char **argv)
 		}
 
 		fseek(pfd_in, 0, SEEK_END);
-		uint64_t fsize = ftell(pfd_in);
+		CVI_U64 fsize = ftell(pfd_in);
 
 		fseek(pfd_in, 0, SEEK_SET);
 		s32totalFrameSize = fsize/2;

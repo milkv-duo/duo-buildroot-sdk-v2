@@ -1,63 +1,65 @@
 SHELL = /bin/bash
+#
 ifeq ($(PARAM_FILE), )
-     PARAM_FILE:=../../Makefile.param
+     PARAM_FILE:=../../mpi_param.mk
      include $(PARAM_FILE)
 endif
-
-SDIR = $(PWD)/src
-SRCS := $(wildcard $(SDIR)/*.c)
-ifneq ($(MULTI_PROCESS_SUPPORT), 1)
-SRCS := $(filter-out $(SDIR)/cvi_rpc.c, $(SRCS))
-endif
-OBJS = $(SRCS:.c=.o)
-DEPS = $(SRCS:.c=.d)
-
-ifeq ($(SDK_VER), 32bit)
-SRCS_ASM = $(wildcard $(SDIR)/*.S)
-else ifeq ($(SDK_VER), 64bit)
-SRCS_ASM = $(wildcard $(SDIR)/*.S)
-else
-SRCS_ASM =
-endif
-
-OBJS_ASM = $(SRCS_ASM:.S=.o)
-DEPS_ASM = $(SRCS_ASM:.S=.d)
-
+#
+SDIR := $(CURDIR)/src
+SRCS_C += $(SDIR)/cvi_sys.c
+SRCS_C += $(SDIR)/cvi_thermal.c
+SRCS_C += $(SDIR)/cvi_tracer.c
+SRCS_C += $(SDIR)/cvi_vb.c
+SRCS_C += $(SDIR)/devmem.c
+SRCS_C += $(SDIR)/hashmap.c
+SRCS_C += $(SDIR)/peri.c
+SRCS_C += $(SDIR)/cvi_base.c
+SRCS_C += $(SDIR)/sys_ioctl.c
+SRCS_C += $(SDIR)/vb_ioctl.c
+SRCS_C += $(SDIR)/gdc_mesh.c
+SRCS_C += $(SDIR)/grid_info.c
+#
+ODIR    := $(CURDIR)/obj
+OBJS    := $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)
+DEPS	:= $(SRCS_C:.c=.d)
+#
 TARGET_A = $(MW_LIB)/libsys.a
 TARGET_SO = $(MW_LIB)/libsys.so
-
-INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(VI_INC) -I$(VPSS_INC)
+#
+INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(SYS_INC)
 
 EXTRA_CFLAGS = $(INCS) -fpack-struct=8
 EXTRA_CFLAGS += -DMMF_VERSION=\"$(shell git describe --always)\"
-EXTRA_CFLAGS += -DSDK_VER=\"$(SDK_VER)\"
-ifeq ($(SDK_VER), 32bit)
+ifeq ($(TARGET_MACHINE), arm-linux-gnueabihf)
 EXTRA_CFLAGS += -D_FILE_OFFSET_BITS=64
 endif
 
-LDFLAGS  = -shared -fPIC -Wl,--gc-sections -export-dynamic -L$(MW_LIB) -L$(MW_3RD_LIB) --sysroot $(SYSROOT) $(CVI_TARGET_PACKAGES_LIBDIR)
+LDFLAGS = -shared -fPIC -Wl,--gc-sections -export-dynamic -L$(MW_LIB) -L$(MW_3RD_LIB)
 
 .PHONY : clean all
 all : $(TARGET_A) $(TARGET_SO)
 
-$(SDIR)/%.o: $(SDIR)/%.c
-	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
+$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o : $(SDIR)/%.c
+	@mkdir -p $(dir $@)
+	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -O3 -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 
-$(SDIR)/%.o: $(SDIR)/%.S
-	$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
-	@echo [$(notdir $(CC))] $(notdir $@)
-
-$(TARGET_A): $(OBJS) $(OBJS_ASM)
-	@$(AR) $(ARFLAGS) $(TARGET_A) $(OBJS) $(OBJS_ASM)
+$(TARGET_A): $(OBJS)
+	@$(AR) $(ARFLAGS) $(TARGET_A) $(OBJS)
 	@echo -e $(YELLOW)[LINK]$(END)[$(notdir $(AR))] $(notdir $(TARGET_A))
 	@echo "$$AR_MRI" | $(AR) -M
 
-$(TARGET_SO): $(OBJS) $(OBJS_ASM)
-	@$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $(TARGET_SO) -Wl,--start-group $(OBJS) $(OBJS_ASM) $(LIBS) -Wl,--end-group
+$(TARGET_SO): $(OBJS)
+	@$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $(TARGET_SO) -Wl,--start-group $(OBJS) $(LIBS) -Wl,--end-group
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $(TARGET_SO))
 
 clean:
-	@rm -f $(OBJS) $(OBJS_ASM) $(DEPS) $(DEPS_ASM) $(TARGET_A) $(TARGET_SO)
+	@rm -f $(TARGET_A) $(TARGET_SO)
+
+clean_all: clean
+	@if [ -d "$(SDIR)" ]; then \
+		echo "rm -rf $(ODIR)"; \
+		rm -rf $(ODIR); \
+	fi
 
 -include $(DEPS)

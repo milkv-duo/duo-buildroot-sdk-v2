@@ -639,18 +639,6 @@ typedef struct _SAMPLE_INI_CFG_S {
 	CVI_U8			u8SwitchPol[VI_MAX_DEV_NUM];
 } SAMPLE_INI_CFG_S;
 
-typedef struct _AudioUnitTestCfg {
-	CVI_S32 channels;
-	CVI_S32 Time_in_second;
-	CVI_S32 sample_rate;
-	CVI_CHAR  format[64]; //pcm/ g711//g726...
-	CVI_S32 period_size;
-	CVI_S32 bitdepth;
-	CVI_S32 unit_test;
-	CVI_S32 s32TestMode;
-	CVI_CHAR filename[256];
-	CVI_BOOL bOptCfg;
-} ST_AudioUnitTestCfg;
 
 extern RGN_RGBQUARD_S overlay_palette[256];
 
@@ -725,7 +713,6 @@ CVI_S32 SAMPLE_COMM_ISP_PatchSnsObj(CVI_U32 u32SnsId, SAMPLE_SENSOR_INFO_S *pstS
 CVI_VOID *SAMPLE_COMM_ISP_GetSnsObj(CVI_U32 u32SnsId);
 
 CVI_S32 SAMPLE_AUDIO_DEBUG(void);
-CVI_S32 SAMPLE_AUDIO_DEBUG_LEVEL(ST_AudioUnitTestCfg *testCfg);
 
 CVI_S32 SAMPLE_COMM_VI_GetDevAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, VI_DEV_ATTR_S *pstViDevAttr);
 void SAMPLE_COMM_VI_GetSensorInfo(SAMPLE_VI_CONFIG_S *pstViConfig);

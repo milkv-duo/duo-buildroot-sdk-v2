@@ -1,12 +1,13 @@
 SHELL = /bin/bash
+#
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
-
-PANEL_INC =../../component/panel/$(shell echo $(CVIARCH) | tr A-Z a-z)
-SDIR = $(PWD)
+#
+PANEL_INC =../../component/panel/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(PANEL_INC) -I$(SENSOR_LIST_INC) -Iinclude -I$(MW_PATH)/3rdparty/inih
 OBJS = $(patsubst %.c, %.o, $(SRCS))
@@ -21,7 +22,9 @@ ifeq ($(DEBUG), 1)
 endif
 
 # add sensor -D definition
+ifneq ($(BUILD_PATH),)
 include $(BUILD_PATH)/.config
+endif
 include $(SENSOR_LIST_INC)/Kbuild
 EXTRA_CFLAGS += $(KBUILD_DEFINES)
 
@@ -42,4 +45,3 @@ $(TARGET_SO): $(OBJS)
 
 clean:
 	@rm -f $(OBJS) $(TARGET_A) $(TARGET_SO)
-

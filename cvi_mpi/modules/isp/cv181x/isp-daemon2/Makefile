@@ -1,19 +1,19 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
-BASE_DIR = $(PWD)
+BASE_DIR = $(CURDIR)
 ISP_DIR = $(BASE_DIR)/..
 ISP_COMMON_DIR = $(BASE_DIR)/../../common
 ISP_3A_DIR = $(BASE_DIR)/../../algo
 
 # 3rdparty lib
 TRD_LIB_INCLUDE_PATH = $(MW_PATH)/modules/bin/prebuilt/include
-TRD_LIB_PATH = $(MW_PATH)/modules/bin/prebuilt/$(SDK_VER)
+TRD_LIB_PATH = $(MW_PATH)/modules/bin/prebuilt/$(TARGET_MACHINE)
 
-INC_DIRS = $(KERNEL_INC) $(MW_INC) $(ISP_INC) $(ISP_DIR)/isp/inc
+INC_DIRS = $(MW_INC) $(ISP_INC) $(ISP_DIR)/isp/inc
 
 INC_DIRS += $(BASE_DIR)/inc $(BASE_DIR)/src
 INC_DIRS += $(TRD_LIB_INCLUDE_PATH)/cvi_json-c
@@ -21,6 +21,7 @@ INC_DIRS += $(TRD_LIB_INCLUDE_PATH)/cvi_json-c
 INC_DIRS += $(ISP_COMMON_DIR)/raw_replay
 INC_DIRS += $(ISP_DIR)/isp_bin/src		# isp_json_struct_local.h
 INC_DIRS += $(ISP_3A_DIR)
+INC_DIRS += $(MW_INTERNAL_INC)
 
 LIB_DIRS = $(MW_LIB) $(TRD_LIB_PATH)
 
@@ -29,7 +30,7 @@ LINCS = $(foreach libdir, $(LIB_DIRS), -L$(libdir))
 
 TMP_FOLDER = tmp
 OUT_FOLDER = build
-RELEASE_FOLDER_BIN = $(PWD)/bin
+RELEASE_FOLDER_BIN = $(CURDIR)/bin
 
 #USRDEFS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable
 
@@ -39,15 +40,6 @@ TARGET_SO = libcvi_ispd2.so
 LOCAL_CFLAGS = $(CINCS) $(USRDEFS) -rdynamic -fPIC
 #LOCAL_CFLAGS += $(DEPFLAGS)
 LOCAL_LDFLAGS = $(LINCS) $(LIBS) -shared
-
-# SOC Architecture
-ifeq ($(CHIP_ARCH), CV181X)
-	LOCAL_CFLAGS += -DCHIP_ARCH_CV181X
-else ifeq ($(CHIP_ARCH), CV180X)
-	LOCAL_CFLAGS += -DCHIP_ARCH_CV180X
-else
-	$(error Un-support SOC Architecture)
-endif
 
 .PHONY: all clean cleanall install uninstall upload prepare_3rdparty_module
 .SILENT: clean cleanall install uninstall upload prepare_3rdparty_module

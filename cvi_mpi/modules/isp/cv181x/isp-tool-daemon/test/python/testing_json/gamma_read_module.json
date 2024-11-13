@@ -1,0 +1,6 @@
+{
+  "cmd": "READ_MODULE",
+  "data": {
+    "module": "Gamma"
+  }
+}

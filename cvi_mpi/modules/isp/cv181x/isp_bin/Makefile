@@ -1,23 +1,28 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
+#
+SDIR := $(CURDIR)/src
+SRCS_C := $(SDIR)/cvi_json_struct_comm.c
+SRCS_C += $(SDIR)/isp_3a_bin.c
+SRCS_C += $(SDIR)/isp_bin.c
+SRCS_C += $(SDIR)/isp_json_struct.c
+#
+ODIR    := $(CURDIR)/obj
+OBJS	:= $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)
+DEPS	:= $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).d)
+#
 # 3rdparty lib
 TRD_LIB_INCLUDE_PATH = $(MW_PATH)/modules/bin/prebuilt/include
-TRD_LIB_PATH = $(MW_PATH)/modules/bin/prebuilt/$(SDK_VER)
+TRD_LIB_PATH = $(MW_PATH)/modules/bin/prebuilt/$(TARGET_MACHINE)
 
 INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(ISP_INC) -Iinc -Isrc
 INCS += -I$(TRD_LIB_INCLUDE_PATH)/cvi_json-c -I../../algo
 
-TMP_FOLDER = $(PWD)/tmp
-SDIR = $(PWD)/src
-SRCS = $(shell find $(SDIR) -type f -name "*.c")
-OBJS = $(addsuffix .o,$(basename $(addprefix $(TMP_FOLDER)/,$(notdir $(SRCS)))))
-DEPS = $(addsuffix .d,$(basename $(addprefix $(TMP_FOLDER)/,$(notdir $(SRCS)))))
-
-TMP_FOLDER_LIB = $(PWD)/tmp_lib
+TMP_FOLDER_LIB = $(CURDIR)/tmp_lib
 ARFLAGS_x = x
 
 TARGET_A = $(MW_LIB)/libcvi_bin_isp.a
@@ -40,7 +45,7 @@ else
 	EXTRA_CFLAGS += -DISP_BIN_MD5=\"$(result)\"
 endif
 
-.PHONY: clean all cleanall sdk_release prepare_3rdparty_module
+.PHONY: clean all clean_all cleanall sdk_release  prepare_3rdparty_module
 
 ifeq ($(ISP_SRC_RELEASE),1)
 all: prepare_3rdparty_module $(TARGET_A) $(TARGET_SO) sdk_release
@@ -53,7 +58,8 @@ prepare_3rdparty_module:
 	cp $(TRD_LIB_PATH)/libcvi_miniz.a .;cp $(TRD_LIB_PATH)/libcvi_json-c.a .;\
 	$(AR) $(ARFLAGS_x) libcvi_miniz.a;$(AR) $(ARFLAGS_x) libcvi_json-c.a
 
-$(TMP_FOLDER)/%.o: $(SDIR)/%.c | $(TMP_FOLDER)
+$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o : $(SDIR)/%.c
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 
@@ -66,20 +72,21 @@ $(TARGET_SO): $(OBJS)
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $(TARGET_SO))
 	@$(STRIP) $(TARGET_SO)
 
-$(TMP_FOLDER):
-	@echo "Create $(TMP_FOLDER) for object file"
-	-@mkdir -p $(TMP_FOLDER)
-
 sdk_release:
-	-@rm -rf $(TMP_FOLDER)
+	-@rm -rf $(ODIR)
 	-@rm -rf $(TMP_FOLDER_LIB)
 	-@mv Makefile.sdk_release Makefile
 
 clean:
-	@rm -f $(OBJS) $(DEPS) $(TARGET_A) $(TARGET_SO)
+	@rm -f $(TARGET_A) $(TARGET_SO)
 	@rm -rf $(TMP_FOLDER_LIB)
 
-cleanall: clean
-	@rm -rf $(TMP_FOLDER)
+clean_all: clean
+	@if [ -d "$(SDIR)" ]; then \
+		echo "rm -rf $(ODIR)"; \
+		rm -rf $(ODIR); \
+	fi
+
+cleanall: clean_all
 
 -include $(DEPS)

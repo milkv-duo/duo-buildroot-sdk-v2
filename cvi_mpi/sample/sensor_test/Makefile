@@ -1,13 +1,24 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c) $(wildcard $(SDIR)/src/*.c)
-INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I./inc -I$(SENSOR_LIST_INC)
+SRCS += $(COMMON_DIR)/sample_common_sys.c
+SRCS += $(COMMON_DIR)/sample_common_platform.c
+SRCS += $(COMMON_DIR)/sample_common_vi.c
+SRCS += $(COMMON_DIR)/sample_common_isp.c
+SRCS += $(COMMON_DIR)/sample_common_bin.c
+SRCS += $(COMMON_DIR)/sample_common_sensor.c
+ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
+SRCS += $(COMMON_DIR)/sample_common_vo.c
+SRCS += $(COMMON_DIR)/sample_common_vpss.c
+SRCS += $(COMMON_DIR)/sample_common_peripheral.c
+endif
+INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I./inc -I$(SENSOR_LIST_INC) -I$(MW_PATH)/3rdparty/inih
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 
@@ -30,6 +41,7 @@ endif
 
 EXTRA_CFLAGS = $(INCS) $(DEFS)
 EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini
+EXTRA_LDFLAGS += $(MW_LIB)/libvpss.a
 
 # IVE_SUPPORT = 1
 ifeq ($(IVE_SUPPORT), 1)
@@ -47,16 +59,12 @@ endif
 .PHONY : clean all
 all: $(TARGET)
 
-$(COMMON_DIR)/%.o: $(COMMON_DIR)/%.c
-	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
-	@echo [$(notdir $(CC))] $(notdir $@)
-
 $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 	@echo [$(notdir $(CC))] $(notdir $@)
 
-$(TARGET): $(COMM_OBJ) $(OBJS) $(ISP_OBJ) $(MW_LIB)/libsys.a
-	@$(CXX) -o $@ -Wl,--start-group $(OBJS) $(COMM_OBJS) -lsys $(MW_LIB)/libsys.a -Wl,--end-group $(ELFFLAGS) $(EXTRA_LDFLAGS)
+$(TARGET): $(OBJS) $(ISP_OBJ) $(MW_LIB)/libsys.a
+	@$(CXX) -o $@ -Wl,--start-group $(OBJS) -lsys $(MW_LIB)/libsys.a -Wl,--end-group $(ELFFLAGS) $(EXTRA_LDFLAGS)
 	@echo -e $(BLUE)[LINK]$(END)[$(notdir $(CXX))] $(notdir $@)
 
 clean:

@@ -184,6 +184,22 @@ CVI_S32 CVI_AI_SetVolume(AUDIO_DEV AiDevId, CVI_S32 s32VolumeStep);
  */
 CVI_S32 CVI_AI_GetVolume(AUDIO_DEV AiDevId, CVI_S32 *ps32VolumeStep);
 /**
+ * @brief Set ainput single channel volume
+ * @param AiDevId the number of input device
+ * @param AiStereoId Audio input channel number
+ * @param s32VolumeStep input gain for channel
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AI_SetStereoVolume(AUDIO_DEV AiDevId, CVI_S32 AiStereoId, CVI_S32 s32VolumeStep);
+/**
+ * @brief Get ainput channel volume
+ * @param AiDevId the number of input device
+ * @param AiStereoId Audio input channel number
+ * @param ps32VolumeStep pointer to s32VolumeDb that indicates ai channel gain
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AI_GetStereoVolume(AUDIO_DEV AiDevId, CVI_S32 AiStereoId, CVI_S32 *ps32VolumeStep);
+/**
  * @brief Set record volume
  * @param AiDevId the number of audio device
  * @param AiChn the number of audio channels
@@ -466,6 +482,22 @@ CVI_S32 CVI_AO_SetVolume(AUDIO_DEV AoDevId, CVI_S32 s32VolumeDb);
  * @return CVI_S32 Return CVI_SUCCESS if succeed
  */
 CVI_S32 CVI_AO_GetVolume(AUDIO_DEV AoDevId, CVI_S32 *ps32VolumeDb);
+/**
+ * @brief Get ainput channel volume
+ * @param AiDevId the number of input device
+ * @param AoStereoId Audio output channel number
+ * @param ps32VolumeDb pointer to s32VolumeDb that indicates ai channel gain
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_GetStereoVolume(AUDIO_DEV AoDevId, CVI_S32 AoStereoId, CVI_S32 *ps32VolumeDb);
+/**
+ * @brief Set aoutput channel volume
+ * @param AoDevId the number of output device
+ * @param AoStereoId Audio output channel number
+ * @param s32VolumeDb output gain for channel
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_AO_SetStereoVolume(AUDIO_DEV AoDevId, CVI_S32 AoStereoId, CVI_S32 s32VolumeDb);
 /**
  * @brief Set ao mute
  * @param AoDevId the number of output device

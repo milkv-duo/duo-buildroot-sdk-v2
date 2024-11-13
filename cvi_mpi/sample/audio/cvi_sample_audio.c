@@ -1705,13 +1705,10 @@ ERROR3:
 }
 
 
-CVI_S32 SAMPLE_AUDIO_DEBUG_SET_VOLUME(ST_AudioUnitTestCfg *testCfg)
+CVI_S32 SAMPLE_AUDIO_DEBUG_SET_VOLUME( )
 {
 	printf("Enter %s\n", __func__);
-	if (!testCfg) {
-		printf("testCfg is null\n");
-		return -1;
-	}
+
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	CVI_S32 err;
 	CVI_S32 idevid = 0;
@@ -1746,7 +1743,7 @@ CVI_S32 SAMPLE_AUDIO_DEBUG_SET_VOLUME(ST_AudioUnitTestCfg *testCfg)
 	return CVI_SUCCESS;
 }
 
-CVI_S32 SAMPLE_AUDIO_DEBUG_GET_VOLUME(ST_AudioUnitTestCfg *testCfg)
+CVI_S32 SAMPLE_AUDIO_DEBUG_GET_VOLUME( )
 {
 	printf("Enter %s\n", __func__);
 	CVI_S32 idevid = 0;
@@ -1754,10 +1751,6 @@ CVI_S32 SAMPLE_AUDIO_DEBUG_GET_VOLUME(ST_AudioUnitTestCfg *testCfg)
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	CVI_S32 err;
 
-	if (!testCfg) {
-		printf("testCfg is null\n");
-		return -1;
-	}
 	printf("Enter output card id: \n");
 	err = scanf("%d", &idevid);
 	if (err == EOF)
@@ -2057,7 +2050,6 @@ CVI_S32 main(int argc, char *argv[])
 {
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	CVI_U32 u32Index = 0;
-	ST_AudioUnitTestCfg  stAudTestCfg;
 	stAudPara stAudioparam;
 
 	if (argc  <  2) {
@@ -2080,10 +2072,6 @@ CVI_S32 main(int argc, char *argv[])
 		}
 		memset(&stAudioparam, 0, sizeof(stAudPara));
 		get_audio_parse(argc, argv, &stAudioparam);
-	} else {
-		stAudTestCfg.bOptCfg = CVI_FALSE;
-		stAudTestCfg.unit_test = 0;
-		strcpy(stAudTestCfg.filename, "NULL");
 	}
 
 	printf("[cvi_info] cvi_sample_audio:Enter command id =[%d]\n", u32Index);
@@ -2115,7 +2103,7 @@ CVI_S32 main(int argc, char *argv[])
 	}
 	case 6: {
 		printf("[cviaudio] Set Volume!\n");
-		SAMPLE_AUDIO_DEBUG_SET_VOLUME(&stAudTestCfg);
+		SAMPLE_AUDIO_DEBUG_SET_VOLUME();
 		printf("[cviaudio]SET VOLUME!...end\n");
 		break;
 
@@ -2127,7 +2115,7 @@ CVI_S32 main(int argc, char *argv[])
 	}
 	case 8: {
 		printf("[cviaudio] Get Volume!\n");
-		SAMPLE_AUDIO_DEBUG_GET_VOLUME(&stAudTestCfg);
+		SAMPLE_AUDIO_DEBUG_GET_VOLUME();
 		printf("[cviaudio]GET VOLUME!...end\n");
 		break;
 	}

@@ -20,7 +20,5 @@ pip install Jinja2
 
 4.instructions
 
-note:cv183x not support
 for example:
-./generate_toolJson.sh cv182x
 ./generate_toolJson.sh cv181x

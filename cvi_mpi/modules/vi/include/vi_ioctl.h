@@ -32,11 +32,7 @@ int vi_set_stop_streaming(int fd);
 int vi_get_rgbmap_le_buf(int fd, struct cvi_vip_memblock *buf);
 int vi_get_rgbmap_se_buf(int fd, struct cvi_vip_memblock *buf);
 int vi_enable_singel_frame(int fd, CVI_BOOL flag);
-
-#if (defined ARCH_CV181X) || (defined ARCH_CV180X)
 int vi_sdk_get_dev_status(int fd, int dev, CVI_BOOL *pbStatus);
-#endif
-
 int vi_sdk_set_dev_attr(int fd, int dev, VI_DEV_ATTR_S *pstDevAttr);
 int vi_sdk_get_dev_attr(int fd, int dev, VI_DEV_ATTR_S *pstDevAttr);
 int vi_sdk_enable_dev(int fd, int dev);

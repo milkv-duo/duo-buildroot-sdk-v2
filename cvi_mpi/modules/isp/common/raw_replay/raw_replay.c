@@ -468,7 +468,6 @@ CVI_S32 set_raw_replay_data(const CVI_VOID *header, const CVI_VOID *data,
 	} else {
 		return CVI_FAILURE;
 	}
-
 	return CVI_SUCCESS;
 }
 

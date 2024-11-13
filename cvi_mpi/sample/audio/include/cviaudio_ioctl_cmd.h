@@ -30,7 +30,7 @@ typedef struct _st_ssp_pcm_msg {
 } ST_SSP_PCM_MSG;
 
 typedef struct _st_ssp_data_msg {
-	uint64_t data_phyaddr;
+	CVI_U64 data_phyaddr;
 	char	*data_addr;
 	int	required_size_bytes;
 	int	data_valid;
@@ -45,16 +45,16 @@ typedef struct RESAMPLE_INFO_T {
 	int inSampleRate;
 	int outSampleRate;
 	double stepDist;
-	uint64_t fixedFraction;
+	CVI_U64 fixedFraction;
 	double normFixed;
-	uint64_t step;
-	int16_t *last_input;
-	int16_t *output_buf;
-	uint64_t curOffset;
-	uint32_t inputsamples;
-	uint32_t prev_inputsamples; //user may not always send the same size
-	uint32_t channels;
-	uint32_t output_index;
+	CVI_U64 step;
+	CVI_S16 *last_input;
+	CVI_S16 *output_buf;
+	CVI_U64 curOffset;
+	CVI_U32 inputsamples;
+	CVI_U32 prev_inputsamples; //user may not always send the same size
+	CVI_U32 channels;
+	CVI_U32 output_index;
 	int last_delta;
 } RESAMPLE_INFO;
 
@@ -63,14 +63,14 @@ typedef struct _st_ain_msg {
 	int AiDev;
 	int AiChnId;
 	//for channel buffer
-	uint64_t cycbufread_addr;
+	CVI_U64 cycbufread_addr;
 	int cycbufread_size;
-	uint64_t vqebuf_addr;
+	CVI_U64 vqebuf_addr;
 	int vqebuf_size;
-	uint64_t tinyalsaReadBuf;
+	CVI_U64 tinyalsaReadBuf;
 	int tinyalsaReadBuf_size;
 	//for resample handler
-	uint64_t resample_handler_addr;
+	CVI_U64 resample_handler_addr;
 	int resample_handler_size;
 	//for share memory
 	int sharebuf_index;
@@ -82,14 +82,14 @@ typedef struct _st_aout_msg {
 	int AoDev;
 	int AoChn;
 	//for channel buffer
-	//uint64_t cycbufwrite_addr;
+	//CVI_U64 cycbufwrite_addr;
 	//int cycbufwrite_size;
 	int sizebytes;
 	//for share memory
 	int sharebuf_index;
 	int bsharebuf_first;
 	//for resample handler
-	uint64_t resample_handler_addr;
+	CVI_U64 resample_handler_addr;
 	int resample_handler_size;
 	RESAMPLE_INFO ResInfo;
 } ST_AOUT_MSG;
@@ -97,10 +97,10 @@ typedef struct _st_aout_msg {
 typedef struct _st_aenc_msg {
 	int AenChn;
 	//for userspace mem buffer
-	uint64_t EncBuff;
-	uint64_t EncBuff_aec;
-	uint64_t EncInBuff;
-	uint64_t EncVqeBuff;
+	CVI_U64 EncBuff;
+	CVI_U64 EncBuff_aec;
+	CVI_U64 EncInBuff;
+	CVI_U64 EncVqeBuff;
 
 	int EncBuff_size;
 	int EncBuff_aec_size;
@@ -114,8 +114,8 @@ typedef struct _st_aenc_msg {
 typedef struct _st_adec_msg {
 	int AdecChn;
 	//for userspace mem buffer
-	uint64_t DecBuff;
-	uint64_t DecReadBuff;
+	CVI_U64 DecBuff;
+	CVI_U64 DecReadBuff;
 
 	int DecBuff_size;
 	int DecReadBuff_size;
@@ -164,15 +164,15 @@ struct cviaudio_drv_ops {
 //additional RTOS command
 //for block mode command from user space ---- start
 typedef struct _st_cviaudio_mailbox_block {
-	uint64_t u64RevMask;
-	uint64_t AinVqeCfgPhy;
+	CVI_U64 u64RevMask;
+	CVI_U64 AinVqeCfgPhy;
 } ST_CVIAUDIO_MAILBOX_BLOCK;
 
 typedef struct _st_civaudio_block_frame {
-	uint64_t u64RevMask;
-	uint64_t mic_in_addr;
-	uint64_t ref_in_addr;
-	uint64_t output_addr;
+	CVI_U64 u64RevMask;
+	CVI_U64 mic_in_addr;
+	CVI_U64 ref_in_addr;
+	CVI_U64 output_addr;
 } ST_CVIAUDIO_BLOCK_FRAME;
 //for block mode command from user space ---- end
 #define CVIAUDIO_RTOS_CMD_SSP_UNIT_TEST_BLOCK_MODE_INIT	0x09
