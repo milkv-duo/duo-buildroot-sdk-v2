@@ -27,8 +27,17 @@ static inline void mmio_clrsetbits_32(uintptr_t addr,
 				      uint32_t clear,
 				      uint32_t set)
 {
-	iowrite32((ioread32(ioremap(addr, 0x4)) & ~clear) | set,
-		  ioremap(addr, 0x4));
+	void __iomem *tpreg;
+
+	tpreg = ioremap(addr, 0x4);
+	if (IS_ERR(tpreg)) {
+		pr_err("ioremap %p failed\n", (void *)addr);
+		return;
+	}
+
+	iowrite32((ioread32(tpreg) & ~clear) | set, tpreg);
+
+	iounmap(tpreg);
 }
 
 #endif /* __PINCTRL_CV180X_H__ */

@@ -560,7 +560,7 @@ static int __update_max_avail_size(struct gen_pool_chunk *chunk,
 	return 0;
 }
 
-static int _ion_update_memory_statics(struct ion_heap *heap,
+static int _ion_update_memory_state(struct ion_heap *heap,
 	uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size)
 {
 	int end_bit;
@@ -598,7 +598,7 @@ static int _ion_update_memory_statics(struct ion_heap *heap,
 	return 0;
 }
 
-int ion_get_memory_statics(uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size)
+int ion_get_memory_state(uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size)
 {
 	struct ion_device *dev = internal_dev;
 	struct ion_heap *heap;
@@ -609,7 +609,7 @@ int ion_get_memory_statics(uint64_t *total_size, uint64_t *free_size, uint64_t *
 
 	down_read(&dev->lock);
 	plist_for_each_entry(heap, &dev->heaps, node) {
-		_ion_update_memory_statics(heap, total_size, free_size, max_avail_size);
+		_ion_update_memory_state(heap, total_size, free_size, max_avail_size);
 	}
 	up_read(&dev->lock);
 

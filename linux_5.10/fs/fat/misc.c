@@ -290,6 +290,7 @@ static inline struct timespec64 fat_timespec64_trunc_10ms(struct timespec64 ts)
  *       vfat  - 10 milliseconds
  *     atime - 24 hours (00:00:00 in local timezone)
  */
+#ifdef CONFIG_FATFS_UPTATE_TIME
 int fat_truncate_time(struct inode *inode, struct timespec64 *now, int flags)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
@@ -325,6 +326,12 @@ int fat_truncate_time(struct inode *inode, struct timespec64 *now, int flags)
 
 	return 0;
 }
+#else // disable auto update file system time
+int fat_truncate_time(struct inode *inode, struct timespec64 *now, int flags)
+{
+	return 0;
+}
+#endif
 EXPORT_SYMBOL_GPL(fat_truncate_time);
 
 int fat_update_time(struct inode *inode, struct timespec64 *now, int flags)

@@ -150,12 +150,34 @@ static inline int __fat_get_block(struct inode *inode, sector_t iblock,
 	 * 1) no more available blocks
 	 * 2) not part of fallocate region
 	 */
-	if (!offset && !(iblock < last_block)) {
-		/* TODO: multiple cluster allocation would be desirable. */
-		err = fat_add_cluster(inode);
-		if (err)
-			return err;
-	}
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
+    if (!offset && !(iblock < last_block)) {
+        if(MSDOS_I(inode)->i_start) {
+            int fclus, dclus, ret;
+            ret = fat_get_cluster(inode, FAT_ENT_EOF, &fclus, &dclus);
+            if (ret < 0)
+                return ret;
+            if(fclus < (inode->i_blocks >> (sbi->cluster_bits - 9))) {
+                err = fat_add_cluster(inode);
+                if (err)
+                    return err;
+            } else {
+                inode->i_blocks += 1 << (sbi->cluster_bits - 9);
+            }
+        } else {
+            err = fat_add_cluster(inode);
+            if (err)
+                return err;
+        }
+    }
+#else
+    if (!offset && !(iblock < last_block)) {
+        /* TODO: multiple cluster allocation would be desirable. */
+        err = fat_add_cluster(inode);
+        if (err)
+            return err;
+    }
+#endif //CONFIG_FATFS_USE_FAST_PREALLOC
 	/* available blocks on this cluster */
 	mapped_blocks = sbi->sec_per_clus - offset;
 
@@ -629,7 +651,9 @@ static void fat_free_eofblocks(struct inode *inode)
 				MSDOS_SB(inode->i_sb)->cluster_size)) {
 		int err;
 
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
 		fat_truncate_blocks(inode, MSDOS_I(inode)->mmu_private);
+#endif
 		/* Fallocate results in updating the i_start/iogstart
 		 * for the zero byte file. So, make it return to
 		 * original state during evict and commit it to avoid
@@ -680,7 +704,9 @@ static void fat_set_state(struct super_block *sb,
 			fat_msg(sb, KERN_WARNING, "Volume was not properly "
 				"unmounted. Some data may be corrupt. "
 				"Please run fsck.");
+#ifndef CONFIG_FATFS_USE_FAST_PREALLOC
 		return;
+#endif
 	}
 
 	bh = sb_bread(sb, 0);
@@ -693,14 +719,18 @@ static void fat_set_state(struct super_block *sb,
 	b = (struct fat_boot_sector *) bh->b_data;
 
 	if (is_fat32(sbi)) {
+#ifndef CONFIG_FATFS_USE_FAST_PREALLOC
 		if (set)
 			b->fat32.state |= FAT_STATE_DIRTY;
 		else
+#endif
 			b->fat32.state &= ~FAT_STATE_DIRTY;
 	} else /* fat 16 and 12 */ {
+#ifndef CONFIG_FATFS_USE_FAST_PREALLOC
 		if (set)
 			b->fat16.state |= FAT_STATE_DIRTY;
 		else
+#endif
 			b->fat16.state &= ~FAT_STATE_DIRTY;
 	}
 
@@ -910,9 +940,17 @@ static int fat_write_inode(struct inode *inode, struct writeback_control *wbc)
 		mutex_lock(&MSDOS_SB(sb)->s_lock);
 		err = fat_clusters_flush(sb);
 		mutex_unlock(&MSDOS_SB(sb)->s_lock);
-	} else
+	} else {
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
+		if (NULL == wbc)
+			err = __fat_write_inode(inode, 1);
+		else
+			err = __fat_write_inode(inode, wbc->sync_mode == WB_SYNC_ALL);
+#else
 		err = __fat_write_inode(inode, wbc->sync_mode == WB_SYNC_ALL);
-
+#endif
+	}
+	
 	return err;
 }
 
