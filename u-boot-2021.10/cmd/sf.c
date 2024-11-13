@@ -365,6 +365,22 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	return ret == 0 ? 0 : 1;
 }
 
+static int do_spi_flash_erase_size(int argc, char *const argv[])
+{
+    u32  *addr;
+    char *endp;
+
+    if (argc != 2)
+        return -1;
+    addr = (u32 *)hextoul(argv[1], &endp);
+    if (*argv[1] == 0 || *endp != 0)
+        return -1;
+    printf("flash->erase_size 0x%x\n", flash->erase_size);
+    *addr = flash->erase_size;
+
+    return 0;
+}
+
 static int do_spi_protect(int argc, char *const argv[])
 {
 	int ret = 0;
@@ -592,6 +608,8 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = do_spi_flash_read_write(argc, argv);
 	else if (strcmp(cmd, "erase") == 0)
 		ret = do_spi_flash_erase(argc, argv);
+	else if (strcmp(cmd, "erase_size") == 0)
+		ret = do_spi_flash_erase_size(argc, argv);
 	else if (strcmp(cmd, "protect") == 0)
 		ret = do_spi_protect(argc, argv);
 #ifdef CONFIG_CMD_SF_TEST
