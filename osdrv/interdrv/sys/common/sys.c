@@ -38,19 +38,19 @@ struct cvi_sys_device {
 static struct base_m_cb_info *sys_m_cb;
 
 #ifdef DRV_TEST
-extern int32_t sys_test_proc_init(void);
-extern int32_t sys_test_proc_deinit(void);
+extern CVI_S32 sys_test_proc_init(void);
+extern CVI_S32 sys_test_proc_deinit(void);
 #endif
 
 static int ion_debug_alloc_free;
 module_param(ion_debug_alloc_free, int, 0644);
 
-static int32_t _sys_ion_alloc_nofd(uint64_t *addr_p, void **addr_v, uint32_t u32Len,
-	uint32_t is_cached, uint8_t *name)
+static CVI_S32 _sys_ion_alloc_nofd(CVI_U64 *addr_p, void **addr_v, CVI_U32 u32Len,
+	CVI_U32 is_cached, CVI_U8 *name)
 {
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct ion_buffer *ionbuf;
-	uint8_t *owner_name = NULL;
+	CVI_U8 *owner_name = NULL;
 	void *vmap_addr = NULL;
 	struct mem_mapping mem_info;
 
@@ -113,13 +113,13 @@ static int32_t _sys_ion_alloc_nofd(uint64_t *addr_p, void **addr_v, uint32_t u32
 	return ret;
 }
 
-static int32_t _sys_ion_alloc(int32_t *p_fd, uint64_t *addr_p, void **addr_v, uint32_t u32Len,
-	uint32_t is_cached, uint8_t *name)
+static CVI_S32 _sys_ion_alloc(CVI_S32 *p_fd, CVI_U64 *addr_p, void **addr_v, CVI_U32 u32Len,
+	CVI_U32 is_cached, CVI_U8 *name)
 {
-	int32_t dmabuf_fd = 0, ret = 0;
+	CVI_S32 dmabuf_fd = 0, ret = 0;
 	struct dma_buf *dmabuf;
 	struct ion_buffer *ionbuf;
-	uint8_t *owner_name = NULL;
+	CVI_U8 *owner_name = NULL;
 	void *vmap_addr = NULL;
 	struct mem_mapping mem_info;
 
@@ -193,7 +193,7 @@ static int32_t _sys_ion_alloc(int32_t *p_fd, uint64_t *addr_p, void **addr_v, ui
 	return ret;
 }
 
-static int32_t _sys_ion_free(uint64_t addr_p)
+static CVI_S32 _sys_ion_free(CVI_U64 addr_p)
 {
 	struct mem_mapping mem_info;
 	struct ion_buffer *ionbuf;
@@ -233,7 +233,7 @@ static int32_t _sys_ion_free(uint64_t addr_p)
 	return 0;
 }
 
-static int32_t _sys_ion_free_nofd(uint64_t addr_p)
+static CVI_S32 _sys_ion_free_nofd(CVI_U64 addr_p)
 {
 	struct mem_mapping mem_info;
 	struct ion_buffer *ionbuf;
@@ -268,17 +268,17 @@ static int32_t _sys_ion_free_nofd(uint64_t addr_p)
 	return 0;
 }
 
-static int32_t sys_init_user(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_init_user(struct cvi_sys_device *ndev, unsigned long arg)
 {
 	return 0;
 }
 
-static int32_t sys_exit_user(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_exit_user(struct cvi_sys_device *ndev, unsigned long arg)
 {
 	return 0;
 }
 
-int32_t sys_init()
+CVI_S32 sys_init()
 {
 	sys_ctx_init();
 #ifdef DRV_TEST
@@ -287,7 +287,7 @@ int32_t sys_init()
 	return 0;
 }
 
-int32_t sys_exit()
+CVI_S32 sys_exit()
 {
 #ifdef DRV_TEST
 	sys_test_proc_deinit();
@@ -295,21 +295,21 @@ int32_t sys_exit()
 	return 0;
 }
 
-int32_t sys_ion_free(uint64_t u64PhyAddr)
+CVI_S32 sys_ion_free(CVI_U64 u64PhyAddr)
 {
 	return _sys_ion_free(u64PhyAddr);
 }
 EXPORT_SYMBOL_GPL(sys_ion_free);
 
-int32_t sys_ion_free_nofd(uint64_t u64PhyAddr)
+CVI_S32 sys_ion_free_nofd(CVI_U64 u64PhyAddr)
 {
 	return _sys_ion_free_nofd(u64PhyAddr);
 }
 EXPORT_SYMBOL_GPL(sys_ion_free_nofd);
 
-static int32_t sys_ion_free_user(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_ion_free_user(struct cvi_sys_device *ndev, unsigned long arg)
 {
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct sys_ion_data ioctl_arg;
 
 	ret = copy_from_user(&ioctl_arg,
@@ -323,24 +323,24 @@ static int32_t sys_ion_free_user(struct cvi_sys_device *ndev, unsigned long arg)
 	return _sys_ion_free(ioctl_arg.addr_p);
 }
 
-int32_t sys_ion_alloc(uint64_t *p_paddr, void **pp_vaddr, uint8_t *buf_name, uint32_t buf_len, bool is_cached)
+CVI_S32 sys_ion_alloc(CVI_U64 *p_paddr, void **pp_vaddr, CVI_U8 *buf_name, CVI_U32 buf_len, bool is_cached)
 {
-	int32_t dma_fd = 0;
+	CVI_S32 dma_fd = 0;
 
 	return _sys_ion_alloc(&dma_fd, p_paddr, pp_vaddr, buf_len, is_cached, buf_name);
 }
 EXPORT_SYMBOL_GPL(sys_ion_alloc);
 
-int32_t sys_ion_alloc_nofd(uint64_t *p_paddr, void **pp_vaddr, uint8_t *buf_name, uint32_t buf_len, bool is_cached)
+CVI_S32 sys_ion_alloc_nofd(CVI_U64 *p_paddr, void **pp_vaddr, CVI_U8 *buf_name, CVI_U32 buf_len, bool is_cached)
 {
 	return _sys_ion_alloc_nofd(p_paddr, pp_vaddr, buf_len, is_cached, buf_name);
 }
 EXPORT_SYMBOL_GPL(sys_ion_alloc_nofd);
 
-static int32_t sys_ion_alloc_user(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_ion_alloc_user(struct cvi_sys_device *ndev, unsigned long arg)
 {
-	int32_t ret = 0, dma_fd = 0;
-	uint64_t addr_p = 0;
+	CVI_S32 ret = 0, dma_fd = 0;
+	CVI_U64 addr_p = 0;
 	void *addr_v = NULL;
 	struct sys_ion_data ioctl_arg;
 
@@ -373,14 +373,14 @@ static int32_t sys_ion_alloc_user(struct cvi_sys_device *ndev, unsigned long arg
 	return 0;
 }
 
-int32_t sys_ion_get_memory_statics(uint64_t *total_size,
-	uint64_t *free_size, uint64_t *max_avail_size)
+CVI_S32 sys_ion_get_memory_state(CVI_U64 *total_size,
+	CVI_U64 *free_size, CVI_U64 *max_avail_size)
 {
-	return cvi_ion_get_memory_statics(total_size, free_size, max_avail_size);
+	return cvi_ion_get_memory_state(total_size, free_size, max_avail_size);
 }
-EXPORT_SYMBOL_GPL(sys_ion_get_memory_statics);
+EXPORT_SYMBOL_GPL(sys_ion_get_memory_state);
 
-int32_t sys_cache_invalidate(uint64_t addr_p, void *addr_v, uint32_t u32Len)
+CVI_S32 sys_cache_invalidate(CVI_U64 addr_p, void *addr_v, CVI_U32 u32Len)
 {
 	arch_sync_dma_for_device(addr_p, u32Len, DMA_FROM_DEVICE);
 
@@ -390,7 +390,7 @@ int32_t sys_cache_invalidate(uint64_t addr_p, void *addr_v, uint32_t u32Len)
 }
 EXPORT_SYMBOL_GPL(sys_cache_invalidate);
 
-int32_t sys_cache_flush(uint64_t addr_p, void *addr_v, uint32_t u32Len)
+CVI_S32 sys_cache_flush(CVI_U64 addr_p, void *addr_v, CVI_U32 u32Len)
 {
 	arch_sync_dma_for_device(addr_p, u32Len, DMA_TO_DEVICE);
 
@@ -400,7 +400,7 @@ int32_t sys_cache_flush(uint64_t addr_p, void *addr_v, uint32_t u32Len)
 }
 EXPORT_SYMBOL_GPL(sys_cache_flush);
 
-static int32_t sys_cache_op_userv(unsigned long arg, enum enum_cache_op op_code)
+static CVI_S32 sys_cache_op_userv(unsigned long arg, enum enum_cache_op op_code)
 {
 	int ret = 0;
 	struct sys_cache_op ioctl_arg;
@@ -421,22 +421,22 @@ static int32_t sys_cache_op_userv(unsigned long arg, enum enum_cache_op op_code)
 	return 0;
 }
 
-uint32_t sys_get_chipid(void)
+CVI_U32 sys_get_chipid(void)
 {
 	struct sys_info *p_info = (struct sys_info *)sys_ctx_get_sysinfo();
 	return p_info->chip_id;
 }
 EXPORT_SYMBOL_GPL(sys_get_chipid);
 
-uint8_t *sys_get_version(void)
+CVI_U8 *sys_get_version(void)
 {
 	struct sys_info *p_info = (struct sys_info *)sys_ctx_get_sysinfo();
 	return p_info->version;
 }
 
-static int32_t sys_get_sysinfo(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_get_sysinfo(struct cvi_sys_device *ndev, unsigned long arg)
 {
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct sys_info *ioctl_arg;
 
 	ioctl_arg = (struct sys_info *)sys_ctx_get_sysinfo();
@@ -450,9 +450,9 @@ static int32_t sys_get_sysinfo(struct cvi_sys_device *ndev, unsigned long arg)
 	return 0;
 }
 
-static int32_t sys_set_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_set_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
 {
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct sys_bind_cfg ioctl_arg;
 
 	ret = copy_from_user(&ioctl_arg,
@@ -471,9 +471,9 @@ static int32_t sys_set_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
 	return ret;
 }
 
-static int32_t sys_get_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
+static CVI_S32 sys_get_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
 {
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct sys_bind_cfg ioctl_arg;
 
 	ret = copy_from_user(&ioctl_arg,
@@ -502,19 +502,19 @@ static int32_t sys_get_bind_cfg(struct cvi_sys_device *ndev, unsigned long arg)
 	return ret;
 }
 
-int32_t sys_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
+CVI_S32 sys_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	return sys_ctx_bind(pstSrcChn, pstDestChn);
 }
 EXPORT_SYMBOL_GPL(sys_bind);
 
-int32_t sys_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
+CVI_S32 sys_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	return sys_ctx_unbind(pstSrcChn, pstDestChn);
 }
 EXPORT_SYMBOL_GPL(sys_unbind);
 
-int32_t sys_ion_dump(void)
+CVI_S32 sys_ion_dump(void)
 {
 	return sys_ctx_mem_dump();
 }
@@ -526,13 +526,13 @@ VPSS_MODE_E sys_get_vpssmode(void)
 }
 EXPORT_SYMBOL_GPL(sys_get_vpssmode);
 
-int32_t sys_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest)
+CVI_S32 sys_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest)
 {
 	return sys_ctx_get_bindbysrc(pstSrcChn, pstBindDest);
 }
 EXPORT_SYMBOL_GPL(sys_get_bindbysrc);
 
-int32_t sys_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn)
+CVI_S32 sys_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn)
 {
 	return sys_ctx_get_bindbydst(pstSrcChn, pstSrcChn);
 }
@@ -540,7 +540,7 @@ EXPORT_SYMBOL_GPL(sys_get_bindbydst);
 
 #define GENERATE_STRING(STRING) (#STRING),
 static const char *const MOD_STRING[] = FOREACH_MOD(GENERATE_STRING);
-const uint8_t *sys_get_modname(MOD_ID_E id)
+const CVI_U8 *sys_get_modname(MOD_ID_E id)
 {
 	return (id < CVI_ID_BUTT) ? MOD_STRING[id] : "UNDEF";
 }
@@ -762,7 +762,7 @@ static long cvi_sys_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 {
 	struct cvi_sys_device *ndev = filp->private_data;
 	long ret = 0;
-	struct sys_ion_mm_statics ion_statics = {};
+	struct sys_ion_mem_state ion_statics = {};
 
 	switch (cmd) {
 	case SYS_IOC_S_CTRL:
@@ -782,12 +782,12 @@ static long cvi_sys_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 	case SYS_CACHE_FLUSH:
 		ret = sys_cache_op_userv(arg, enum_cache_op_flush);
 		break;
-	case SYS_ION_G_ION_MM_STATICS:
-		sys_ion_get_memory_statics(&ion_statics.total_size, &ion_statics.free_size,
+	case SYS_ION_G_ION_MEM_STATE:
+		sys_ion_get_memory_state(&ion_statics.total_size, &ion_statics.free_size,
 			&ion_statics.max_avail_size);
-		ret = copy_to_user((struct sys_ion_mm_statics __user *)arg,
+		ret = copy_to_user((struct sys_ion_mem_state __user *)arg,
 					&ion_statics,
-					sizeof(struct sys_ion_mm_statics));
+					sizeof(struct sys_ion_mem_state));
 		if (ret) {
 			pr_err("copy_to_user fail, total:%llu free:%lld avail:%lld ret:%ld\n",
 				ion_statics.total_size,	ion_statics.free_size, ion_statics.max_avail_size, ret);
@@ -882,7 +882,7 @@ static int cvi_sys_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct cvi_sys_device *ndev;
-	int32_t ret;
+	CVI_S32 ret;
 
 	pr_debug("===cvitek_sys_probe start\n");
 	ndev = devm_kzalloc(&pdev->dev, sizeof(*ndev), GFP_KERNEL);

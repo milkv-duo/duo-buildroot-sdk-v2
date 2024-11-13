@@ -381,6 +381,8 @@ typedef enum _EN_VOU_ERR_CODE_E {
 #define CVI_ERR_AI_VQE_BUF_FULL       0xA0000011
 /* vqe file unexist */
 #define CVI_ERR_AI_VQE_FILE_UNEXIST       0xA0000012
+/* invalid stereo ID */
+#define CVI_ERR_AI_INVALID_STEREOID    0xA0000013
 /*invalid card ID*/
 #define CVI_ERR_AI_INVALID_CARDID    0xA100013
 
@@ -417,6 +419,8 @@ typedef enum _EN_VOU_ERR_CODE_E {
 #define CVI_ERR_AO_VQE_ERR       0xA100000F
 /*invalid card ID*/
 #define CVI_ERR_AO_INVALID_CARDID    0xA100010
+/* invalid stereo ID */
+#define CVI_ERR_AO_INVALID_STEREOID    0xA100011
 
 
 #ifdef __cplusplus

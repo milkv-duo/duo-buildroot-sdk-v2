@@ -1892,31 +1892,34 @@ void GenRoiLevelMap(TestEncConfig *pEncConfig, EncParam *param,
 	if (roi_param_change || param->roi_base_qp != base_qp) {
 		for (roi_idx = 0; roi_idx < 8; roi_idx++) {
 			if (param->roi_enable[roi_idx]) {
-				if (param->roi_qp_mode[roi_idx] == TRUE) {
 					CVI_VC_TRACE("base qp:%d  param->roi_qp[roi_idx]:%d\n",
 						    base_qp, param->roi_qp[roi_idx]);
-					qp_delta = (base_qp - param->roi_qp[roi_idx]);
+				if (param->roi_qp_mode[roi_idx] == TRUE)
+					qp_delta = param->roi_qp[roi_idx] - base_qp;
+				else
+					qp_delta = param->roi_qp[roi_idx];
+
+				if(qp_delta > 0) {
+					// don't support target roi qp > base qp
 				} else {
-					qp_delta = abs(param->roi_qp[roi_idx]);
-				}
+					qp_delta = -qp_delta;
 
-				if (qp_delta >= 0 && qp_delta < 8) {
-					pEncConfig->roi_delta_qp = 1;
-					roi_level = (qp_delta / pEncConfig->roi_delta_qp);
-				}  else if (qp_delta >= 8 && qp_delta < 15) {
-					pEncConfig->roi_delta_qp = 2;
-					roi_level = (qp_delta / pEncConfig->roi_delta_qp);
-				} else if (qp_delta >= 16 && qp_delta < 24) {
-					pEncConfig->roi_delta_qp = 3;
-					roi_level = (qp_delta / pEncConfig->roi_delta_qp);
-				} else if (qp_delta >= 24 && qp_delta < 32) {
-					pEncConfig->roi_delta_qp = 4;
-					roi_level = (qp_delta / pEncConfig->roi_delta_qp);
-				} else if (qp_delta >= 32 && qp_delta < 40) {
-					pEncConfig->roi_delta_qp = 5;
-					roi_level = (qp_delta / pEncConfig->roi_delta_qp);
+					if (qp_delta > 48) {
+						pEncConfig->roi_delta_qp = 8;
+					} else if (qp_delta > 32) {
+						pEncConfig->roi_delta_qp = 7;
+					} else if (qp_delta > 24) {
+						pEncConfig->roi_delta_qp = 6;
+					} else if (qp_delta > 16) {
+						pEncConfig->roi_delta_qp = 5;
+					} else if (qp_delta > 8) {
+						pEncConfig->roi_delta_qp = 4;
+					} else {
+						pEncConfig->roi_delta_qp = 2;
+					}
+					roi_level = qp_delta / pEncConfig->roi_delta_qp;
 				}
-
+				CVI_VC_TRACE("param->roi_qp[roi_idx]:%d base_qp:%d\n",param->roi_qp[roi_idx], base_qp);
 				pEncConfig->roiLevel[roi_idx] = roi_level;
 			} else {
 				continue;

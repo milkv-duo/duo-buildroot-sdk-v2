@@ -1716,6 +1716,7 @@ static CVI_S32 cviSetVdecFpsToProc(VDEC_CHN VdChn, CVI_BOOL bSendStream)
 			pChnHandle->u64LastGetFrameTimeStamp = u64CurTime;
 			pChnHandle->u32GetFrameCnt = 0;
 		}
+		pChnHandle->stFPS.u64DoneFrame++;
 	}
 
 	return s32Ret;

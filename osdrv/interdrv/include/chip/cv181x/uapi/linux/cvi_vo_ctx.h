@@ -57,6 +57,7 @@ struct cvi_vo_ctx {
 	} rect_crop;
 	__u8 u8VoDev;
 	CVI_BOOL bVideoFrameValid;
+	CVI_U64 u64doneframe;
 };
 
 #ifdef __cplusplus

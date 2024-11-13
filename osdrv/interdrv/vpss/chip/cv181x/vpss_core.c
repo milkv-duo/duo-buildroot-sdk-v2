@@ -1365,7 +1365,7 @@ static irqreturn_t scl_isr(int irq, void *_dev)
 
 #if 0
 static int _get_reserved_mem(struct platform_device *pdev,
-	uint64_t *addr, uint64_t *size)
+	CVI_U64 *addr, CVI_U64 *size)
 {
 	struct device_node *target = NULL;
 	struct reserved_mem *prmem = NULL;

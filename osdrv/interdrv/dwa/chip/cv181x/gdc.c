@@ -454,7 +454,7 @@ static int _notify_vpp_sb_mode(struct gdc_task *tsk)
 	MMF_CHN_S stSrcChn = {.enModId = CVI_ID_GDC, .s32DevId = 0, .s32ChnId = 0};
 	MMF_BIND_DEST_S stBindDest = {.u32Num = 0};
 	struct _DWA_BUF_WRAP_S *pstBufWrap = &tsk->stTask.stBufWrap;
-	int32_t ret;
+	CVI_S32 ret;
 
 	ret = sys_get_bindbysrc(&stSrcChn, &stBindDest);
 	if (ret) {

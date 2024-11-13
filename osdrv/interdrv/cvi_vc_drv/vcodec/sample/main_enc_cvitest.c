@@ -3056,9 +3056,9 @@ static int cviGetOneStream(void *handle, cviVEncStreamInfo *pStreamInfo,
 		goto ERR_CVI_VENC_GET_STREAM;
 	}
 
+	pTestEnc->handle->yuvCnt++;
 	pStreamInfo->encHwTime = pOutputInfo->encHwTime;
 	pStreamInfo->u32MeanQp = pOutputInfo->u32MeanQp;
-
 
 #ifdef DROP_FRAME
 	if (pTestEnc->bDrop) {
@@ -5563,7 +5563,7 @@ static int pfnWaitEncodeDone(void *param)
 		CVI_VENC_DEBUG("get s chn:%d %llu\n", pCodecInst->s32ChnNum, pCodecInst->yuvCnt);
 		ret = cviGetOneStream(pTestEnc, &pTestEnc->tStreamInfo, TIME_BLOCK_MODE);
 		CVI_VENC_DEBUG("get s done chn:%d HwTime:%llu cnt:%llu ret:%d\n", pCodecInst->s32ChnNum,
-				pTestEnc->tStreamInfo.encHwTime, pCodecInst->yuvCnt++, ret);
+				pTestEnc->tStreamInfo.encHwTime, pCodecInst->yuvCnt, ret);
 		if (ret == TE_ERR_ENC_IS_SUPER_FRAME) {
 			ret = cviProcessSuperFrame(pTestEnc, &pTestEnc->tStreamInfo, TIME_BLOCK_MODE);
 			complete(&pTestEnc->semGetStreamCmd);

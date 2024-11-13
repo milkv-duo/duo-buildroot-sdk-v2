@@ -7,7 +7,7 @@
 
 #include <linux/version.h>
 
-struct sys_ion_mm_statics {
+struct sys_ion_mem_state {
 	__u64 total_size;
 	__u64 free_size;
 	__u64 max_avail_size;
@@ -31,7 +31,7 @@ struct sys_ion_mm_statics {
 #define SYS_IOC_G_CTRL    _IOWR(SYS_IOC_MAGIC, 0x10, unsigned long long)
 #define SYS_IOC_S_CTRL    _IOWR(SYS_IOC_MAGIC, 0x11, unsigned long long)
 
-#define SYS_ION_G_ION_MM_STATICS _IOWR(SYS_IOC_MAGIC, 0x12, struct sys_ion_mm_statics)
+#define SYS_ION_G_ION_MEM_STATE _IOWR(SYS_IOC_MAGIC, 0x12, struct sys_ion_mem_state)
 
 enum SYS_IOCTL {
 	SYS_IOCTL_SET_VIVPSSMODE,

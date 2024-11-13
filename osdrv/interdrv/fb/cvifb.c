@@ -571,7 +571,7 @@ static struct fb_ops cvifb_ops = {
 };
 
 static int _get_reserved_mem(struct platform_device *pdev,
-	uint64_t *addr, uint64_t *size)
+	CVI_U64 *addr, uint64_t *size)
 {
 	struct device_node *target = NULL;
 	struct reserved_mem *prmem = NULL;
@@ -608,7 +608,7 @@ static int _init_resources(struct platform_device *pdev)
 	struct cvifb_par *par = info->par;
 	int rc = 0;
 	struct resource *res = NULL;
-	uint64_t resv_addr, resv_size;
+	CVI_U64 resv_addr, resv_size;
 
 	if (_get_reserved_mem(pdev, &resv_addr, &resv_size)) {
 		dev_err(&pdev->dev, "get reserved memmory failed!\n");

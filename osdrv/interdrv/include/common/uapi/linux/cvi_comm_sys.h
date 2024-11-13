@@ -25,11 +25,11 @@ extern "C" {
  * free_size: total free size for ion
  * max_avail_size: max available size for ion
  */
-typedef struct _ION_MM_STATICS_S {
+typedef struct _ION_MEM_STATE_S {
 	CVI_U64 total_size;
 	CVI_U64 free_size;
 	CVI_U64 max_avail_size;
-} ION_MM_STATICS_S;
+} ION_MEM_STATE_S;
 
 typedef struct _MMF_BIND_DEST_S {
 	CVI_U32   u32Num;	/*	mmf bind dest cnt	*/

@@ -529,6 +529,7 @@ typedef struct _VCODEC_PERF_FPS_S {
 	CVI_U32 u32InFPS;
 	CVI_U32 u32OutFPS;
 	CVI_U64 u64HwTime;
+	CVI_U64 u64DoneFrame;
 } VCODEC_PERF_FPS_S;
 
 #ifdef __cplusplus

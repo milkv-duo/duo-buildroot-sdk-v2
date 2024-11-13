@@ -187,7 +187,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 	} break;
 	case CVI_VC_VENC_GET_STREAM: {
 		VENC_STREAM_EX_S stStreamEx;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		VENC_STREAM_S stStream;
 		VENC_PACK_S *pUserPack; // keep user space pointer on packs
 #endif
@@ -197,7 +197,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_from_user(&stStream, stStreamEx.pstStream,
 				   sizeof(VENC_STREAM_S)) != 0) {
 			break;
@@ -215,7 +215,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 #endif
 
 		if (s32Ret != CVI_SUCCESS) {
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 			if (stStream.pstPack) {
 				vfree(stStream.pstPack);
 				stStream.pstPack = NULL;
@@ -224,7 +224,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		// copy kernel space packs to user space
 		if (stStream.pstPack) {
 			if (copy_to_user(pUserPack, stStream.pstPack,
@@ -275,7 +275,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 	} break;
 	case CVI_VC_VENC_INSERT_USERDATA: {
 		VENC_USER_DATA_S stUserData;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		__u8 *pUserData = NULL;
 #endif
 
@@ -284,7 +284,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		pUserData = vmalloc(stUserData.u32Len);
 		if (pUserData == NULL) {
 			s32Ret = CVI_ERR_VENC_NOMEM;
@@ -306,14 +306,14 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			pr_err("CVI_VENC_InsertUserData with %d\n", s32Ret);
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (pUserData)
 			vfree(pUserData);
 #endif
 	} break;
 	case CVI_VC_VENC_SEND_FRAME: {
 		VIDEO_FRAME_INFO_EX_S stFrameEx;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		VIDEO_FRAME_INFO_S stFrame;
 #endif
 
@@ -322,7 +322,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_from_user(&stFrame, stFrameEx.pstFrame,
 				   sizeof(VIDEO_FRAME_INFO_S)) != 0) {
 			break;
@@ -335,7 +335,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 	} break;
 	case CVI_VC_VENC_SEND_FRAMEEX: {
 		USER_FRAME_INFO_EX_S stUserFrameEx;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		USER_FRAME_INFO_S stUserFrameInfo;
 		CVI_S32 w, h;
 		__u8 *pu8QpMap = NULL;
@@ -346,7 +346,7 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_from_user(&stUserFrameInfo, stUserFrameEx.pstUserFrame,
 				   sizeof(USER_FRAME_INFO_S)) != 0) {
 			break;
@@ -361,18 +361,18 @@ static long cvi_vc_drv_venc_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-		if (copy_from_user(pu8QpMap, (__u8 *)stUserFrameInfo.stUserRcInfo.u64QpMapPhyAddr,
+		if (copy_from_user(pu8QpMap, (__u8 *)(uintptr_t)stUserFrameInfo.stUserRcInfo.u64QpMapPhyAddr,
 				   w * h) != 0) {
 			vfree(pu8QpMap);
 			break;
 		}
-		stUserFrameInfo.stUserRcInfo.u64QpMapPhyAddr = (__u64)pu8QpMap;
+		stUserFrameInfo.stUserRcInfo.u64QpMapPhyAddr = (__u64)(uintptr_t)pu8QpMap;
 #endif
 
 		s32Ret = CVI_VENC_SendFrameEx(minor, stUserFrameEx.pstUserFrame,
 					      stUserFrameEx.s32MilliSec);
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (pu8QpMap)
 			vfree(pu8QpMap);
 #endif
@@ -1159,7 +1159,7 @@ static long cvi_vc_drv_vdec_ioctl(struct file *filp, u_int cmd, u_long arg)
 	} break;
 	case CVI_VC_VDEC_SEND_STREAM: {
 		VDEC_STREAM_EX_S stStreamEx;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		VDEC_STREAM_S stStream;
 		__u8 *pStreamData = NULL;
 #endif
@@ -1169,7 +1169,7 @@ static long cvi_vc_drv_vdec_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_from_user(&stStream, stStreamEx.pstStream,
 				   sizeof(VDEC_STREAM_S)) != 0) {
 			break;
@@ -1194,14 +1194,14 @@ static long cvi_vc_drv_vdec_ioctl(struct file *filp, u_int cmd, u_long arg)
 
 		s32Ret = CVI_VDEC_SendStream(minor, stStreamEx.pstStream,
 					     stStreamEx.s32MilliSec);
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (pStreamData)
 			osal_ion_free(pStreamData);
 #endif
 	} break;
 	case CVI_VC_VDEC_GET_FRAME: {
 		VIDEO_FRAME_INFO_EX_S stFrameInfoEx;
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		VIDEO_FRAME_INFO_S stFrameInfo;
 		VIDEO_FRAME_INFO_S *pUserFrameInfo; // keep user space pointer on frame info
 #endif
@@ -1211,7 +1211,7 @@ static long cvi_vc_drv_vdec_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_from_user(&stFrameInfo, stFrameInfoEx.pstFrame,
 				   sizeof(VIDEO_FRAME_INFO_S)) != 0) {
 			break;
@@ -1226,7 +1226,7 @@ static long cvi_vc_drv_vdec_ioctl(struct file *filp, u_int cmd, u_long arg)
 			break;
 		}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 		if (copy_to_user(pUserFrameInfo, stFrameInfoEx.pstFrame,
 				   sizeof(VIDEO_FRAME_INFO_S)) != 0) {
 			break;
