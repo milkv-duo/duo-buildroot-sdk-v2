@@ -60,7 +60,7 @@ endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy others
-	@cp -f sample/ir_auto/ir_auto $(DESTDIR)/usr/bin
+	@cp -f sample/sample_ir_auto/sample_ir_auto $(DESTDIR)/usr/bin
 endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
