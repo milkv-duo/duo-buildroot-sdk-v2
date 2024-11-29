@@ -94,13 +94,13 @@ static int sys_vi_init(void)
 
 		s32Ret = SAMPLE_COMM_VI_GetSizeBySensor(stIniCfg.enSnsType[i], &enPicSize);
 		if (s32Ret != CVI_SUCCESS) {
-			CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_VI_GetSizeBySensor failed with %#x\n", s32Ret);
+			SAMPLE_PRT("SAMPLE_COMM_VI_GetSizeBySensor failed with %#x\n", s32Ret);
 			return s32Ret;
 		}
 
 		s32Ret = SAMPLE_COMM_SYS_GetPicSize(enPicSize, &stSize);
 		if (s32Ret != CVI_SUCCESS) {
-			CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_SYS_GetPicSize failed with %#x\n", s32Ret);
+			SAMPLE_PRT("SAMPLE_COMM_SYS_GetPicSize failed with %#x\n", s32Ret);
 			return s32Ret;
 		}
 
@@ -154,13 +154,13 @@ static int sys_vi_init(void)
 
 	s32Ret = SAMPLE_COMM_SYS_Init(&stVbConf);
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "system init failed. s32Ret: 0x%x !\n", s32Ret);
+		SAMPLE_PRT("system init failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 
 	s32Ret = SAMPLE_PLAT_VI_INIT(&stViConfig);
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "vi init failed. s32Ret: 0x%x !\n", s32Ret);
+		SAMPLE_PRT("vi init failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 
@@ -189,7 +189,7 @@ static CVI_S32 _vi_get_chn_frame(CVI_U8 chn)
 		CVI_U32 plane_offset, u32LumaSize, u32ChromaSize;
 		CVI_CHAR img_name[128] = {0, };
 
-		CVI_TRACE_LOG(CVI_DBG_WARN, "width: %d, height: %d, total_buf_length: %zu\n",
+		SAMPLE_PRT("width: %d, height: %d, total_buf_length: %zu\n",
 			   stVideoFrame.stVFrame.u32Width,
 			   stVideoFrame.stVFrame.u32Height, image_size);
 
@@ -202,7 +202,7 @@ static CVI_S32 _vi_get_chn_frame(CVI_U8 chn)
 			output = fopen(img_name, "wb");
 			if (output == NULL) {
 				CVI_VI_ReleaseChnFrame(0, chn, &stVideoFrame);
-				CVI_TRACE_LOG(CVI_DBG_ERR, "fopen fail\n");
+				SAMPLE_PRT("fopen fail\n");
 				return CVI_FAILURE;
 			}
 		}
@@ -223,8 +223,7 @@ static CVI_S32 _vi_get_chn_frame(CVI_U8 chn)
 			if (stVideoFrame.stVFrame.u32Length[i] != 0) {
 				stVideoFrame.stVFrame.pu8VirAddr[i] = vir_addr + plane_offset;
 				plane_offset += stVideoFrame.stVFrame.u32Length[i];
-				CVI_TRACE_LOG(CVI_DBG_WARN,
-					   "plane(%d): paddr(%#llx) vaddr(%p) stride(%d) length(%d)\n",
+				SAMPLE_PRT("plane(%d): paddr(%#llx) vaddr(%p) stride(%d) length(%d)\n",
 					   i, stVideoFrame.stVFrame.u64PhyAddr[i],
 					   stVideoFrame.stVFrame.pu8VirAddr[i],
 					   stVideoFrame.stVFrame.u32Stride[i],
@@ -236,12 +235,12 @@ static CVI_S32 _vi_get_chn_frame(CVI_U8 chn)
 		CVI_SYS_Munmap(vir_addr, image_size);
 
 		if (CVI_VI_ReleaseChnFrame(0, chn, &stVideoFrame) != 0)
-			CVI_TRACE_LOG(CVI_DBG_ERR, "CVI_VI_ReleaseChnFrame NG\n");
+			SAMPLE_PRT("CVI_VI_ReleaseChnFrame NG\n");
 
 		fclose(output);
 		return CVI_SUCCESS;
 	}
-	CVI_TRACE_LOG(CVI_DBG_ERR, "CVI_VI_GetChnFrame NG\n");
+	SAMPLE_PRT("CVI_VI_GetChnFrame NG\n");
 	return CVI_FAILURE;
 }
 
@@ -306,17 +305,17 @@ static CVI_S32 sensor_dump_yuv(void)
 	int tmp;
 	struct timespec start, end;
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Get frm from which chn(0~1): ");
+	SAMPLE_PRT("Get frm from which chn(0~1): ");
 	scanf("%d", &tmp);
 	chn = tmp;
-	CVI_TRACE_LOG(CVI_DBG_WARN, "how many loops to do(11111 is infinite: ");
+	SAMPLE_PRT("how many loops to do(11111 is infinite): ");
 	scanf("%d", &loop);
 	while (loop > 0) {
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		if (_vi_get_chn_frame(chn) == CVI_SUCCESS) {
 			++ok;
 			clock_gettime(CLOCK_MONOTONIC, &end);
-			CVI_TRACE_LOG(CVI_DBG_WARN, "ms consumed: %f\n",
+			SAMPLE_PRT("ms consumed: %f\n",
 						(CVI_FLOAT)diff_in_us(start, end)/1000);
 		} else
 			++ng;
@@ -324,9 +323,9 @@ static CVI_S32 sensor_dump_yuv(void)
 		if (loop != 11111)
 			loop--;
 	}
-	CVI_TRACE_LOG(CVI_DBG_WARN, "VI GetChnFrame OK(%d) NG(%d)\n", ok, ng);
+	SAMPLE_PRT("VI GetChnFrame OK(%d) NG(%d)\n", ok, ng);
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Dump VI yuv TEST-PASS\n");
+	SAMPLE_PRT("Dump VI yuv TEST-PASS\n");
 
 	return CVI_SUCCESS;
 }
@@ -338,11 +337,11 @@ static CVI_S32 sensor_flip_mirror(void)
 	int chnID;
 	int pipeID;
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "chn(0~1): ");
+	SAMPLE_PRT("chn(0~1): ");
 	scanf("%d", &chnID);
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Flip enable/disable(1/0): ");
+	SAMPLE_PRT("Flip enable/disable(1/0): ");
 	scanf("%d", &flip);
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Mirror enable/disable(1/0): ");
+	SAMPLE_PRT("Mirror enable/disable(1/0): ");
 	scanf("%d", &mirror);
 	pipeID = chnID;
 	CVI_VI_SetChnFlipMirror(pipeID, chnID, flip, mirror);
@@ -365,7 +364,7 @@ static CVI_S32 sensor_dump_raw(void)
 	stVideoFrame[0].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 	stVideoFrame[1].stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_BAYER_12BPP;
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "To get raw dump from dev(0~1): ");
+	SAMPLE_PRT("To get raw dump from dev(0~1): ");
 	scanf("%d", &dev);
 
 	attr.bEnable = 1;
@@ -379,8 +378,8 @@ static CVI_S32 sensor_dump_raw(void)
 
 	CVI_VI_GetPipeDumpAttr(dev, &attr);
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Enable(%d), DumpType(%d):\n", attr.bEnable, attr.enDumpType);
-	CVI_TRACE_LOG(CVI_DBG_WARN, "how many loops to do (1~60)");
+	SAMPLE_PRT("Enable(%d), DumpType(%d):\n", attr.bEnable, attr.enDumpType);
+	SAMPLE_PRT("how many loops to do (1~60): ");
 	scanf("%d", &loop);
 
 	if (loop > 60)
@@ -407,7 +406,7 @@ static CVI_S32 sensor_dump_raw(void)
 				stVideoFrame[j].stVFrame.pu8VirAddr[0]
 					= CVI_SYS_Mmap(stVideoFrame[j].stVFrame.u64PhyAddr[0]
 					  , stVideoFrame[j].stVFrame.u32Length[0]);
-				CVI_TRACE_LOG(CVI_DBG_WARN, "paddr(%#llx) vaddr(%p)\n",
+				SAMPLE_PRT("paddr(%#llx) vaddr(%p)\n",
 							stVideoFrame[j].stVFrame.u64PhyAddr[0],
 							stVideoFrame[j].stVFrame.pu8VirAddr[0]);
 
@@ -441,7 +440,7 @@ static CVI_S32 sensor_dump_raw(void)
 						stVideoFrame[j].stVFrame.s16OffsetTop,
 						tv1.tv_sec, tv1.tv_usec);
 
-				CVI_TRACE_LOG(CVI_DBG_WARN, "dump image %s\n", img_name);
+				SAMPLE_PRT("dump image %s\n", img_name);
 
 				output = fopen(img_name, "wb");
 
@@ -454,13 +453,13 @@ static CVI_S32 sensor_dump_raw(void)
 		CVI_VI_ReleasePipeFrame(dev, stVideoFrame);
 
 		clock_gettime(CLOCK_MONOTONIC, &end);
-		CVI_TRACE_LOG(CVI_DBG_WARN, "ms consumed: %f\n",
+		SAMPLE_PRT("ms consumed: %f\n",
 					(CVI_FLOAT)diff_in_us(start, end) / 1000);
 
 		loop--;
 	}
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "Dump VI raw TEST-PASS\n");
+	SAMPLE_PRT("Dump VI raw TEST-PASS\n");
 
 	return s32Ret;
 }
@@ -477,11 +476,11 @@ static CVI_S32 sensor_linear_wdr_switch(void)
 	// Close ISP device.
 	s32Ret = SAMPLE_COMM_VI_CLOSE();
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "vi close failed. s32Ret: 0x%x !\n", s32Ret);
+		SAMPLE_PRT("vi close failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 	// select which mode want to switch.
-	printf("Please select sensor input mode (0:linear/1:wdr) :");
+	SAMPLE_PRT("Please select sensor input mode (0:linear/1:wdr): ");
 	scanf("%d", &tmp);
 	wdrMode = tmp;
 	if (wdrMode == 0) {
@@ -504,13 +503,13 @@ static CVI_S32 sensor_linear_wdr_switch(void)
 	// open Isp device.
 	s32Ret = SAMPLE_COMM_VI_OPEN();
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "vi open failed. s32Ret: 0x%x !\n", s32Ret);
+		SAMPLE_PRT("vi open failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 	// Initial VI & ISP.
 	s32Ret = SAMPLE_PLAT_VI_INIT(&g_stViConfig);
 	if (s32Ret != CVI_SUCCESS) {
-		CVI_TRACE_LOG(CVI_DBG_ERR, "vi init failed. s32Ret: 0x%x !\n", s32Ret);
+		SAMPLE_PRT("vi init failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
 	}
 
@@ -524,9 +523,9 @@ int sensor_dump(void)
 	FILE *output;
 	char img_name[128] = {0, };
 
-	CVI_TRACE_LOG(CVI_DBG_WARN, "dump addr:\n");
+	SAMPLE_PRT("dump addr:\n");
 	scanf("%llx", &addr);
-	CVI_TRACE_LOG(CVI_DBG_WARN, "dump size(0\1):\n");
+	SAMPLE_PRT("dump size(0\1):\n");
 	scanf("%x", &size);
 
 	snprintf(img_name, sizeof(img_name), "register_%llx.bin", addr);
@@ -537,7 +536,7 @@ int sensor_dump(void)
 		snprintf(img_name, sizeof(img_name), "register_%llx.bin", addr);
 		output = fopen(img_name, "wb");
 		if (output == NULL) {
-			CVI_TRACE_LOG(CVI_DBG_ERR, "fopen fail\n");
+			SAMPLE_PRT("fopen fail\n");
 			return CVI_FAILURE;
 		}
 	}
@@ -563,6 +562,7 @@ int sensor_proc(void)
 	SAMPLE_PRT("1: /proc/cvitek/vi_dbg\n");
 	SAMPLE_PRT("2: /proc/cvitek/vi\n");
 	SAMPLE_PRT("3: /proc/mipi-rx\n");
+	SAMPLE_PRT("input your choice: ");
 	scanf("%d", &op);
 
 	switch (op) {
@@ -595,6 +595,8 @@ int main(int argc, char **argv)
 	UNUSED(argc);
 	UNUSED(argv);
 
+	setbuf(stdout, NULL);
+
 	s32Ret = sys_vi_init();
 	if (s32Ret != CVI_SUCCESS)
 		return s32Ret;
@@ -617,6 +619,7 @@ int main(int argc, char **argv)
 		SAMPLE_PRT("6: sensor dump\n");
 		SAMPLE_PRT("7: sensor proc\n");
 		SAMPLE_PRT("255: exit\n");
+		SAMPLE_PRT("input your choice: ");
 		scanf("%d", &op);
 
 		switch (op) {
@@ -645,7 +648,7 @@ int main(int argc, char **argv)
 			break;
 		}
 		if (s32Ret != CVI_SUCCESS) {
-			CVI_TRACE_LOG(CVI_DBG_ERR, "op(%d) failed with %#x!\n", op, s32Ret);
+			SAMPLE_PRT("op(%d) failed with %#x!\n", op, s32Ret);
 			break;
 		}
 	} while (op != 255);
@@ -658,4 +661,3 @@ int main(int argc, char **argv)
 
 	return s32Ret;
 }
-
