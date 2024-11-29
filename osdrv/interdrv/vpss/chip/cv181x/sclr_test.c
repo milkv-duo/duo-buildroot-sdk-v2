@@ -44,7 +44,7 @@ static u64 dst_addr_phy[1][3];
 static void *src_addr_vir[1][3];
 static void *dst_addr_vir[1][3];
 
-uint8_t sclr_test_enabled;
+CVI_U8 sclr_test_enabled;
 static bool enable_cmdq;
 
 
@@ -175,7 +175,7 @@ static int sclr_test_alloc_ion(void)
 {
 	size_t len =  2 * TEST_SIZE_PER_PLANE * 3; // in+out, h*w, planes
 	int i;
-	uint64_t u64Addr;
+	CVI_U64 u64Addr;
 	void *vaddr = NULL;
 
 	sclr_test_free_ion();
@@ -278,7 +278,7 @@ static void sclr_trig_start_ext(int img_inst, int sc_inst)
 	sclr_img_start(img_inst);
 }
 
-void sclr_test_irq_handler(uint32_t intr_raw_status)
+void sclr_test_irq_handler(CVI_U32 intr_raw_status)
 {
 	union sclr_intr intr_status;
 	u8 status;
@@ -1006,7 +1006,7 @@ static int sclr_cmdq_test(void)
 {
 	int ret = 0;
 	int len = 0x2000;
-	uint64_t u64Addr;
+	CVI_U64 u64Addr;
 	void *vaddr = NULL;
 	struct sclr_ctrl_cfg cfgs[2];
 	union sclr_intr mask;
@@ -1897,9 +1897,9 @@ static int sclr_test_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, sclr_test_proc_show, PDE_DATA(inode));
 }
 
-static uint32_t sclr_test_init(void)
+static CVI_U32 sclr_test_init(void)
 {
-	uint32_t old_shd_val;
+	CVI_U32 old_shd_val;
 	int i;
 	union sclr_intr mask;
 
@@ -1969,7 +1969,7 @@ void close_clk(void)
 
 static ssize_t sclr_test_proc_write(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)
 {
-	uint32_t input_param = 0;
+	CVI_U32 input_param = 0;
 	u32 old_shd_val = 0;
 
 	if (kstrtouint_from_user(user_buf, count, 0, &input_param)) {
@@ -2126,7 +2126,7 @@ static const struct file_operations sclr_test_proc_ops = {
 };
 #endif
 
-int32_t sclr_test_proc_init(struct cvi_vip_dev *dev)
+CVI_S32 sclr_test_proc_init(struct cvi_vip_dev *dev)
 {
 	int ret = 0;
 
@@ -2138,7 +2138,7 @@ int32_t sclr_test_proc_init(struct cvi_vip_dev *dev)
 	return ret;
 }
 
-int32_t sclr_test_proc_deinit(void)
+CVI_S32 sclr_test_proc_deinit(void)
 {
 	remove_proc_entry(PROC_NAME, NULL);
 	pdev = NULL;

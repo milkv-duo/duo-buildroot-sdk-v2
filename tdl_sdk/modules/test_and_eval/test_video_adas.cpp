@@ -17,24 +17,15 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include "sys_utils.hpp"
-
+#ifndef NO_OPENCV
 #include <opencv2/opencv.hpp>
 
-static const char *enumStr[] = {"NORMAL", "START", "COLLISION_WARNING", "DANGER"};
+// static const char *enumStr[] = {"NORMAL", "START", "COLLISION_WARNING", "DANGER"};
+static const char *enumStr[] = {"N", "S", "C", "D"};
 int g_count = 0;
 std::vector<cv::Scalar> color = {cv::Scalar(51, 153, 255), cv::Scalar(0, 153, 76),
                                  cv::Scalar(255, 215, 0), cv::Scalar(255, 128, 0),
                                  cv::Scalar(0, 255, 0)};
-
-void set_sample_mot_config(cvtdl_deepsort_config_t *ds_conf) {
-  ds_conf->ktracker_conf.P_beta[2] = 0.01;
-  ds_conf->ktracker_conf.P_beta[6] = 1e-5;
-
-  // ds_conf.kfilter_conf.Q_beta[2] = 0.1;
-  ds_conf->kfilter_conf.Q_beta[2] = 0.01;
-  ds_conf->kfilter_conf.Q_beta[6] = 1e-5;
-  ds_conf->kfilter_conf.R_beta[2] = 0.1;
-}
 
 cv::Scalar gen_random_color(uint64_t seed, int min) {
   float scale = (256. - (float)min) / 256.;
@@ -75,10 +66,9 @@ void draw_adas(cvitdl_app_handle_t app_handle, VIDEO_FRAME_INFO_S *bg, std::stri
     cv::rectangle(img_rgb, top_left, bottom_right, box_color, 2);
 
     char txt_info[256];
-    snprintf(txt_info, sizeof(txt_info), "[%d]S:%d m, V:%.1f m/s, [%s]",
-             obj_meta->info[oid].classes, (int)obj_meta->info[oid].adas_properity.dis,
-             obj_meta->info[oid].adas_properity.speed,
-             enumStr[obj_meta->info[oid].adas_properity.state]);
+    snprintf(txt_info, sizeof(txt_info), "[%d][%s]S:%.1f,V:%.1f", obj_meta->info[oid].classes,
+             enumStr[obj_meta->info[oid].adas_properity.state],
+             obj_meta->info[oid].adas_properity.dis, obj_meta->info[oid].adas_properity.speed);
 
     if (obj_meta->info[oid].adas_properity.state != 0) box_color = cv::Scalar(0, 0, 255);
 
@@ -121,6 +111,17 @@ void draw_adas(cvitdl_app_handle_t app_handle, VIDEO_FRAME_INFO_S *bg, std::stri
   cv::imwrite(save_path, img_rgb);
   CVI_SYS_Munmap((void *)bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Length[0]);
 }
+#endif
+
+void set_sample_mot_config(cvtdl_deepsort_config_t *ds_conf) {
+  ds_conf->ktracker_conf.P_beta[2] = 0.01;
+  ds_conf->ktracker_conf.P_beta[6] = 1e-5;
+
+  // ds_conf.kfilter_conf.Q_beta[2] = 0.1;
+  ds_conf->kfilter_conf.Q_beta[2] = 0.01;
+  ds_conf->kfilter_conf.Q_beta[6] = 1e-5;
+  ds_conf->kfilter_conf.R_beta[2] = 0.1;
+}
 
 std::string adas_info(cvitdl_app_handle_t app_handle) {
   cvtdl_object_t *obj_meta = &app_handle->adas_info->last_objects;
@@ -153,10 +154,11 @@ std::string adas_info(cvitdl_app_handle_t app_handle) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 7 && argc != 9 && argc != 11) {
+  if (argc != 8 && argc != 10 && argc != 12) {
     printf(
-        "\nUsage: %s \nperson_vehicle_model_path  image_dir_path img_list_path output_dir_path \n"
+        "\nUsage: %s \n person_vehicle_model_path  image_dir_path img_list_path output_dir_path \n"
         "det_type(0: only object, 1: object and lane) \n"
+        "sence_type(0: car, 1: motorbike) \n"
         "save_mode(0: draw, 1: save txt info, 2: both) \n"
         "[lane_det_model_path](optional, if det_type=1, must exist) \n"
         "[lane_model_type](optional, 0 for lane_det model, 1 for lstr model, if det_type=1, must "
@@ -205,6 +207,9 @@ int main(int argc, char *argv[]) {
     printf("failed with %#x!\n", ret);
     // goto setup_tdl_fail;
   }
+  app_handle->adas_info->sence_type = atoi(argv[6]);  // 0 for car, 1 for motorbike, defult 1
+  app_handle->adas_info->location_type = 1;  // camera location, 0 for left, 1 for middle, 2 for
+                                             // right, defult 1, only work when sence_type=1
 
   CVI_TDL_DeepSORT_Init(tdl_handle, true);
   cvtdl_deepsort_config_t ds_conf;
@@ -219,7 +224,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (det_type == 1) {  // detect lane
-    app_handle->adas_info->lane_model_type = atoi(argv[8]);
+    app_handle->adas_info->lane_model_type = atoi(argv[9]);
 
     CVI_TDL_SUPPORTED_MODEL_E lane_model_id;
     if (app_handle->adas_info->lane_model_type == 0) {
@@ -231,7 +236,7 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-    ret = CVI_TDL_OpenModel(tdl_handle, lane_model_id, argv[7]);
+    ret = CVI_TDL_OpenModel(tdl_handle, lane_model_id, argv[8]);
     if (ret != CVI_SUCCESS) {
       printf("open lane det model failed with %#x!\n", ret);
       return ret;
@@ -244,7 +249,7 @@ int main(int argc, char *argv[]) {
   std::string str_image_root(argv[2]);
   std::string image_list(argv[3]);
   std::string str_dst_root = std::string(argv[4]);
-  int save_mode = atoi(argv[6]);
+  int save_mode = atoi(argv[7]);
 
   if (!create_directory(str_dst_root)) {
     // std::cout << "create directory:" << str_dst_root << " failed\n";
@@ -270,9 +275,9 @@ int main(int argc, char *argv[]) {
   int start_idx = 0;
   int end_idx = image_files.size();
 
-  if (argc == 11) {
-    start_idx = atoi(argv[9]);
-    end_idx = atoi(argv[10]);
+  if (argc == 12) {
+    start_idx = atoi(argv[10]);
+    end_idx = atoi(argv[11]);
   }
   printf("start_idx: %d, end_idx:%d\n", start_idx, end_idx);
 
@@ -299,7 +304,8 @@ int main(int argc, char *argv[]) {
     }
 
     // set FPS and gsensor data
-    // app_handle->adas_info->FPS = 15;
+    app_handle->adas_info->FPS = 15;  // infer FPS, only set once if FPS is stable
+
     // app_handle->adas_info->gsensor_data.x = 0;
     // app_handle->adas_info->gsensor_data.y = 0;
     // app_handle->adas_info->gsensor_data.z = 0;
@@ -319,11 +325,13 @@ int main(int argc, char *argv[]) {
     //     std::cout << "[" << obj_meta->info[i].bbox.x1 << "," << obj_meta->info[i].bbox.y1 << ","
     //         << obj_meta->info[i].bbox.x2 << "," << obj_meta->info[i].bbox.y2 << "]," <<std::endl;
     // }
+#ifndef NO_OPENCV
     if (save_mode == 0 || save_mode == 2) {
       char save_path[256];
       sprintf(save_path, "%s/%s", str_dst_video.c_str(), image_files[img_idx].c_str());
       draw_adas(app_handle, &bg, save_path);
     }
+#endif
 
     if (save_mode == 1 || save_mode == 2) {
       std::string dstf = str_dst_video + "/" + replace_file_ext(image_files[img_idx], "txt");

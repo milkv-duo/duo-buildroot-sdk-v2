@@ -6,8 +6,14 @@
 #include <math.h>
 #include <string.h>
 #include <algorithm>
-
 namespace cvitdl {
+
+#ifdef CONFIG_ALIOS
+static void *CVI_SYS_Mmap(CVI_U64 u64PhyAddr, CVI_U32 u32Size) { return (void *)u64PhyAddr; }
+
+static CVI_S32 CVI_SYS_Munmap(void *pVirAddr, CVI_U32 u32Size) { return CVI_SUCCESS; }
+#endif
+
 void SoftMaxForBuffer(const float *src, float *dst, size_t size) {
   float sum = 0;
 

@@ -502,8 +502,17 @@ static int saradc_cv_suspend(struct	device *dev)
 {
 	struct cvi_saradc_device *ndev = dev_get_drvdata(dev);
 
-	memcpy_fromio(ndev->saradc_saved_top_regs, ndev->top_saradc_base_addr, SARADC_REGS_SIZE);
-	memcpy_fromio(ndev->saradc_saved_rtc_regs, ndev->rtcsys_saradc_base_addr, SARADC_REGS_SIZE);
+	platform_saradc_clk_init(ndev);
+	/*Save all registers*/
+	ndev->saradc_ctrl = readl(ndev->top_saradc_base_addr + SARADC_CTRL);
+	ndev->saradc_cyc_set = readl(ndev->top_saradc_base_addr + SARADC_CYC_SET);
+	ndev->saradc_intr_en = readl(ndev->top_saradc_base_addr + SARADC_INTR_EN);
+	ndev->saradc_intr_clr = readl(ndev->top_saradc_base_addr + SARADC_INTR_CLR);
+	ndev->saradc_test = readl(ndev->top_saradc_base_addr + SARADC_TEST);
+	ndev->saradc_trim = readl(ndev->top_saradc_base_addr + SARADC_TRIM);
+	ndev->saradc_period_cycle = readl(ndev->top_saradc_base_addr + SARADC_PERIOD_CYCLE);
+	ndev->saradc_test_force = readl(ndev->top_saradc_base_addr + SARADC_TEST_FORCE);
+
 	platform_saradc_clk_deinit(ndev);
 
 	return 0;
@@ -514,9 +523,16 @@ static int saradc_cv_resume(struct device *dev)
 	struct cvi_saradc_device *ndev = dev_get_drvdata(dev);
 
 	platform_saradc_clk_init(ndev);
-
-	memcpy_toio(ndev->top_saradc_base_addr,	ndev->saradc_saved_top_regs, SARADC_REGS_SIZE);
-	memcpy_toio(ndev->rtcsys_saradc_base_addr, ndev->saradc_saved_rtc_regs, SARADC_REGS_SIZE);
+	/*Restore register settings*/
+	writel(ndev->saradc_ctrl, ndev->top_saradc_base_addr + SARADC_CTRL);
+	writel(ndev->saradc_cyc_set, ndev->top_saradc_base_addr + SARADC_CYC_SET);
+	writel(ndev->saradc_intr_en, ndev->top_saradc_base_addr + SARADC_INTR_EN);
+	writel(ndev->saradc_intr_clr, ndev->top_saradc_base_addr + SARADC_INTR_CLR);
+	writel(ndev->saradc_test, ndev->top_saradc_base_addr + SARADC_TEST);
+	writel(ndev->saradc_trim, ndev->top_saradc_base_addr + SARADC_TRIM);
+	writel(ndev->saradc_period_cycle, ndev->top_saradc_base_addr + SARADC_PERIOD_CYCLE);
+	writel(ndev->saradc_test_force, ndev->top_saradc_base_addr + SARADC_TEST_FORCE);
+	platform_saradc_clk_deinit(ndev);
 
 	return 0;
 }

@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string.h>
 #include "utils.h"
+#include "cvi_awb.h"
 
 int Bayer_12bit_2_16bit(uint8_t *bayerBuffer, uint16_t *outBuffer,
 		uint16_t width, uint16_t height, uint16_t stride)
@@ -370,11 +371,28 @@ int get_file_raw(std::string &raw_path, VIDEO_FRAME_INFO_S *frame, uint32_t heig
 	return 0;
 }
 
+int get_pq_parameter(int pipe, PQ_PARAMETER_S *p_pq_param)
+{
+	ISP_WB_Q_INFO_S awb_info;
+	int ret = 0;
+
+	ret = CVI_AWB_QueryInfo(pipe, &awb_info);
+
+	if (ret != 0)
+		return -1;
+
+	p_pq_param->awb_bgain = awb_info.u16Bgain;
+	p_pq_param->awb_rgain = awb_info.u16Rgain;
+	p_pq_param->awb_ggain = awb_info.u16Grgain;
+
+	return 0;
+}
+
 void CLASS_FREE(cvtdl_class_meta_t *cls_meta)
 {
 	for (int i = 0; i < 5; i++) {
-	cls_meta->cls[i] = 0;
-	cls_meta->score[i] = 0.0;
+		cls_meta->cls[i] = 0;
+		cls_meta->score[i] = 0.0;
 	}
 }
 

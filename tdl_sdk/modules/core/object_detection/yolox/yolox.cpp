@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iterator>
 
+#include <unordered_map>
 #include "coco_utils.hpp"
 #include "core/core/cvtdl_errno.h"
 #include "core/cvi_tdl_types_mem.h"
@@ -167,6 +168,12 @@ int YoloX::onModelOpened() {
   int input_h = input_shape.dim[2];
 
   strides_.clear();
+  std::unordered_map<std::string, int> setting_out_names_index_map;
+  if (!setting_out_names_.empty()) {
+    for (size_t i = 0; i < setting_out_names_.size(); i++) {
+      setting_out_names_index_map[setting_out_names_[i]] = i;
+    }
+  }
   for (size_t j = 0; j < getNumOutputTensor(); j++) {
     TensorInfo oinfo = getOutputTensorInfo(j);
     CVI_SHAPE output_shape = oinfo.shape;
@@ -177,25 +184,26 @@ int YoloX::onModelOpened() {
     LOGI("%s: (%d %d %d %d)\n", oinfo.tensor_name.c_str(), output_shape.dim[0], output_shape.dim[1],
          output_shape.dim[2], output_shape.dim[3]);
 
-    if (channel == alg_param_.cls) {
-      class_out_names_[stride_h] = oinfo.tensor_name;
-      strides_.push_back(stride_h);
-      LOGE("parse output name: %s, channel: %d, stride: %d\n", oinfo.tensor_name.c_str(), channel,
-           stride_h);
-    } else if (channel == 4) {
-      box_out_names_[stride_h] = oinfo.tensor_name;
-      LOGE("parse output name: %s, channel: %d, stride: %d\n", oinfo.tensor_name.c_str(), channel,
-           stride_h);
-    } else if (channel == 1) {
-      object_out_names_[stride_h] = oinfo.tensor_name;
-      LOGE("parse output name: %s, channel: %d, stride: %d\n", oinfo.tensor_name.c_str(), channel,
-           stride_h);
+    if (setting_out_names_.empty() || setting_out_names_.size() != getNumOutputTensor()) {
+      if (j % 3 == 1) {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else if (j % 3 == 2) {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+      } else {
+        object_out_names_[stride_h] = oinfo.tensor_name;
+      }
     } else {
-      LOGE("model channel num not match!\n");
-      return CVI_TDL_FAILURE;
+      if (setting_out_names_index_map[oinfo.tensor_name] < 3) {
+        object_out_names_[stride_h] = oinfo.tensor_name;
+        strides_.push_back(stride_h);
+      } else if (setting_out_names_index_map[oinfo.tensor_name] >= 6) {
+        class_out_names_[stride_h] = oinfo.tensor_name;
+      } else {
+        box_out_names_[stride_h] = oinfo.tensor_name;
+      }
     }
   }
-
   for (size_t i = 0; i < strides_.size(); i++) {
     if (!class_out_names_.count(strides_[i]) || !box_out_names_.count(strides_[i]) ||
         !object_out_names_.count(strides_[i])) {

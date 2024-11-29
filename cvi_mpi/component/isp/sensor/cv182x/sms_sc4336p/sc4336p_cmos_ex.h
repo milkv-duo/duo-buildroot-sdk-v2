@@ -7,13 +7,8 @@ extern "C" {
 #endif
 #endif
 
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_cif.h>
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_type.h"
-#else
+
 #include <linux/cvi_type.h>
-#endif
 #include "cvi_sns_ctrl.h"
 
 
@@ -26,6 +21,7 @@ enum sc4336p_linear_regs_e {
 	LINEAR_D_FINEGAIN_ADDR,
 	LINEAR_VMAX_0_ADDR,
 	LINEAR_VMAX_1_ADDR,
+	LINEAR_FLIP_MIRROR_ADDR,
 	LINEAR_REGS_NUM
 };
 
@@ -63,7 +59,7 @@ extern void sc4336p_standby(VI_PIPE ViPipe);
 extern void sc4336p_restart(VI_PIPE ViPipe);
 extern int  sc4336p_write_register(VI_PIPE ViPipe, int addr, int data);
 extern int  sc4336p_read_register(VI_PIPE ViPipe, int addr);
-extern void sc4336p_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip);
+// extern void sc4336p_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip);
 extern int  sc4336p_probe(VI_PIPE ViPipe);
 
 #ifdef __cplusplus

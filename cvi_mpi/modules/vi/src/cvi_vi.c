@@ -20,7 +20,6 @@
 #include "dump_register.h"
 #include <linux/cvi_vi_ctx.h>
 
-
 #define CHECK_VI_PIPEID_VALID(x)						\
 	do {									\
 		if ((x) > (VI_MAX_PIPE_NUM - 1)) {				\
@@ -297,7 +296,7 @@ static CVI_S32 _vi_update_ldc_mesh(VI_PIPE ViPipe, VI_CHN ViChn,
 	if (paddr_old && paddr_old != DEFAULT_MESH_PADDR)
 		CVI_SYS_IonFree(paddr_old, vaddr_old);
 
-	CVI_TRACE_VI(CVI_DBG_DEBUG, "ViPipe(%d) ViChn(%d) mesh base(%#"PRIx64") vaddr(%p)\n"
+	CVI_TRACE_VI(CVI_DBG_DEBUG, "ViPipe(%d) ViChn(%d) mesh base(%#llx) vaddr(%p)\n"
 		, ViPipe, ViChn, paddr, vaddr);
 
 	CVI_S32 fd = get_vi_fd();
@@ -626,7 +625,6 @@ CVI_S32 CVI_VI_GetDevNum(CVI_U32 *devNum)
 	return CVI_SUCCESS;
 }
 
-#if (defined ARCH_CV181X) || (defined ARCH_CV180X)
 CVI_S32 CVI_VI_QueryDevStatus(VI_PIPE ViPipe)
 {
 	CVI_S32 fd = get_vi_fd();
@@ -641,7 +639,6 @@ CVI_S32 CVI_VI_QueryDevStatus(VI_PIPE ViPipe)
 
 	return bStatus == CVI_TRUE ? CVI_SUCCESS : CVI_FAILURE;
 }
-#endif
 
 CVI_S32 CVI_VI_SetDevAttr(VI_DEV ViDev, const VI_DEV_ATTR_S *pstDevAttr)
 {

@@ -1,4 +1,6 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -10,7 +12,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-//#include "core.hpp"
+// #include "core.hpp"
 #include "core/cvi_tdl_types_mem_internal.h"
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
@@ -18,7 +20,7 @@
 
 // set preprocess and algorithm param for yolov6 detection
 // if use official model, no need to change param
-CVI_S32 init_param(const cvitdl_handle_t tdl_handle) {
+CVI_S32 init_param(const cvitdl_handle_t tdl_handle, bool assign_out_string) {
   // setup preprocess
   InputPreParam preprocess_cfg = CVI_TDL_GetPreParam(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV6);
 
@@ -48,6 +50,16 @@ CVI_S32 init_param(const cvitdl_handle_t tdl_handle) {
     return ret;
   }
 
+  if (assign_out_string) {
+    const char* names_array[] = {"282_Transpose", "295_Transpose", "308_Transpose",
+                                 "294_Transpose", "307_Transpose", "outputs_Transpose"};
+    CVI_TDL_Set_Outputlayer_Names(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV6, names_array, 6);
+    if (ret != CVI_SUCCESS) {
+      printf("Outputlayer names set failed %#x!\n", ret);
+      return ret;
+    }
+  }
+
   // set thershold
   CVI_TDL_SetModelThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV6, 0.5);
   CVI_TDL_SetModelNmsThreshold(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV6, 0.5);
@@ -74,11 +86,11 @@ int main(int argc, char* argv[]) {
   }
 
   // change param of yolov6
-  // ret = init_param(tdl_handle);
+  // bool assign_out_string = false;
+  // ret = init_param(tdl_handle, assign_out_string);
 
   std::string model_path = argv[1];
   std::string str_src_dir = argv[2];
-
   printf("start open cvimodel...\n");
   ret = CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_YOLOV6, model_path.c_str());
   if (ret != CVI_SUCCESS) {

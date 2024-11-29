@@ -2125,6 +2125,7 @@ static struct config_group *uvcg_framebased_make(struct config_group *group,
 	f->desc.bAspectRatioY		= 0;
 	f->desc.bmInterfaceFlags	= 0;
 	f->desc.bCopyProtect		= 0;
+	f->desc.bVariableSize		= 1;
 
 	f->fmt.type = UVCG_FRAMEBASED;
 	config_group_init_type_name(&f->fmt.group, name,

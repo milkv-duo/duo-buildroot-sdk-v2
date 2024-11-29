@@ -76,7 +76,6 @@ static CVI_BOOL _update_vqe_setting(AI_TALKVQE_CONFIG_S *pstAiVqeTalkAttr)
 	if (pstAiVqeTalkAttr == NULL)
 		return CVI_FALSE;
 
-#define CVIAUDIO_ALGO_SSP	0x11
 	pstAiVqeTalkAttr->u32OpenMask |= AI_TALKVQE_MASK_ANR;
 	pstAiVqeTalkAttr->u32OpenMask |= AI_TALKVQE_MASK_AGC;
 
@@ -92,7 +91,6 @@ static CVI_BOOL _update_vqe_setting(AI_TALKVQE_CONFIG_S *pstAiVqeTalkAttr)
 	//st_ANR_Setting.s32Reserved = 0;
 	pstAiVqeTalkAttr->stAgcCfg = st_AGC_Setting;
 	pstAiVqeTalkAttr->stAnrCfg = st_ANR_Setting;
-	pstAiVqeTalkAttr->s32RevMask = CVIAUDIO_ALGO_SSP;
 	printf("pstAiVqeTalkAttr:u32OpenMask[0x%x]\n", pstAiVqeTalkAttr->u32OpenMask);
 
 	return CVI_TRUE;

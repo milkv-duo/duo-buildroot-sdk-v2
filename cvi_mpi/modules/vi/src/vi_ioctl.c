@@ -227,12 +227,10 @@ int vi_set_stop_streaming(int fd)
 	S_CTRL_VALUE(fd, 1, VI_IOCTL_STOP_STREAMING);
 }
 
-#if (defined ARCH_CV181X) || (defined ARCH_CV180X)
 int vi_sdk_get_dev_status(int fd, int dev, CVI_BOOL *pbStatus)
 {
 	SDK_CTRL_SET_CFG(fd, pbStatus, VI_SDK_GET_DEV_STATUS, dev, -1, -1, -1);
 }
-#endif
 
 int vi_sdk_set_dev_attr(int fd, int dev, VI_DEV_ATTR_S *pstDevAttr)
 {

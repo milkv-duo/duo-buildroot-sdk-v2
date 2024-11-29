@@ -1439,9 +1439,9 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_ENQ_WAITQ:
 	{
 		CVI_S32 ret;
-		const uint32_t buf_len = 0x100000;
+		const CVI_U32 buf_len = 0x100000;
 		MMF_CHN_S chn = {.enModId = CVI_ID_VO, .s32DevId = 0, .s32ChnId = 0};
-		uint32_t i, j;
+		CVI_U32 i, j;
 		VB_BLK blk[3] = {VB_INVALID_HANDLE, VB_INVALID_HANDLE, VB_INVALID_HANDLE};
 		struct vb_s *vb;
 
@@ -2341,6 +2341,13 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 
 void vo_irq_handler(struct cvi_vo_dev *vdev, union sclr_intr intr_status)
 {
+	struct cvi_vo_ctx *pvoCtx = NULL;
+
+	pvoCtx = (struct cvi_vo_ctx *)(gVdev->shared_mem);
+	if (!pvoCtx) {
+		CVI_TRACE_VO(CVI_DBG_ERR, "vdev->shared_mem = NULL\n");
+	}
+
 	if (atomic_read(&vdev->disp_streamon) == 0)
 		return;
 
@@ -2373,6 +2380,7 @@ void vo_irq_handler(struct cvi_vo_dev *vdev, union sclr_intr intr_status)
 			vo_wake_up_th((struct cvi_vo_dev *)vdev);
 
 			_vo_hw_enque(vdev);
+			pvoCtx->u64doneframe++;
 		}
 
 		if (axi_idle && gamma_update) {

@@ -13,6 +13,7 @@ DetectionBase::DetectionBase() : Core(CVI_MEM_DEVICE) {
   alg_param_.stride_len = 0;
   alg_param_.cls = 80;
   alg_param_.max_det = 100;
+  setting_out_names_.clear();
 }
 int DetectionBase::vpssPreprocess(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dstFrame,
                                   VPSSConfig &vpss_config) {
@@ -53,6 +54,21 @@ void DetectionBase::set_algparam(const cvtdl_det_algo_param_t &alg_param) {
     strides[i] = alg_param.strides[i];
   }
   alg_param_.strides = strides;
+}
+
+void DetectionBase::set_out_names(const std::vector<std::string> &names) {
+  // As for why not make a quantitative judgment here:
+  // getNumOutputTensor()will not be assigned until the modelOpen method is called,
+  // but output layer names must be set before onModelOpened,
+  // so the quantity judgment is executed inside onModelOpened,where it is just a simple assignment
+
+  // if (names.size() != getNumOutputTensor()) {
+  //   LOGE("set_out_names use unmatched names size!\n");
+  //   return;
+  // } else {
+  //   setting_out_names_ = names;
+  // }
+  setting_out_names_ = names;
 }
 
 }  // namespace cvitdl

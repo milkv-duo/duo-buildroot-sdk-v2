@@ -105,6 +105,12 @@ CVI_VOID *AiGetThreadProc(CVI_VOID *arg)
 			fwrite(stFrame.u64VirAddr[0], 1, (stFrame.u32Len * s32ChnCnt * 2), pfd_out);
 		} else
 			printf("[%s][%d]...size[%d]\n", __func__, __LINE__, stFrame.u32Len);
+
+		s32Ret = CVI_AI_ReleaseFrame(s32DevId, AiChn, &stFrame, &stAecFrm);
+		if (s32Ret) {
+			printf("[error] ai releaseframe error\n");
+			break;
+		}
 	}
 	fclose(pfd_out);
 	return 0;
@@ -130,8 +136,8 @@ CVI_VOID *AencUbindThreadProc(CVI_VOID *arg)
 
 		s32Ret = CVI_AI_GetFrame(s32DevId, AiChn, &stFrame, &stAecFrm, -1);
 		if (s32Ret != CVI_SUCCESS) {
-			printf("%s: CVI_AENC_GetStream(%d), failed with %#x!\n",
-			 __func__, AeChn, s32Ret);
+			printf("%s: CVI_AI_GetFrame(%d), failed with %#x!\n",
+			 __func__, AiChn, s32Ret);
 			return NULL;
 		}
 
@@ -161,6 +167,13 @@ CVI_VOID *AencUbindThreadProc(CVI_VOID *arg)
 		if (s32Ret != CVI_SUCCESS) {
 			printf("%s: CVI_AENC_ReleaseStream(%d), failed with %#x!\n",
 			       __func__, AeChn, s32Ret);
+			return NULL;
+		}
+
+		s32Ret = CVI_AI_ReleaseFrame(s32DevId, AiChn, &stFrame, &stAecFrm);
+		if (s32Ret) {
+			printf("%s: CVI_AI_ReleaseFrame(%d), failed with %#x!\n",
+			 __func__, AiChn, s32Ret);
 			return NULL;
 		}
 	}

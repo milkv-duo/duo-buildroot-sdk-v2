@@ -141,6 +141,7 @@ static CVI_S32 isp_sensor_updDefault(VI_PIPE ViPipe)
 		/*TODO@CF. This value will give from sensor init. Write constant first.*/
 		pstIspCtx->u8AEWaitFrame = 8;
 	}
+
 	return CVI_SUCCESS;
 }
 

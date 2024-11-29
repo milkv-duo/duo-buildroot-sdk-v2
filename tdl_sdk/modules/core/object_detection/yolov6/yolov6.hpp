@@ -25,8 +25,8 @@ class Yolov6 final : public DetectionBase {
   int vpssPreprocess(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dstFrame,
                      VPSSConfig &vpss_config) override;
 
-  std::vector<int> strides;
-  std::map<int, std::string> class_out_names;
-  std::map<int, std::string> bbox_out_names;
+  std::map<int, std::string> class_out_names_;
+  std::map<int, std::string> box_out_names_;
+  std::vector<int> strides_;
 };
 }  // namespace cvitdl

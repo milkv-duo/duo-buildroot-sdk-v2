@@ -115,3 +115,19 @@ config FAT_DEFAULT_UTF8
 	  Say Y if you use UTF-8 encoding for file names, N otherwise.
 
 	  See <file:Documentation/filesystems/vfat.rst> for more information.
+
+config FATFS_UPDATE_TIME
+	bool "Enable FATFS UPDATE FILE TIME"
+	default y
+	help
+	  Set this to N if you want disable fatfs auto update file node time including
+	  last access time and last modify time.
+
+config FATFS_USE_FAST_PREALLOC
+	bool "FATFS use fast prealloc mode"
+	default n
+	help
+	  To accelerate the preallocation speed for FATFS, this configuration
+	  option allows for the allocation of clusters without performing an erase operation.
+	  By directly allocating the specified number of clusters to the set size,
+	  it reduces the time taken for preallocation.

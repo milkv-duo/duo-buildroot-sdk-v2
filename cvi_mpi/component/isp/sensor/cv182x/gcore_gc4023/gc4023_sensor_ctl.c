@@ -7,12 +7,7 @@
 #include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "gc4023_cmos_ex.h"
 #define GC4023_CHIP_ID_ADDR_H	0x03f0

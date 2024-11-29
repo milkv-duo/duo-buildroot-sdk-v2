@@ -18,6 +18,7 @@ class DetectionBase : public Core {
 
   virtual const cvtdl_det_algo_param_t &get_algparam() { return alg_param_; }
   virtual void set_algparam(const cvtdl_det_algo_param_t &alg_param);
+  virtual void set_out_names(const std::vector<std::string> &);
 
  private:
   virtual int onModelOpened() override {
@@ -32,5 +33,6 @@ class DetectionBase : public Core {
 
  protected:
   cvtdl_det_algo_param_t alg_param_;
+  std::vector<std::string> setting_out_names_;
 };
 }  // namespace cvitdl

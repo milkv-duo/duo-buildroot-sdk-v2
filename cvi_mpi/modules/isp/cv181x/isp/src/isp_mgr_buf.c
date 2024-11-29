@@ -127,7 +127,7 @@ CVI_S32 isp_mgr_buf_init(VI_PIPE ViPipe)
 		printf("ISP Vipipe(%d) Allocate %s failed\n", ViPipe, ion_name);
 		ret = CVI_FAILURE;
 	} else {
-		printf("ISP Vipipe(%d) Allocate pa(%#"PRIx64") va(0x%p) size(%d)\n",
+		printf("ISP Vipipe(%d) Allocate pa(%#llx) va(0x%p) size(%d)\n",
 			ViPipe, runtime->paddr, runtime->vaddr, runtime->len);
 	}
 
@@ -166,7 +166,7 @@ CVI_S32 isp_mgr_buf_uninit(VI_PIPE ViPipe)
 	}
 
 #ifndef ARCH_RTOS_CV181X
-	printf("ISP Vipipe(%d) Free pa(%#"PRIx64") va(0x%p)\n", ViPipe,
+	printf("ISP Vipipe(%d) Free pa(%#llx) va(0x%p)\n", ViPipe,
 		runtime->paddr, runtime->vaddr);
 	if (CVI_SYS_IonFree(runtime->paddr, runtime->vaddr) < 0) {
 		ISP_LOG_ERR("Vipipe(%d) destroy shared buffer failed\n", ViPipe);

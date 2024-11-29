@@ -1,18 +1,32 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/../venc/src/*.c) $(wildcard $(SDIR)/src/*.c)
+SRCS += $(SDIR)/../common/sample_common_vdec.c	\
+		$(SDIR)/../common/sample_common_sys.c	\
+		$(SDIR)/../common/sample_common_venc.c	\
+		$(SDIR)/../common/sample_common_platform.c	\
+		$(SDIR)/../common/md5sum.c	\
+		$(SDIR)/../common/sample_common_sensor.c	\
+		$(SDIR)/../common/sample_common_vi.c	\
+		$(SDIR)/../common/sample_common_vpss.c	\
+		$(SDIR)/../common/sample_common_vo.c	\
+		$(SDIR)/../common/sample_common_isp.c
+ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
+SRCS += $(SDIR)/../common/sample_common_bin.c	\
+		$(SDIR)/../common/sample_common_peripheral.c
+endif
 VDEC_SRCS = $(SDIR)/sample_vdec.c
 VDEC_INC=../../modules/vdec
 SAMPLE_VENC_INC=$(SDIR)/../venc/include
 SAMPLE_VDEC_INC=$(SDIR)/include
 
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(SAMPLE_VDEC_INC) -I$(SAMPLE_VENC_INC) -I$(VDEC_INC) -I$(KERNEL_INC) -I../common -I$(SYS_INC) -I$(SENSOR_LIST_INC)
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(SAMPLE_VDEC_INC) -I$(SAMPLE_VENC_INC) -I$(VDEC_INC) -I$(KERNEL_INC) -I../common -I$(SYS_INC) -I$(SENSOR_LIST_INC) -I$(PANEL_INC) -I$(MW_PATH)/3rdparty/inih
 
 OBJS = $(SRCS:.c=.o)
 VDEC_OBJS = $(VDEC_SRCS:.c=.o)
@@ -21,9 +35,9 @@ VDEC_DEPS = $(VDEC_SRCS:.c=.d)
 
 TARGET = sample_vdec
 
-ifeq ($(SDK_VER),32bit)
+ifeq ($(TARGET_MACHINE),arm-linux-gnueabihf)
 TARGET_WITH_ASAN = sample_vdec_asan
-else ifeq ($(SDK_VER),64bit)
+else ifeq ($(TARGET_MACHINE),aarch64-linux-gnu)
 TARGET_WITH_ASAN = sample_vdec_asan
 else
 TARGET_WITH_ASAN =
@@ -47,10 +61,6 @@ EXTRA_LDFLAGS_WITH_ASAN +=  -fno-omit-frame-pointer -fsanitize-recover=address -
 
 .PHONY : clean all
 all: $(TARGET) $(TARGET_WITH_ASAN)
-
-$(COMMON_DIR)/%.o: $(COMMON_DIR)/%.c
-	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
-	@echo [$(notdir $(CC))] $(notdir $@)
 
 $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<

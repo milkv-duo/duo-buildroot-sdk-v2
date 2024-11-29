@@ -29,11 +29,11 @@ sample/venc/sample_venc
 sample/vio/sample_vio
 sample/vdecvo/sample_vdecvo
 sample/multivenc/sample_multivenc
-sample/ir_auto/ir_auto
+sample/sample_ir_auto/sample_ir_auto
 sample/mipi_tx/lt9611/lt9611
 sample/osdc/sample_osdc
 sample/scene_auto/sample_scene_auto
-sample/sensor_test/sensor_test
+sample/sensor_test/sample_sensor_test
 sample/tp2863_tp2803/sample_test_tp2863_tp2803
 sample/sample_panel/sample_panel
 sample/sample_panel/lt9611/lt9611

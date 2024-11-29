@@ -37,7 +37,7 @@ CONFIG_ARCH="riscv"
 #
 # Compile-time checks and compiler options
 #
-CONFIG_CROSS_COMPILE="riscv64-unknown-linux-gnu-"
+CONFIG_CROSS_COMPILE="riscv64-unknown-linux-musl-"
 CONFIG_CROSS_COMPILE_KERNEL="riscv64-unknown-linux-musl-"
 # CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE is not set
 CONFIG_CC_OPTIMIZE_FOR_SIZE=y

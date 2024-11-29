@@ -921,12 +921,14 @@ CVI_S32 _FaceCapture_Free(face_capture_t *face_cpt_info) {
     free(face_cpt_info->data);
     CVI_TDL_Free(&face_cpt_info->last_faces);
     CVI_TDL_Free(&face_cpt_info->last_trackers);
+    CVI_TDL_Free(&face_cpt_info->last_objects);
+    CVI_TDL_Free(&face_cpt_info->pet_objects);
     free(face_cpt_info->_output);
-    free(face_cpt_info);
 
     if (face_cpt_info->tmp_buf_physic_addr != 0) {
       CVI_SYS_IonFree(face_cpt_info->tmp_buf_physic_addr, face_cpt_info->p_tmp_buf_addr);
     }
+    free(face_cpt_info);
   }
   return CVI_TDL_SUCCESS;
 }

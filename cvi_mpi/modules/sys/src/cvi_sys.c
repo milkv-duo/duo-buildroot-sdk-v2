@@ -16,6 +16,8 @@
 #include "devmem.h"
 #include "cvi_sys_base.h"
 #include "cvi_sys.h"
+#include "gdc_mesh.h"
+#include <linux/cvi_math.h>
 #include "hashmap.h"
 #include <linux/cvi_base.h>
 #include <linux/cvi_tpu_ioctl.h>
@@ -483,7 +485,7 @@ CVI_S32 CVI_SYS_GetVersion(MMF_VERSION_S *pstVersion)
 #ifndef MMF_VERSION
 #define MMF_VERSION  (CVI_CHIP_NAME MMF_VER_PRIX MK_VERSION(VER_X, VER_Y, VER_Z) VER_D)
 #endif
-	snprintf(pstVersion->version, VERSION_NAME_MAXLEN, "%s-%s", MMF_VERSION, SDK_VER);
+	snprintf(pstVersion->version, VERSION_NAME_MAXLEN, "%s-%s", MMF_VERSION, "64bit");
 	return CVI_SUCCESS;
 }
 
@@ -667,10 +669,13 @@ static CVI_S32 _SYS_IonAlloc(CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr,
 	ion_data = malloc(sizeof(*ion_data));
 	ion_data->size = u32Len;
 	// Set buffer as "anonymous" when user is passing null pointer.
-	if (name)
-		strncpy((char *)(ion_data->name), name, MAX_ION_BUFFER_NAME);
-	else
+	if (name) {
+		strncpy((char *)(ion_data->name), name, MAX_ION_BUFFER_NAME - 1);
+		ion_data->name[MAX_ION_BUFFER_NAME - 1] = '\0';
+	} else {
 		strncpy((char *)(ion_data->name), "anonymous", MAX_ION_BUFFER_NAME);
+		ion_data->name[MAX_ION_BUFFER_NAME - 1] = '\0';
+	}
 
 	if (ionMalloc(fd, ion_data, cached) != CVI_SUCCESS) {
 		free(ion_data);
@@ -730,7 +735,7 @@ CVI_S32 CVI_SYS_IonFree(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr)
 
 	ion_data = hashmapGet(ionHashmap, (void *)(uintptr_t)u64PhyAddr);
 	if (ion_data == NULL) {
-		CVI_TRACE_SYS(CVI_DBG_ERR, "u64PhyAddr(0x%"PRIx64") not found in ion.\n", u64PhyAddr);
+		CVI_TRACE_SYS(CVI_DBG_ERR, "u64PhyAddr(0x%llx) not found in ion.\n", u64PhyAddr);
 		return CVI_ERR_SYS_ILLEGAL_PARAM;
 	}
 	hashmapRemove(ionHashmap, (void *)(uintptr_t)u64PhyAddr);
@@ -747,23 +752,23 @@ CVI_S32 CVI_SYS_IonFree(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr)
 	return CVI_SUCCESS;
 }
 
-CVI_S32 CVI_SYS_IonGetMMStatics(ION_MM_STATICS_S *statics)
+CVI_S32 CVI_SYS_IonGetMemoryState(ION_MEM_STATE_S *pstState)
 {
 	CVI_S32 fd = -1;
 	CVI_S32 ret = CVI_SUCCESS;
-	struct sys_ion_mm_statics ion_statics;
+	struct sys_ion_mem_state ion_state;
 
 	if ((fd = get_sys_fd()) == -1)
 		return CVI_ERR_SYS_NOTREADY;
 
-	ret = ioctl(fd, SYS_ION_G_ION_MM_STATICS, &ion_statics);
+	ret = ioctl(fd, SYS_ION_G_ION_MEM_STATE, &ion_state);
 	if (ret < 0) {
 		printf("ioctl SYS_ION_ALLOC failed\n");
 	}
 
-	statics->total_size = ion_statics.total_size;
-	statics->free_size = ion_statics.free_size;
-	statics->max_avail_size = ion_statics.max_avail_size;
+	pstState->total_size = ion_state.total_size;
+	pstState->free_size = ion_state.free_size;
+	pstState->max_avail_size = ion_state.max_avail_size;
 
 	return ret;
 }
@@ -1049,3 +1054,80 @@ CVI_S32 CVI_SYS_TDMACopy2D(CVI_TDMA_2D_S *param)
 	return CVI_SUCCESS;
 }
 
+CVI_S32 CVI_GDC_GenLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const LDC_ATTR_S *pstLDCAttr,
+		const char *name, CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr)
+{
+	CVI_U64 paddr;
+	CVI_VOID *vaddr;
+	SIZE_S in_size, out_size;
+	CVI_U32 mesh_1st_size = 0, mesh_2nd_size = 0, mesh_size = 0;
+	ROTATION_E enRotation = ROTATION_0;
+
+	if (pstLDCAttr->bAspect) {
+		if (pstLDCAttr->s32XYRatio < 0 || pstLDCAttr->s32XYRatio > 100) {
+			CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32XYRatio(%d).\n"
+				      , pstLDCAttr->s32XYRatio);
+			return CVI_ERR_SYS_ILLEGAL_PARAM;
+		}
+	} else {
+		if (pstLDCAttr->s32XRatio < 0 || pstLDCAttr->s32XRatio > 100) {
+			CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32XRatio(%d).\n"
+				      , pstLDCAttr->s32XRatio);
+			return CVI_ERR_SYS_ILLEGAL_PARAM;
+		}
+		if (pstLDCAttr->s32YRatio < 0 || pstLDCAttr->s32YRatio > 100) {
+			CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32YRatio(%d).\n"
+				      , pstLDCAttr->s32YRatio);
+			return CVI_ERR_SYS_ILLEGAL_PARAM;
+		}
+	}
+	if (pstLDCAttr->s32CenterXOffset < -511 || pstLDCAttr->s32CenterXOffset > 511) {
+		CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32CenterXOffset(%d).\n"
+			      , pstLDCAttr->s32CenterXOffset);
+		return CVI_ERR_SYS_ILLEGAL_PARAM;
+	}
+	if (pstLDCAttr->s32CenterYOffset < -511 || pstLDCAttr->s32CenterYOffset > 511) {
+		CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32CenterYOffset(%d).\n"
+			      , pstLDCAttr->s32CenterYOffset);
+		return CVI_ERR_SYS_ILLEGAL_PARAM;
+	}
+	if (pstLDCAttr->s32DistortionRatio < -300 || pstLDCAttr->s32DistortionRatio > 500) {
+		CVI_TRACE_SYS(CVI_DBG_ERR, "Invalid LDC s32DistortionRatio(%d).\n"
+			      , pstLDCAttr->s32DistortionRatio);
+		return CVI_ERR_SYS_ILLEGAL_PARAM;
+	}
+	if (!name) {
+		CVI_TRACE_SYS(CVI_DBG_ERR, "Please asign name for LDC mesh\n");
+		return CVI_ERR_SYS_ILLEGAL_PARAM;
+	}
+
+	in_size.u32Width = ALIGN(u32Width, DEFAULT_ALIGN);
+	in_size.u32Height = ALIGN(u32Height, DEFAULT_ALIGN);
+	out_size.u32Width = in_size.u32Width;
+	out_size.u32Height = in_size.u32Height;
+
+	mesh_gen_get_size(in_size, out_size, &mesh_1st_size, &mesh_2nd_size);
+	mesh_size = mesh_1st_size + mesh_2nd_size;
+
+	CVI_TRACE_SYS(CVI_DBG_DEBUG, "W=%d, H=%d, mesh_size=%d\n",
+			in_size.u32Width, in_size.u32Height,
+			mesh_size);
+
+	if (CVI_SYS_IonAlloc_Cached(&paddr, &vaddr, name, mesh_size) != CVI_SUCCESS) {
+		CVI_TRACE_SYS(CVI_DBG_ERR, " Can't acquire memory for LDC mesh.\n");
+		return CVI_ERR_SYS_NOMEM;
+	}
+	memset(vaddr, 0 , mesh_size);
+
+	if (mesh_gen_ldc(in_size, out_size, pstLDCAttr, paddr, vaddr, enRotation) != CVI_SUCCESS) {
+		CVI_SYS_IonFree(paddr, vaddr);
+		CVI_TRACE_SYS(CVI_DBG_ERR, "Can't generate ldc mesh.\n");
+		return CVI_ERR_SYS_ILLEGAL_PARAM;
+	}
+	CVI_SYS_IonFlushCache(paddr, vaddr, mesh_size);
+
+	*pu64PhyAddr = paddr;
+	*ppVirAddr = vaddr;
+
+	return CVI_SUCCESS;
+}

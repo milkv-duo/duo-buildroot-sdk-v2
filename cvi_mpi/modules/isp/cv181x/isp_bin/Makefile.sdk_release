@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 
@@ -12,13 +12,13 @@ OSS_MODULE_LIB_PATH = $(OSS_MODULE_INSTALL_PATH)/lib
 INCS = -I$(MW_INC) -I$(ISP_INC) -Iinc -Isrc
 INCS += -I$(OSS_MODULE_INCLUDE_PATH)/cvi_json-c -I../../algo
 
-TMP_FOLDER = $(PWD)/tmp
-SDIR = $(PWD)/src
+TMP_FOLDER = $(CURDIR)/tmp
+SDIR = $(CURDIR)/src
 SRCS = $(shell find $(SDIR) -type f -name "*.c")
 OBJS = $(addsuffix .o,$(basename $(addprefix $(TMP_FOLDER)/,$(notdir $(SRCS)))))
 DEPS = $(addsuffix .d,$(basename $(addprefix $(TMP_FOLDER)/,$(notdir $(SRCS)))))
 
-TMP_FOLDER_LIB = $(PWD)/tmp_lib
+TMP_FOLDER_LIB = $(CURDIR)/tmp_lib
 ARFLAGS_x = x
 
 TARGET_A = $(MW_LIB)/libcvi_bin_isp.a

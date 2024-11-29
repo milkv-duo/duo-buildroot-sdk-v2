@@ -863,6 +863,12 @@ config FSL_USDHC
 	help
 	  This enables the Ultra Secured Digital Host Controller enhancements
 
+config ENABLE_EMMC_HW_RESET
+	bool "Enable EMMC hardware reset"
+	default N
+	help
+	  "y": The OTP bit: "RST_n_ENABLE" of this emmc chip will be permanently enabled
+
 endmenu
 
 config SYS_FSL_ERRATUM_ESDHC111

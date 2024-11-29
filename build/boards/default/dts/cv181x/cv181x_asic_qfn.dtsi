@@ -56,6 +56,7 @@
 	};
 };
 
+#ifndef CONFIG_PM
 &i2c0 {
 	/* FMUX_GPIO_REG iic_func_sel gpio_func_sel */
 	scl-pinmux = <0x03001070 0x0 0x3>;	// IIC0_SCL/IIC0_SCL/XGPIOA[28]
@@ -100,6 +101,7 @@
 	scl-gpios = <&portb 1 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&portb 2 GPIO_ACTIVE_HIGH>;
 };
+#endif
 
 / {
 	/delete-node/ wifi-sd@4320000;

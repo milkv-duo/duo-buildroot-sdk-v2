@@ -2647,11 +2647,6 @@ void _vi_scene_ctrl(struct cvi_vi_dev *vdev, enum cvi_isp_raw *raw_max)
 		*raw_max = ISP_PRERAW_B;
 		ctx->is_multi_sensor = false;
 
-		if (ctx->is_offline_be || ctx->is_offline_postraw) {
-			ctx->is_offline_be = false;
-			ctx->is_offline_postraw = true;
-		}
-
 		if (ctx->isp_pipe_cfg[ISP_PRERAW_A].is_offline_preraw) {
 			ctx->is_offline_be = true;
 			ctx->is_offline_postraw = false;

@@ -64,6 +64,9 @@ static const struct flash_info cvitek_parts[] = {
 	},
 	{ "JY25VQ128A", CVI_INFO(0x1c4018, 0x0, 64 * 1024, 256, 0, 0,
 			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)
+		.fixups = &sr2_bit1_qe_fixups },
+	{ "GM25Q64A", CVI_INFO(0x1c4017, 0x0, 64 * 1024, 128, 0, 0,
+			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)
 		.fixups = &sr_bit1_qe_fixups },
 	{ "JY25VQ64A", CVI_INFO(0x4a4017, 0x0, 64 * 1024, 128, 0, 0,
 			SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SECT_4K)
@@ -93,6 +96,11 @@ static const struct flash_info cvitek_parts[] = {
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP |
 			SPI_NOR_4B_OPCODES | SPI_NOR_SUPPORT_OTP)
 		.fixups = &sr_bit1_qe_fixups },
+	{ "W25Q128JV-IMJM", CVI_INFO(0xef7018, 0, 64 * 1024, 256, 3, 256,
+			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+			SPI_NOR_HAS_LOCK | SPI_NOR_HAS_TB | SPI_NOR_4B_OPCODES)
+		.fixups = &sr_bit1_qe_fixups },
+
 	{ "W25Q64JV-IQ", CVI_INFO(0xef4017, 0, 64 * 1024, 128, 3, 256,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SPI_NOR_SUPPORT_OTP)
 		.fixups = &sr_bit1_qe_fixups },
@@ -141,6 +149,9 @@ static const struct flash_info cvitek_parts[] = {
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SPI_NOR_SUPPORT_OTP)
 		.fixups = &sr_bit1_qe_fixups },
 	{ "ZB25VQ128A", CVI_INFO(0x5e4018, 0x0, 64 * 1024, 256, 3, 1024,
+			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SPI_NOR_SUPPORT_OTP)
+		.fixups = &sr_bit1_qe_fixups },
+	{ "ZB25VQ128D", CVI_INFO(0x5e8018, 0x0, 64 * 1024, 256, 3, 1024,
 			SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_OP | SPI_NOR_SUPPORT_OTP)
 		.fixups = &sr_bit1_qe_fixups },
 	{ "S25FL128L", CVI_INFO(0x016018, 0x0, 64 * 1024, 256, 0, 0,

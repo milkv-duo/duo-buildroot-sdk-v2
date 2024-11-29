@@ -66,6 +66,8 @@ const struct flash_info spi_nor_ids[] = {
 	/* The CVITEK Support List Of Spi Nor Flash */
 	{ INFO("JY25VQ128A", 0x1c4018, 0x0, 64 * 1024, 256,
 		SPI_NOR_QUAD_READ | SECT_4K) },
+	{ INFO("GM25Q64A", 0x1c4017, 0x0, 64 * 1024, 128,
+		SPI_NOR_QUAD_READ | SECT_4K) },
 	{ INFO("JY25VQ64A", 0x4a4017, 0x0, 64 * 1024, 128,
 		SPI_NOR_QUAD_READ | SECT_4K) },
 	/* Juyang 32M Nor Flash(JY25VQ256A) uses the same wafers as MXIC */
@@ -84,6 +86,8 @@ const struct flash_info spi_nor_ids[] = {
 	{ INFO("W25Q256JV-IQ", 0xef4019, 0x0, 64 * 1024, 512,
 		SPI_NOR_QUAD_READ | SECT_4K | SPI_NOR_4B_OPCODES) },
 	{ INFO("W25Q128JV-IQ", 0xef4018, 0x0, 64 * 1024, 256,
+		SPI_NOR_QUAD_READ | SECT_4K) },
+	{ INFO("W25Q128JV-IMJM", 0xef7018, 0x0, 64 * 1024, 256,
 		SPI_NOR_QUAD_READ | SECT_4K) },
 	{ INFO("W25Q64JV-IQ", 0xef4017, 0x0, 64 * 1024, 128,
 		SPI_NOR_QUAD_READ | SECT_4K) },
@@ -119,6 +123,8 @@ const struct flash_info spi_nor_ids[] = {
 	{ INFO("ZB25VQ64B", 0x5E4017, 0x0, 64 * 1024, 128,
 		SPI_NOR_QUAD_READ | SECT_4K) },
 	{ INFO("ZB25VQ128A", 0x5E4018, 0x0, 64 * 1024, 256,
+		SPI_NOR_QUAD_READ | SECT_4K) },
+	{ INFO("ZB25VQ128D", 0x5E8018, 0x0, 64 * 1024, 256,
 		SPI_NOR_QUAD_READ | SECT_4K) },
 	{ INFO("S25FL128L", 0x016018, 0x0, 64 * 1024, 256,
 		SPI_NOR_QUAD_READ | SECT_4K) },

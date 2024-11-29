@@ -1,3 +1,8 @@
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X))
+	SUBDIRS := common sensor_test venc vdecvo vio sample_panel sample_ir_auto region audio ive vdec
+else ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X))
+	SUBDIRS := common sensor_test venc sample_ir_auto region audio vdec
+endif
 
 all:
 	@echo "##############################"
@@ -5,11 +10,11 @@ all:
 	@echo "#   Compiling 'samples'...   #"
 	@echo "#                            #"
 	@echo "##############################"
+	@echo $(SUBDIRS) $(MAKECMDGOALS)
 
-	@cd common; make all || exit 1; cd ../;
-	@for x in `find -L ./ -maxdepth 2 -mindepth 2 -name "Makefile" `; \
-	    do cd `dirname $$x`; if [ $$? ]; then $(MAKE) all || exit 1; cd ../; fi; done
+	@$(foreach t,$(SUBDIRS), \
+		cd $(t) && $(MAKE) all || exit 1 && cd -; )
 
 clean:
-	@for x in `find -L ./ -maxdepth 2 -mindepth 2 -name "Makefile" `; \
-	    do cd `dirname $$x`; if [ $$? ]; then $(MAKE) clean; cd ../; fi; done
+	@$(foreach t,$(SUBDIRS), \
+		cd $(t) && $(MAKE) clean || exit 1 && cd -; )

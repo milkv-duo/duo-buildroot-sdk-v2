@@ -1,11 +1,11 @@
 
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-SDIR = $(PWD)/src
+SDIR = $(CURDIR)/src
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -Iinclude -I$(MW_INC) -I$(KERNEL_INC)
 TARGET = $(SRCS:.c=)

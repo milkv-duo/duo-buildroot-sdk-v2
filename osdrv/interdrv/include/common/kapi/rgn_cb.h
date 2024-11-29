@@ -53,6 +53,7 @@ struct _rgn_get_ow_addr_cb_param {
 	RGN_HANDLE handle;
 	__u32 layer;
 	__u64 addr;
+	CVI_BOOL ip_idle;
 };
 
 #ifdef __cplusplus

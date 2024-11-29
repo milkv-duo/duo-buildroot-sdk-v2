@@ -1,10 +1,10 @@
 "DEVICE": {
-    "FULL_NAME": "cv181x",
-    "CODE_NAME": "cv181x",
-    "SDK_VERSION": "20240611",
-    "GENERATOR_VERSION": "(,)",
-    "ISP_VERSION": "(I800c07,3f2df4e)",
-    "ISP_BRANCH": "v4.1.0",
+    "FULL_NAME": "",
+    "CODE_NAME": "",
+    "SDK_VERSION": "",
+    "GENERATOR_VERSION": "",
+    "ISP_VERSION": "",
+    "ISP_BRANCH": "",
     "COMM_PROTOCOL": "1.0",
     "ROUTES": {
         "ROUTE": [

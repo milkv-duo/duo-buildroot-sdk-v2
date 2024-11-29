@@ -123,7 +123,7 @@ static CVI_S32 _vpss_update_ldc_mesh(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,
 	if (paddr_old)
 		CVI_SYS_IonFree(paddr_old, vaddr_old);
 
-	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "Grp(%d) Chn(%d) mesh base(%#"PRIx64") vaddr(%p)\n"
+	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "Grp(%d) Chn(%d) mesh base(%#llx) vaddr(%p)\n"
 		      , VpssGrp, VpssChn, paddr, vaddr);
 
 #if defined(__CV181X__) || defined(__CV180X__)
@@ -961,7 +961,7 @@ CVI_S32 CVI_VPSS_SetChnRotation(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, ROTATION_E e
 
 	if (enRotation == ROTATION_180) {
 		CVI_TRACE_VPSS(CVI_DBG_ERR, "not support rotation(%d).\n", enRotation);
-		return CVI_ERR_VI_NOT_SUPPORT;
+		return CVI_ERR_VPSS_NOT_SUPPORT;
 	} else if (enRotation >= ROTATION_MAX) {
 		CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) invalid rotation(%d).\n"
 			, VpssGrp, VpssChn, enRotation);

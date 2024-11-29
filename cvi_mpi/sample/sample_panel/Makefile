@@ -1,17 +1,16 @@
 SHELL = /bin/bash
 
-ifeq ("$(CVIARCH)", "CV180X")
+ifeq ("$(CHIP_ARCH)", "CV180X")
 all:
 clean:
 else
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-PANEL_INC =../../component/panel/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) -I$(PANEL_INC) -I../common -I$(SENSOR_LIST_INC)
 OBJS = $(SRCS:.c=.o)
@@ -48,13 +47,10 @@ $(TARGET): $(OBJS) $(MW_LIB)/libvo.a $(MW_LIB)/libsys.a $(MW_LIB)/libmipi_tx.a
 lt9611:
 	cd $(SDIR)/lt9611;make clean;make
 
-clean: clean_lt9611
-	@rm -f $(OBJS) $(DEPS) $(TARGET)
-
 clean_lt9611:
 	cd $(SDIR)/lt9611;make clean;
 
-clean:
+clean: clean_lt9611
 	@rm -f $(OBJS) $(DEPS) $(TARGET)
 
 -include $(DEPS)

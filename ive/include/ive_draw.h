@@ -1,8 +1,8 @@
 #ifndef _IVE_DRAW_H
 #define _IVE_DRAW_H
 #include "cvi_comm_ive.h"
-#include "linux/cvi_comm_video.h"
 #include "cvi_draw_ive.h"
+#include "linux/cvi_comm_video.h"
 
 #ifdef __cplusplus
 extern "C" {

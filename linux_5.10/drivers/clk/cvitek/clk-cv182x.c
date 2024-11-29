@@ -172,7 +172,6 @@ static DEFINE_SPINLOCK(cv182x_clk_lock);
 struct cv182x_clock_data {
 	void __iomem *base;
 	spinlock_t *lock;
-	struct clk_hw_onecell_data hw_data;
 #ifdef CONFIG_PM_SLEEP
 	uint32_t clken_saved_regs[CV182X_CLKEN_NUM];
 	uint32_t clksel_saved_regs[CV182X_CLKSEL_NUM];
@@ -185,6 +184,7 @@ struct cv182x_clock_data {
 	uint32_t cam1pll_ssc_syn_set_saved_reg;
 	uint32_t pll_g6_csr_saved_regs[CV182X_PLL_G6_CSR_NUM];
 #endif /* CONFIG_PM_SLEEP */
+	struct clk_hw_onecell_data hw_data;
 };
 
 struct cv182x_gate_clock {

@@ -14,7 +14,10 @@
 #define AVG_PERSON_HEIGHT 1.6
 #define AVG_DEFAULT_HEIGHT 1.2
 
-#define ALPHA_ADAS 0.475
+#define ALPHA_CAR 0.475
+#define ALPHA_MOTORBIKE 1.1
+
+static float E = 2.7182818183;
 
 int update_easy_queue(int *data, int new_val, int size) {
   int sum = 0;
@@ -37,10 +40,13 @@ CVI_S32 _ADAS_Init(adas_info_t **adas_info, uint32_t buffer_size, int det_type) 
   memset(new_adas_info, 0, sizeof(adas_info_t));
   new_adas_info->size = buffer_size;
   new_adas_info->miss_time_limit = 10;
+  new_adas_info->collison_time = 4.0f;
   new_adas_info->is_static = true;
-  new_adas_info->FPS = 25;
+  new_adas_info->FPS = 15;
   new_adas_info->departure_time = 1;
   new_adas_info->det_type = det_type;
+  new_adas_info->sence_type = 1;
+  new_adas_info->location_type = 1;
 
   new_adas_info->data = (adas_data_t *)malloc(sizeof(adas_data_t) * buffer_size);
   memset(new_adas_info->data, 0, sizeof(adas_data_t) * buffer_size);
@@ -80,7 +86,7 @@ float sum_acc(float *data, int size) {
   return sum;
 }
 
-float obj_dis(cvtdl_object_info_t *info, float height) {
+float obj_dis(cvtdl_object_info_t *info, float height, float alpha) {
   float obj_height;
   switch (info->classes) {
     case 0:
@@ -102,7 +108,7 @@ float obj_dis(cvtdl_object_info_t *info, float height) {
       obj_height = AVG_DEFAULT_HEIGHT;
   }
 
-  float dis = ALPHA_ADAS * obj_height * height / (info->bbox.y2 - info->bbox.y1);
+  float dis = alpha * obj_height * height / (info->bbox.y2 - info->bbox.y1);
 
   if (info->bbox.y2 / height > 0.83) {
     dis *= 0.6;
@@ -111,8 +117,95 @@ float obj_dis(cvtdl_object_info_t *info, float height) {
   return dis;
 }
 
-void update_dis(cvtdl_object_info_t *info, adas_data_t *data, float height, bool first_time) {
-  float cur_dis = obj_dis(info, height);
+float obj_dis_self_car(cvtdl_object_info_t *info, float height, float width) {
+  float h_ratio = (info->bbox.y2 - info->bbox.y1) / height;
+
+  if (info->classes > 4) {  // bike, motorbike
+    return obj_dis(info, height, ALPHA_CAR);
+
+  } else if (info->classes == 3) {  // rider
+    return -28.4 * h_ratio + 11.71;
+
+  } else if (info->classes == 4) {  // person
+    return -19.75 * h_ratio + 10.08;
+
+  } else if (info->classes == 0) {  // car
+    return -31.86 * h_ratio + 11.4;
+
+  } else {
+    float w_ratio = (info->bbox.x2 - info->bbox.x1) / width;
+    float w_center = (info->bbox.x2 + info->bbox.x1) / (2.0f * width);
+    float w_h_ratio = (info->bbox.x2 - info->bbox.x1) / (info->bbox.y2 - info->bbox.y1);
+
+    if (info->classes == 1) {  // bus
+
+      if (w_center > 0.4 && w_center < 0.6 && w_h_ratio < 1.3) {
+        return 15.91 * pow(E, -5.019 * w_ratio);
+      }
+      return obj_dis(info, height, ALPHA_CAR);
+
+    } else {  // truck
+
+      if (w_center > 0.4 && w_center < 0.6 && w_h_ratio < 1.4) {
+        return 14.553 * pow(E, -4.746 * w_ratio);
+      }
+      return obj_dis(info, height, ALPHA_CAR);
+    }
+  }
+}
+
+float obj_dis_self_motorbike(cvtdl_object_info_t *info, float height, float width, bool center) {
+  float h_ratio = (info->bbox.y2 - info->bbox.y1) / height;
+
+  if (info->classes > 4) {  // bike, motorbike
+    return obj_dis(info, height, ALPHA_MOTORBIKE);
+
+  } else if (info->classes == 4) {  // person
+    return -7.87 * h_ratio + 8.11;
+
+  } else {
+    float w_ratio = (info->bbox.x2 - info->bbox.x1) / width;
+    float w_h_ratio = (info->bbox.x2 - info->bbox.x1) / (info->bbox.y2 - info->bbox.y1);
+
+    if (info->classes == 3) {  // rider
+      if (center && w_h_ratio < 0.5) {
+        return 0.0961 * pow(w_ratio, -1.568);
+      }
+      return obj_dis(info, height, ALPHA_MOTORBIKE);
+
+    } else if (info->classes == 0) {  // car
+
+      if (center && w_h_ratio < 1.3) {
+        return 0.604 * pow(w_ratio, -1.483);
+      }
+      return obj_dis(info, height, ALPHA_MOTORBIKE);
+
+    } else {  // truck, bus
+
+      if (center && w_h_ratio < 1.3) {
+        return 10.668 * pow(E, -2.43 * w_ratio);
+      }
+      return obj_dis(info, height, ALPHA_MOTORBIKE);
+    }
+  }
+}
+
+void update_dis(cvtdl_object_info_t *info, adas_info_t *adas_info, int obj_index, int data_index,
+                float height, float width, bool first_time) {
+  float cur_dis;
+  bool center = adas_info->center_info[0] == obj_index;
+
+  adas_data_t *data = &adas_info->data[data_index];
+
+  if (adas_info->sence_type == 0) {
+    cur_dis = obj_dis_self_car(info, height, width);
+  } else {
+    cur_dis = obj_dis_self_motorbike(info, height, width, center);
+  }
+
+  if (cur_dis < 0) {
+    cur_dis = 0.5;
+  }
 
   if (!first_time) {
     cur_dis = 0.9 * data->dis + 0.1 * cur_dis;
@@ -148,24 +241,28 @@ void update_object_state(cvtdl_object_info_t *info, adas_data_t *data, adas_info
 
   float cur_start_score = 0;
   float cur_warning_score = 0;
-  if (self_static && center_info[0] == obj_index && info->adas_properity.dis < 4.0f &&
-      data->speed > 0.25) {
-    cur_start_score = 1.0f;
+  if (self_static && center_info[0] == obj_index && info->adas_properity.dis < 4.0f) {
+    if (data->speed > 0.3) {
+      cur_start_score = 1.0f;
+    } else if (data->speed > 0.1) {
+      cur_start_score = (data->speed - 0.1) / 0.3;
+    }
   }
 
   data->start_score = 0.9 * data->start_score + 0.1 * cur_start_score;
 
-  if (data->start_score > adas_info->FPS / 50.0) {
+  if (data->start_score > adas_info->FPS / 30.0) {
     info->adas_properity.state = START;
   }
 
   bool center = center_info[0] == obj_index;
-  if ((center && info->adas_properity.dis < 6.0 && data->speed < info->adas_properity.dis / -2.0) ||
-      (center && info->adas_properity.dis < 2.6)) {
+
+  if (center && info->adas_properity.dis < 8.0 &&
+      -(data->speed) * (float)adas_info->collison_time > info->adas_properity.dis) {
     cur_warning_score = 1.0f;
   }
   data->warning_score = 0.9 * data->warning_score + 0.1 * cur_warning_score;
-  if (data->warning_score > adas_info->FPS / 50.0) {
+  if (data->warning_score > adas_info->FPS / 30.0) {
     info->adas_properity.state = COLLISION_WARNING;
   }
 }
@@ -240,6 +337,8 @@ static CVI_S32 clean_data(adas_info_t *adas_info) {
       adas_info->data[j].miss_counter = 0;
       adas_info->data[j].dis = 0;
       adas_info->data[j].dis_tmp = 0;
+      adas_info->data[j].start_score = 0;
+      adas_info->data[j].warning_score = 0;
     }
   }
   return CVI_TDL_SUCCESS;
@@ -284,15 +383,20 @@ static CVI_S32 update_lane_state(adas_info_t *adas_info, uint32_t height, uint32
   return CVI_TDL_SUCCESS;
 }
 
-void front_obj_index(cvtdl_object_t *obj_meta, cvtdl_lane_t *lane_meta, int *center_info,
-                     float width, int det_lane) {
-  center_info[0] = -1;
+void front_obj_index(cvtdl_object_t *obj_meta, cvtdl_lane_t *lane_meta, adas_info_t *adas_info,
+                     float width) {
+  adas_info->center_info[0] = -1;
   float dis = width;
 
-  float left_x = 0.33 * width;
-  float right_x = 0.66 * width;
+  float left_x = 0.4 * width;
+  float right_x = 0.6 * width;
 
-  if (det_lane && lane_meta->size == 2) {
+  if (adas_info->sence_type) {  // motorbike
+    left_x = left_x - ((float)adas_info->location_type - 1.0) * 0.1;
+    right_x = right_x - ((float)adas_info->location_type - 1.0) * 0.1;
+  }
+
+  if (adas_info->det_type && lane_meta->size == 2) {
     float xmin = lane_meta->lane[0].y[0] < lane_meta->lane[0].y[1] ? lane_meta->lane[0].x[0]
                                                                    : lane_meta->lane[0].x[1];
     float xmax = lane_meta->lane[1].y[0] < lane_meta->lane[1].y[1] ? lane_meta->lane[1].x[0]
@@ -310,13 +414,13 @@ void front_obj_index(cvtdl_object_t *obj_meta, cvtdl_lane_t *lane_meta, int *cen
     }
   }
 
-  center_info[1] = left_x;
-  center_info[2] = right_x;
+  adas_info->center_info[1] = left_x;
+  adas_info->center_info[2] = right_x;
 
   float center = (left_x + right_x) / 2.0f;
 
   for (uint32_t i = 0; i < obj_meta->size; i++) {
-    if (obj_meta->info[i].classes < 3) {  //机动车
+    if (obj_meta->info[i].classes < 5) {  //机动车, 人
 
       float c_x = (obj_meta->info[i].bbox.x1 + obj_meta->info[i].bbox.x2) / 2.0f;
 
@@ -324,7 +428,7 @@ void front_obj_index(cvtdl_object_t *obj_meta, cvtdl_lane_t *lane_meta, int *cen
         float cur_dis = center > c_x ? center - c_x : c_x - center;
 
         if (cur_dis < dis) {
-          center_info[0] = i;
+          adas_info->center_info[0] = i;
           dis = cur_dis;
         }
       }
@@ -352,8 +456,7 @@ static CVI_S32 update_data(adas_info_t *adas_info, VIDEO_FRAME_INFO_S *frame,
   LOGI("[APP::VehicleAdas] Update Data\n");
 
   update_unique_id_with_classes(obj_meta);
-  front_obj_index(obj_meta, &adas_info->lane_meta, adas_info->center_info, frame->stVFrame.u32Width,
-                  adas_info->det_type);
+  front_obj_index(obj_meta, &adas_info->lane_meta, adas_info, frame->stVFrame.u32Width);
 
   for (uint32_t i = 0; i < obj_meta->size; i++) {
     uint64_t trk_id = obj_meta->info[i].unique_id;
@@ -371,15 +474,16 @@ static CVI_S32 update_data(adas_info_t *adas_info, VIDEO_FRAME_INFO_S *frame,
 
     if (match_idx != -1) {
       adas_info->data[match_idx].miss_counter = 0;
-      update_dis(&obj_meta->info[i], &adas_info->data[match_idx], frame->stVFrame.u32Height, false);
+      update_dis(&obj_meta->info[i], adas_info, i, match_idx, frame->stVFrame.u32Height,
+                 frame->stVFrame.u32Width, false);
 
       update_idx = match_idx;
     } else {
       for (uint32_t j = 0; j < adas_info->size; j++) {
         if (adas_info->data[j].t_state == IDLE) {
           idle_idx = (int)j;
-          update_dis(&obj_meta->info[i], &adas_info->data[idle_idx], frame->stVFrame.u32Height,
-                     true);
+          update_dis(&obj_meta->info[i], adas_info, i, idle_idx, frame->stVFrame.u32Height,
+                     frame->stVFrame.u32Width, true);
           update_idx = idle_idx;
           break;
         }

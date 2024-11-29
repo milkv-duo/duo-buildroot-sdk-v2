@@ -1,6 +1,7 @@
 #include "ctx.h"
 #include "vpss_helper.h"
 #include <dlfcn.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include "cvi_isp.h"
@@ -15,6 +16,7 @@
 #include "utils.h"
 #include <chrono>
 #include <math.h>
+#include "cvi_awb.h"
 
 #define TEAISPPQ_LIB "libcvi_tdl.so"
 #define USE_VI_RAW
@@ -62,8 +64,7 @@ static int load_teaisppq_symbol(SERVICE_CTX *ctx)
 		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_CreateHandle", AI_Service_CreateHandle, ent->ai_service_create_handle);
 		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_DestroyHandle", AI_Service_DestroyHandle, ent->ai_service_destroy_handle);
 		// scene classification
-		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Set_Raw_Image_Cls_Param", AI_Set_Image_Cls_Param, ent->ai_set_img_cls_param);
-		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Raw_Image_Classification", AI_Image_Cls, ent->ai_img_cls);
+		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Isp_Image_Classification", AI_Image_Cls, ent->ai_img_cls);
 		LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_ObjectWriteText", AI_Service_ObjectWriteText, ent->ai_write_text);
 
 	}
@@ -93,38 +94,45 @@ static void set_teaisppq_scene(SERVICE_CTX_ENTITY *ent, cvtdl_class_meta_t &cls_
 		break;
 	}
 
-	for (int i = 0; i < 5; i++) {
-		int scene_id = cls_meta.cls[i];
-		float score = cls_meta.score[i];
-		//std::cout << scene_id << ": " << score << std::endl;
-		scene_info.scene_score[scene_id] = score * 100;
-	}
+	float score = cls_meta.score[0];
+
+	scene_info.scene_score = score * 100;
 
 	CVI_TEAISP_PQ_SetSceneInfo(ent->ViPipe, &scene_info);
 }
 
 int run_teaisppq_vi(SERVICE_CTX_ENTITY *ent)
 {
-	int ret = -1;
+	int ret = 0;
 	int frmNum = 1;
 	std::string ret_name;
 	cvtdl_class_meta_t cls_meta = {0};
 	VI_PIPE pipe = ent->ViPipe;
 	VIDEO_FRAME_INFO_S stVideoFrame[2] = {};
+	PQ_PARAMETER_S pq_param;
+	cvtdl_isp_meta_t isp_pq;
+
+	pq_param.awb_bgain = pq_param.awb_ggain = pq_param.awb_rgain = 1024;
 
 	get_vi_raw(pipe, stVideoFrame, &frmNum);
+
+	get_pq_parameter(ent->ViPipe, &pq_param);
+
+	isp_pq.rgain = pq_param.awb_rgain;
+	isp_pq.contant_1024 = pq_param.awb_ggain;
+	isp_pq.bgain = pq_param.awb_bgain;
 
 	// inference
 	// TODO: force set the 1, ignore the se frame
 	frmNum = 1;
 	for (int i = 0; i < frmNum; i++) {
 		++inference_count;
-		//std::cout << "---------- do the inference cnt: " << ++inference_count << " ----------" << std::endl;
-		ent->ai_set_skip_vpss_preprocess(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_RAW_IMAGE_CLASSIFICATION, true);
+		//std::cout << "pipe: " << pipe << ", ---------- do the inference cnt: " << ++inference_count << " ----------" << std::endl;
+		ent->ai_set_skip_vpss_preprocess(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, true);
 
 		auto start_time = std::chrono::high_resolution_clock::now();
 
-		ret = ent->ai_img_cls(ent->teaisppq_handle, stVideoFrame + i, &cls_meta);
+		ret = ent->ai_img_cls(ent->teaisppq_handle, stVideoFrame + i, &cls_meta, &isp_pq);
 
 		auto end_time = std::chrono::high_resolution_clock::now();
 		auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
@@ -140,8 +148,8 @@ int run_teaisppq_vi(SERVICE_CTX_ENTITY *ent)
 	set_teaisppq_scene(ent, cls_meta);
 
 	// dump raw, keep here
-	if (access("dump_raw_12_bits", F_OK) == 0) {
-		// string format: scene-0_20-1_20-2_20-3_20-4_20-cnt_1.raw
+	if (access("dump_raw_12_bits", F_OK) == 0 || access("dump_raw_once", F_OK) == 0) {
+		// string format: scene-0_20-1_20-2_20-3_20-4_20-rg_1024-gg_1024-bg_1024-cnt_1.raw
 		int int_cls_score[5] = {0};
 		std::string ret_name = teaisppq_scene_str[cls_meta.cls[0]] + std::string("-");
 
@@ -155,9 +163,16 @@ int run_teaisppq_vi(SERVICE_CTX_ENTITY *ent)
 				ret_name += "-";
 			}
 		}
+		ret_name += "-rg" + std::to_string(isp_pq.rgain);
+		ret_name += "-gg" + std::to_string(isp_pq.contant_1024);
+		ret_name += "-bg" + std::to_string(isp_pq.bgain);
 		ret_name +=  "-cnt" + std::to_string(inference_count) + ".raw";
 		dump_raw_with_ret(stVideoFrame, frmNum, ret_name.c_str(), RAW_12_BIT);
 		std::cout << "dump raw: " << ret_name << std::endl;
+
+		if (access("dump_raw_once", F_OK) == 0) {
+			system("rm dump_raw_once");
+		}
 
 	} else if (access("dump_raw_16_bits", F_OK) == 0) {
 		dump_raw(stVideoFrame, frmNum, RAW_16_BIT);
@@ -176,12 +191,20 @@ int init_teaisppq(SERVICE_CTX *ctx)
 {
 	int ret = 0;
 
+	// init the sensor num after vi init
+	CVI_VI_GetDevNum(&ctx->sensor_number);
+
 	for (int idx = 0; idx < ctx->dev_num; idx++) {
 		SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
+
+		ent->ViPipe = idx;
 
 		if (!ent->enableTeaisppq) {
 			continue;
 		}
+
+		ctx->teaisppq_on_status_ls[idx] = 1;
+		ctx->teaisppq_turn_pipe = idx;
 
 		if (0 > load_teaisppq_symbol(ctx)) {
 			printf("load_teaisppq_symbol fail\n");
@@ -192,27 +215,6 @@ int init_teaisppq(SERVICE_CTX *ctx)
 			return -1;
 		}
 
-		// TODO:setup preprocess, may remove
-		VpssPreParam p_preprocess_cfg;
-		float mean[3] = {123.675, 116.28, 103.52};
-		float std[3] = {58.395, 57.12, 57.375};
-
-		for (int i = 0; i < 3; i++) {
-			p_preprocess_cfg.mean[i] = mean[i] / std[i];
-			p_preprocess_cfg.factor[i] = 1.0 / std[i];
-		}
-
-		p_preprocess_cfg.format = PIXEL_FORMAT_RGB_888_PLANAR;
-		p_preprocess_cfg.use_quantize_scale = true;
-		p_preprocess_cfg.rescale_type = RESCALE_CENTER;
-		p_preprocess_cfg.keep_aspect_ratio = true;
-
-		ret = ent->ai_set_img_cls_param(ent->teaisppq_handle, &p_preprocess_cfg);
-
-		if (ret != CVI_SUCCESS) {
-			printf("Can not set image classification parameters %#x\n", ret);
-		}
-
 		// open model
 		struct stat st = {0};
 
@@ -221,12 +223,12 @@ int init_teaisppq(SERVICE_CTX *ctx)
 			return -1;
 		}
 
-		if (ent->ai_open_model(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_RAW_IMAGE_CLASSIFICATION, ctx->teaisppq_model_path) != CVI_SUCCESS) {
+		if (ent->ai_open_model(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, ctx->teaisppq_model_path) != CVI_SUCCESS) {
 			printf("CVI_AI_SetModelPath: %s failed!\n", ctx->teaisppq_model_path);
 			return -1;
 		}
 
-		ent->ai_set_skip_vpss_preprocess(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_RAW_IMAGE_CLASSIFICATION, true);
+		ent->ai_set_skip_vpss_preprocess(ent->teaisppq_handle, CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, true);
 	}
 
 	ctx->tdl_ref_count++;
@@ -259,21 +261,44 @@ void *teaisppqTask(void *arg)
 	int rc = -1;
 	SERVICE_CTX_ENTITY *ent = (SERVICE_CTX_ENTITY *)arg;
 
+	prctl(PR_SET_NAME, "AIPQ", 0, 0, 0);
+
 	while (ent->running && ent->enableTeaisppq) {
-		pthread_mutex_lock(&ent->teaisppq_mutex);
-		//std::cout << "run the teaisppq ..." << std::endl;
 #ifdef USE_VI_RAW
-		rc = run_teaisppq_vi(ent);
+		if (access("STOP_AI", F_OK) == 0) {
+			if (access("START_AI", F_OK) == 0) {
+				system("rm -f STOP_AI");
+			}
+			usleep(1 * 1000000);
+		} else {
+			SERVICE_CTX *ctx = (SERVICE_CTX *)ent->ctx;
+			pthread_mutex_lock(&ctx->teaisppq_mutex);
+
+			while (ctx->teaisppq_turn_pipe != ent->ViPipe) {
+				pthread_cond_wait(&ctx->teaisppq_cond, &ctx->teaisppq_mutex);
+			}
+			rc = run_teaisppq_vi(ent);
+			// update teaisppq_turn_pipe
+			for (int i = 1; i <= VI_MAX_PIPE_NUM; i++) {
+				int next_pipe = (ent->ViPipe + i) % VI_MAX_PIPE_NUM;
+				if (ctx->teaisppq_on_status_ls[next_pipe] == 1) {
+					ctx->teaisppq_turn_pipe = next_pipe;
+					break;
+				}
+			}
+
+			pthread_cond_broadcast(&ctx->teaisppq_cond);
+			pthread_mutex_unlock(&ctx->teaisppq_mutex);
+		}
 		usleep(TEAISP_PQ_SLEEP_TIME);
 #else
 		//std::cout << "not run teaisppq ..." << std::endl;
 #endif
 		if (0 != rc) {
 			std::cout << "fail to run the teaisppq" << std::endl;
-			break;
+			if (access("STOP_AI", F_OK) != 0)
+				break;
 		}
-
-		pthread_mutex_unlock(&ent->teaisppq_mutex);
 	}
 
 	return NULL;

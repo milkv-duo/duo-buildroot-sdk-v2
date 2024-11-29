@@ -1,5 +1,6 @@
 #include "core/cvi_tdl_types_mem.h"
 #include <string.h>
+#include <cvi_tdl_log.hpp>
 #include "core/cvi_tdl_types_mem_internal.h"
 // Free
 
@@ -83,14 +84,17 @@ void CVI_TDL_FreeCpp(cvtdl_object_info_t *obj_info) {
     obj_info->pedestrian_properity = NULL;
   }
 
-  if (obj_info->mask) {
-    free(obj_info->mask);
-    obj_info->mask = NULL;
-  }
-
-  if (obj_info->mask_point) {
-    free(obj_info->mask_point);
-    obj_info->mask_point = NULL;
+  if (obj_info->mask_properity) {
+    if (obj_info->mask_properity->mask) {
+      free(obj_info->mask_properity->mask);
+      obj_info->mask_properity->mask = NULL;
+    }
+    if (obj_info->mask_properity->mask_point) {
+      free(obj_info->mask_properity->mask_point);
+      obj_info->mask_properity->mask_point = NULL;
+    }
+    free(obj_info->mask_properity);
+    obj_info->mask_properity = NULL;
   }
 }
 
@@ -255,6 +259,10 @@ void CVI_TDL_CopyInfoCpp(const cvtdl_object_info_t *info, cvtdl_object_info_t *i
   if (infoNew->feature.size != 0) {
     uint32_t feature_size = infoNew->feature.size * getFeatureTypeSize(infoNew->feature.type);
     infoNew->feature.ptr = (int8_t *)malloc(feature_size);
+    if (infoNew->feature.ptr == nullptr) {
+      syslog(LOG_ERR, "malloc failed for feature.ptr\n");
+      return;
+    }
     memcpy(infoNew->feature.ptr, info->feature.ptr, feature_size);
   } else {
     infoNew->feature.ptr = NULL;

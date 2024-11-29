@@ -102,6 +102,8 @@ class Core {
   virtual ~Core() = default;
   int modelOpen(const char *filepath);
   int getInputMemType();
+  int getModelInputDType();
+
   const char *getModelFilePath() const { return m_model_file.c_str(); }
   int modelClose();
   int setVpssTimeout(uint32_t timeout);
@@ -124,10 +126,8 @@ class Core {
   bool isInitialized();
   void cleanupError();
   virtual bool allowExportChannelAttribute() const { return false; }
-  void enableDebugger(bool enable) {}
   void setUseMmap(bool mmap);
   void setraw(bool raw);
-  void setDebuggerOutputPath(const std::string &dump_path) {}
   virtual int after_inference();
   void set_perf_eval_interval(int interval) { model_timer_.Config("", interval); }
   int vpssCropImage(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dstFrame, cvtdl_bbox_t bbox,

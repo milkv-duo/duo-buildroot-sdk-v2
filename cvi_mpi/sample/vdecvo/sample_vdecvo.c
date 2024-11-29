@@ -20,8 +20,6 @@
 
 #define MAX_VDEC_NUM 2
 
-VB_SOURCE_E g_enVdecVBSource = VB_SOURCE_COMMON;
-
 typedef struct _SAMPLE_VDEC_PARAM_S {
 	VDEC_CHN        VdecChn;
 	VDEC_CHN_ATTR_S stChnAttr;
@@ -30,6 +28,8 @@ typedef struct _SAMPLE_VDEC_PARAM_S {
 	pthread_t       vdec_thread;
 	RECT_S          stDispRect;
 	CVI_U32         bind_mode;
+	VB_SOURCE_E     vdec_vb_source;
+	PIXEL_FORMAT_E  vdec_pixel_format;
 } SAMPLE_VDEC_PARAM_S;
 
 typedef struct _SAMPLE_VDEC_CONFIG_S {
@@ -455,7 +455,7 @@ RETRY_GET_FRAME:
 
 VB_POOL g_ahLocalPicVbPool[MAX_VDEC_NUM] = { [0 ...(MAX_VDEC_NUM - 1)] = VB_INVALID_POOLID };
 
-CVI_S32 vdec_init_vb_pool(VDEC_CHN ChnIndex, SAMPLE_VDEC_ATTR *pastSampleVdec)
+CVI_S32 vdec_init_vb_pool(VDEC_CHN ChnIndex, SAMPLE_VDEC_ATTR *pastSampleVdec, CVI_BOOL is_user)
 {
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	CVI_U32 u32BlkSize;
@@ -475,7 +475,7 @@ CVI_S32 vdec_init_vb_pool(VDEC_CHN ChnIndex, SAMPLE_VDEC_ATTR *pastSampleVdec)
 	SAMPLE_PRT("VDec Init Pool[VdecChn%d], u32BlkSize = %d, u32BlkCnt = %d\n", ChnIndex,
 			stVbConf.astCommPool[0].u32BlkSize, stVbConf.astCommPool[0].u32BlkCnt);
 
-	if (g_enVdecVBSource != VB_SOURCE_USER) {
+	if (!is_user) {
 		if (stVbConf.u32MaxPoolCnt == 0 && stVbConf.astCommPool[0].u32BlkSize == 0) {
 			CVI_SYS_Exit();
 			s32Ret = CVI_SYS_Init();
@@ -510,9 +510,10 @@ CVI_VOID vdec_exit_vb_pool(CVI_VOID)
 {
 	CVI_S32 i, s32Ret;
 	VDEC_MOD_PARAM_S stModParam;
-
+	VB_SOURCE_E vb_source;
 	CVI_VDEC_GetModParam(&stModParam);
-	if (g_enVdecVBSource != VB_SOURCE_USER)
+	vb_source = stModParam.enVdecVBSource;
+	if (vb_source != VB_SOURCE_USER)
 		return;
 
 	for (i = MAX_VDEC_NUM-1; i >= 0; i--) {
@@ -539,7 +540,7 @@ CVI_S32 start_vdec(SAMPLE_VDEC_PARAM_S *pVdecParam)
     SAMPLE_PRT("VdecChn = %d\n", VdecChn);
 
 	CVI_VDEC_GetModParam(&stModParam);
-	stModParam.enVdecVBSource = g_enVdecVBSource;
+	stModParam.enVdecVBSource = pVdecParam->vdec_vb_source;
 	CVI_VDEC_SetModParam(&stModParam);
 
 	s32Ret = CVI_VDEC_CreateChn(VdecChn, &pVdecParam->stChnAttr);
@@ -548,7 +549,7 @@ CVI_S32 start_vdec(SAMPLE_VDEC_PARAM_S *pVdecParam)
 		return s32Ret;
 	}
 
-	if (g_enVdecVBSource == VB_SOURCE_USER) {
+	if (pVdecParam->vdec_vb_source == VB_SOURCE_USER) {
 		VDEC_CHN_POOL_S stPool;
 
 		stPool.hPicVbPool = g_ahLocalPicVbPool[VdecChn];
@@ -566,7 +567,7 @@ CVI_S32 start_vdec(SAMPLE_VDEC_PARAM_S *pVdecParam)
 		printf("CVI_VDEC_GetChnParam chn[%d] failed for %#x!\n", pVdecParam->VdecChn, s32Ret);
 		return s32Ret;
 	}
-	stChnParam.enPixelFormat = PIXEL_FORMAT_YUV_PLANAR_420;
+	stChnParam.enPixelFormat = pVdecParam->vdec_pixel_format;
 	stChnParam.u32DisplayFrameNum =
 		(pVdecParam->stChnAttr.enType == PT_JPEG || pVdecParam->stChnAttr.enType == PT_MJPEG) ? 0 : 2;
 	s32Ret = CVI_VDEC_SetChnParam(VdecChn, &stChnParam);
@@ -594,7 +595,7 @@ CVI_VOID stop_vdec(SAMPLE_VDEC_PARAM_S *pVdecParam)
 		printf("CVI_VDEC_StopRecvStream chn[%d] failed for %#x!\n", pVdecParam->VdecChn, s32Ret);
 	}
 
-	if (g_enVdecVBSource == VB_SOURCE_USER) {
+	if (pVdecParam->vdec_vb_source == VB_SOURCE_USER) {
 		CVI_VDEC_TRACE("detach in user mode\n");
 		s32Ret = CVI_VDEC_DetachVbPool(pVdecParam->VdecChn);
 		if (s32Ret != CVI_SUCCESS) {
@@ -809,13 +810,12 @@ CVI_S32 SAMPLE_VDEC_SEND_VPSS_SEND_VO(CVI_S32 decoding_file_num)
 	SAMPLE_VDEC_PARAM_S *pVdecChn[MAX_VDEC_NUM];
 
 	stVdecCfg.s32ChnNum = decoding_file_num;
-
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
 		pVdecChn[i] = &stVdecCfg.astVdecParam[i];
 		pVdecChn[i]->VdecChn = i;
 		pVdecChn[i]->stop_thread = CVI_FALSE;
 		pVdecChn[i]->bind_mode = VDEC_BIND_DISABLE;
-		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[0]);
+		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[i]);
 		pVdecChn[i]->stChnAttr.enType = find_file_type(pVdecChn[i]->decode_file_name, filelen);
 		pVdecChn[i]->stChnAttr.enMode = VIDEO_MODE_FRAME;
 		pVdecChn[i]->stChnAttr.u32PicWidth = VDEC_WIDTH;
@@ -833,6 +833,8 @@ CVI_S32 SAMPLE_VDEC_SEND_VPSS_SEND_VO(CVI_S32 decoding_file_num)
 		pVdecChn[i]->stDispRect.s32Y = 0;
 		pVdecChn[i]->stDispRect.u32Width = (VPSS_WIDTH >> (stVdecCfg.s32ChnNum - 1));
 		pVdecChn[i]->stDispRect.u32Height = 720;
+		pVdecChn[i]->vdec_vb_source = VB_SOURCE_COMMON;
+		pVdecChn[i]->vdec_pixel_format = PIXEL_FORMAT_YUV_PLANAR_420;
 	}
 
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
@@ -985,7 +987,6 @@ CVI_S32 SAMPLE_VDEC_BIND_VPSS_BIND_VO(CVI_S32 decoding_file_num)
     ************************************************/
 	SAMPLE_VDEC_CONFIG_S stVdecCfg = {0};
 	SAMPLE_VDEC_PARAM_S *pVdecChn[MAX_VDEC_NUM];
-	g_enVdecVBSource = VB_SOURCE_USER;
 	stVdecCfg.s32ChnNum = decoding_file_num;
 
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
@@ -993,7 +994,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VPSS_BIND_VO(CVI_S32 decoding_file_num)
 		pVdecChn[i]->VdecChn = i;
 		pVdecChn[i]->stop_thread = CVI_FALSE;
 		pVdecChn[i]->bind_mode = VDEC_BIND_VPSS_VO;
-		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[0]);
+		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[i]);
 		pVdecChn[i]->stChnAttr.enType = find_file_type(pVdecChn[i]->decode_file_name, filelen);
 		pVdecChn[i]->stChnAttr.enMode = VIDEO_MODE_FRAME;
 		pVdecChn[i]->stChnAttr.u32PicWidth = VDEC_WIDTH;
@@ -1011,6 +1012,8 @@ CVI_S32 SAMPLE_VDEC_BIND_VPSS_BIND_VO(CVI_S32 decoding_file_num)
 		pVdecChn[i]->stDispRect.s32Y = 0;
 		pVdecChn[i]->stDispRect.u32Width = (VPSS_WIDTH >> (stVdecCfg.s32ChnNum - 1));
 		pVdecChn[i]->stDispRect.u32Height = 720;
+		pVdecChn[i]->vdec_vb_source = VB_SOURCE_USER;
+		pVdecChn[i]->vdec_pixel_format = PIXEL_FORMAT_YUV_PLANAR_420;
 	}
 
 	////////////////////////////////////////////////////
@@ -1033,7 +1036,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VPSS_BIND_VO(CVI_S32 decoding_file_num)
 		astSampleVdec[i].u32FrameBufCnt =
 			(astSampleVdec[i].enType == PT_JPEG || astSampleVdec[i].enType == PT_MJPEG) ? 1 : 4;
 
-		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i]);
+		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i], CVI_TRUE);
 		if (s32Ret != CVI_SUCCESS) {
 			CVI_VDEC_ERR("SAMPLE_COMM_VDEC_InitVBPool fail\n");
 		}
@@ -1111,7 +1114,6 @@ CVI_S32 SAMPLE_VDEC_BIND_VENC(CVI_S32 decoding_file_num)
     ************************************************/
 	SAMPLE_VDEC_CONFIG_S stVdecCfg = {0};
 	SAMPLE_VDEC_PARAM_S *pVdecChn[MAX_VDEC_NUM];
-	g_enVdecVBSource = VB_SOURCE_USER;
 	stVdecCfg.s32ChnNum = decoding_file_num;
 
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
@@ -1119,7 +1121,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VENC(CVI_S32 decoding_file_num)
 		pVdecChn[i]->VdecChn = i;
 		pVdecChn[i]->stop_thread = CVI_FALSE;
 		pVdecChn[i]->bind_mode = VDEC_BIND_VENC;
-		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[0]);
+		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[i]);
 		pVdecChn[i]->stChnAttr.enType = find_file_type(pVdecChn[i]->decode_file_name, filelen);
 		pVdecChn[i]->stChnAttr.enMode = VIDEO_MODE_FRAME;
 		pVdecChn[i]->stChnAttr.u32PicWidth = VDEC_WIDTH;
@@ -1137,6 +1139,8 @@ CVI_S32 SAMPLE_VDEC_BIND_VENC(CVI_S32 decoding_file_num)
 		pVdecChn[i]->stDispRect.s32Y = 0;
 		pVdecChn[i]->stDispRect.u32Width = (VPSS_WIDTH >> (stVdecCfg.s32ChnNum - 1));
 		pVdecChn[i]->stDispRect.u32Height = 720;
+		pVdecChn[i]->vdec_vb_source = VB_SOURCE_USER;
+		pVdecChn[i]->vdec_pixel_format = PIXEL_FORMAT_YUV_PLANAR_420;
 	}
 	/************************************************
     * step3:  Init VENC
@@ -1193,7 +1197,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VENC(CVI_S32 decoding_file_num)
 		astSampleVdec[i].u32FrameBufCnt =
 			(astSampleVdec[i].enType == PT_JPEG || astSampleVdec[i].enType == PT_MJPEG) ? 1 : 4;
 
-		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i]);
+		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i], CVI_FALSE);
 		if (s32Ret != CVI_SUCCESS) {
 			CVI_VDEC_ERR("SAMPLE_COMM_VDEC_InitVBPool fail\n");
 		}
@@ -1306,7 +1310,6 @@ CVI_S32 SAMPLE_VDEC_BIND_VO(CVI_S32 decoding_file_num)
     ************************************************/
 	SAMPLE_VDEC_CONFIG_S stVdecCfg = {0};
 	SAMPLE_VDEC_PARAM_S *pVdecChn[MAX_VDEC_NUM];
-	g_enVdecVBSource = VB_SOURCE_USER;
 	stVdecCfg.s32ChnNum = decoding_file_num;
 
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
@@ -1314,7 +1317,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VO(CVI_S32 decoding_file_num)
 		pVdecChn[i]->VdecChn = i;
 		pVdecChn[i]->stop_thread = CVI_FALSE;
 		pVdecChn[i]->bind_mode = VDEC_BIND_VO;
-		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[0]);
+		filelen = snprintf(pVdecChn[i]->decode_file_name, 63, "%s", (char *)s_h264file[i]);
 		pVdecChn[i]->stChnAttr.enType = find_file_type(pVdecChn[i]->decode_file_name, filelen);
 		pVdecChn[i]->stChnAttr.enMode = VIDEO_MODE_FRAME;
 		pVdecChn[i]->stChnAttr.u32PicWidth = VO_WIDTH;
@@ -1332,6 +1335,8 @@ CVI_S32 SAMPLE_VDEC_BIND_VO(CVI_S32 decoding_file_num)
 		pVdecChn[i]->stDispRect.s32Y = 0;
 		pVdecChn[i]->stDispRect.u32Width = (VO_WIDTH >> (stVdecCfg.s32ChnNum - 1));
 		pVdecChn[i]->stDispRect.u32Height = VO_HEIGHT;
+		pVdecChn[i]->vdec_vb_source = VB_SOURCE_USER;
+		pVdecChn[i]->vdec_pixel_format = PIXEL_FORMAT_NV21;
 	}
 
 	////////////////////////////////////////////////////
@@ -1354,7 +1359,7 @@ CVI_S32 SAMPLE_VDEC_BIND_VO(CVI_S32 decoding_file_num)
 		astSampleVdec[i].u32FrameBufCnt =
 			(astSampleVdec[i].enType == PT_JPEG || astSampleVdec[i].enType == PT_MJPEG) ? 1 : 7;
 
-		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i]);
+		s32Ret = vdec_init_vb_pool(i, &astSampleVdec[i], CVI_TRUE);
 		if (s32Ret != CVI_SUCCESS) {
 			CVI_VDEC_ERR("SAMPLE_COMM_VDEC_InitVBPool fail\n");
 		}
@@ -1363,18 +1368,6 @@ CVI_S32 SAMPLE_VDEC_BIND_VO(CVI_S32 decoding_file_num)
 	for (int i = 0; i < stVdecCfg.s32ChnNum; i++) {
 		start_vdec(pVdecChn[i]);
 		SAMPLE_COMM_VDEC_Bind_VO(i, VoDev, VoChn);
-		VDEC_CHN_PARAM_S stChnParam = {0};
-		s32Ret = CVI_VDEC_GetChnParam(i, &stChnParam);
-		if (s32Ret != CVI_SUCCESS) {
-			printf("CVI_VDEC_GetChnParam chn[%d] failed for %#x!\n", i, s32Ret);
-			return s32Ret;
-		}
-		stChnParam.enPixelFormat = PIXEL_FORMAT_NV21;
-		s32Ret = CVI_VDEC_SetChnParam(i, &stChnParam);
-		if (s32Ret != CVI_SUCCESS) {
-			printf("CVI_VDEC_SetChnParam chn[%d] failed for %#x!\n", i, s32Ret);
-			return s32Ret;
-		}
 	}
 
 	start_thread(&stVdecCfg);

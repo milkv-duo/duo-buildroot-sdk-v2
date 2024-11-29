@@ -1,24 +1,22 @@
 SHELL = /bin/bash
 STATIC ?= 0
-
+#
 ifeq ($(PARAM_FILE), )
-PARAM_FILE:=../../../../Makefile.param
+PARAM_FILE:=../../../../mpi_param.mk
 include $(PARAM_FILE)
 endif
 include ../../../sample.mk
-
-
-
+#
 EXENAME = audup_master
 EXENAME2 = audup_slave
 AAC_OBJ = ../../aac_sample/cvi_audio_aac_adp.o
 C_OBJS = cvi_rpc_upmaster.o
 C_OBJS2 = cvi_rpc_upslave.o
-
+#
 DEFINES =
 DEFINES += -DCVIAUDIO_STATIC
 DEFINES += -DSUPPORT_EXTERNAL_AAC
-
+#
 INC = -I ./ -I$(MW_INC) -I$(KERNEL_INC) -I ../../aac_sample
 LIBS += -L$(MW_LIB) -lcvi_audio -lm -lpthread  -ldl -lcvi_VoiceEngine -lcvi_vqe -ltinyalsa -lcvi_RES1 -lcvi_ssp -lsys
 LIBS += -L$(MW_LIB)/3rd -lnanomsg
@@ -27,7 +25,7 @@ LIBS += -laacsbrdec2
 LIBS += -laacenc2
 LIBS += -laaccomm2
 LIBS += -laacsbrenc2
-
+#
 CFLAGS = -g -Wall -O0 -fPIC -fgnu89-inline -march=rv64imafdcvxthead -mabi=lp64d $(DEFINES) $(INC)
 LDFLAGS = -lpthread -pthread  -lm
 

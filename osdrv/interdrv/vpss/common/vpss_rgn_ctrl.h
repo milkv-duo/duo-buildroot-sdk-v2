@@ -9,6 +9,6 @@ CVI_S32 vpss_set_rgn_cfg(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, CVI_U32 layer, stru
 CVI_S32 vpss_set_rgn_coverex_cfg(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, struct cvi_rgn_coverex_cfg *cfg);
 CVI_S32 vpss_set_rgn_mosaic_cfg(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, struct cvi_rgn_mosaic_cfg *cfg);
 CVI_S32 vpss_get_rgn_ow_addr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, CVI_U32 layer,
-	RGN_HANDLE handle, CVI_U64 *addr);
+	RGN_HANDLE handle, CVI_U64 *addr, CVI_BOOL *ip_idle);
 
 #endif /* _VPSS_RGN_CTRL_H_ */

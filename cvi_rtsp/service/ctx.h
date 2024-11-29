@@ -31,8 +31,7 @@ typedef int (*AI_GetVpssChnConfig)(void *, CVI_AI_SUPPORTED_MODEL_E, const uint3
 typedef int (*AI_RetinaFace)(const void *, VIDEO_FRAME_INFO_S *, cvai_face_t *);
 typedef int (*AI_Service_FaceDrawRect)(void *, cvai_face_t *, VIDEO_FRAME_INFO_S *, const bool, cvai_service_brush_t);
 // scene classification
-typedef int (*AI_Set_Image_Cls_Param)(const cvitdl_handle_t, VpssPreParam *);
-typedef int (*AI_Image_Cls)(const cvitdl_handle_t, VIDEO_FRAME_INFO_S *, cvtdl_class_meta_t *);
+typedef int (*AI_Image_Cls)(const cvitdl_handle_t, VIDEO_FRAME_INFO_S *, cvtdl_class_meta_t *, cvtdl_isp_meta_t *);
 typedef int (*AI_Service_ObjectWriteText)(char *, int, int, VIDEO_FRAME_INFO_S *, float, float, float);
 
 struct SERVICE_CTX_ENTITY {
@@ -40,7 +39,6 @@ struct SERVICE_CTX_ENTITY {
     pthread_t teaisppq_worker;
     bool running;
     pthread_mutex_t mutex;
-    pthread_mutex_t teaisppq_mutex;
 
     CVI_RTSP_SESSION *rtspSession;
     uint32_t rtsp_bitrate;
@@ -67,12 +65,14 @@ struct SERVICE_CTX_ENTITY {
     VI_PIPE ViPipe;
     VPSS_CHN VpssChn;
     VPSS_GRP VpssGrp;
+    VPSS_GRP VpssGrpDrcPost;
     VENC_CHN VencChn;
     chnInputCfg venc_cfg;
     char venc_json[MAX_PATH_LEN];
     void *ctx;
     bool enableRetinaFace;
     bool enableTeaisppq;
+    bool enableTeaispDrc;
     bool enableHdmi;
     bool enableTEAISPBnr;
     char teaisp_model_list[MAX_PATH_LEN];
@@ -94,7 +94,6 @@ struct SERVICE_CTX_ENTITY {
     // scene classification
     AI_Service_ObjectWriteText ai_write_text;
     cviai_handle_t teaisppq_handle;
-    AI_Set_Image_Cls_Param ai_set_img_cls_param;
     AI_Image_Cls ai_img_cls;
 };
 
@@ -104,6 +103,17 @@ struct SERVICE_SBM {
     uint8_t enable;
     uint16_t bufLine;
     uint8_t bufSize;
+};
+
+struct REPLAY_PARAM {
+    uint8_t pixelFormat;
+    uint16_t width;
+    uint16_t height;
+    bool timingEnable;
+    uint32_t frameRate;
+    uint8_t WDRMode;
+    uint8_t bayerFormat;
+    COMPRESS_MODE_E compressMode;
 };
 
 struct SERVICE_CTX {
@@ -120,6 +130,7 @@ struct SERVICE_CTX {
     uint8_t max_use_tpu_num;
     char model_path[MAX_PATH_LEN];
     char teaisppq_model_path[MAX_PATH_LEN];
+    char teaispdrc_model_path[MAX_PATH_LEN];
     void *ai_dl;
     SERVICE_SBM sbm;
     int tdl_ref_count;
@@ -130,4 +141,12 @@ struct SERVICE_CTX {
     bool enable_set_pq_bin;
     char sdr_pq_bin_path[MAX_PATH_LEN];
     char wdr_pq_bin_path[MAX_PATH_LEN];
+    bool replayMode;
+    REPLAY_PARAM replayParam;
+    // teaisppq
+    pthread_mutex_t teaisppq_mutex;
+    pthread_cond_t teaisppq_cond;
+    int teaisppq_turn_pipe;
+    unsigned int sensor_number;
+    bool teaisppq_on_status_ls[SERVICE_CTX_ENTITY_MAX_NUM];
 };

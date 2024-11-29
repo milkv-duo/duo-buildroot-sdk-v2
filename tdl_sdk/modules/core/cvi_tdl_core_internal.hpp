@@ -16,6 +16,7 @@ typedef struct {
   cvitdl::Core *instance = nullptr;
   std::string model_path = "";
   uint32_t vpss_thread = 0;
+  int8_t *buf = nullptr;
 } cvitdl_model_t;
 
 // specialize std::hash for enum CVI_TDL_SUPPORTED_MODEL_E

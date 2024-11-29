@@ -46,6 +46,7 @@
 #include "object_detection/yolov8/yolov8.hpp"
 #include "object_detection/yolox/yolox.hpp"
 
+#include "depth_estimation/stereo.hpp"
 #include "face_detection/face_mask_detection/retinaface_yolox.hpp"
 #include "face_detection/retina_face/retina_face.hpp"
 #include "face_detection/retina_face/scrfd_face.hpp"
@@ -275,6 +276,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
     {CVI_TDL_SUPPORTED_MODEL_SUPER_RESOLUTION, CREATOR(SuperResolution)},
 
     {CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION, CREATOR(OCRRecognition)},
+    {CVI_TDL_SUPPORTED_MODEL_STEREO, CREATOR(Stereo)},
 #endif
 };
 
@@ -441,6 +443,49 @@ CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E conf
   LOGI("Model is opened successfully: %s \n", CVI_TDL_GetModelName(config));
   return CVI_TDL_SUCCESS;
 }
+
+#ifndef CV186X
+CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
+                                     int8_t *buf, uint32_t size) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  cvitdl_model_t &m_t = ctx->model_cont[config];
+  Core *instance = getInferenceInstance(config, ctx);
+
+  if (instance != nullptr) {
+    if (instance->isInitialized()) {
+      LOGW("%s: Inference has already initialized. Please call CVI_TDL_CloseModel to reset.\n",
+           CVI_TDL_GetModelName(config));
+      return CVI_TDL_ERR_MODEL_INITIALIZED;
+    }
+  } else {
+    LOGE("Cannot create model: %s\n", CVI_TDL_GetModelName(config));
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+
+  m_t.buf = buf;
+  CVI_S32 ret = m_t.instance->modelOpen(m_t.buf, size);
+  if (ret != CVI_TDL_SUCCESS) {
+    LOGE("Failed to open model: %s (%d)", CVI_TDL_GetModelName(config), (int)*m_t.buf);
+    return ret;
+  }
+  LOGI("Model is opened successfully: %s \n", CVI_TDL_GetModelName(config));
+  return CVI_TDL_SUCCESS;
+}
+#else
+CVI_S32 CVI_TDL_GetModelInputTpye(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
+                                  int *inputDTpye) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  Core *instance = getInferenceInstance(config, ctx);
+  if (instance != nullptr) {
+    *inputDTpye = instance->getModelInputDType();
+  } else {
+    LOGE("Cannot create model: %s\n", CVI_TDL_GetModelName(config));
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+  return CVI_TDL_SUCCESS;
+}
+
+#endif
 
 const char *CVI_TDL_GetModelPath(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config) {
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
@@ -732,24 +777,6 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
   return instance->getChnConfig(frameWidth, frameHeight, idx, chnConfig);
 }
 
-CVI_S32 CVI_TDL_EnalbeDumpInput(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
-                                const char *dump_path, bool enable) {
-  CVI_S32 ret = CVI_TDL_SUCCESS;
-  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
-  cvitdl::Core *instance = getInferenceInstance(config, ctx);
-  if (instance == nullptr) {
-    LOGE("Instance is null.\n");
-    return CVI_TDL_ERR_OPEN_MODEL;
-  }
-
-#ifdef CONFIG_ALIOS
-#else
-  instance->enableDebugger(enable);
-  instance->setDebuggerOutputPath(dump_path);
-#endif
-  return ret;
-}
-
 /**
  *  Convenience macros for defining inference functions. F{NUM} stands for how many input frame
  *  variables, P{NUM} stands for how many input parameters in inference function. All inference
@@ -935,7 +962,8 @@ CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame, cvtdl_object_t *
   int proto_h = obj_meta->mask_height;
   int proto_w = obj_meta->mask_width;
   for (uint32_t i = 0; i < obj_meta->size; i++) {
-    cv::Mat src(proto_h, proto_w, CV_8UC1, obj_meta->info[i].mask, proto_w * sizeof(uint8_t));
+    cv::Mat src(proto_h, proto_w, CV_8UC1, obj_meta->info[i].mask_properity->mask,
+                proto_w * sizeof(uint8_t));
 
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
@@ -968,13 +996,16 @@ CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame, cvtdl_object_t *
           static_cast<float>(frame->stVFrame.u32Height) / static_cast<float>(source_region_height);
       float width_scale =
           static_cast<float>(frame->stVFrame.u32Width) / static_cast<float>(source_region_width);
-      obj_meta->info[i].mask_point_size = max_length;
-      obj_meta->info[i].mask_point = (float *)malloc(2 * max_length * sizeof(float));
+      obj_meta->info[i].mask_properity->mask_point_size = max_length;
+      obj_meta->info[i].mask_properity->mask_point =
+          (float *)malloc(2 * max_length * sizeof(float));
 
       size_t j = 0;
       for (const auto &point : contours[longest_index]) {
-        obj_meta->info[i].mask_point[2 * j] = (point.x - source_x_offset) * width_scale;
-        obj_meta->info[i].mask_point[2 * j + 1] = (point.y - source_y_offset) * height_scale;
+        obj_meta->info[i].mask_properity->mask_point[2 * j] =
+            (point.x - source_x_offset) * width_scale;
+        obj_meta->info[i].mask_properity->mask_point[2 * j + 1] =
+            (point.y - source_y_offset) * height_scale;
         j++;
       }
     }
@@ -1043,6 +1074,10 @@ DEFINE_INF_FUNC_F2_P1(CVI_TDL_DeeplabV3, Deeplabv3, CVI_TDL_SUPPORTED_MODEL_DEEP
                       cvtdl_class_filter_t *)
 DEFINE_INF_FUNC_F2_P1(CVI_TDL_MotionSegmentation, MotionSegmentation,
                       CVI_TDL_SUPPORTED_MODEL_MOTIONSEGMENTATION, cvtdl_seg_logits_t *)
+
+DEFINE_INF_FUNC_F2_P1(CVI_TDL_Depth_Stereo, Stereo, CVI_TDL_SUPPORTED_MODEL_STEREO,
+                      cvtdl_depth_logits_t *)
+
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateDetection, LicensePlateDetection,
                       CVI_TDL_SUPPORTED_MODEL_WPODNET, cvtdl_object_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_FaceLandmarker, FaceLandmarker,
@@ -1129,6 +1164,25 @@ CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *fram
          CVI_TDL_GetModelName(model_index));
     return CVI_TDL_ERR_NOT_YET_INITIALIZED;
   }
+}
+
+CVI_S32 CVI_TDL_Set_Outputlayer_Names(const cvitdl_handle_t handle,
+                                      CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                      const char **output_names, size_t size) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  DetectionBase *model = dynamic_cast<DetectionBase *>(getInferenceInstance(model_index, ctx));
+  if (model != nullptr) {
+    std::vector<std::string> names;
+    names.reserve(size);
+    for (size_t i = 0; i < size; ++i) {
+      names.emplace_back(std::string(output_names[i]));
+    }
+    model->set_out_names(names);
+  } else {
+    LOGE("No instance found\n");
+    return CVI_TDL_ERR_OPEN_MODEL;
+  }
+  return CVI_TDL_SUCCESS;
 }
 
 CVI_S32 CVI_TDL_FaceDetection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
@@ -1930,22 +1984,6 @@ CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_features_num
       probs[i][j] = result_eigen(i, j);
     }
   }
-
-  // else {
-  //   // This branch can searches for text class in the database.
-  //   if (result_eigen.cols() > 1) {
-  //     LOGE("Error! Please input a text\n");
-  //     return CVI_FAILURE;
-  //   } else {
-  //     for (int i = 0; i < result_eigen.rows(); i++) {
-  //       if (result_eigen(i, 0) > threshold * 10.0 + 20.0) {
-  //         prods_index[i] = i;
-  //       } else {
-  //         prods_index[i] = -1;
-  //       }
-  //     }
-  //   }
-  // }
 
   if (res == 0) {
     return CVI_SUCCESS;

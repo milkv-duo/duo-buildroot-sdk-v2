@@ -9,12 +9,8 @@
 #include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
+
 #include <linux/cvi_comm_video.h>
-#endif
 #include <linux/spi/spidev.h>
 #include "cvi_sns_ctrl.h"
 #include "n6_cmos_ex.h"

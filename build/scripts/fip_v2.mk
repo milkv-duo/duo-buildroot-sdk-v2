@@ -1,7 +1,7 @@
 opensbi: export CROSS_COMPILE=$(CONFIG_CROSS_COMPILE_SDK)
 opensbi: u-boot-build
 	$(call print_target)
-	${Q}$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic \
+	$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic \
 	    FW_PAYLOAD_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin \
 	    FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
 
@@ -25,8 +25,8 @@ fsbl%: export FSBL_SECURE_BOOT_SUPPORT=${CONFIG_FSBL_SECURE_BOOT_SUPPORT}
 fsbl%: export ARCH=$(call qstrip,${CONFIG_ARCH})
 fsbl%: export OD_CLK_SEL=${CONFIG_OD_CLK_SEL}
 fsbl%: export VC_CLK_OVERDRIVE=${CONFIG_VC_CLK_OVERDRIVE}
-fsbl%: export KERNEL_SUSPEND=${CONFIG_KERNEL_SUSPEND}
-fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ]; then echo "y";else echo "n";fi)
+fsbl%: export SUSPEND=${CONFIG_SUSPEND}
+fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ] || [ "${CONFIG_CHIP_cv1812cpa}" = "y" ]; then echo "y";else echo "n";fi)
 fsbl%: export BUILD_BOOT0=${CONFIG_ENABLE_BOOT0}
 fsbl%: export BUILD_FASTBOOT0=${CONFIG_ENABLE_FASTBOOT0}
 fsbl%: export STORAGE=${STORAGE_TYPE}

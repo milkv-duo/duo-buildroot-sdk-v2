@@ -1,0 +1,44 @@
+{
+  "cmd": "READ_MODULE",
+  "data": {
+    "module": "Dehaze",
+    "optype": "Auto",
+    "registers": [
+      {
+        "key": "reg_dehaze_enable",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_w",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_cum_th",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_hist_th",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_tmap_min",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_tmap_max",
+        "section": "isp_dhz",
+        "value_type": "int"
+      },
+      {
+        "key": "reg_dehaze_th_smooth",
+        "section": "isp_dhz",
+        "value_type": "int"
+      }
+    ]
+  }
+}

@@ -139,7 +139,7 @@ TPU_LIB_PATH = $(TPU_PATH)/libsophon-0.4.9/lib/
 TPU_LIBS = -lbmrt -lbmlib
 else
 TPU_LIB_PATH = $(TPU_PATH)/lib
-TPU_LIBS = -lcnpy  -lcvikernel  -lcvimath  -lcviruntime  -lz -lm
+TPU_LIBS = -lcvikernel  -lcvimath  -lcviruntime  -lz -lm
 endif
 
 #####################################################

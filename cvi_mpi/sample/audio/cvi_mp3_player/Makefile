@@ -1,16 +1,16 @@
 SHELL = /bin/bash
-
+#
 STATIC ?= 0
 ifeq ($(PARAM_FILE), )
-PARAM_FILE:=../../../Makefile.param
+PARAM_FILE:=../../../mpi_param.mk
 include $(PARAM_FILE)
 endif
 include ../../sample.mk
-
-SDIR = $(PWD)
+#
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(MW_INC) -I../common/ -I$(MW_INC)/../3rdparty/libmad/include -I ./
-ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X SG200X))
 INCS += -I$(KERNEL_INC)
 endif
 OBJS = $(SRCS:.c=.o)

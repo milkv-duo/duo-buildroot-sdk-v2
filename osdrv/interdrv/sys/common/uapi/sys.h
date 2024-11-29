@@ -9,28 +9,28 @@
 #include "ion/ion.h"
 #include "ion/cvitek/cvitek_ion_alloc.h"
 
-int32_t sys_exit(void);
-int32_t sys_init(void);
+CVI_S32 sys_exit(void);
+CVI_S32 sys_init(void);
 
-int32_t sys_ion_dump(void);
-int32_t sys_ion_alloc(uint64_t *p_paddr, void **pp_vaddr, uint8_t *buf_name, uint32_t buf_len, bool is_cached);
-int32_t sys_ion_alloc_nofd(uint64_t *p_paddr, void **pp_vaddr, uint8_t *buf_name, uint32_t buf_len, bool is_cached);
-int32_t sys_ion_free(uint64_t u64PhyAddr);
-int32_t sys_ion_free_nofd(uint64_t u64PhyAddr);
-int32_t sys_ion_get_memory_statics(uint64_t *total_size, uint64_t *free_size, uint64_t *max_avail_size);
+CVI_S32 sys_ion_dump(void);
+CVI_S32 sys_ion_alloc(CVI_U64 *p_paddr, void **pp_vaddr, CVI_U8 *buf_name, CVI_U32 buf_len, bool is_cached);
+CVI_S32 sys_ion_alloc_nofd(CVI_U64 *p_paddr, void **pp_vaddr, CVI_U8 *buf_name, CVI_U32 buf_len, bool is_cached);
+CVI_S32 sys_ion_free(CVI_U64 u64PhyAddr);
+CVI_S32 sys_ion_free_nofd(CVI_U64 u64PhyAddr);
+CVI_S32 sys_ion_get_memory_state(CVI_U64 *total_size, CVI_U64 *free_size, CVI_U64 *max_avail_size);
 
-int32_t sys_cache_invalidate(uint64_t addr_p, void *addr_v, uint32_t u32Len);
-int32_t sys_cache_flush(uint64_t addr_p, void *addr_v, uint32_t u32Len);
+CVI_S32 sys_cache_invalidate(CVI_U64 addr_p, void *addr_v, CVI_U32 u32Len);
+CVI_S32 sys_cache_flush(CVI_U64 addr_p, void *addr_v, CVI_U32 u32Len);
 
-uint32_t sys_get_chipid(void);
-uint8_t *sys_get_version(void);
-int32_t sys_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest);
-int32_t sys_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn);
+CVI_U32 sys_get_chipid(void);
+CVI_U8 *sys_get_version(void);
+CVI_S32 sys_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest);
+CVI_S32 sys_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn);
 
-int32_t sys_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
-int32_t sys_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
+CVI_S32 sys_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
+CVI_S32 sys_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
 
-const uint8_t *sys_get_modname(MOD_ID_E id);
+const CVI_U8 *sys_get_modname(MOD_ID_E id);
 VPSS_MODE_E sys_get_vpssmode(void);
 
 #if 0

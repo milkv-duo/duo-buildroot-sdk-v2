@@ -7,13 +7,7 @@ extern "C" {
 #endif
 #endif
 
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_cif.h>
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_type.h"
-#else
 #include <linux/cvi_type.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "bg0808_cmos_ex.h"
 
@@ -165,9 +159,6 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 		#endif
 		#if 1	//use test result as blc offset
 		.stManual = {28, 28, 28, 28, 0, 0, 0, 0
-#ifdef ARCH_CV182X
-			, 1031, 1031, 1031, 1031
-#endif
 		},
 		.stAuto = {
 			{28, 28, 28, 28, 28, 28, 28, 28, /*8*/28, 28, 28, 28, 28, 28, 28, 28},
@@ -178,16 +169,6 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-#ifdef ARCH_CV182X
-			{1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031,
-				/*8*/1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031},
-			{1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031,
-				/*8*/1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031},
-			{1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031,
-				/*8*/1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031},
-			{1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031,
-				/*8*/1031, 1031, 1031, 1031, 1031, 1031, 1031, 1031},
-#endif
 		},
 		#endif
 	},

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <remote name="origin" fetch="git@github.com:sophgo/" review="git@github.com:sophgo/"/>
+    <default revision="cv18xx-v4.2.x" remote="origin" sync-j="4"/>
+
+    <project name="host-tools" revision="master"/>
+    <project name="build" path="build"/>
+    <project name="fsbl" path="fsbl"/>
+    <project name="opensbi" path="opensbi"/>
+    <project name="u-boot-2021.10" path="u-boot-2021.10"/>
+    <project name="linux_5.10" path="linux_5.10"/>
+    <project name="osdrv" path="osdrv"/>
+    <project name="ramdisk" path="ramdisk"/>
+    <project name="oss" path="oss" sync-s="true" revision="master"/>
+    <project name="cvi_mpi" path="cvi_mpi"/>
+    <project name="isp_tuning" path="isp_tuning"/>
+    <project name="cvi_alios_open" path="cvi_alios"/>
+</manifest>

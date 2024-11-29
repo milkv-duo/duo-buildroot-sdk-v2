@@ -42,7 +42,7 @@ struct cvi_vdec_vb_ctx	vdec_vb_ctx[VENC_MAX_CHN_NUM];
 EXPORT_SYMBOL_GPL(vdec_vb_ctx);
 
 
-int32_t sys_ctx_init(void)
+CVI_S32 sys_ctx_init(void)
 {
 	TAILQ_INIT(&binds);
 	spin_lock_init(&bind_lock);
@@ -59,10 +59,10 @@ struct sys_ctx_info *sys_get_ctx(void)
 	return &ctx_info;
 }
 
-int32_t sys_ctx_mem_put(struct mem_mapping *mem_info)
+CVI_S32 sys_ctx_mem_put(struct mem_mapping *mem_info)
 {
-	int32_t i = 0;
-	int8_t find_hit = 0;
+	CVI_S32 i = 0;
+	CVI_S8 find_hit = 0;
 
 	spin_lock(&mem_lock);
 	for (i = 0; i < MEM_MAPPING_MAX; i++) {
@@ -88,10 +88,10 @@ int32_t sys_ctx_mem_put(struct mem_mapping *mem_info)
 	return 0;
 }
 
-int32_t sys_ctx_mem_get(struct mem_mapping *mem_info)
+CVI_S32 sys_ctx_mem_get(struct mem_mapping *mem_info)
 {
-	int32_t i = 0;
-	int8_t find_hit = 0;
+	CVI_S32 i = 0;
+	CVI_S8 find_hit = 0;
 
 	spin_lock(&mem_lock);
 	for (i = 0; i < MEM_MAPPING_MAX; i++) {
@@ -119,9 +119,9 @@ int32_t sys_ctx_mem_get(struct mem_mapping *mem_info)
 	return 0;
 }
 
-int32_t sys_ctx_mem_dump(void)
+CVI_S32 sys_ctx_mem_dump(void)
 {
-	int32_t i = 0, cnt = 0;
+	CVI_S32 i = 0, cnt = 0;
 
 	spin_lock(&mem_lock);
 	for (i = 0; i < MEM_MAPPING_MAX; i++) {
@@ -162,10 +162,10 @@ void sys_ctx_release_bind(void)
 	spin_unlock_irqrestore(&bind_lock, flags_job);
 }
 
-int32_t sys_ctx_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
+CVI_S32 sys_ctx_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	struct bind_t *item, *item_tmp;
-	int32_t ret = 0, i;
+	CVI_S32 ret = 0, i;
 	unsigned long flags_job;
 
 	pr_debug("%s: src(mId=%d, dId=%d, cId=%d), dst(mId=%d, dId=%d, cId=%d)\n",
@@ -241,10 +241,10 @@ BIND_EXIT:
 	return ret;
 }
 
-int32_t sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
+CVI_S32 sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 {
 	struct bind_t *item, *item_tmp;
-	uint32_t i;
+	CVI_U32 i;
 	unsigned long flags_job;
 
 	spin_lock_irqsave(&bind_lock, flags_job);
@@ -273,10 +273,10 @@ int32_t sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn)
 	return 0;
 }
 
-int32_t sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest)
+CVI_S32 sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest)
 {
 	struct bind_t *item, *item_tmp;
-	uint32_t i;
+	CVI_U32 i;
 	unsigned long flags_job;
 
 	pr_debug("%s: src(.enModId=%d, .s32DevId=%d, .s32ChnId=%d)\n",
@@ -297,10 +297,10 @@ int32_t sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest
 	return -1;
 }
 
-int32_t sys_ctx_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn)
+CVI_S32 sys_ctx_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn)
 {
 	struct bind_t *item, *item_tmp;
-	uint32_t i;
+	CVI_U32 i;
 	unsigned long flags_job;
 
 	pr_debug("%s: dst(.enModId=%d, .s32DevId=%d, .s32ChnId=%d)\n",

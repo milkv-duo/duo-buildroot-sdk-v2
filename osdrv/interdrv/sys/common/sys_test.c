@@ -10,13 +10,13 @@
 
 static struct proc_dir_entry *sys_test_proc_dir;
 
-static uint32_t sys_test_ion(void)
+static CVI_U32 sys_test_ion(void)
 {
-	uint64_t p_start = 0, p_start1 = 0, p_start2 = 0, p_start3 = 0;
-	uint32_t ret = 0, i;
-	uint32_t len = 0x10000;
-	uint32_t bytelen = len >> 2;
-	uint32_t *ion_v = NULL, *ion_v1 = NULL, *ion_v2 = NULL, *ion_v3 = NULL;
+	CVI_U64 p_start = 0, p_start1 = 0, p_start2 = 0, p_start3 = 0;
+	CVI_U32 ret = 0, i;
+	CVI_U32 len = 0x10000;
+	CVI_U32 bytelen = len >> 2;
+	CVI_U32 *ion_v = NULL, *ion_v1 = NULL, *ion_v2 = NULL, *ion_v3 = NULL;
 
 	ret = sys_ion_alloc(&p_start, (void *)&ion_v, "sys_test_ion", len, true);
 	pr_err("sys_ion_alloc() ret=%d, p_start=0x%llx\n", ret, p_start);
@@ -88,7 +88,7 @@ static int sys_test_proc_open(struct inode *inode, struct file *file)
 
 static ssize_t sys_test_proc_write(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)
 {
-	uint32_t input_param = 0;
+	CVI_U32 input_param = 0;
 
 	if (kstrtouint_from_user(user_buf, count, 0, &input_param)) {
 		pr_err("input parameter incorrect\n");
@@ -124,7 +124,7 @@ static const struct file_operations sys_test_proc_ops = {
 };
 #endif
 
-int32_t sys_test_proc_init(void)
+CVI_S32 sys_test_proc_init(void)
 {
 	if (proc_create("sys_test_sel", 0644, sys_test_proc_dir, &sys_test_proc_ops) == NULL)
 		pr_err("sys_test_proc_init() failed\n");
@@ -132,7 +132,7 @@ int32_t sys_test_proc_init(void)
 	return 0;
 }
 
-int32_t sys_test_proc_deinit(void)
+CVI_S32 sys_test_proc_deinit(void)
 {
 	remove_proc_entry("sys_test_sel", sys_test_proc_dir);
 	proc_remove(sys_test_proc_dir);

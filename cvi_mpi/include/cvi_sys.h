@@ -198,12 +198,12 @@ CVI_S32 CVI_SYS_IonInvalidateCache(CVI_U64 u64PhyAddr, CVI_VOID *pVirAddr, CVI_U
 CVI_S32 CVI_SYS_IonGetFd(CVI_VOID);
 
 /**
- * @brief The user get ION memory statics
+ * @brief The user get ION memory state
  *
- * @param statics(Out), the statics of ION memory
+ * @param pstState(Out), the state of ION memory
  * @return CVI_S32 Return CVI_SUCCESS if succeed.
  */
-CVI_S32 CVI_SYS_IonGetMMStatics(ION_MM_STATICS_S *statics);
+CVI_S32 CVI_SYS_IonGetMemoryState(ION_MEM_STATE_S *pstState);
 
 /**
  * @brief memory copy by TPU.
@@ -357,6 +357,19 @@ void CVI_SYS_TraceEnd(void);
 CVI_S32 CVI_SYS_StartThermalThread(void);
 CVI_S32 CVI_SYS_StopThermalThread(void);
 
+/**
+ * @brief gen GDC LDC(Lens Distortion Correction) mesh table
+ *
+ * @param u32Width(In), mesh region width
+ * @param u32Height(In), mesh region height
+ * @param pstLDCAttr(In), GDC LDC attribute
+ * @param name(In), mesh name
+ * @param pu64PhyAddr(Out), mesh table physical addr in memory
+ * @param ppVirAddr(Out), mesh table virtual addr in memory
+ * @return CVI_S32 Return CVI_SUCCESS if succeed
+ */
+CVI_S32 CVI_GDC_GenLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const LDC_ATTR_S *pstLDCAttr
+	, const char *name, CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr);
 
 #ifdef __cplusplus
 #if __cplusplus

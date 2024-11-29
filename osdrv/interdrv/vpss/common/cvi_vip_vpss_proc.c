@@ -211,8 +211,8 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 	for (i = 0; i < VPSS_MAX_GRP_NUM; ++i) {
 		if (pVpssCtx[i] && pVpssCtx[i]->isCreated) {
 			for (j = 0; j < pVpssCtx[i]->chnNum; ++j) {
-				int32_t X, Y;
-				uint32_t W, H;
+				CVI_S32 X, Y;
+				CVI_U32 W, H;
 
 				memset(c, 0, sizeof(c));
 				if (pVpssCtx[i]->stChnCfgs[j].stChnAttr.stAspectRatio.enMode == ASPECT_RATIO_NONE)
@@ -363,6 +363,8 @@ int vpss_ctx_proc_show(struct seq_file *m, void *v)
 					strncpy(c, "180", sizeof(c));
 				else if (pVpssCtx[i]->stChnCfgs[j].enRotation == ROTATION_270)
 					strncpy(c, "270", sizeof(c));
+				else if (pVpssCtx[i]->stChnCfgs[j].enRotation == ROTATION_XY_FLIP)
+					strncpy(c, "xy_flip", sizeof(c));
 				else
 					strncpy(c, "Invalid", sizeof(c));
 

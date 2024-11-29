@@ -2273,6 +2273,9 @@ void ispblk_af_tun_cfg(
 	af_enables.raw = ISP_RD_REG(ba, REG_ISP_AF_T, ENABLES);
 	af_enables.bits.AF_DPC_ENABLE = cfg->dpc_enable;
 	af_enables.bits.AF_HLC_ENABLE = cfg->hlc_enable;
+	af_enables.bits.AF_HORIZON_0_ENABLE = cfg->enable;
+	af_enables.bits.AF_HORIZON_1_ENABLE = cfg->enable;
+	af_enables.bits.AF_VERTICAL_0_ENABLE = cfg->enable;
 	ISP_WR_REG(ba, REG_ISP_AF_T, ENABLES, af_enables.raw);
 
 	ISP_WR_BITS(ba, REG_ISP_AF_T, SQUARE_ENABLE, AF_SQUARE_ENABLE, cfg->square_enable);

@@ -1,0 +1,33 @@
+{
+    "cmd": "WRITE_MODULE",
+    "data": {
+        "items": [
+            {
+                "key": "Enable",
+                "optype": "Manual",
+                "value": 0,
+                "value_type": "int"
+            },
+            {
+                "key": "R Gain",
+                "optype": "Manual",
+                "value": 1792,
+                "value_type": "int"
+            },
+            {
+                "key": "G Gain",
+                "optype": "Manual",
+                "value": 1024,
+                "value_type": "int"
+            },
+            {
+                "key": "B Gain",
+                "optype": "Manual",
+                "value": 2096,
+                "value_type": "int"
+            }
+        ],
+        "module": "AWB info",
+        "optype": "Manual"
+    }
+}

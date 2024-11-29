@@ -1,6 +1,6 @@
 
-
 #include "license_plate_recognitionv2.hpp"
+#include <iostream>
 #include "core/core/cvtdl_errno.h"
 #include "core/cvi_tdl_types_mem.h"
 #include "core/face/cvtdl_face_types.h"

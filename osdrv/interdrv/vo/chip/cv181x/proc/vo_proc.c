@@ -9,7 +9,7 @@ static void *vo_shared_mem;
 /*************************************************************************
  *	VO proc functions
  *************************************************************************/
-static void _intfType_to_String(uint32_t intfType, char *str, int len)
+static void _intfType_to_String(CVI_U32 intfType, char *str, int len)
 {
 	switch (intfType) {
 	case VO_INTF_CVBS:
@@ -290,6 +290,7 @@ static int _vo_proc_show(struct seq_file *m, void *v)
 		seq_puts(m, "vo shm = NULL\n");
 		return -1;
 	}
+
 #if 0//TODO: UTS_VERSION
 	seq_printf(m, "\nModule: [VO], Build Time[%s]\n", UTS_VERSION);
 #endif
@@ -393,12 +394,12 @@ static int _vo_proc_show(struct seq_file *m, void *v)
 
 	// chn play info
 	seq_puts(m, "\n-------------------------------CHN PLAY INFO------------------------------\n");
-	seq_printf(m, "%10s%10s%10s%10s%10s%10s%20s%20s%20s\n",
-		"LayerId", "ChnId", "Show", "Pause", "Thrshd", "ChnFrt", "ChnGap(us)", "DispPts", "PreDonePts");
+	seq_printf(m, "%10s%10s%10s%10s%10s%10s%20s%20s%20s%20s\n",
+		"LayerId", "ChnId", "Show", "Pause", "Thrshd", "ChnFrt", "ChnGap(us)", "DispPts", "PreDonePts", "VoDoneframe");
 	for (i = 0; i < VO_MAX_LAYER_NUM; ++i) {
 		for (j = 0; j < VO_MAX_CHN_NUM; ++j) {
 
-			seq_printf(m, "%8s%2d%8s%2d%10s%10s%10d%10d%20d%20lld%20lld\n",
+			seq_printf(m, "%8s%2d%8s%2d%10s%10s%10d%10d%20d%20lld%20lld%20llu\n",
 				"#",
 				i,
 				"#",
@@ -410,7 +411,8 @@ static int _vo_proc_show(struct seq_file *m, void *v)
 				(pvoCtx->chnStatus[i][j].u32RealFrameRate == 0) ?
 					0 : (1000000/pvoCtx->chnStatus[i][j].u32RealFrameRate),
 				pvoCtx->u64DisplayPts[i][j],
-				pvoCtx->u64PreDonePts[i][j]);
+				pvoCtx->u64PreDonePts[i][j],
+				pvoCtx->u64doneframe);
 		}
 	}
 

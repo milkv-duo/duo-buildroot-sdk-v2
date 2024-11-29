@@ -473,11 +473,13 @@ config KERNEL_COMPRESS
 	help
 	  Set kernel source code.
 
-config KERNEL_SUSPEND
-	bool "Enable RISCV Kernel Suspend"
+config SUSPEND
+	bool "Suspend to RAM and standby"
 	default n
 	help
-	  Enable kernel power management to support STR
+		Allow the system to enter sleep states in which main memory is
+		powered and thus its contents are preserved, such as the
+		suspend-to-RAM state (e.g. the ACPI S3 state).
 endmenu
 
 menu "ROOTFS options"

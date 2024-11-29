@@ -392,8 +392,8 @@ int main(int argc, char *argv[]) {
   imgprocess_t img_handle;
   CVI_TDL_Create_ImageProcessor(&img_handle);
 
-  ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 4, vpssgrp_width,
-                         vpssgrp_height, PIXEL_FORMAT_RGB_888_PLANAR, 4);
+  ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 3, vpssgrp_width,
+                         vpssgrp_height, PIXEL_FORMAT_RGB_888_PLANAR, 3);
   cvitdl_handle_t tdl_handle = NULL;
   cvitdl_service_handle_t service_handle = NULL;
   cvitdl_app_handle_t app_handle = NULL;
@@ -488,6 +488,7 @@ int main(int argc, char *argv[]) {
     printf("read image ret:%d width:%d\n", ret, (int)fdFrame.stVFrame.u32Width);
     if (ret != CVI_SUCCESS) {
       if (img_idx < 100) {
+        CVI_TDL_ReleaseImage(img_handle, &fdFrame);
         release_system(tdl_handle, service_handle, app_handle);
         break;
       }
@@ -500,6 +501,7 @@ int main(int argc, char *argv[]) {
 
       num_append++;
       if (num_append > 30) {
+        CVI_TDL_ReleaseImage(img_handle, &fdFrame);
         break;
       }
     }

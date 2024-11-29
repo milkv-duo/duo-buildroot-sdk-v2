@@ -7,13 +7,7 @@ extern "C" {
 #endif
 #endif
 
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_cif.h>
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_type.h"
-#else
 #include <linux/cvi_type.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "gc1084_cmos_ex.h"
 
@@ -164,9 +158,6 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 		.Enable = 1,
 		.enOpType = OP_TYPE_AUTO,
 		.stManual = {252, 252, 252, 252, 0, 0, 0, 0
-#ifdef ARCH_CV182X
-			, 1091, 1091, 1091, 1091
-#endif
 		},
 		.stAuto = {
 			{252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252, 252 },
@@ -177,16 +168,6 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-#ifdef ARCH_CV182X
-			{1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091,
-				1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091},
-			{1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091,
-				1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091},
-			{1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091,
-				1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091},
-			{1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091,
-				1091, 1091, 1091, 1091, 1091, 1091, 1091, 1091},
-#endif
 		},
 	},
 };

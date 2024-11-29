@@ -4,14 +4,9 @@
 #include <assert.h>
 #include <syslog.h>
 #include <errno.h>
-#ifdef ARCH_CV182X
-#include "cvi_type.h"
-#include "cvi_comm_video.h"
-#include <linux/cvi_vip_snsr.h>
-#else
+
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
 #include "cvi_sns_ctrl.h"
@@ -72,6 +67,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define SC4336P_AGAIN_ADDR	0x3E09
 #define SC4336P_DGAIN_ADDR	0x3E06
 #define SC4336P_VMAX_ADDR	0x320E
+#define SC4336P_FLIP_MIRROR_ADDR 0x3221
 
 #define SC4336P_RES_IS_1440P(w, h)      ((w) == 2560 && (h) == 1440)
 
@@ -569,6 +565,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 
 			pstI2c_data[LINEAR_VMAX_0_ADDR].u32RegAddr     = SC4336P_VMAX_ADDR;
 			pstI2c_data[LINEAR_VMAX_1_ADDR].u32RegAddr     = SC4336P_VMAX_ADDR + 1;
+			pstI2c_data[LINEAR_FLIP_MIRROR_ADDR].u32RegAddr     = SC4336P_FLIP_MIRROR_ADDR;
 			break;
 		default:
 			CVI_TRACE_SNS(CVI_DBG_ERR, "NOT support this mode!\n");
@@ -602,6 +599,7 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 	memcpy(pstSnsSyncInfo, &pstSnsState->astSyncInfo[0], sizeof(ISP_SNS_SYNC_INFO_S));
 	memcpy(&pstSnsState->astSyncInfo[1], &pstSnsState->astSyncInfo[0], sizeof(ISP_SNS_SYNC_INFO_S));
 	pstSnsState->au32FL[1] = pstSnsState->au32FL[0];
+	pstCfg0->snsCfg.astI2cData[LINEAR_FLIP_MIRROR_ADDR].bDropFrm = CVI_FALSE;
 
 	return CVI_SUCCESS;
 }
@@ -654,11 +652,35 @@ static CVI_S32 cmos_set_image_mode(VI_PIPE ViPipe, ISP_CMOS_SENSOR_IMAGE_MODE_S 
 static CVI_VOID sensor_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip)
 {
 	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
+	ISP_SNS_REGS_INFO_S *pstSnsRegsInfo = CVI_NULL;
+	CVI_U8 value = 0;
 
 	SC4336P_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER_VOID(pstSnsState);
+
+	pstSnsRegsInfo = &pstSnsState->astSyncInfo[0].snsCfg;
+
+	/* Apply the setting on the fly  */
 	if (pstSnsState->bInit == CVI_TRUE && g_aeSc4336p_MirrorFip[ViPipe] != eSnsMirrorFlip) {
-		sc4336p_mirror_flip(ViPipe, eSnsMirrorFlip);
+		switch (eSnsMirrorFlip) {
+		case ISP_SNS_NORMAL:
+			break;
+		case ISP_SNS_MIRROR:
+			value |= 0x6;
+			break;
+		case ISP_SNS_FLIP:
+			value |= 0x60;
+			break;
+		case ISP_SNS_MIRROR_FLIP:
+			value |= 0x66;
+			break;
+		default:
+			return;
+		}
+
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_ADDR].u32Data = value;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_ADDR].bDropFrm = 1;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_ADDR].u8DropFrmNum = 2;
 		g_aeSc4336p_MirrorFip[ViPipe] = eSnsMirrorFlip;
 	}
 }

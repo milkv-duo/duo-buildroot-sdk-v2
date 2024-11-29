@@ -1,0 +1,19 @@
+SHELL = /bin/bash
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../../mpi_param.mk
+	include $(PARAM_FILE)
+endif
+
+RELEASE_FOLDER = $(CURDIR)/bin
+
+TARGET_A = $(MW_LIB)/libisp.a
+TARGET_SO = $(MW_LIB)/libisp.so
+
+.PHONY: all clean
+.SILENT: all clean
+
+all:
+	@cp -f $(RELEASE_FOLDER)/* $(MW_LIB)
+
+clean:
+	@rm -f $(TARGET_A) $(TARGET_SO)

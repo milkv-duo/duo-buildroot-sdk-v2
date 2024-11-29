@@ -1,11 +1,15 @@
 SHELL = /bin/bash
-
+#
 ifeq ($(PARAM_FILE), )
-PARAM_FILE=../../../../Makefile.param
+PARAM_FILE=../../../../mpi_param.mk
 include $(PARAM_FILE)
 endif
-
+#
+ifneq ($(BUILD_PATH),)
 include ../../../../component/isp/sensor.mk
+else
+sensor-y := $(filter-out Makefile Makefile_full, $(notdir $(wildcard $(CURDIR)/*)))
+endif
 
 define MAKE_SENSOR
 	pushd $(1) && \

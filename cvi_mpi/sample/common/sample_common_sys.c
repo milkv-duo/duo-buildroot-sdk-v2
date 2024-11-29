@@ -417,7 +417,7 @@ CVI_S32 SAMPLE_COMM_FRAME_SaveToFile(const CVI_CHAR *filename, VIDEO_FRAME_INFO_
 		pstVideoFrame->stVFrame.pu8VirAddr[i]
 			= CVI_SYS_Mmap(pstVideoFrame->stVFrame.u64PhyAddr[i], pstVideoFrame->stVFrame.u32Length[i]);
 
-		CVI_TRACE_LOG(CVI_DBG_INFO, "plane(%d): paddr(%#"PRIx64") vaddr(%p) stride(%d)\n",
+		CVI_TRACE_LOG(CVI_DBG_INFO, "plane(%d): paddr(%#llx) vaddr(%p) stride(%d)\n",
 			   i, pstVideoFrame->stVFrame.u64PhyAddr[i],
 			   pstVideoFrame->stVFrame.pu8VirAddr[i],
 			   pstVideoFrame->stVFrame.u32Stride[i]);
@@ -572,7 +572,7 @@ CVI_BOOL SAMPLE_COMM_FRAME_CompareWithFile(const CVI_CHAR *filename, VIDEO_FRAME
 			if (memcmp(buffer + offset, pstVideoFrame->stVFrame.pu8VirAddr[i] + offset, data_len) != 0) {
 				CVI_TRACE_LOG(CVI_DBG_ERR, "plane(%d) line(%d) offset(%d) data mismatch:\n",
 					      i, line, offset);
-				CVI_TRACE_LOG(CVI_DBG_ERR, " paddr(%#"PRIx64") vaddr(%p) stride(%d)\n",
+				CVI_TRACE_LOG(CVI_DBG_ERR, " paddr(%#llx) vaddr(%p) stride(%d)\n",
 					      pstVideoFrame->stVFrame.u64PhyAddr[i],
 					      pstVideoFrame->stVFrame.pu8VirAddr[i],
 					      pstVideoFrame->stVFrame.u32Stride[i]);
@@ -651,7 +651,7 @@ CVI_S32 SAMPLE_COMM_FRAME_LoadFromFile(const CVI_CHAR *filename, VIDEO_FRAME_INF
 
 	SAMPLE_PRT("length of buffer(%d, %d, %d)\n", pstVideoFrame->stVFrame.u32Length[0]
 		, pstVideoFrame->stVFrame.u32Length[1], pstVideoFrame->stVFrame.u32Length[2]);
-	SAMPLE_PRT("phy addr(%#"PRIx64", %#"PRIx64", %#"PRIx64")\n", pstVideoFrame->stVFrame.u64PhyAddr[0]
+	SAMPLE_PRT("phy addr(%#llx, %#llx, %#llx)\n", pstVideoFrame->stVFrame.u64PhyAddr[0]
 		, pstVideoFrame->stVFrame.u64PhyAddr[1], pstVideoFrame->stVFrame.u64PhyAddr[2]);
 
 	for (int i = 0; i < stVbCalConfig.plane_num; ++i) {

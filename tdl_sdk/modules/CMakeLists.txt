@@ -73,7 +73,8 @@ set(CORES_SRCS $<TARGET_OBJECTS:cvi_tdl_core>
   $<TARGET_OBJECTS:polylanenet>
   $<TARGET_OBJECTS:super_resolution>
   $<TARGET_OBJECTS:ocr_recognition>
-  $<TARGET_OBJECTS:lstr>)
+  $<TARGET_OBJECTS:lstr>
+  $<TARGET_OBJECTS:stereo>)
 if("${CVI_PLATFORM}" STREQUAL "CV186X")
   set(CORES_SRCS ${CORES_SRCS}
   $<TARGET_OBJECTS:isp_image_classification>)
