@@ -52,8 +52,10 @@ ifneq ($(FLASH_SIZE_SHRINK),y)
 	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
 	@cp -f sample/sensor_test/sample_sensor_test $(DESTDIR)/usr/bin
 
-	@cp -f self_test/cvi_test/cvi_test $(DESTDIR)/usr/bin
-	@cp -f self_test/cvi_test/sensor_cfg.ini $(DESTDIR)/usr/bin
+	@if [ -d self_test ]; then \
+		cp -f self_test/cvi_test/cvi_test $(DESTDIR)/usr/bin; \
+		cp -f self_test/cvi_test/sensor_cfg.ini $(DESTDIR)/usr/bin; \
+	fi
 endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
