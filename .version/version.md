@@ -16,9 +16,9 @@
 | freertos                   | freertos                            | https://github.com/sophgo/freertos.git                   | sg200x-dev    | eb9faf5fe    |
 | FreeRTOS-Kernel            | freertos/Source                     | https://github.com/sophgo/FreeRTOS-Kernel.git            | sg200x-dev    | d52c1b6e6    |
 | Lab-Project-FreeRTOS-POSIX | freertos/Source/FreeRTOS-Plus-POSIX | https://github.com/sophgo/Lab-Project-FreeRTOS-POSIX.git | sg200x-dev    | 5042bfd      |
-| cvibuilder                 | cvibuilder                          | https://github.com/sophgo/cvibuilder.git                 | sg200x-dev    | a300905      |
-| cvikernel                  | cvikernel                           | https://github.com/sophgo/cvikernel.git                  | sg200x-dev    | 0b37e46      |
-| cviruntime                 | cviruntime                          | https://github.com/sophgo/cviruntime.git                 | sg200x-dev    | ef80449      |
+| cvibuilder                 | cvibuilder                          | https://github.com/sophgo/cvibuilder.git                 | sg200x-dev    | 4309f2a      |
+| cvikernel                  | cvikernel                           | https://github.com/sophgo/cvikernel.git                  | sg200x-dev    | 9f1f57a      |
+| cviruntime                 | cviruntime                          | https://github.com/sophgo/cviruntime.git                 | sg200x-dev    | 3f49386      |
 | cvimath                    | cvimath                             | https://github.com/sophgo/cvimath.git                    | sg200x-dev    | ce8705f      |
 | cnpy                       | cnpy                                | https://github.com/sophgo/cnpy.git                       | tpu           | 2f56f4c      |
 | flatbuffers                | flatbuffers                         | https://github.com/sophgo/flatbuffers.git                | master        | 6da1cf7      |
