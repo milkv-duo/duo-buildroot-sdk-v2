@@ -1,7 +1,0 @@
-/home/tpu/tpu/cvibuilder/CMakeFiles/cvibuilder.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/edit_cache.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/rebuild_cache.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/list_install_components.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/install.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/install/local.dir
-/home/tpu/tpu/cvibuilder/CMakeFiles/install/strip.dir
