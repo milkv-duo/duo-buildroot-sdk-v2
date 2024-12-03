@@ -21,13 +21,20 @@ fi
 
 if [ "${LIVE555_DIR}" = "" ]; then
     mkdir -p prebuilt
-	cd prebuilt
-	pip3 install dfss --upgrade
-    python -m dfss --url=open@sophgo.com:/gemini-sdk/oss/latest/${SDK_VER}/live555.tar.gz
-	cd ..
-    if [ $? != 0 ]; then
-        echo "fail to download live555..."
+    #cd prebuilt
+    #pip3 install dfss --upgrade
+    #python -m dfss --url=open@sophgo.com:/gemini-sdk/oss/latest/${SDK_VER}/live555.tar.gz
+    #cd ..
+
+    #if [ $? != 0 ]; then
+    #    echo "fail to download live555..."
+    #    exit 1
+    #fi
+    if [ ! -e "prebuilt/live555.tar.gz" ]; then
+        echo "no live555 exist..."
+        echo "please build_3rd_party first !!!!!!"
         exit 1
+
     fi
     tar -xf prebuilt/live555.tar.gz -C prebuilt/
     LIVE555_DIR=$(pwd)/prebuilt/
