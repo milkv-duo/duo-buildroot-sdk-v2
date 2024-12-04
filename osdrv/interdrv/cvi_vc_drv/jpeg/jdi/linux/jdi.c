@@ -1062,8 +1062,8 @@ int jdi_allocate_ion_memory(jpu_buffer_t *vb, int is_jpe, int is_cached)
 
 	jdb.size = vb->size;
 
-	if (sys_ion_alloc_nofd((uint64_t *)&vb->phys_addr, (void **)&vb->virt_addr,
-			  (uint8_t *)"jpeg_ion", vb->size, is_cached) != 0) {
+	if (sys_ion_alloc_nofd((CVI_U64 *)&vb->phys_addr, (void **)&vb->virt_addr,
+			  (CVI_U8 *)"jpeg_ion", vb->size, is_cached) != 0) {
 		JLOG(ERR, "fail to allocate ion memory. size=%d\n", vb->size);
 		jdi_unlock();
 		return ret;
@@ -1143,7 +1143,7 @@ int jdi_free_ion_memory(jpu_buffer_t *vb)
 
 	JLOG(INFO, "phys_addr %llx, virt_addr %p, fd %d\n", p_jdb->phys_addr,
 	     p_jdb->virt_addr, p_jdb->base);
-	ret = sys_ion_free_nofd((uint64_t)vb->phys_addr);
+	ret = sys_ion_free_nofd((CVI_U64)vb->phys_addr);
 	if (ret != 0) {
 		JLOG(ERR, "fail to free ion phys_addr = 0x%llx\n",
 		     vb->phys_addr);
@@ -1159,13 +1159,13 @@ int jdi_free_ion_memory(jpu_buffer_t *vb)
 	return ret;
 }
 
-int jdi_invalidate_ion_cache(uint64_t u64PhyAddr, void *pVirAddr,
-			     uint32_t u32Len)
+int jdi_invalidate_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr,
+			     CVI_U32 u32Len)
 {
 	return sys_cache_invalidate(u64PhyAddr, phys_to_virt(u64PhyAddr), u32Len);
 }
 
-int jdi_flush_ion_cache(uint64_t u64PhyAddr, void *pVirAddr, uint32_t u32Len)
+int jdi_flush_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr, CVI_U32 u32Len)
 {
 	return sys_cache_flush(u64PhyAddr, phys_to_virt(u64PhyAddr), u32Len);
 }

@@ -234,9 +234,9 @@ void jdi_free_dma_memory(jpu_buffer_t *vb);
 #else
 int jdi_allocate_ion_memory(jpu_buffer_t *vb, int is_jpe, int is_cached);
 int jdi_free_ion_memory(jpu_buffer_t *vb);
-int jdi_invalidate_ion_cache(uint64_t u64PhyAddr, void *pVirAddr,
-			     uint32_t u32Len);
-int jdi_flush_ion_cache(uint64_t u64PhyAddr, void *pVirAddr, uint32_t u32Len);
+int jdi_invalidate_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr,
+			     CVI_U32 u32Len);
+int jdi_flush_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr, CVI_U32 u32Len);
 #endif
 
 int jdi_wait_interrupt(int timeout);

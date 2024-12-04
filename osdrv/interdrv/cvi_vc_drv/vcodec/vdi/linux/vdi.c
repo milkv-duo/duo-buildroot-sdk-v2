@@ -1850,8 +1850,8 @@ int vdi_allocate_ion_memory(unsigned long core_idx, vpu_buffer_t *vb,
 
 	vdb.size = vb->size;
 
-	if (sys_ion_alloc_nofd((uint64_t *)&vb->phys_addr, (void **)&vb->virt_addr,
-			  (uint8_t *)str, vb->size, is_cached) != 0) {
+	if (sys_ion_alloc_nofd((CVI_U64 *)&vb->phys_addr, (void **)&vb->virt_addr,
+			  (CVI_U8 *)str, vb->size, is_cached) != 0) {
 		CVI_VC_ERR("[VDI] fail to allocate ion memory. size=%d\n",
 			   vb->size);
 		ret = -1;
@@ -1937,7 +1937,7 @@ void vdi_free_ion_memory(unsigned long core_idx, vpu_buffer_t *vb)
 		goto FREE_ION_ERROR;
 	}
 
-	if (sys_ion_free_nofd((uint64_t)vb->phys_addr) != 0) {
+	if (sys_ion_free_nofd((CVI_U64)vb->phys_addr) != 0) {
 		CVI_VC_ERR("[VDI] fail to free ion phys_addr = 0x%llx\n",
 			   vb->phys_addr);
 		goto FREE_ION_ERROR;
@@ -1951,13 +1951,13 @@ FREE_ION_ERROR:
 		vdi_unlock(core_idx);
 }
 
-int vdi_invalidate_ion_cache(uint64_t u64PhyAddr, void *pVirAddr,
-			     uint32_t u32Len)
+int vdi_invalidate_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr,
+			     CVI_U32 u32Len)
 {
 	return sys_cache_invalidate(u64PhyAddr, phys_to_virt(u64PhyAddr), u32Len);
 }
 
-int vdi_flush_ion_cache(uint64_t u64PhyAddr, void *pVirAddr, uint32_t u32Len)
+int vdi_flush_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr, CVI_U32 u32Len)
 {
 	return sys_cache_flush(u64PhyAddr, phys_to_virt(u64PhyAddr), u32Len);
 }
@@ -2330,7 +2330,7 @@ int vdi_wait_vpu_busy(unsigned long core_idx, int timeout,
 }
 
 int vdi_wait_interrupt(unsigned long coreIdx, int timeout,
-		       uint64_t *pu64TimeStamp)
+		       CVI_U64 *pu64TimeStamp)
 {
 	int intr_reason = 0;
 	int ret;

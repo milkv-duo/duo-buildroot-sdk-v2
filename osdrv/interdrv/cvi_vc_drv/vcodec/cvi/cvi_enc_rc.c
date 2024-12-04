@@ -17,7 +17,7 @@ typedef enum _RC_MODE_ {
 #define CVI_RC_MDL_UPDATE_TYPE	0
 #define CVI_RC_DEF_STAT_TIME	2
 
-uint32_t rcHierarchy = 0;
+CVI_U32 rcHierarchy = 0;
 module_param(rcHierarchy, uint, 0644);
 
 static void cviEncRc_RcKernelInit(stRcInfo *pRcInfo, EncOpenParam *pEncOP);

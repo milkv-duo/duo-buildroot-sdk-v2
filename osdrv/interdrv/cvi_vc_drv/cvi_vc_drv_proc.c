@@ -19,10 +19,10 @@
 #include "cvi_vc_drv_proc.h"
 
 extern venc_context *handle;
-extern uint32_t MaxVencChnNum;
+extern CVI_U32 MaxVencChnNum;
 #ifdef ENABLE_DEC
 extern vdec_context *vdec_handle;
-extern uint32_t MaxVdecChnNum;
+extern CVI_U32 MaxVdecChnNum;
 #endif
 
 proc_debug_config_t tVencDebugConfig = { .u32DbgMask = 0x1, .u32EndFrmIdx = UINT_MAX };
@@ -547,11 +547,11 @@ vcodec_proc_write_helper(const char __user *user_buf, size_t count,
 			 char *pcDbgStartFrmPrefix, char *pcDbgEndFrmPrefix,
 			 char *pcDbgDirPrefix, char *pcNoDataTimeoutPrefix)
 {
-	uint8_t u8DgbPrefixLen;
-	uint8_t u8DgbStartFrmPrefixLen;
-	uint8_t u8DgbEndFrmPrefixLen;
-	uint8_t u8DgbDirPrefixLen;
-	uint8_t u8NoDataTimeoutPrefixLen;
+	CVI_U8 u8DgbPrefixLen;
+	CVI_U8 u8DgbStartFrmPrefixLen;
+	CVI_U8 u8DgbEndFrmPrefixLen;
+	CVI_U8 u8DgbDirPrefixLen;
+	CVI_U8 u8NoDataTimeoutPrefixLen;
 
 	if (!user_buf) {
 		pr_err("no user buf input\n");

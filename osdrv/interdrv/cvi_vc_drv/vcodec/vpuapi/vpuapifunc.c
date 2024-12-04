@@ -578,7 +578,7 @@ RetCode CheckEncParam(EncHandle handle, EncParam *param)
 }
 
 #ifdef SUPPORT_980_ROI_RC_LIB
-static int32_t fw_util_round_divide(int32_t dividend, int32_t divisor)
+static CVI_S32 fw_util_round_divide(CVI_S32 dividend, CVI_S32 divisor)
 {
 	return (dividend + (divisor >> 1)) / divisor;
 }

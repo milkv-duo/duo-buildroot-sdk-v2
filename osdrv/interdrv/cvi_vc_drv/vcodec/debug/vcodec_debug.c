@@ -15,7 +15,7 @@
 static int bVcodecCliReg;
 static pthread_mutex_t vcodecCliMutex = PTHREAD_MUTEX_INITIALIZER;
 
-static int showVpuReg(int32_t argc, char *argv[])
+static int showVpuReg(CVI_S32 argc, char *argv[])
 {
 	int coreIdx = 0;
 	int idx = 0;
@@ -53,7 +53,7 @@ static int showVpuReg(int32_t argc, char *argv[])
 	return 0;
 }
 
-static int vcodecModMaskDebug(int32_t argc, char *argv[])
+static int vcodecModMaskDebug(CVI_S32 argc, char *argv[])
 {
 	int dbg_mask_tmp = 0;
 
@@ -281,7 +281,7 @@ void showCodecInstPoolInfo(CodecInst *pCodecInst)
 		tcli_print("u64EndTime:%d\n", pCodecInst->u64EndTime);
 		tcli_print("================end=================\n");
 		tcli_print("================memory info=================\n");
-		uint32_t total_size = 0;
+		CVI_U32 total_size = 0;
 		vpu_buffer_t vbu_comm_bf;
 
 		vdi_get_common_memory(pCodecInst->coreIdx, &vbu_comm_bf);
@@ -360,7 +360,7 @@ void showCodecInstPoolInfo(CodecInst *pCodecInst)
 	}
 }
 
-static int vcodecH26xInstaccePoolInfo(int32_t argc, char *argv[])
+static int vcodecH26xInstaccePoolInfo(CVI_S32 argc, char *argv[])
 {
 	int coreIdx = 0;
 
@@ -401,13 +401,13 @@ static int vcodecH26xInstaccePoolInfo(int32_t argc, char *argv[])
 	return 0;
 }
 
-static uint32_t getVcodecMemoryInfo(int coreIdx)
+static CVI_U32 getVcodecMemoryInfo(int coreIdx)
 {
 	int i;
 	vpu_instance_pool_t *vip;
 	CodecInst *pCodecInst;
-	uint32_t total_size = 0;
-	uint32_t all_total_size = 0;
+	CVI_U32 total_size = 0;
+	CVI_U32 all_total_size = 0;
 	vpu_buffer_t vbu_comm_bf;
 	int bAddStreamSize = 0;
 
@@ -526,7 +526,7 @@ static uint32_t getVcodecMemoryInfo(int coreIdx)
 	return all_total_size;
 }
 
-static int vcodecMemoryInfo(int32_t argc, char *argv[])
+static int vcodecMemoryInfo(CVI_S32 argc, char *argv[])
 {
 	int coreIdx = 0;
 
@@ -548,7 +548,7 @@ static int vcodecMemoryInfo(int32_t argc, char *argv[])
 		return 0;
 	}
 
-	uint32_t all_size = 0;
+	CVI_U32 all_size = 0;
 
 	all_size = getVcodecMemoryInfo(0) + getVcodecMemoryInfo(1);
 

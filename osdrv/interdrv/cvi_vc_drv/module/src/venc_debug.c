@@ -358,7 +358,7 @@ static void cliVencInfoShow(int idx)
 	}
 }
 
-static int __cliVencInfoShow(int32_t argc, char *argv[])
+static int __cliVencInfoShow(CVI_S32 argc, char *argv[])
 {
 	int idx = 0;
 
@@ -399,7 +399,7 @@ void venc_channel_run_status_addself(VENC_CHN VeChn, int index)
 	__astVencCliDbgInfo[VeChn].u32RunCnt[index]++;
 }
 
-static int cliShowVencDbgInfo(int32_t argc, char *argv[])
+static int cliShowVencDbgInfo(CVI_S32 argc, char *argv[])
 {
 	int chnIdx = 0;
 
@@ -528,7 +528,7 @@ CVI_S32 cviDumpVencBitstream(VENC_CHN VeChn, VENC_STREAM_S *pstStream,
 	return 0;
 }
 
-static int __cliDumpVencBs(int32_t argc, char *argv[])
+static int __cliDumpVencBs(CVI_S32 argc, char *argv[])
 {
 	int VencChn = 0;
 
@@ -552,7 +552,7 @@ static int __cliDumpVencBs(int32_t argc, char *argv[])
 	return 0;
 }
 
-static int __cliDumpVencSrcYUV(int32_t argc, char *argv[])
+static int __cliDumpVencSrcYUV(CVI_S32 argc, char *argv[])
 {
 	int VencChn = 0;
 
@@ -1046,7 +1046,7 @@ static void cviDumpChnPram(int chnIdx)
 		"---------------------------------------------------------\n");
 }
 
-static int showVencParam(int32_t argc, char *argv[])
+static int showVencParam(CVI_S32 argc, char *argv[])
 {
 	int chnIdx = 0;
 
@@ -1064,7 +1064,7 @@ static int showVencParam(int32_t argc, char *argv[])
 	return 0;
 }
 
-static int setIpQpDeltaParam(int32_t argc, char *argv[])
+static int setIpQpDeltaParam(CVI_S32 argc, char *argv[])
 {
 	int VencChn = 0;
 	int delta = 0;
@@ -1100,7 +1100,7 @@ static int setIpQpDeltaParam(int32_t argc, char *argv[])
 	return 0;
 }
 
-static int getIpQpDeltaParam(int32_t argc, char *argv[])
+static int getIpQpDeltaParam(CVI_S32 argc, char *argv[])
 {
 	int VencChn = 0;
 	int delta = 0;

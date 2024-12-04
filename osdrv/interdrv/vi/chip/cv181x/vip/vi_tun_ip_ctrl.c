@@ -342,7 +342,15 @@ void vi_tuning_resume(struct isp_ctx *ctx, enum cvi_isp_raw raw_max)
 	struct cvi_vip_isp_be_cfg   *be_cfg;
 	struct cvi_vip_isp_post_cfg *post_cfg;
 
+	if (!ctx->tuning_update_en) {
+		return;
+	}
+
 	for (i = 0; i < raw_max; i++) {
+		if (!ctx->isp_pipe_enable[i]) {
+			continue;
+		}
+
 		if (fe_tun_backup[i] != NULL) {
 			if (tuning_buf_addr.fe_vir[i] != NULL) {
 				fe_cfg = (struct cvi_vip_isp_fe_cfg *)tuning_buf_addr.fe_vir[i];

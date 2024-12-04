@@ -202,16 +202,16 @@ int vdi_dettach_dma_memory(unsigned long core_idx, vpu_buffer_t *vb);
 int vdi_allocate_ion_memory(unsigned long core_idx, vpu_buffer_t *vb,
 			    int is_cached, const char *str);
 void vdi_free_ion_memory(unsigned long core_idx, vpu_buffer_t *vb);
-int vdi_invalidate_ion_cache(uint64_t u64PhyAddr, void *pVirAddr,
-			     uint32_t u32Len);
-int vdi_flush_ion_cache(uint64_t u64PhyAddr, void *pVirAddr, uint32_t u32Len);
+int vdi_invalidate_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr,
+			     CVI_U32 u32Len);
+int vdi_flush_ion_cache(CVI_U64 u64PhyAddr, void *pVirAddr, CVI_U32 u32Len);
 #else
 int vdi_allocate_dma_memory(unsigned long core_idx, vpu_buffer_t *vb);
 void vdi_free_dma_memory(unsigned long core_idx, vpu_buffer_t *vb);
 #endif
 
 int vdi_wait_interrupt(unsigned long core_idx, int timeout,
-		       uint64_t *pu64TimeStamp);
+		       CVI_U64 *pu64TimeStamp);
 int vdi_wait_vpu_busy(unsigned long core_idx, int timeout,
 		      unsigned int addr_bit_busy_flag);
 int vdi_wait_bus_busy(unsigned long core_idx, int timeout,

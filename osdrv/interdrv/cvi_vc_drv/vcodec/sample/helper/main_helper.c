@@ -1705,7 +1705,7 @@ int cviSmartRoiLevelCfg(int coreIdx, TestEncConfig *pEncConfig,
 {
 	if (pEncConfig->cviEc.bRoiBinValid == 1 &&  pEncOP->smart_ai_en) {
 		int map_width, map_height;
-		uint8_t *roiBinBuffer;
+		CVI_U8 *roiBinBuffer;
 
 		map_height = ((pEncOP->picHeight + 63) & ~63) >> 6;
 		map_width = ((pEncOP->picWidth + 63) & ~63) >> 6;

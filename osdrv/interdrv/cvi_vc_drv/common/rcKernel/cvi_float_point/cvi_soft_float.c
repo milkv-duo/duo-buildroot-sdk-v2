@@ -10,7 +10,7 @@ typedef int sbits32;
 typedef signed long long int sbits64;
 
 unsigned int float_exception_flags;
-int8_t float_detect_tininess = float_tininess_after_rounding;
+CVI_S8 float_detect_tininess = float_tininess_after_rounding;
 
 #define is_Negative_NaN 0xFFFFFFFF
 #define isNaN 0x7fffffff
@@ -78,7 +78,7 @@ const sw_float logf_ln2 = 0x3f317218;
 #define POWF_SCALE (1 << POWF_SCALE_BITS)
 #define POW_N (1 << POWF_LOG2_TABLE_BITS)
 
-uint32_t powf_log2_data_invc[] = {
+CVI_U32 powf_log2_data_invc[] = {
 	0x3fb30f64,
 	0x3fab8f6a,
 	0x3fa4a9d0,
@@ -96,7 +96,7 @@ uint32_t powf_log2_data_invc[] = {
 	0x3f443730,
 	0x3f3b3ee8,
 };
-uint32_t powf_log2_data_logc[] = {
+CVI_U32 powf_log2_data_logc[] = {
 	0xbef7f633,
 	0xbed85b42,
 	0xbeba0c58,
@@ -115,7 +115,7 @@ uint32_t powf_log2_data_logc[] = {
 	0x3ee70522,
 };
 
-uint32_t powf_log2_data_poly[] = {
+CVI_U32 powf_log2_data_poly[] = {
 	0x3e93b0b6,
 	0xbeb8cb4d,
 	0x3ef63853,
@@ -177,7 +177,7 @@ sw_float expf_poly[] = {
 };
 /* EXP */
 
-void float_raise(int8_t flags)
+void float_raise(CVI_S8 flags)
 {
 	float_exception_flags |= flags;
 }
@@ -208,7 +208,7 @@ floatTosw_float(float f)
  * Returns 0 if not int, 1 if odd int, 2 if even int.  The argument is
  * the bit representation of a non-zero finite floating-point value.
  */
-static inline int checkint(uint32_t iy)
+static inline int checkint(CVI_U32 iy)
 {
 	int e = iy >> 23 & 0xff;
 	if (e < 0x7f)
@@ -222,7 +222,7 @@ static inline int checkint(uint32_t iy)
 	return 2;
 }
 
-static inline int zeroinfnan(uint32_t ix)
+static inline int zeroinfnan(CVI_U32 ix)
 {
 	return 2 * ix - 1 >= 2u * 0x7f800000 - 1;
 }
@@ -244,7 +244,7 @@ static inline flag extractFloat32Sign(sw_float a)
  *  significand.
  *  -------------------------------------------------------------------------------
  */
-static inline sw_float packFloat32(flag zSign, int16_t zExp, bits32 zSig)
+static inline sw_float packFloat32(flag zSign, CVI_S16 zExp, bits32 zSig)
 {
 	return (((bits32)zSign) << 31) + (((bits32)zExp) << 23) + zSig;
 }
@@ -260,7 +260,7 @@ static inline sw_float packFloat32(flag zSign, int16_t zExp, bits32 zSig)
  *  The result is stored in the location pointed to by `zPtr'.
  *  -------------------------------------------------------------------------------
  */
-static inline void shift32RightJamming(bits32 a, int16_t count, bits32 *zPtr)
+static inline void shift32RightJamming(bits32 a, CVI_S16 count, bits32 *zPtr)
 {
 	bits32 z;
 	if (count == 0) {
@@ -279,9 +279,9 @@ static inline void shift32RightJamming(bits32 a, int16_t count, bits32 *zPtr)
  *  of `a'.  If `a' is zero, 32 is returned.
  *  -------------------------------------------------------------------------------
  */
-static int8_t countLeadingZeros32(bits32 a)
+static CVI_S8 countLeadingZeros32(bits32 a)
 {
-	static const int8_t countLeadingZerosHigh[] = {
+	static const CVI_S8 countLeadingZerosHigh[] = {
 		8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
 		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
@@ -298,7 +298,7 @@ static int8_t countLeadingZeros32(bits32 a)
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int8_t shiftCount;
+	CVI_S8 shiftCount;
 
 	shiftCount = 0;
 	if (a < 0x10000) {
@@ -322,9 +322,9 @@ static int8_t countLeadingZeros32(bits32 a)
  *  `zSigPtr', respectively.
  *  -------------------------------------------------------------------------------
  */
-static void normalizeFloat32Subnormal(bits32 aSig, int16_t *zExpPtr, bits32 *zSigPtr)
+static void normalizeFloat32Subnormal(bits32 aSig, CVI_S16 *zExpPtr, bits32 *zSigPtr)
 {
-	int8_t shiftCount;
+	CVI_S8 shiftCount;
 
 	shiftCount = countLeadingZeros32(aSig) - 8;
 	*zSigPtr = aSig << shiftCount;
@@ -354,11 +354,11 @@ static void normalizeFloat32Subnormal(bits32 aSig, int16_t *zExpPtr, bits32 *zSi
  *  Binary Floating-point Arithmetic.
  *  -------------------------------------------------------------------------------
  */
-static sw_float roundAndPackFloat32(struct roundingData *roundData, flag zSign, int16_t zExp, bits32 zSig)
+static sw_float roundAndPackFloat32(struct roundingData *roundData, flag zSign, CVI_S16 zExp, bits32 zSig)
 {
-	int8_t roundingMode;
+	CVI_S8 roundingMode;
 	flag roundNearestEven;
-	int8_t roundIncrement, roundBits;
+	CVI_S8 roundIncrement, roundBits;
 	flag isTiny;
 
 	roundingMode = roundData->mode;
@@ -423,12 +423,12 @@ static sw_float roundAndPackFloat32(struct roundingData *roundData, flag zSign, 
  *  positive or negative integer is returned.
  *  -------------------------------------------------------------------------------
  */
-static int32_t roundAndPackInt32(struct roundingData *roundData, flag zSign, bits64 absZ)
+static CVI_S32 roundAndPackInt32(struct roundingData *roundData, flag zSign, bits64 absZ)
 {
-	int8_t roundingMode;
+	CVI_S8 roundingMode;
 	flag roundNearestEven;
-	int8_t roundIncrement, roundBits;
-	int32_t z;
+	CVI_S8 roundIncrement, roundBits;
+	CVI_S32 z;
 
 	roundingMode = roundData->mode;
 	roundNearestEven = (roundingMode == float_round_nearest_even);
@@ -480,7 +480,7 @@ static inline bits32 extractFloat32Frac(sw_float a)
  *  Returns the exponent bits of the single-precision floating-point value `a'.
  *  -------------------------------------------------------------------------------
  */
-static inline int16_t extractFloat32Exp(sw_float a)
+static inline CVI_S16 extractFloat32Exp(sw_float a)
 {
 	return (a >> 23) & 0xFF;
 }
@@ -502,7 +502,7 @@ flag float32_is_nan(sw_float a)
 	return (0xFF000000 < (bits32)(a << 1));
 }
 
-void shift64RightJamming(bits64 a, int16_t count, bits64 *zPtr)
+void shift64RightJamming(bits64 a, CVI_S16 count, bits64 *zPtr)
 {
 	bits64 z;
 
@@ -526,9 +526,9 @@ void shift64RightJamming(bits64 a, int16_t count, bits64 *zPtr)
  * point exponent.
  * -------------------------------------------------------------------------------
  */
-static sw_float normalizeRoundAndPackFloat32(struct roundingData *roundData, flag zSign, int16_t zExp, bits32 zSig)
+static sw_float normalizeRoundAndPackFloat32(struct roundingData *roundData, flag zSign, CVI_S16 zExp, bits32 zSig)
 {
-	int8_t shiftCount;
+	CVI_S8 shiftCount;
 
 	shiftCount = countLeadingZeros32(zSig) - 1;
 	return roundAndPackFloat32(roundData, zSign, zExp - shiftCount, zSig << shiftCount);
@@ -562,9 +562,9 @@ static sw_float propagateFloat32NaN(sw_float a, sw_float b)
 
 static sw_float addFloat32Sigs(struct roundingData *roundData, sw_float a, sw_float b, flag zSign)
 {
-	int16_t aExp, bExp, zExp;
+	CVI_S16 aExp, bExp, zExp;
 	bits32 aSig, bSig, zSig;
-	int16_t expDiff;
+	CVI_S16 expDiff;
 
 	aSig = extractFloat32Frac(a);
 	aExp = extractFloat32Exp(a);
@@ -633,9 +633,9 @@ roundAndPack:
  */
 static sw_float subFloat32Sigs(struct roundingData *roundData, sw_float a, sw_float b, flag zSign)
 {
-	int16_t aExp, bExp, zExp;
+	CVI_S16 aExp, bExp, zExp;
 	bits32 aSig, bSig, zSig;
-	int16_t expDiff;
+	CVI_S16 expDiff;
 
 	aSig = extractFloat32Frac(a);
 	aExp = extractFloat32Exp(a);
@@ -746,7 +746,7 @@ sw_float cvi_float32_sub(struct roundingData *roundData, sw_float a, sw_float b)
 sw_float cvi_float32_mul(struct roundingData *roundData, sw_float a, sw_float b)
 {
 	flag aSign, bSign, zSign;
-	int16_t aExp, bExp, zExp;
+	CVI_S16 aExp, bExp, zExp;
 	bits32 aSig, bSig;
 	bits64 zSig64;
 	bits32 zSig;
@@ -801,22 +801,22 @@ sw_float cvi_float32_mul(struct roundingData *roundData, sw_float a, sw_float b)
 	return roundAndPackFloat32(roundData, zSign, zExp, zSig);
 }
 
-static uint32_t do_div(bits64 *n, bits32 base)
+static CVI_U32 do_div(bits64 *n, bits32 base)
 {
-	uint64_t rem = *n;
-	uint64_t b = base;
-	uint64_t res, d = 1;
-	uint32_t high = rem >> 32;
+	CVI_U64 rem = *n;
+	CVI_U64 b = base;
+	CVI_U64 res, d = 1;
+	CVI_U32 high = rem >> 32;
 
 	/* Reduce the thing a bit first */
 	res = 0;
 	if (high >= base) {
 		high /= base;
-		res = (uint64_t)high << 32;
-		rem -= (uint64_t)(high * base) << 32;
+		res = (CVI_U64)high << 32;
+		rem -= (CVI_U64)(high * base) << 32;
 	}
 
-	while ((int64_t)b > 0 && b < rem) {
+	while ((CVI_S64)b > 0 && b < rem) {
 		b = b + b;
 		d = d + d;
 	}
@@ -844,7 +844,7 @@ static uint32_t do_div(bits64 *n, bits32 base)
 sw_float cvi_float32_div(struct roundingData *roundData, sw_float a, sw_float b)
 {
 	flag aSign, bSign, zSign;
-	int16_t aExp, bExp, zExp;
+	CVI_S16 aExp, bExp, zExp;
 	bits32 aSig, bSig, zSig;
 
 	aSig = extractFloat32Frac(a);
@@ -920,7 +920,7 @@ sw_float cvi_float32_abs(sw_float x)
  * according to the IEC/IEEE Standard for Binary Floating-point Arithmetic.
  * -------------------------------------------------------------------------------
  */
-uint32_t cvi_float32_eq(sw_float a, sw_float b)
+CVI_U32 cvi_float32_eq(sw_float a, sw_float b)
 {
 
 	if (((extractFloat32Exp(a) == 0xFF) && extractFloat32Frac(a)) ||
@@ -941,7 +941,7 @@ uint32_t cvi_float32_eq(sw_float a, sw_float b)
  * Arithmetic.
  * -------------------------------------------------------------------------------
  */
-uint32_t cvi_float32_le(sw_float a, sw_float b)
+CVI_U32 cvi_float32_le(sw_float a, sw_float b)
 {
 	flag aSign, bSign;
 
@@ -964,7 +964,7 @@ uint32_t cvi_float32_le(sw_float a, sw_float b)
  * according to the IEC/IEEE Standard for Binary Floating-point Arithmetic.
  * -------------------------------------------------------------------------------
  */
-uint32_t cvi_float32_lt(sw_float a, sw_float b)
+CVI_U32 cvi_float32_lt(sw_float a, sw_float b)
 {
 	flag aSign, bSign;
 
@@ -991,10 +991,10 @@ uint32_t cvi_float32_lt(sw_float a, sw_float b)
  * largest integer with the same sign as `a' is returned.
  * -------------------------------------------------------------------------------
  */
-int32_t cvi_float32_to_int32(struct roundingData *roundData, sw_float a)
+CVI_S32 cvi_float32_to_int32(struct roundingData *roundData, sw_float a)
 {
 	flag aSign;
-	int16_t aExp, shiftCount;
+	CVI_S16 aExp, shiftCount;
 	bits32 aSig;
 	bits64 zSig;
 
@@ -1013,10 +1013,10 @@ int32_t cvi_float32_to_int32(struct roundingData *roundData, sw_float a)
 	return roundAndPackInt32(roundData, aSign, zSig);
 }
 
-int32_t cvi_float32_to_frac_int(struct roundingData *roundData, sw_float a, int frac_bit)
+CVI_S32 cvi_float32_to_frac_int(struct roundingData *roundData, sw_float a, int frac_bit)
 {
 	flag aSign;
-	int16_t aExp, shiftCount;
+	CVI_S16 aExp, shiftCount;
 	bits32 aSig;
 	bits64 zSig;
 	aSig = extractFloat32Frac(a);
@@ -1044,12 +1044,12 @@ int32_t cvi_float32_to_frac_int(struct roundingData *roundData, sw_float a, int 
  * returned.
  * -------------------------------------------------------------------------------
  */
-int32_t cvi_float32_to_int32_round_to_zero(sw_float a)
+CVI_S32 cvi_float32_to_int32_round_to_zero(sw_float a)
 {
 	flag aSign;
-	int16_t aExp, shiftCount;
+	CVI_S16 aExp, shiftCount;
 	bits32 aSig;
-	int32_t z;
+	CVI_S32 z;
 
 	aSig = extractFloat32Frac(a);
 	aExp = extractFloat32Exp(a);
@@ -1086,9 +1086,9 @@ int32_t cvi_float32_to_int32_round_to_zero(sw_float a)
 sw_float cvi_float32_round_to_int(struct roundingData *roundData, sw_float a)
 {
 	flag aSign;
-	int16_t aExp;
+	CVI_S16 aExp;
 	bits32 lastBitMask, roundBitsMask;
-	int8_t roundingMode;
+	CVI_S8 roundingMode;
 	sw_float z;
 
 	aExp = extractFloat32Exp(a);
@@ -1154,24 +1154,24 @@ void cvi_float32_extract_int_and_float(sw_float a, sw_float *int_a, sw_float *fl
  * according to the IEC/IEEE Standard for Binary Floating-point Arithmetic.
  * -------------------------------------------------------------------------------
  */
-sw_float cvi_int32_to_float32(struct roundingData *roundData, int32_t a)
+sw_float cvi_int32_to_float32(struct roundingData *roundData, CVI_S32 a)
 {
 	flag zSign;
 
 	if (a == 0)
 		return 0;
-	if (a == (int32_t) 0x80000000)
+	if (a == (CVI_S32) 0x80000000)
 		return packFloat32(1, 0x9E, 0);
 	zSign = (a < 0);
 	return normalizeRoundAndPackFloat32(roundData, zSign, 0x9C, zSign ? -a : a);
 }
 
-sw_float cvi_frac_int_to_float32(struct roundingData *roundData, int32_t a, int32_t frac_bit)
+sw_float cvi_frac_int_to_float32(struct roundingData *roundData, CVI_S32 a, CVI_S32 frac_bit)
 {
 	flag zSign;
 	if (a == 0)
 		return 0;
-	if (a == (int32_t) 0x80000000)
+	if (a == (CVI_S32) 0x80000000)
 		return packFloat32(1, 0x9E, 0);
 	zSign = (a < 0);
 	return normalizeRoundAndPackFloat32(roundData, zSign, 0x9C - frac_bit, zSign ? -a : a);
@@ -1187,7 +1187,7 @@ sw_float cvi_frac_int_to_float32(struct roundingData *roundData, int32_t a, int3
  * value.
  * -------------------------------------------------------------------------------
  */
-static bits32 estimateSqrt32(int16_t aExp, bits32 a)
+static bits32 estimateSqrt32(CVI_S16 aExp, bits32 a)
 {
 	static const bits16 sqrtOddAdjustments[] = {
 		0x0004, 0x0022, 0x005D, 0x00B1, 0x011D, 0x019F, 0x0236, 0x02E0,
@@ -1195,7 +1195,7 @@ static bits32 estimateSqrt32(int16_t aExp, bits32 a)
 	static const bits16 sqrtEvenAdjustments[] = {
 		0x0A2D, 0x08AF, 0x075A, 0x0629, 0x051A, 0x0429, 0x0356, 0x029E,
 		0x0200, 0x0179, 0x0109, 0x00AF, 0x0068, 0x0034, 0x0012, 0x0002};
-	int8_t index;
+	CVI_S8 index;
 	bits32 z;
 	bits64 A;
 
@@ -1226,7 +1226,7 @@ static bits32 estimateSqrt32(int16_t aExp, bits32 a)
 sw_float cvi_float32_sqrt(struct roundingData *roundData, sw_float a)
 {
 	flag aSign;
-	int16_t aExp, zExp;
+	CVI_S16 aExp, zExp;
 	bits32 aSig, zSig;
 	bits64 rem, term;
 
@@ -1277,8 +1277,8 @@ sw_float cvi_float32_sqrt(struct roundingData *roundData, sw_float a)
 
 sw_float cvi_float32_frexp(sw_float a, int *pw2)
 {
-	uint32_t f = (uint32_t)a;
-	int i = (((uint32_t)a) >> 23) & 0x000000ff;
+	CVI_U32 f = (CVI_U32)a;
+	int i = (((CVI_U32)a) >> 23) & 0x000000ff;
 
 	i -= 0x7e;
 	*pw2 = i;
@@ -1287,18 +1287,18 @@ sw_float cvi_float32_frexp(sw_float a, int *pw2)
 	return ((sw_float)f);
 }
 
-static inline uint32_t top12(sw_float x)
+static inline CVI_U32 top12(sw_float x)
 {
-	return ((uint32_t)x) >> 20;
+	return ((CVI_U32)x) >> 20;
 }
 
 sw_float cvi_float32_exp(sw_float x_32)
 {
 	struct roundingData roundData;
-	uint32_t abstop;
-	const uint32_t top12_88 = 0x42b;
+	CVI_U32 abstop;
+	const CVI_U32 top12_88 = 0x42b;
 	sw_float z, shift32, kd, r, r2, s, y;
-	uint32_t ki, t;
+	CVI_U32 ki, t;
 
 	abstop = top12(x_32) & 0x7ff;
 
@@ -1354,13 +1354,13 @@ sw_float cvi_float32_exp(sw_float x_32)
 	return y;
 }
 
-sw_float cvi_float32_exp2(sw_float xd, uint32_t sign_bias)
+sw_float cvi_float32_exp2(sw_float xd, CVI_U32 sign_bias)
 {
 	struct roundingData roundData;
 	sw_float shift32 = 0x48c00000; //(0x1.8p+23 / N);
 	sw_float kd, r, s, z, r2, y;
-	uint32_t ki;
-	uint32_t t, ski;
+	CVI_U32 ki;
+	CVI_U32 t, ski;
 
 	roundData.mode = float_round_nearest_even;
 	kd = cvi_float32_add(&roundData, shift32, xd);
@@ -1381,12 +1381,12 @@ sw_float cvi_float32_exp2(sw_float xd, uint32_t sign_bias)
 	return y;
 }
 
-sw_float cvi_float32_log2(uint32_t ix)
+sw_float cvi_float32_log2(CVI_U32 ix)
 {
 	struct roundingData roundData;
 	/* double_t for better performance on targets with FLT_EVAL_METHOD==2.  */
 	// double_t z, r, r2, r4, p, q, y, y0, invc, logc;
-	uint32_t iz, top, tmp;
+	CVI_U32 iz, top, tmp;
 	int k, i;
 	sw_float invc, logc, z, r, y0, *A, r2, y, p, r4, q;
 
@@ -1400,7 +1400,7 @@ sw_float cvi_float32_log2(uint32_t ix)
 	i = (tmp >> (23 - POWF_LOG2_TABLE_BITS)) % POW_N;
 	top = tmp & 0xff800000;
 	iz = ix - top;
-	k = (int32_t)top >> (23 - POWF_SCALE_BITS); /* arithmetic shift */
+	k = (CVI_S32)top >> (23 - POWF_SCALE_BITS); /* arithmetic shift */
 	invc = powf_log2_data_invc[i];
 	logc = powf_log2_data_logc[i];
 	z = iz;
@@ -1426,8 +1426,8 @@ sw_float cvi_float32_log2(uint32_t ix)
 
 sw_float cvi_float32_pow(sw_float x_32, sw_float y_32)
 {
-	uint32_t sign_bias = 0;
-	uint32_t ix, iy;
+	CVI_U32 sign_bias = 0;
+	CVI_U32 ix, iy;
 	struct roundingData roundData;
 	sw_float logx, ylogx;
 
@@ -1516,7 +1516,7 @@ sw_float cvi_float32_log(sw_float x_32)
 	struct roundingData roundData;
 
 	/* double_t for better performance on targets with FLT_EVAL_METHOD==2.  */
-	uint32_t ix, iz, tmp;
+	CVI_U32 ix, iz, tmp;
 	int k, i;
 	sw_float z, r, r2, y0, y;
 
@@ -1545,7 +1545,7 @@ sw_float cvi_float32_log(sw_float x_32)
 	 */
 	tmp = ix - OFF;
 	i = (tmp >> (23 - LOGF_TABLE_BITS)) % LOGF_N;
-	k = (int32_t)tmp >> 23; /* arithmetic shift */
+	k = (CVI_S32)tmp >> 23; /* arithmetic shift */
 	iz = ix - (tmp & 0x1ff << 23);
 	z = iz;
 

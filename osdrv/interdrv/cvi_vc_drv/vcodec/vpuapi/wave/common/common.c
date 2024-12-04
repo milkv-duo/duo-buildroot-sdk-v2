@@ -572,7 +572,7 @@ Int32 Wave4VpuWaitInterrupt(CodecInst *handle, Int32 timeout)
 	Uint32 coreIdx = handle->coreIdx;
 
 	reason = vdi_wait_interrupt(coreIdx, timeout,
-				    (uint64_t *)&handle->u64EndTime);
+				    (Uint64 *)&handle->u64EndTime);
 	if (reason > 0) {
 		/* If you are using device driver that we provide. the below
 		 * codes are meaningless. Because device driver clears
