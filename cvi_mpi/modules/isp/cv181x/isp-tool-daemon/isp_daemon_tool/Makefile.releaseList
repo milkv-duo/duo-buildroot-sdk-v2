@@ -15,6 +15,7 @@ file += $(MW_LIB)/libawb.so
 file += $(MW_LIB)/libae.so
 file += $(MW_LIB)/libaf.so
 file += $(MW_LIB)/libisp.so
+file += $(MW_LIB)/libsample.so
 file += $(MW_LIB)/libisp_algo.so
 file += $(MW_LIB)/libcvi_bin.so
 file += $(MW_LIB)/libcvi_bin_isp.so

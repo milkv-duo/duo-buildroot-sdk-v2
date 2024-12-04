@@ -24,10 +24,8 @@ CVI_S32 vpss_bin_getparamfrombin(CVI_U8 *addr, CVI_U32 size);
 CVI_S32 vpss_bin_setparamtobuf(CVI_U8 *buffer);
 CVI_S32 vpss_bin_setparamtobin(FILE *fp);
 
+CVI_VOID set_loadbin_state(CVI_BOOL done);
 VPSS_BIN_DATA *get_vpssbindata_addr(void);
-CVI_BOOL get_loadbin_state(void);
-
-
 
 #ifdef __cplusplus
 #if __cplusplus

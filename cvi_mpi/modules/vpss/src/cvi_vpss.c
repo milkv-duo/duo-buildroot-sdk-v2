@@ -55,6 +55,24 @@ static inline CVI_S32 CHECK_VPSS_CHN_VALID(VPSS_CHN VpssChn)
 	return CVI_SUCCESS;
 }
 
+static VPSS_BIN_DATA vpss_bin_data[VPSS_MAX_GRP_NUM];
+static CVI_BOOL g_bLoadBinDone = CVI_FALSE;
+
+VPSS_BIN_DATA *get_vpssbindata_addr(void)
+{
+	return vpss_bin_data;
+}
+
+CVI_BOOL get_loadbin_state(void)
+{
+	return g_bLoadBinDone;
+}
+
+CVI_VOID set_loadbin_state(CVI_BOOL done)
+{
+	g_bLoadBinDone = done;
+}
+
 /**************************************************************************
  *   Job related APIs.
  **************************************************************************/
