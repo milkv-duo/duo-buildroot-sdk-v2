@@ -271,6 +271,16 @@ config DDR_64MB_SIZE
 	bool "Compile 64MB DDR size project"
 	default n
 
+config AB_SYSTEM
+    bool "Enable ab system"
+    depends on !UBOOT_SPL_CUSTOM
+    default n
+    help
+      Enable A/B boot function.(Currently, spl boot is not supported.)
+      The BOOT and ROOTFS partitions are backed up to ensure that the
+      system can be automatically switched to the inactive partition
+      for boot if the related upgrade fails.
+      For details, see Android A/B system Description.
 endmenu
 
 menu "FIP setting"
@@ -329,7 +339,7 @@ config OD_CLK_SEL
 
 config VC_CLK_OVERDRIVE
 	bool "Select to build fip.bin with VC clock overdrived setting"
-	depends on CHIP_ARCH_cv181x && !OD_CLK_SEL
+	depends on !OD_CLK_SEL
 	default n
 	help
 	  "y" Select to build fip.bin with VC clock overdrived setting

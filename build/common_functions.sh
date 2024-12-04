@@ -97,6 +97,10 @@ function pack_boot
   if [[ ${BOARD} != "fpga" &&  ${BOARD} != "palladium" ]]; then
     command cp ./boot.itb "$OUTPUT_DIR"/rawimages/boot."$STORAGE_TYPE"
     python3 "$IMGTOOL_PATH"/raw2cimg.py "$OUTPUT_DIR"/rawimages/boot."$STORAGE_TYPE" "$OUTPUT_DIR" "$FLASH_PARTITION_XML"
+    if [[ "${AB_SYSTEM}" == "y" ]]; then
+      command cp ./boot.itb "$OUTPUT_DIR"/rawimages/boot_b."$STORAGE_TYPE"
+      python3 "$IMGTOOL_PATH"/raw2cimg.py "$OUTPUT_DIR"/rawimages/boot_b."$STORAGE_TYPE" "$OUTPUT_DIR" "$FLASH_PARTITION_XML"
+	fi
   else
     command cp ./boot.itb "$OUTPUT_DIR"/boot.itb
   fi

@@ -320,9 +320,6 @@ function build_sdk()
   elif [[ "$1" = ivs ]]; then
     SDK_PATH="$IVS_SDK_PATH"
     SDK_INSTALL_PATH="$IVS_SDK_INSTALL_PATH"
-  elif [[ "$1" = ai ]]; then
-    SDK_PATH="$AI_SDK_PATH"
-    SDK_INSTALL_PATH="$AI_SDK_INSTALL_PATH"
   elif [[ "$1" = cnv ]]; then
     SDK_PATH="$CNV_SDK_PATH"
     SDK_INSTALL_PATH="$CNV_SDK_INSTALL_PATH"
@@ -335,7 +332,6 @@ function build_sdk()
   TRACER_INSTALL_PATH="$IVE_SDK_INSTALL_PATH" \
   TPU_SDK_INSTALL_PATH="$TPU_SDK_INSTALL_PATH" \
   IVE_SDK_INSTALL_PATH="$IVE_SDK_INSTALL_PATH" \
-  AI_SDK_INSTALL_PATH="$AI_SDK_INSTALL_PATH" \
   IVS_SDK_INSTALL_PATH="$IVS_SDK_INSTALL_PATH" \
   CNV_SDK_INSTALL_PATH="$CNV_SDK_INSTALL_PATH" \
   KERNEL_HEADER_PATH="$KERNEL_PATH"/"$KERNEL_OUTPUT_FOLDER"/usr/ \
@@ -345,11 +341,6 @@ function build_sdk()
 
   # copy so
   cp -a "$SDK_INSTALL_PATH"/lib/*.so* "$SYSTEM_OUT_DIR"/lib/
-  # copy sample_xxx
-  if [[ "$CHIP_ARCH" != CV180X ]] && [[ "$1" = ai ]]; then
-    mkdir -p "$SYSTEM_OUT_DIR"/usr/bin/"$1"
-    cp -a "$SDK_INSTALL_PATH"/bin/sample_* "$SYSTEM_OUT_DIR"/usr/bin/"$1"
-  fi
 }
 
 function clean_sdk()
@@ -357,12 +348,6 @@ function clean_sdk()
   [[ "$1" = ive ]] && rm -rf "$IVE_SDK_INSTALL_PATH"
   [[ "$1" = ivs ]] && rm -rf "$IVS_SDK_INSTALL_PATH"
   [[ "$1" = cnv ]] && rm -rf "$CNV_SDK_INSTALL_PATH"
-  if [[ "$1" = ai ]]; then
-    rm -rf "$AI_SDK_INSTALL_PATH"
-    rm -rf "$AI_SDK_PATH"/tmp/_deps
-  fi
-
-  rm -f "$SYSTEM_OUT_DIR"/lib/libcviai.so*
   rm -f "$SYSTEM_OUT_DIR"/lib/libcvi_"$1"_tpu.so*
   rm -rf "${SYSTEM_OUT_DIR:?}"/usr/bin/"$1"
 }
@@ -395,14 +380,21 @@ function clean_ivs_sdk()
   fi
 }
 
-function build_ai_sdk()
+function build_tdl_sdk()
 {
-  build_sdk ai || return "$?"
+  print_notice "Run ${FUNCNAME[0]}() function"
+  pushd "$TDL_SDK_PATH"
+  ./build_tdl_sdk.sh all
+  test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
+  popd
 }
 
-function clean_ai_sdk()
+function clean_tdl_sdk()
 {
-    clean_sdk ai
+  print_notice "Run ${FUNCNAME[0]}() function"
+  pushd "$TDL_SDK_PATH"
+  ./build_tdl_sdk.sh clean
+  popd
 }
 
 function build_cnv_sdk()
@@ -601,7 +593,7 @@ function build_all()
     build_tpu_sdk || return $?
     build_ive_sdk || return $?
     build_ivs_sdk || return $?
-    build_ai_sdk  || return $?
+    build_tdl_sdk  || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?
@@ -624,7 +616,7 @@ function clean_all()
     clean_ive_sdk
     clean_ivs_sdk
     clean_tpu_sdk
-    clean_ai_sdk
+    clean_tdl_sdk
     clean_cnv_sdk
   fi
   clean_middleware
@@ -683,7 +675,6 @@ function envs_sdk_ver()
   TPU_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_tpu_sdk
   IVE_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ive_sdk
   IVS_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ivs_sdk
-  AI_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ai_sdk
   CNV_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_cnv_sdk
   TPU_MODEL_PATH="$TPU_OUTPUT_PATH"/models
   IVE_CMODEL_INSTALL_PATH="$TPU_OUTPUT_PATH"/tools/ive_cmodel
@@ -751,7 +742,7 @@ function cvi_setup_env()
   IVE_SDK_PATH="$TOP_DIR"/ive
   IVS_SDK_PATH="$TOP_DIR"/ivs
   CNV_SDK_PATH="$TOP_DIR"/cnv
-  AI_SDK_PATH="$TOP_DIR"/tdl_sdk
+  TDL_SDK_PATH="$TOP_DIR"/tdl_sdk
   CVI_PIPELINE_PATH="$TOP_DIR"/cvi_pipeline
   CVI_RTSP_PATH="$TOP_DIR"/cvi_rtsp
   OPENSBI_PATH="$TOP_DIR"/opensbi
@@ -844,8 +835,13 @@ function cvi_setup_env()
 
     if [[ "$ENABLE_ALIOS" != "y" ]]; then
       pushd "$BUILD_PATH"/boards/"${CHIP_ARCH,,}"/"$PROJECT_FULLNAME"/partition/
-      ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX".xml \
-        partition_"$STORAGE_TYPE".xml
+      if [[ "$AB_SYSTEM" == "y" ]]; then
+        ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX"_ab.xml \
+          partition_"$STORAGE_TYPE".xml
+	  else
+        ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX".xml \
+          partition_"$STORAGE_TYPE".xml
+	  fi
       popd
     fi
   fi

@@ -577,6 +577,7 @@ br-rootfs-pack:
 	${Q}cp $(TARGET_OUTPUT_DIR)/images/rootfs.ext4 $(OUTPUT_DIR)/rawimages/rootfs_ext4.$(STORAGE_TYPE)
 	$(call raw2cimg ,rootfs_ext4.$(STORAGE_TYPE))
 
+# TODO A/B boot is currently not supported when CONFIG_BUILDROOT_FS is enabled
 ifeq ($(CONFIG_BUILDROOT_FS),y)
 rootfs:br-rootfs-prepare
 rootfs:br-rootfs-pack
@@ -585,6 +586,10 @@ rootfs:rootfs-pack
 rootfs:
 	$(call print_target)
 ifneq ($(STORAGE_TYPE), sd)
+ifeq ($(CONFIG_AB_SYSTEM),y)
+	${Q}cp $(OUTPUT_DIR)/rawimages/rootfs.$(STORAGE_TYPE) $(OUTPUT_DIR)/rawimages/rootfs_b.$(STORAGE_TYPE)
+	$(call raw2cimg ,rootfs_b.$(STORAGE_TYPE))
+endif
 	$(call raw2cimg ,rootfs.$(STORAGE_TYPE))
 endif
 endif
