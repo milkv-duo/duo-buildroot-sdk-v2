@@ -3,3 +3,23 @@ config BR2_PACKAGE_SOPHGO_LIBRARY
 	depends on BR2_aarch64 || BR2_RISCV_64
 	help
 	  Some library files provided by Sophgo.
+
+if BR2_PACKAGE_SOPHGO_LIBRARY
+
+choice
+	prompt "sophgo library select"
+	default BR2_PACKAGE_SOPHGO_LIBRARY_SG200X
+
+config BR2_PACKAGE_SOPHGO_LIBRARY_CV180X
+	bool "CV180X"
+	help
+	  sophgo library for cv180x.
+
+config BR2_PACKAGE_SOPHGO_LIBRARY_SG200X
+	bool "SG200X"
+	help
+	  sophgo library for sg200x.
+
+endchoice
+
+endif
