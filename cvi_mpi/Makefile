@@ -45,12 +45,18 @@ install:
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy sample_xxx
 	@cp -f sample/audio/sample_audio $(DESTDIR)/usr/bin
-	@cp -f sample/sample_panel/sample_panel $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_vcodec $(DESTDIR)/usr/bin
 	@cp -f sample/vdec/sample_vdec $(DESTDIR)/usr/bin
-	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
 	@cp -f sample/sensor_test/sample_sensor_test $(DESTDIR)/usr/bin
+
+	@if [ -f sample/sample_panel/sample_panel ]; then \
+		cp -f sample/sample_panel/sample_panel $(DESTDIR)/usr/bin; \
+	fi
+
+	@if [ -f sample/vio/sample_vio ]; then \
+		cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin; \
+	fi
 
 	@if [ -d self_test ]; then \
 		cp -f self_test/cvi_test/cvi_test $(DESTDIR)/usr/bin; \
