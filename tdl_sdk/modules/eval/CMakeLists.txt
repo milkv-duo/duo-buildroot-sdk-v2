@@ -131,6 +131,7 @@ else()
 endif()
 if (NOT DEFINED NO_OPENCV)
     buildninstallcpp(NAME eval_pose_dataset INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+    buildninstallcpp(NAME eval_lpr_pipe INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 endif()
 
 #eval_model

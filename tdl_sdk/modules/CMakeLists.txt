@@ -85,6 +85,7 @@ if(NOT DEFINED NO_OPENCV)
                  $<TARGET_OBJECTS:smoke_classification>
                  $<TARGET_OBJECTS:ocr_detection>
                  $<TARGET_OBJECTS:license_plate_recognition>
+                 $<TARGET_OBJECTS:license_plate_keypoint>
                  $<TARGET_OBJECTS:face_angle>
                  $<TARGET_OBJECTS:mask_face_recognition>)
   

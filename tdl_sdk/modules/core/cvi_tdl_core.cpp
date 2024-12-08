@@ -31,6 +31,7 @@
 
 #include "license_plate_detection/license_plate_detection.hpp"
 #include "license_plate_recognition/license_plate_recognitionv2.hpp"
+#include "license_plate_keypoint/license_plate_keypoint.hpp"
 #include "liveness/ir_liveness/ir_liveness.hpp"
 #include "motion_detection/md.hpp"
 #include "motion_segmentation/motion_segmentation.hpp"
@@ -182,6 +183,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
     {CVI_TDL_SUPPORTED_MODEL_SMOKECLASSIFICATION, CREATOR(SmokeClassification)},
     {CVI_TDL_SUPPORTED_MODEL_LPRNET_TW, CREATOR_P1(LicensePlateRecognition, LP_FORMAT, TAIWAN)},
     {CVI_TDL_SUPPORTED_MODEL_LPRNET_CN, CREATOR_P1(LicensePlateRecognition, LP_FORMAT, CHINA)},
+    {CVI_TDL_SUPPORTED_MODEL_LP_KEYPOINT, CREATOR(LicensePlateKeypoint)},
     {CVI_TDL_SUPPORTED_MODEL_OCR_DETECTION, CREATOR(OCRDetection)},
     {CVI_TDL_SUPPORTED_MODEL_MASKFACERECOGNITION, CREATOR(MaskFaceRecognition)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV8_SEG, CREATOR(YoloV8Seg)},
@@ -226,7 +228,6 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
      CREATOR_P1(MobileDetV2, MobileDetV2::Category, MobileDetV2::Category::pedestrian)},
     {CVI_TDL_SUPPORTED_MODEL_MOBILEDETV2_PERSON_PETS,
      CREATOR_P1(MobileDetV2, MobileDetV2::Category, MobileDetV2::Category::person_pets)},
-
     // {CVI_TDL_SUPPORTED_MODEL_YOLOV8_HARDHAT,
     //  CREATOR_P1(YoloV8Detection, PAIR_INT, std::make_pair(64, 2))},
     {CVI_TDL_SUPPORTED_MODEL_LANE_DET, CREATOR(BezierLaneNet)},
@@ -906,6 +907,10 @@ DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateRecognition_TW, LicensePlateRecognitio
                       CVI_TDL_SUPPORTED_MODEL_LPRNET_TW, cvtdl_object_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateRecognition_CN, LicensePlateRecognition,
                       CVI_TDL_SUPPORTED_MODEL_LPRNET_CN, cvtdl_object_t *)
+DEFINE_INF_FUNC_F1_P1(CVI_TDL_LicensePlateRecognition_V2, LicensePlateRecognitionV2,
+                      CVI_TDL_SUPPORTED_MODEL_LP_RECONGNITION, cvtdl_object_t *)
+DEFINE_INF_FUNC_F1_P1(CVI_TDL_License_Plate_Keypoint, LicensePlateKeypoint,
+                      CVI_TDL_SUPPORTED_MODEL_LP_KEYPOINT, cvtdl_object_t *)
 DEFINE_INF_FUNC_F1_P2(CVI_TDL_FaceQuality, FaceQuality, CVI_TDL_SUPPORTED_MODEL_FACEQUALITY,
                       cvtdl_face_t *, bool *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_MaskFaceRecognition, MaskFaceRecognition,
@@ -983,7 +988,6 @@ CVI_S32 CVI_TDL_CropImage_Face(VIDEO_FRAME_INFO_S *srcFrame, cvtdl_image_t *p_ds
   return CVI_TDL_ERR_NOT_YET_INITIALIZED;
 }
 #endif
-
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_DMSLDet, DMSLandmarkerDet, CVI_TDL_SUPPORTED_MODEL_DMSLANDMARKERDET,
                       cvtdl_face_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_FLDet3, FaceLandmarkDet3, CVI_TDL_SUPPORTED_MODEL_LANDMARK_DET3,
