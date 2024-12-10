@@ -659,6 +659,15 @@ CVI_S32 update_data(cvitdl_handle_t tdl_handle, face_capture_t *face_cpt_info,
       continue;
     }
 
+    float *ori_pts_x = NULL;
+    float *ori_pts_y = NULL;
+    if (face_cpt_info->fr_flag == 2) {
+      ori_pts_x = (float *)malloc(obj_meta.info[0].pts.size * sizeof(float));
+      ori_pts_y = (float *)malloc(obj_meta.info[0].pts.size * sizeof(float));
+      memcpy(ori_pts_x, obj_meta.info[0].pts.x, sizeof(float) * obj_meta.info[0].pts.size);
+      memcpy(ori_pts_y, obj_meta.info[0].pts.y, sizeof(float) * obj_meta.info[0].pts.size);
+    }
+
     float boxw = crop_box.x2 - crop_box.x1;
     float boxh = crop_box.y2 - crop_box.y1;
     float scalew = boxw / dst_wh;
@@ -681,7 +690,8 @@ CVI_S32 update_data(cvitdl_handle_t tdl_handle, face_capture_t *face_cpt_info,
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_frame, true);
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_big_frame, true);
       CVI_TDL_Free(&obj_meta);
-
+      free(ori_pts_x);
+      free(ori_pts_y);
       continue;
     }
 
@@ -706,6 +716,8 @@ CVI_S32 update_data(cvitdl_handle_t tdl_handle, face_capture_t *face_cpt_info,
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_frame, true);
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_big_frame, true);
       CVI_TDL_Free(&obj_meta);
+      free(ori_pts_x);
+      free(ori_pts_y);
       continue;
     }
     // quality satisfied,update data
@@ -734,8 +746,18 @@ CVI_S32 update_data(cvitdl_handle_t tdl_handle, face_capture_t *face_cpt_info,
 
     face_cpt_info->data[update_idx].state = ALIVE;
 
-    memcpy(face_cpt_info->data[update_idx].info.pts.x, obj_meta.info[0].pts.x, sizeof(float) * 5);
-    memcpy(face_cpt_info->data[update_idx].info.pts.y, obj_meta.info[0].pts.y, sizeof(float) * 5);
+    if (face_cpt_info->fr_flag == 2) {
+      memcpy(face_cpt_info->data[update_idx].info.pts.x, ori_pts_x,
+             sizeof(float) * obj_meta.info[0].pts.size);
+      memcpy(face_cpt_info->data[update_idx].info.pts.y, ori_pts_y,
+             sizeof(float) * obj_meta.info[0].pts.size);
+
+    } else {
+      memcpy(face_cpt_info->data[update_idx].info.pts.x, obj_meta.info[0].pts.x, sizeof(float) * obj_meta.info[0].pts.size);
+      memcpy(face_cpt_info->data[update_idx].info.pts.y, obj_meta.info[0].pts.y, sizeof(float) * obj_meta.info[0].pts.size);
+    }
+    free(ori_pts_x);
+    free(ori_pts_y);
 
     face_cpt_info->data[update_idx]._capture = true;
 

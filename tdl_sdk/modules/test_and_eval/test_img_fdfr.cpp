@@ -101,6 +101,12 @@ int main(int argc, char *argv[]) {
 
   std::cout << str_res << std::endl;
 
+  // //register gallery feature
+  // FILE *file = fopen("/mnt/data/yzx/infer/fr/feature/1.bin_feat.bin", "wb");
+  // printf("obj_meta.info[0].feature.size:%d\n", obj_meta.info[0].feature.size);
+  // fwrite(obj_meta.info[0].feature.ptr, sizeof(int8_t), obj_meta.info[0].feature.size, file);
+  // fclose(file);
+
   if (argc >= 5) {
     // other picture
     std::string img1(argv[4]);  // img2;

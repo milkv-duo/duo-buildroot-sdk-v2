@@ -208,8 +208,10 @@ CVI_S32 do_face_match(cvitdl_service_handle_t service_handle, cvtdl_face_info_t 
   if (score > thresh) {
     p_face->recog_score = score;
     sprintf(p_face->name, "%d", ind + 1);
+    printf("matchname,trackid:%u,index:%d,score:%f,ret:%d,featlen:%d,name:%s\n",
+           (uint32_t)p_face->unique_id, ind + 1, score, ret, (int)p_face->feature.size,
+           p_face->name);
   }
-  printf("matchname,trackid:%u,index:%d,score:%f,ret:%d,featlen:%d,name:%s\n",
-         (uint32_t)p_face->unique_id, ind + 1, score, ret, (int)p_face->feature.size, p_face->name);
+
   return ret;
 }

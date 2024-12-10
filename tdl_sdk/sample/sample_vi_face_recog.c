@@ -79,13 +79,13 @@ static void *pImageWrite(void *args) {
       empty = front_idx == rear_idx;
     }
     if (empty) {
-      printf("I/O Buffer is empty.\n");
+      // printf("I/O Buffer is empty.\n");
       usleep(100 * 1000);
       continue;
     }
     int target_idx = (front_idx + 1) % OUTPUT_BUFFER_SIZE;
     char *filename = calloc(64, sizeof(char));
-    sprintf(filename, "/mnt/data/admin1_data/alios_test/phobos/face_%" PRIu64 "_%u.png",
+    sprintf(filename, "/mnt/data/yzx/infer/fr/feature/face_%" PRIu64 "_%u.png",
             data_buffer[target_idx].u_id, data_buffer[target_idx].counter);
     if (data_buffer[target_idx].image.pix_format != PIXEL_FORMAT_RGB_888) {
       printf("[WARNING] Image I/O unsupported format: %d\n",
@@ -161,8 +161,8 @@ static void *run_venc(void *args) {
       if (strlen(face_meta_0.info[i].name) != 0) {
         lb = atoi(face_meta_0.info[i].name);
       }
-      printf("trackid:%d,lb:%d,name:%s\n", (int)face_meta_0.info[i].unique_id, lb,
-             face_meta_0.info[i].name);
+      // printf("trackid:%d,lb:%d,name:%s\n", (int)face_meta_0.info[i].unique_id, lb,
+      //        face_meta_0.info[i].name);
       cvtdl_service_brush_t brushi;
       int num_clr = 7;
       int ind = lb % num_clr;
@@ -236,7 +236,7 @@ int init_middleware(SAMPLE_TDL_MW_CONTEXT *p_context) {
 
   // VBPool 0 for VPSS Grp0 Chn0
   stMWConfig.stVBPoolConfig.astVBPoolSetup[0].enFormat = VI_PIXEL_FORMAT;
-  stMWConfig.stVBPoolConfig.astVBPoolSetup[0].u32BlkCount = 3;
+  stMWConfig.stVBPoolConfig.astVBPoolSetup[0].u32BlkCount = 4;
   stMWConfig.stVBPoolConfig.astVBPoolSetup[0].u32Height = stSensorSize.u32Height;
   stMWConfig.stVBPoolConfig.astVBPoolSetup[0].u32Width = stSensorSize.u32Width;
   stMWConfig.stVBPoolConfig.astVBPoolSetup[0].bBind = true;
@@ -254,9 +254,9 @@ int init_middleware(SAMPLE_TDL_MW_CONTEXT *p_context) {
 
   // VBPool 2 for TDL preprocessing
   stMWConfig.stVBPoolConfig.astVBPoolSetup[2].enFormat = PIXEL_FORMAT_BGR_888_PLANAR;
-  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32BlkCount = 1;
-  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32Height = 720;
-  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32Width = 1280;
+  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32BlkCount = 3;
+  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32Height = 432;
+  stMWConfig.stVBPoolConfig.astVBPoolSetup[2].u32Width = 768;
   stMWConfig.stVBPoolConfig.astVBPoolSetup[2].bBind = false;
 
   // Setup VPSS Grp0
@@ -298,19 +298,19 @@ int init_middleware(SAMPLE_TDL_MW_CONTEXT *p_context) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 4) {
-    printf("Usage: sample_vi_face_recog scrfd_model_file fr_model_file gallery_root\n");
+  if (argc != 5) {
+    printf(
+        "Usage: sample_vi_face_recog scrfd_model_file fr_model_file fl_model_file gallery_root\n");
     return CVI_TDL_FAILURE;
   }
   CVI_S32 ret = CVI_TDL_SUCCESS;
   // Set signal catch
   signal(SIGINT, SampleHandleSig);
   signal(SIGTERM, SampleHandleSig);
-  const char *fd_model_path = argv
-      [1];  //"/mnt/data/admin1_data/AI_CV/cv182x/ai_models/phobos_fr/scrfd_500m_bnkps_432_768.cvimodel";//argv[1];
-  const char *fr_model_path = argv
-      [2];  //"/mnt/data/admin1_data/AI_CV/cv182x/ai_models/phobos_fr/cviface-v5-s.cvimodel";//argv[2];
-  const char *gallery_root = argv[3];  //"/mnt/data/admin1_data/alios_test/gallery";
+  const char *fd_model_path = argv[1];  // scrfd_500m_bnkps_432_768.cvimodel
+  const char *fr_model_path = argv[2];  // cviface-v5-s.cvimodel
+  const char *fl_model_path = argv[3];  // pipnet_blurness_v5_64_retinaface_50ep.cvimodel
+  const char *gallery_root = argv[4];   //"/mnt/data/admin1_data/alios_test/gallery";
   // const char *fq_model_path = argv[5];
   // const char *config_path = argv[6];
   // const char *mode_id = argv[7];
@@ -344,7 +344,7 @@ int main(int argc, char *argv[]) {
   ret |= CVI_TDL_APP_CreateHandle(&app_handle, tdl_handle);
   ret |= CVI_TDL_APP_FaceCapture_Init(app_handle, (uint32_t)buffer_size);
   ret |= CVI_TDL_APP_FaceCapture_QuickSetUp(app_handle, fd_model_id, fr_model_id, fd_model_path,
-                                            fr_model_path, NULL, NULL);
+                                            fr_model_path, NULL, fl_model_path, NULL);
   app_handle->face_cpt_info->fr_flag = 2;
   if (ret != CVI_TDL_SUCCESS) {
     printf("failed with %#x!\n", ret);
@@ -385,8 +385,11 @@ int main(int argc, char *argv[]) {
   gettimeofday(&last_t, NULL);
 
   double time_elapsed = 0;
+  size_t print_gap = 60;
   while (bExit == false) {
-    printf("\nGet Frame %zu\n", counter);
+    if (counter % print_gap == 0) {
+      printf("\nGet Frame %zu\n", counter);
+    }
 
     ret = CVI_VPSS_GetChnFrame(0, VPSS_CHN1, &stfdFrame, 2000);
     if (ret != CVI_SUCCESS) {
@@ -462,8 +465,9 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-
-    printf("average_fps:%.3f\n", counter / time_elapsed);
+    if (counter % print_gap == 0) {
+      printf("average_fps:%.3f\n", counter / time_elapsed);
+    }
 
     ret = CVI_VPSS_ReleaseChnFrame(0, VPSS_CHN1, &stfdFrame);
     if (ret != CVI_SUCCESS) {
