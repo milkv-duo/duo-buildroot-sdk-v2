@@ -34,12 +34,6 @@ then
     ISP_INCLUDE_PATH=${CUR_PATH}/../../include/$CHIP_ID
     RPCJSON_PATH=${CUR_PATH}/../../$CHIP_ID/isp-daemon2
     OUTPUT_PATH=${CUR_PATH}/../../$CHIP_ID/isp-daemon2/src/
-elif [ $CHIP_ID == "cv182x" ]
-then
-    MW_INCLUDE_PATH=${CUR_PATH}/../../../../../v1/include
-    ISP_INCLUDE_PATH=${CUR_PATH}/../../include/$CHIP_ID
-    RPCJSON_PATH=${CUR_PATH}/../../$CHIP_ID/isp-daemon2
-    OUTPUT_PATH=${CUR_PATH}/../../$CHIP_ID/isp-tool-daemon/
 fi
 HEADERLIST="$ISP_INCLUDE_PATH/cvi_comm_isp.h"
 HEADERLIST+=" $ISP_INCLUDE_PATH/cvi_comm_3a.h"

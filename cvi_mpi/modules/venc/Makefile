@@ -1,14 +1,19 @@
 SHELL = /bin/bash
+#
 ifeq ($(PARAM_FILE), )
-     PARAM_FILE:=../../Makefile.param
+     PARAM_FILE:=../../mpi_param.mk
      include $(PARAM_FILE)
 endif
-
-SDIR = src
-SRCS = $(wildcard $(SDIR)/*.c)
+#
+SDIR := $(CURDIR)/src
+SRCS_C := $(SDIR)/cvi_venc.c
+#
+ODIR    := $(CURDIR)/obj
+OBJS    := $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)
+DEPS	:= $(SRCS_C:.c=.d)
+#
 INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(SYS_INC) -Iinclude
-OBJS = $(SRCS:.c=.o)
-DEPS = $(SRCS:.c=.d)
+#
 TARGET_A = $(MW_LIB)/libvenc.a
 TARGET_SO = $(MW_LIB)/libvenc.so
 ifeq ($(MULTI_PROCESS_SUPPORT), 1)
@@ -26,10 +31,11 @@ ldflags-y = -lsys
 TMP_INC = $(MW_INC)/cvi_jpg* $(MW_INC)/cvi_h265*
 
 .PHONY : clean all
-all : prepare $(TARGET_A) $(TARGET_SO)
+all : $(TARGET_A) $(TARGET_SO)
 
-$(SDIR)/%.o: $(SDIR)/%.c
-	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
+$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o : $(SDIR)/%.c
+	$(Q)mkdir -p $(dir $@)
+	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 
 $(TARGET_A): $(OBJS) $(LIB_A_FLAGS)
@@ -41,11 +47,12 @@ $(TARGET_SO): $(OBJS) $(LIB_SO_FLAGS)
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $@)
 
 clean:
-	@rm -f $(OBJS) $(DEPS) $(TARGET_A) $(TARGET_SO)
+	@rm -f $(TARGET_A) $(TARGET_SO)
 
-prepare:
-	@echo "SDK_VER = ${SDK_VER}"
-	@head=`git rev-parse --verify --short HEAD`
-	@date=`git show -s --format=%cd --date=short ${head}`
+clean_all: clean
+	@if [ -d "$(SDIR)" ]; then \
+		echo "rm -rf $(ODIR)"; \
+		rm -rf $(ODIR); \
+	fi
 
 -include $(DEPS)

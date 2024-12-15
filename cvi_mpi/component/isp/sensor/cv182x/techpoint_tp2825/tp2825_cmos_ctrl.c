@@ -8,12 +8,8 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <stdlib.h>
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
+
 #include <linux/cvi_comm_video.h>
-#endif
 #include <pthread.h>
 #include <signal.h>
 #include "cvi_sns_ctrl.h"

@@ -1,25 +1,26 @@
 SHELL = /bin/bash
 STATIC = 0
 ifeq ($(PARAM_FILE), )
-PARAM_FILE:=../../Makefile.param
+PARAM_FILE:=../../mpi_param.mk
 include $(PARAM_FILE)
 endif
 
 include ../sample.mk
+include $(MW_PATH)/modules/audio/audio.mk
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 3PARTY_INCLUDE = include/include
 SRCS = $(wildcard $(SDIR)/*.c)
 INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(3PARTY_INCLUDE) -Iaac_sample
 INCS += -I$(MW_INC)/../3rdparty/libmad/include
 INCS += -I$(MW_INC)/../3rdparty/lame/include
-ifeq ($(CVIARCH), $(filter $(CVIARCH), CV181X CV180X))
-INCS += -I$(PWD)/include -I$(KERNEL_INC)
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
+INCS += -I$(CURDIR)/include -I$(KERNEL_INC)
 ifneq ($(CONFIG_ENABLE_SDK_ASAN), y)
 USE_CVIAUDIO_STATIC = no
 endif
 else
-INCS += -I$(PWD)/include
+INCS += -I$(CURDIR)/include
 USE_CVIAUDIO_STATIC = no
 endif
 
@@ -42,7 +43,6 @@ MULTI_PROCESS_SUPPORT_AUDIO = no
 USE_NEXT_SSP_DUAL = yes
 USE_SONIC_LIB = no
 
-DEFINES += -DCVI_MODIFIED
 DEFINES += -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 DEFINES += -DUSE_ALSA
 DEFINES += -DUSE_ALGO_SOURCE
@@ -64,10 +64,6 @@ ifeq ($(SUPPORT_EXTERNAL_AAC), yes)
 DEFINES += -DSUPPORT_EXTERNAL_AAC
 endif
 
-ifeq ($(USE_NEXT_SSP_DUAL), yes)
-DEFINES += -DNEXT_SSP_ALGO
-endif
-
 ifeq ($(USE_CVIAUDIO_STATIC), yes)
 DEFINES += -DCVIAUDIO_STATIC
 STATIC_FLAG = -static
@@ -79,7 +75,7 @@ ifeq ($(USE_SONIC_LIB), yes)
 DEFINES += -DUSE_SONIC_LIB
 endif
 
-ifeq ($(CVIARCH), $(filter $(CVIARCH), CV181X CV180X))
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
 DEFINES += -DAUD_SUPPORT_KERNEL_MODE
 endif
 
@@ -99,7 +95,7 @@ endif
 INCS += -I ./include/
 
 AEC_TEST_LDLIBS += -lcvi_vqe
-ifeq ($(CVIARCH), $(filter $(CVIARCH), CV181X CV180X))
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
 AEC_TEST_LDLIBS += -lsys
 endif
 
@@ -143,7 +139,7 @@ LDLIBS += -laaccomm2
 LDLIBS += -laacsbrenc2
 endif
 LDLIBS += -pthread
-ifeq ($(CVIARCH), $(filter $(CVIARCH), CV181X CV180X))
+ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
 LDLIBS += -lsys
 endif
 

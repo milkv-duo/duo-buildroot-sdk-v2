@@ -1,0 +1,47 @@
+{
+  "cmd": "READ_REGISTERS",
+  "data": [
+    {
+      "address": "0a055014",
+      "bitmask": "fffffffe",
+      "reg_key": "reg_dehaze_enable",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055000",
+      "bitmask": "ffffff80",
+      "reg_key": "reg_dehaze_w",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055020",
+      "bitmask": "ffffc000",
+      "reg_key": "reg_dehaze_cum_th",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055020",
+      "bitmask": "c000ffff",
+      "reg_key": "reg_dehaze_hist_th",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055028",
+      "bitmask": "ffffe000",
+      "reg_key": "reg_dehaze_tmap_min",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055028",
+      "bitmask": "e000ffff",
+      "reg_key": "reg_dehaze_tmap_max",
+      "reg_section": "isp_dhz"
+    },
+    {
+      "address": "0a055000",
+      "bitmask": "fffc00ff",
+      "reg_key": "reg_dehaze_th_smooth",
+      "reg_section": "isp_dhz"
+    }
+  ]
+}

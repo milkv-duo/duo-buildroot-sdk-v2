@@ -35,6 +35,10 @@ int OCRDetection::inference(VIDEO_FRAME_INFO_S *frame, cvtdl_object_t *obj_meta)
   std::vector<VIDEO_FRAME_INFO_S *> frames = {frame};
   printf("OCRDetection running!\n");
   int ret = run(frames);
+  if (ret != CVI_TDL_SUCCESS) {
+    printf("OCR detection run failed with error code: %#x\n", ret);
+    return ret;
+  }
   float thresh = 0.95;
   float boxThresh = 0.7;
   obj_meta->height = frame->stVFrame.u32Height;

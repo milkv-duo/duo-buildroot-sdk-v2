@@ -1,57 +1,42 @@
 SHELL = /bin/bash
-SDK_VER? := 64bit
+#
+#
+PARAM_FILE := $(CURDIR)/mpi_param.mk
+include $(PARAM_FILE)
+#
+.PHONY: clean all module component sample install uninstall package 3rdparty self_test clean_all
 
-ifeq ($(CHIP_ARCH), MARS)
-	CHIP_ARCH:=CV181X
-else ifeq ($(CHIP_ARCH), PHOBOS)
-	CHIP_ARCH:=CV180X
-endif
-
-ifeq ($(PARAM_FILE), )
-     PARAM_FILE:=Makefile.param
-     include $(PARAM_FILE)
-endif
-
-CHIP_DIR := $(MW_PATH)/chips/$(shell echo $(CHIP_ARCH) | tr A-Z a-z)
-
-ifeq ($(DESTDIR),)
-    DESTDIR := $(shell pwd)/install
-endif
-
-define package_mw
-    @install -d $(1)
-    @tar -c --exclude='chips' --exclude='modules' --exclude='$(1)' --exclude='.git' --exclude='tool' --exclude='self_test' --exclude='component/panel/cv1835/customer' -f - . | (cd $(1); tar xf -)
-    @rm $(1)/3rdparty/gtest -r
-    @rm $(1)/sample/ -r
-    @make -C sample/ clean
-    @cp sample $(1)/sample -r
-endef
-
-.PHONY: clean all module component sample install uninstall package 3rdparty
-
-all: prepare 3rdparty module component sample
+all: prepare 3rdparty module component sample self_test
 
 module: prepare 3rdparty
 	@make -C modules/
 
 prepare:
-	@if [ -d mod_tmp ]; then mv mod_tmp modules; fi;
-	@mkdir -p include/isp
-	@cp -rf modules/isp/include/* include/isp
-ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV181X CV180X))
-	@cp -rf modules/isp/cv181x/isp-daemon2/inc/cvi_ispd2.h include/isp/cv181x/
-endif
+	@if [ -f "mpi_prepare.mk" ]; then \
+		make -f mpi_prepare.mk prepare; \
+	fi
+
 3rdparty:
-	@make -C 3rdparty/
+	@if [ -d "3rdparty/" ]; then \
+		make -C 3rdparty/; \
+	fi
 
 sample: module component
-	@mv modules mod_tmp
-	@make -C sample/ || mv mod_tmp modules
-	@mv mod_tmp modules
+	@if [ -d "sample/" ]; then \
+		make -C sample/; \
+	fi
+
+self_test: module sample
+	@if [ -d "self_test/" ]; then \
+		make -C self_test/; \
+	fi
 
 component:
 	@make -C component/isp/ all
 
+dl_daemon: sample
+	@cmake self_test/dl_daemon -Bself_test/dl_daemon/build
+	@make -C self_test/dl_daemon/build/
 
 ifneq ($(SUBTYPE), fpga)
 install:
@@ -60,17 +45,28 @@ install:
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy sample_xxx
 	@cp -f sample/audio/sample_audio $(DESTDIR)/usr/bin
-	@cp -f sample/sample_panel/sample_panel $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
 	@cp -f sample/venc/sample_vcodec $(DESTDIR)/usr/bin
 	@cp -f sample/vdec/sample_vdec $(DESTDIR)/usr/bin
-	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
+	@cp -f sample/sensor_test/sample_sensor_test $(DESTDIR)/usr/bin
+
+	@if [ -f sample/sample_panel/sample_panel ]; then \
+		cp -f sample/sample_panel/sample_panel $(DESTDIR)/usr/bin; \
+	fi
+
+	@if [ -f sample/vio/sample_vio ]; then \
+		cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin; \
+	fi
+
+	@if [ -d self_test ]; then \
+		cp -f self_test/cvi_test/cvi_test $(DESTDIR)/usr/bin; \
+		cp -f self_test/cvi_test/sensor_cfg.ini $(DESTDIR)/usr/bin; \
+	fi
 endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
 	# copy others
-	@cp -f sample/sensor_test/sensor_test $(DESTDIR)/usr/bin
-	@cp -f sample/ir_auto/ir_auto $(DESTDIR)/usr/bin
+	@cp -f sample/sample_ir_auto/sample_ir_auto $(DESTDIR)/usr/bin
 endif
 
 ifneq ($(FLASH_SIZE_SHRINK),y)
@@ -95,14 +91,19 @@ package:
 	@rm tmp -r
 	@echo "package done"
 endif
+
 clean:
-	@if [ -d mod_tmp ]; then mv mod_tmp modules; fi;
-ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X CV181X CV182X))
-else
-	@rm -f $(MW_INC)/cvi_defines.h
-endif
-	@rm -rf include/isp
 	@make -C modules/ clean
 	@make -C 3rdparty/ clean
 	@make -C sample/ clean
 	@make -C component/isp/ clean
+	@rm -rf self_test/dl_daemon/build
+	@if [ -d "self_test/" ]; then \
+		make -C self_test/ clean; \
+	fi
+	@if [ -f "mpi_prepare.mk" ]; then \
+		make -f mpi_prepare.mk clean; \
+	fi
+
+clean_all:
+	@make -C modules/ clean_all

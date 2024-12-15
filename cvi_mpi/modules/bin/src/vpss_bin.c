@@ -9,7 +9,6 @@
 #include "cvi_json_struct_comm.h"
 #include "vpss_ioctl.h"
 
-
 static VPSS_BIN_DATA vpss_bin_data[VPSS_MAX_GRP_NUM];
 static CVI_BOOL g_bLoadBinDone = CVI_FALSE;
 

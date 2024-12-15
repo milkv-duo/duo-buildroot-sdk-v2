@@ -1,23 +1,30 @@
 SHELL = /bin/bash
+#
 ifeq ($(PARAM_FILE), )
-     PARAM_FILE:=../../Makefile.param
+     PARAM_FILE:=../../mpi_param.mk
      include $(PARAM_FILE)
 endif
-
-SDIR = $(PWD)/src
-SRCS = $(wildcard $(SDIR)/*.c)
-INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(BIN_INC) -I./include
-OBJS = $(SRCS:.c=.o)
-DEPS = $(SRCS:.c=.d)
+#
+SDIR := $(CURDIR)/src
+SRCS_C := $(SDIR)/cvi_region.c
+SRCS_C += $(SDIR)/rgn_ioctl.c
+#
+ODIR := $(CURDIR)/obj
+OBJS := $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)
+DEPS := $(SRCS_C:.c=.d)
+#
+INCS = -I$(MW_INC) -I$(KERNEL_INC) -I$(SYS_INC) -I$(BIN_INC) -I$(RGN_INC)
+#
 TARGET_A = $(MW_LIB)/librgn.a
 TARGET_SO = $(MW_LIB)/librgn.so
-
+#
 EXTRA_CFLAGS = $(INCS)
-
 
 .PHONY : clean all
 all : $(TARGET_A) $(TARGET_SO)
-$(SDIR)/%.o: $(SDIR)/%.c
+
+$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o : $(SDIR)/%.c
+	$(Q)mkdir -p $(dir $@)
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 
@@ -30,7 +37,13 @@ $(TARGET_SO): $(OBJS)
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $(TARGET_SO))
 
 clean:
-	@rm -f $(OBJS) $(DEPS) $(TARGET_A) $(TARGET_SO)
+	@rm -f $(TARGET_A) $(TARGET_SO)
+
+clean_all: clean
+	@if [ -d "$(SDIR)" ]; then \
+		echo "rm -rf $(ODIR)"; \
+		rm -rf $(ODIR); \
+	fi
 
 -include $(DEPS)
 

@@ -15,9 +15,9 @@ static const char *const MOD_STRING[] = FOREACH_MOD(GENERATE_STRING);
 static void _show_log_status(struct seq_file *m)
 {
 	int i;
-	int32_t *log_level;
+	CVI_S32 *log_level;
 
-	log_level = (int32_t *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
+	log_level = (CVI_S32 *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
 
 	seq_puts(m, "-----CURRENT LOG LEVEL-------------------------------------------------------------------------------------------------------------\n");
 	for (i = 0; i < CVI_ID_BUTT; ++i) {
@@ -35,12 +35,12 @@ static int _log_proc_show(struct seq_file *m, void *v)
 
 static void _log_update_dbg_level(char *pcProcInputdata)
 {
-	int32_t *log_level;
-	int32_t tmpLogLevel;
+	CVI_S32 *log_level;
+	CVI_S32 tmpLogLevel;
 	int i;
 	char cModPrefix[MAX_PROC_STR_SIZE];
 
-	log_level = (int32_t *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
+	log_level = (CVI_S32 *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
 
 	// check if set to all module
 	memset(cModPrefix, 0, sizeof(cModPrefix));
@@ -120,7 +120,7 @@ static const struct file_operations _log_proc_fops = {
 int log_proc_init(struct proc_dir_entry *_proc_dir, void *shm)
 {
 	int rc = 0;
-	int32_t *log_level;
+	CVI_S32 *log_level;
 	int i;
 
 	/* create the /proc file */
@@ -130,7 +130,7 @@ int log_proc_init(struct proc_dir_entry *_proc_dir, void *shm)
 	}
 
 	shared_mem = shm;
-	log_level = (int32_t *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
+	log_level = (CVI_S32 *)(shared_mem + BASE_LOG_LEVEL_OFFSET);
 
 	for (i = 0; i < CVI_ID_BUTT; ++i)
 		log_level[i] = DEFAULT_LOG_LEVEL;

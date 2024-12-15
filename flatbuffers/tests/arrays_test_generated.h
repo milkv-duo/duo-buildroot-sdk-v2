@@ -149,11 +149,12 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) ArrayStruct FLATBUFFERS_FINAL_CLASS {
         padding0__(0),
         padding1__(0),
         padding2__(0),
+        d_{},
         e_(flatbuffers::EndianScalar(_e)),
         padding3__(0) {
     std::memset(b_, 0, sizeof(b_));
     (void)padding0__;    (void)padding1__;    (void)padding2__;
-    std::memset(d_, 0, sizeof(d_));
+    //std::memset(d_, 0, sizeof(d_));
     (void)padding3__;
     std::memset(f_, 0, sizeof(f_));
   }

@@ -1,18 +1,38 @@
 SHELL = /bin/bash
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 include ../sample.mk
 
-SDIR = $(PWD)
+SDIR = $(CURDIR)
 SRCS = $(wildcard $(SDIR)/src/*.c) $(wildcard $(SDIR)/../vdec/src/*.c)
+SRCS += $(COMMON_DIR)/sample_common_venc.c	\
+		$(COMMON_DIR)/sample_common_vdec.c	\
+		$(COMMON_DIR)/sample_common_vo.c	\
+		$(COMMON_DIR)/md5sum.c	\
+		$(COMMON_DIR)/sample_common_sys.c	\
+		$(COMMON_DIR)/sample_common_bin.c	\
+		$(COMMON_DIR)/sample_common_platform.c	\
+		$(COMMON_DIR)/sample_common_sensor.c	\
+		$(COMMON_DIR)/sample_common_vi.c	\
+		$(COMMON_DIR)/sample_common_isp.c	\
+		$(COMMON_DIR)/sample_common_vpss.c
+ifeq ($(CONFIG_ENABLE_SDK_ASAN), y)
+SRCS +=	$(COMMON_DIR)/sample_common_vdec.c	\
+		$(COMMON_DIR)/sample_common_vo.c	\
+		$(COMMON_DIR)/sample_common_vpss.c	\
+		$(COMMON_DIR)/sample_common_bin.c	\
+		$(COMMON_DIR)/sample_common_platform.c	\
+		$(COMMON_DIR)/sample_common_isp.c	\
+		$(COMMON_DIR)/sample_common_peripheral.c
+endif
 VENC_SRCS = $(SDIR)/sample_venc.c
 VCODEC_SRCS = $(SDIR)/sample_vcodec.c
 VENC_INC=../../modules/venc
 SAMPLE_VENC_INC=$(SDIR)/include
 SAMPLE_VDEC_INC=$(SDIR)/../vdec/include
-INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(VENC_INC) -I$(KERNEL_INC) -I$(SAMPLE_VENC_INC) -I$(SAMPLE_VDEC_INC) -I../common -I$(SYS_INC) -I$(SENSOR_LIST_INC)
+INCS = -I$(MW_INC) -I$(ISP_INC) -I$(COMM_INC) -I$(VENC_INC) -I$(KERNEL_INC) -I$(SAMPLE_VENC_INC) -I$(SAMPLE_VDEC_INC) -I../common -I$(SYS_INC) -I$(SENSOR_LIST_INC) -I$(PANEL_INC) -I$(MW_PATH)/3rdparty/inih
 
 OBJS = $(SRCS:.c=.o)
 VENC_OBJS = $(VENC_SRCS:.c=.o)
@@ -24,10 +44,10 @@ VCODEC_DEPS = $(VCODEC_SRCS:.c=.d)
 
 TARGET_VENC = sample_venc
 TARGET_VCODEC = sample_vcodec
-ifeq ($(SDK_VER),32bit)
+ifeq ($(TARGET_MACHINE),arm-linux-gnueabihf)
 TARGET_VENC_WITH_ASAN = sample_venc_asan
 TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
-else ifeq ($(SDK_VER), 64bit)
+else ifeq ($(TARGET_MACHINE), aarch64-linux-gnu)
 TARGET_VENC_WITH_ASAN = sample_venc_asan
 TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
 else
@@ -60,10 +80,6 @@ EXTRA_LDFLAGS_WITH_ASAN += -fno-omit-frame-pointer -fsanitize-recover=address -l
 .PHONY : clean all
 
 all : $(TARGET_VENC) $(TARGET_VCODEC) $(TARGET_VENC_WITH_ASAN) $(TARGET_VCODEC_WITH_ASAN)
-
-$(COMMON_DIR)/%.o: $(COMMON_DIR)/%.c
-	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
-	@echo [$(notdir $(CC))] $(notdir $@)
 
 $(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<

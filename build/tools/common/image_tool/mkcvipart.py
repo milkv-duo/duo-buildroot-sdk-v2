@@ -202,7 +202,7 @@ def gen_fw_config(output, parser, block_size=128 * 1024):
                 elif parser.storage == "emmc":
                     of.write(
                         "/dev/mmcblk0 0x%x 0x%x\n"
-                        % ((parts[part_index]["offset"] * 512), parts[part_index]["part_size"])
+                        % ((parts[part_index]["offset"]), parts[part_index]["part_size"])
                     )
                 elif parser.storage == "spinor":
                     of.write(

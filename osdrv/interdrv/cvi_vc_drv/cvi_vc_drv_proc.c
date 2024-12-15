@@ -514,9 +514,9 @@ static int venc_proc_show(struct seq_file *m, void *v)
 					"-----VENC CHN PERFORMANCE------------------------------------------------\n");
 				seq_printf(
 					m,
-					"ID: %d\t No.SendFramePerSec: %u\t No.EncFramePerSec: %u\t HwEncTime: %llu us\n\n",
+					"ID: %d\t No.SendFramePerSec: %u\t No.EncFramePerSec: %u\t HwEncTime: %llu us\t EncodedFrame: %llu\n\n",
 					idx, pstFPS->u32InFPS,
-					pstFPS->u32OutFPS, pstFPS->u64HwTime);
+					pstFPS->u32OutFPS, pstFPS->u64HwTime, pstFPS->u64DoneFrame);
 			}
 		}
 	}
@@ -2024,10 +2024,11 @@ static int vdec_proc_show(struct seq_file *m, void *v)
 					"-----VDEC CHN PERFORMANCE------------------------------------------------\n");
 				seq_printf(
 					m,
-					"ID: %d\t No.SendStreamPerSec: %u\t No.DecFramePerSec: %u\t HwDecTime: %llu us\n\n",
+					"ID: %d\t No.SendStreamPerSec: %u\t No.DecFramePerSec: %u\t HwDecTime: %llu us\t DecodedFrame: %llu\n\n",
 					idx, pChnHandle->stFPS.u32InFPS,
 					pChnHandle->stFPS.u32OutFPS,
-					pChnHandle->stFPS.u64HwTime);
+					pChnHandle->stFPS.u64HwTime,
+					pChnHandle->stFPS.u64DoneFrame);
 			}
 		}
 	}

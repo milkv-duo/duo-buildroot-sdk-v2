@@ -7,12 +7,8 @@
 #include <unistd.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#else
+
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_sns_ctrl.h"
 #include "sc4336p_cmos_ex.h"
 
@@ -161,29 +157,6 @@ void sc4336p_default_reg_init(VI_PIPE ViPipe)
 				g_pastSC4336P[ViPipe]->astSyncInfo[0].snsCfg.astI2cData[i].u32RegAddr,
 				g_pastSC4336P[ViPipe]->astSyncInfo[0].snsCfg.astI2cData[i].u32Data);
 	}
-}
-
-void sc4336p_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip)
-{
-	CVI_U8 val = 0;
-
-	switch (eSnsMirrorFlip) {
-	case ISP_SNS_NORMAL:
-		break;
-	case ISP_SNS_MIRROR:
-		val |= 0x6;
-		break;
-	case ISP_SNS_FLIP:
-		val |= 0x60;
-		break;
-	case ISP_SNS_MIRROR_FLIP:
-		val |= 0x66;
-		break;
-	default:
-		return;
-	}
-
-	sc4336p_write_register(ViPipe, 0x3221, val);
 }
 
 #define SC4336P_CHIP_ID_HI_ADDR		0x3107

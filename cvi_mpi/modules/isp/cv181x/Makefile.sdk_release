@@ -1,0 +1,23 @@
+.PHONY: clean all
+.SILENT: clean all
+
+ISP_COMMON_DIR = $(CURDIR)/../common
+ISP_3A_DIR = $(CURDIR)/../algo
+
+all:
+	@cd isp_algo; $(MAKE) all;
+	@cd $(ISP_3A_DIR); $(MAKE) all;
+	@cd isp; $(MAKE) all;
+	@cd isp_bin; $(MAKE) all;
+	@cd isp-daemon2; $(MAKE); $(MAKE) install;
+	@cd $(ISP_COMMON_DIR)/raw_replay; $(MAKE) all;
+	@cd $(ISP_COMMON_DIR)/raw_dump; $(MAKE) all;
+
+clean:
+	@cd isp-daemon2; $(MAKE) clean;
+	@cd isp; $(MAKE) clean;
+	@cd isp_bin; $(MAKE) clean;
+	@cd $(ISP_3A_DIR); $(MAKE) clean;
+	@cd isp_algo; $(MAKE) clean;
+	@cd $(ISP_COMMON_DIR)/raw_replay; $(MAKE) clean;
+	@cd $(ISP_COMMON_DIR)/raw_dump; $(MAKE) clean;

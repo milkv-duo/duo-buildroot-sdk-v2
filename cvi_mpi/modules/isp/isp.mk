@@ -1,5 +1,5 @@
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../Makefile.param
+	PARAM_FILE:=../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
 

@@ -1,9 +1,10 @@
 SHELL = /bin/bash
+#
 ifeq ($(PARAM_FILE), )
-	PARAM_FILE:=../../../../Makefile.param
+	PARAM_FILE:=../../../../../mpi_param.mk
 	include $(PARAM_FILE)
 endif
-
+#
 include Makefile.releaseList
 include Makefile.cvirtsp
 include ../../../isp.mk
@@ -15,21 +16,31 @@ STREAM_TYPE ?= 2
 # VPSS Out
 VPSS_OUT_WIDTH ?= 1280
 VPSS_OUT_HEIGHT ?= 720
-SDIR = $(PWD)/src
+SDIR = $(CURDIR)/src
 TMP_FOLDER = tmp
-ISP_COMMON_DIR = $(PWD)/../../../common
-
+ISP_COMMON_DIR = $(CURDIR)/../../../common
+#
 ifeq ($(DESTDIR),)
 	DESTDIR := $(shell pwd)/install
 endif
-
-INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH) -I$(SENSOR_LIST_INC)
+#
+INCS = -I$(KERNEL_INC) -I$(MW_INC) -I$(ISP_INC) -Iinclude -I$(MW_PATH)/3rdparty/inih -I$(MW_PATH)/sample -I$(CVI_ISPD2_PATH) -I$(SENSOR_LIST_INC)
 INCS += -I$(ISP_COMMON_DIR)/raw_dump/inc
-
+#
 OBJS = $(patsubst $(SDIR)/%.cpp, $(TMP_FOLDER)/%.o, $(wildcard $(SDIR)/*.cpp))
 COBJS = $(patsubst $(SDIR)/%.c, $(TMP_FOLDER)/%.o, $(wildcard $(SDIR)/*.c))
 DEPS = $(patsubst $(SDIR)/%.cpp, $(TMP_FOLDER)/%.d, $(wildcard $(SDIR)/*.cpp))
 CDEPS = $(patsubst $(SDIR)/%.c, $(TMP_FOLDER)/%.d, $(wildcard $(SDIR)/*.c))
+#
+ifeq ($(TARGET_MACHINE), aarch64-linux-gnu)
+SDK_VER := 64bit
+else ifeq ($(TARGET_MACHINE), arm-linux-gnueabihf)
+SDK_VER := 32bit
+else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-gnu)
+SDK_VER := musl_riscv64
+else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-musl)
+SDK_VER := glibc_riscv64
+endif
 AI_SDK_PATH = $(OUTPUT_DIR)/tpu_$(SDK_VER)/cvitek_ai_sdk
 TPU_SDK_PATH = $(OUTPUT_DIR)/tpu_$(SDK_VER)/cvitek_tpu_sdk
 
@@ -45,22 +56,14 @@ MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-
 
 LIBS += $(MW_LIBS) -latomic
 LIBS += -lsys -lvenc -lvdec -lvi -lvpss -lvo -lrgn -lgdc -lisp -lisp_algo -lawb -lae -laf -lsample -lcvi_bin -lcvi_bin_isp -lsns_full -lini
-LIBS += -ljson-c -lcvi_ispd2
+LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2
 
-LOCAL_CFLAGS = $(DEFS) $(INCS) -DSDK_VER=$(SDK_VER)
-ifeq ($(CHIP_ARCH), CV181X)
-	LOCAL_CFLAGS += -D__CV181X__
-else ifeq ($(CHIP_ARCH), CV180X)
-	LOCAL_CFLAGS += -D__CV180X__
-endif
+LOCAL_CFLAGS = $(DEFS) $(INCS)
 LOCAL_CPPFLAGS = -fno-use-cxa-atexit
-ifeq ($(SDK_VER), uclibc)
-LOCAL_LDFLAGS = $(LIBS) -Wl,-rpath-link=$(CVI_RTSP_LIB_PATH) -L$(CVI_ISPD2_PATH) -L$(CVI_RTSP_LIB_PATH) -lpthread
-else
+
 LOCAL_LDFLAGS = $(LIBS) -Wl,-rpath-link=$(CVI_RTSP_LIB_PATH) -L$(CVI_ISPD2_PATH) -L$(CVI_RTSP_LIB_PATH) -lm -lpthread
-endif
 
 ifeq ($(STREAM_TYPE), 2)
 INCS += -I$(CVI_RTSP_INC) -I$(CVI_RTSP_SERVICE_INC)

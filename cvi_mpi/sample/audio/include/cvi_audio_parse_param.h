@@ -11,7 +11,6 @@
 #else
 #include "cvi_common.h"
 #endif
-#include "acodec.h"
 
 typedef struct {
 	int sample_rate;
@@ -25,7 +24,6 @@ typedef struct {
 	int bind_mode;
 	int record_time;
 } stAudioPara;
-
 
 
 int audio_parse(int argc, char **argv);

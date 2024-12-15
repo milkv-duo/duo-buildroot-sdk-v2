@@ -34,16 +34,16 @@ void SAMPLE_REGION_Usage(char *sPrgNm)
 	printf("Usage : %s <index>\n", sPrgNm);
 	printf("index:\n");
 	printf("\t 0)VPSS OSD.\n");
-	printf("\t 1)VPSS COVEREX.\n");
-	printf("\t 2)VPSS COVER.\n");
-	printf("\t 3)VPSS MOSAIC.\n");
-	printf("\t 4)VO OSD.\n");
-	printf("\t 5)VO COVER.\n");
-	printf("\t 6)VPSS 2-layer.\n");
-	printf("\t 7)VPSS OSD TIME.\n");
-	printf("\t 8)VPSS OSD MultiChn.\n");
-	printf("\t 9)VPSS OSD 8bit mode OVERLAY.\n");
-	printf("\t 10)VPSS OSD objects OVERLAY.\n");
+	printf("\t 1)VPSS COVER.\n");
+	printf("\t 2)VO OSD.\n");
+	printf("\t 3)VO COVER.\n");
+	printf("\t 4)VPSS 2-layer COVER.\n");
+	printf("\t 5)VPSS OSD TIME.\n");
+	printf("\t 6)VPSS OSD MultiChn.\n");
+	printf("\t 7)VPSS OSD 8bit mode OVERLAY.\n");
+	printf("\t 8)VPSS OSD objects OVERLAY.\n");
+	printf("\t 9)VPSS COVEREX.\n");
+	printf("\t 10)VPSS MOSAIC.\n");
 }
 
 void SAMPLE_REGION_HandleSig(CVI_S32 signo)
@@ -60,21 +60,21 @@ void SAMPLE_REGION_HandleSig(CVI_S32 signo)
 	exit(-1);
 }
 
-static int SAMPLE_REGION_GetFontMod(char *Character, uint8_t **FontMod, int *FontModLen)
+static int SAMPLE_REGION_GetFontMod(char *Character, CVI_U8 **FontMod, int *FontModLen)
 {
-	uint32_t offset = 0;
-	uint32_t areacode = 0;
-	uint32_t bitcode = 0;
+	CVI_U32 offset = 0;
+	CVI_U32 areacode = 0;
+	CVI_U32 bitcode = 0;
 
 	if (IsASCII(Character[0])) {
 		areacode = 3;
-		bitcode = (uint32_t)((uint8_t)Character[0] - 0x20);
+		bitcode = (CVI_U32)((CVI_U8)Character[0] - 0x20);
 	} else {
-		areacode = (uint32_t)((uint8_t)Character[0] - 0xA0);
-		bitcode = (uint32_t)((uint8_t)Character[1] - 0xA0);
+		areacode = (CVI_U32)((CVI_U8)Character[0] - 0xA0);
+		bitcode = (CVI_U32)((CVI_U8)Character[1] - 0xA0);
 	}
 	offset = (94 * (areacode - 1) + (bitcode - 1)) * (OSD_LIB_FONT_W * OSD_LIB_FONT_H / 8);
-	*FontMod = (uint8_t *)g_fontLib + offset;
+	*FontMod = (CVI_U8 *)g_fontLib + offset;
 	*FontModLen = OSD_LIB_FONT_W*OSD_LIB_FONT_H / 8;
 	return CVI_SUCCESS;
 }
@@ -117,7 +117,7 @@ static void SAMPLE_REGION_GetTimeStr(const struct tm *pstTime, char *pazStr, int
 static int SAMPLE_REGION_UpdateBitmap(RGN_HANDLE RgnHdl, char *szStr, BITMAP_S *pstBitmap, CVI_U32 *pu32Color)
 {
 	int s32Ret;
-	uint32_t u32CanvasWidth, u32CanvasHeight, u32BgColor, u32Color;
+	CVI_U32 u32CanvasWidth, u32CanvasHeight, u32BgColor, u32Color;
 	SIZE_S stFontSize;
 	int s32StrLen = strnlen(szStr, MAX_STR_LEN);
 	int NonASCNum = SAMPLE_REGION_GetNonASCNum(szStr, s32StrLen);
@@ -134,8 +134,8 @@ static int SAMPLE_REGION_UpdateBitmap(RGN_HANDLE RgnHdl, char *szStr, BITMAP_S *
 	if (pstBitmap->pData == NULL)
 		SAMPLE_PRT("malloc osd memroy err!\n");
 
-	uint16_t *puBmData = (uint16_t *)pstBitmap->pData;
-	uint32_t u32BmRow, u32BmCol;
+	CVI_U16 *puBmData = (CVI_U16 *)pstBitmap->pData;
+	CVI_U32 u32BmRow, u32BmCol;
 
 	for (u32BmRow = 0; u32BmRow < u32CanvasHeight; ++u32BmRow) {
 		int NonASCShow = 0;
@@ -154,18 +154,18 @@ static int SAMPLE_REGION_UpdateBitmap(RGN_HANDLE RgnHdl, char *szStr, BITMAP_S *
 			int s32CharRow = u32BmRow * OSD_LIB_FONT_H / stFontSize.u32Height;
 			int s32HexOffset = s32CharRow * OSD_LIB_FONT_W / BYTE_BITS + s32CharCol / BYTE_BITS;
 			int s32BitOffset = s32CharCol % BYTE_BITS;
-			uint8_t *FontMod = NULL;
+			CVI_U8 *FontMod = NULL;
 			int FontModLen = 0;
 
 			if (SAMPLE_REGION_GetFontMod(&szStr[s32StringIdx], &FontMod, &FontModLen) == CVI_SUCCESS) {
 				if (FontMod != NULL && s32HexOffset < FontModLen) {
-					uint8_t temp = FontMod[s32HexOffset];
+					CVI_U8 temp = FontMod[s32HexOffset];
 
 					u32Color = *(pu32Color + s32CharIdx);
 					if ((temp >> ((BYTE_BITS - 1) - s32BitOffset)) & 0x1)
-						puBmData[s32BmDataIdx] = (uint16_t)u32Color;
+						puBmData[s32BmDataIdx] = (CVI_U16)u32Color;
 					else
-						puBmData[s32BmDataIdx] = (uint16_t)u32BgColor;
+						puBmData[s32BmDataIdx] = (CVI_U16)u32BgColor;
 					continue;
 				}
 			}
@@ -856,7 +856,6 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_TIME(CVI_VOID)
 
 	stChnAttr.bShow = CVI_TRUE;
 	stChnAttr.enType = OVERLAY_RGN;
-	stChnAttr.unChnAttr.stOverlayChn.u32Layer = 0;
 	stChnAttr.unChnAttr.stOverlayChn.stInvertColor.stInvColArea.u32Width = OSD_LIB_FONT_W;
 	stChnAttr.unChnAttr.stOverlayChn.stInvertColor.stInvColArea.u32Height = OSD_LIB_FONT_H;
 	stChnAttr.unChnAttr.stOverlayChn.stInvertColor.u32LumThresh = 128;
@@ -1111,7 +1110,6 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_MULTICHN(CVI_VOID)
 	stOverlayChnAttr.bShow = CVI_TRUE;
 	stOverlayChnAttr.enType = OVERLAY_RGN;
 	stOverlayChnAttr.unChnAttr.stOverlayChn.stInvertColor.bInvColEn = CVI_FALSE;
-	stOverlayChnAttr.unChnAttr.stOverlayChn.u32Layer = 0;
 
 	RGN_CHN_ATTR_S stCoverChnAttr;
 
@@ -1122,7 +1120,6 @@ CVI_S32 SAMPLE_REGION_VPSS_OSD_MULTICHN(CVI_VOID)
 	stCoverChnAttr.unChnAttr.stCoverChn.stRect.u32Width = 100;
 	stCoverChnAttr.unChnAttr.stCoverChn.u32Color = 0x00ffff;
 	stCoverChnAttr.unChnAttr.stCoverChn.enCoordinate = RGN_ABS_COOR;
-	stCoverChnAttr.unChnAttr.stCoverChn.u32Layer = 0;
 
 	for (i = 0; i < 16; i++) {
 		s32Ret = CVI_RGN_Create(i, &stRgnOverlay);
@@ -1471,34 +1468,34 @@ int main(int argc, char *argv[])
 		s32Ret = SAMPLE_REGION_VPSS_OSD();
 		break;
 	case 1:
-		s32Ret = SAMPLE_REGION_VPSS_COVEREX();
-		break;
-	case 2:
 		s32Ret = SAMPLE_REGION_VPSS_COVER();
 		break;
-	case 3:
-		s32Ret = SAMPLE_REGION_VPSS_MOSAIC();
-		break;
-	case 4:
+	case 2:
 		s32Ret = SAMPLE_REGION_VO_OSD();
 		break;
-	case 5:
+	case 3:
 		s32Ret = SAMPLE_REGION_VO_COVER();
 		break;
-	case 6:
+	case 4:
 		s32Ret = SAMPLE_REGION_VI_VPSS_VO_2LAYER();
 		break;
-	case 7:
+	case 5:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_TIME();
 		break;
-	case 8:
+	case 6:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_MULTICHN();
 		break;
-	case 9:
+	case 7:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_8BIT_MODE();
 		break;
-	case 10:
+	case 8:
 		s32Ret = SAMPLE_REGION_VPSS_OSD_OBJECTS();
+		break;
+	case 9:
+		s32Ret = SAMPLE_REGION_VPSS_COVEREX();
+		break;
+	case 10:
+		s32Ret = SAMPLE_REGION_VPSS_MOSAIC();
 		break;
 	default:
 		SAMPLE_PRT("option, %d, is invaild!\n", s32Index);

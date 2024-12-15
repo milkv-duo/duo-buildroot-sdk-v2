@@ -194,6 +194,10 @@ int OCRRecognition::inference(VIDEO_FRAME_INFO_S* frame, cvtdl_object_t* obj_met
     cvtdl_object_info_t obj_info = info_extern_crop_resize_img(
         frame->stVFrame.u32Width, frame->stVFrame.u32Height, &(obj_meta->info[i]), 0.2, 0.5);
     VIDEO_FRAME_INFO_S* cropped_frame = new VIDEO_FRAME_INFO_S;
+    if (!cropped_frame) {
+      printf("Error: Memory allocation for cropped_frame failed! \n");
+      return -1;
+    }
     memset(cropped_frame, 0, sizeof(VIDEO_FRAME_INFO_S));
     CVI_SHAPE shape = getInputShape(0);
     int height = shape.dim[2];
@@ -208,7 +212,10 @@ int OCRRecognition::inference(VIDEO_FRAME_INFO_S* frame, cvtdl_object_t* obj_met
     int ret = run(frames);
     if (ret != CVI_TDL_SUCCESS) {
       mp_vpss_inst->releaseFrame(cropped_frame, 0);
-      delete cropped_frame;
+      if (cropped_frame) {
+        delete cropped_frame;
+        cropped_frame = nullptr;
+      }
       return ret;
     }
 

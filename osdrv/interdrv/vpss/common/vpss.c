@@ -165,7 +165,7 @@ static inline CVI_S32 CHECK_VPSS_CHN_CAP_VALID(VPSS_GRP VpssGrp,
 		return CVI_ERR_VPSS_ILLEGAL_PARAM;
 	}
 	if (vpss_get_mode() == VPSS_MODE_SINGLE) {
-		if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn]) {
+		if (vpssCtx[VpssGrp]->stGrpCropInfo.stCropRect.u32Width > 2 * sc_max_w[VpssChn]) {
 			CVI_TRACE_VPSS(CVI_DBG_ERR,
 				"Grp(%d) u32Width(%d) too large for VPSS-Single Chn(%d).\n",
 				VpssGrp, u32Width, VpssChn);
@@ -173,7 +173,7 @@ static inline CVI_S32 CHECK_VPSS_CHN_CAP_VALID(VPSS_GRP VpssGrp,
 		}
 	} else {
 		if (vpssCtx[VpssGrp]->chnNum == 1) {
-			if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn]) {
+			if (vpssCtx[VpssGrp]->stGrpCropInfo.stCropRect.u32Width > 2 * sc_max_w[VpssChn]) {
 				CVI_TRACE_VPSS(CVI_DBG_ERR,
 					"Grp(%d) u32Width(%d) too large for VPSS-Dual(%d) Chn(%d)\n",
 					VpssGrp, u32Width, vpssCtx[VpssGrp]->stGrpAttr.u8VpssDev,
@@ -181,7 +181,7 @@ static inline CVI_S32 CHECK_VPSS_CHN_CAP_VALID(VPSS_GRP VpssGrp,
 				return CVI_ERR_VPSS_ILLEGAL_PARAM;
 			}
 		} else {
-			if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn+1]) {
+			if (vpssCtx[VpssGrp]->stGrpCropInfo.stCropRect.u32Width > 2 * sc_max_w[VpssChn+1]) {
 				CVI_TRACE_VPSS(CVI_DBG_ERR,
 					"Grp(%d) u32Width(%d) too large for VPSS-Dual(%d) Chn(%d)\n",
 					VpssGrp, u32Width, vpssCtx[VpssGrp]->stGrpAttr.u8VpssDev,
@@ -630,7 +630,7 @@ static CVI_VOID _vpss_offline_set_mlv_info(struct vb_s *vb_in, struct cvi_buffer
 }
 
 static CVI_VOID _vpss_fill_cvi_buffer(MMF_CHN_S chn, struct vb_s *grp_vb_in,
-		uint64_t phy_addr, struct cvi_buffer *buf, struct cvi_vpss_ctx *ctx)
+		CVI_U64 phy_addr, struct cvi_buffer *buf, struct cvi_vpss_ctx *ctx)
 {
 	SIZE_S size;
 	CVI_BOOL ldc_wa = CVI_FALSE;
@@ -671,7 +671,7 @@ static CVI_VOID _vpss_fill_cvi_buffer(MMF_CHN_S chn, struct vb_s *grp_vb_in,
 }
 
 static CVI_VOID _vpss_fill_sbm_buffer(CVI_U32 width, PIXEL_FORMAT_E fmt,
-	CVI_U32 align, CVI_U32 line, CVI_U32 depth, uint64_t phy_addr,
+	CVI_U32 align, CVI_U32 line, CVI_U32 depth, CVI_U64 phy_addr,
 	struct cvi_buffer *buf)
 {
 	SIZE_S size;
@@ -2068,7 +2068,8 @@ static CVI_VOID _vpss_chl_frame_rate_ctrl(struct cvi_vpss_ctx *ctx)
 		return;
 
 	for (VpssChn = 0; VpssChn < ctx->chnNum; ++VpssChn) {
-		if (!ctx->stChnCfgs[VpssChn].isEnabled || !ctx->stChnCfgs[VpssChn].stChnWorkStatus.u32SendOk)
+		if (!ctx->stChnCfgs[VpssChn].isEnabled || !ctx->stChnCfgs[VpssChn].stChnWorkStatus.u32SendOk
+					|| ctx->stChnCfgs[VpssChn].is_cfg_changed)
 			continue;
 		if (FRC_INVALID(ctx, VpssChn))
 			continue;
@@ -2630,7 +2631,7 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 		if (_vpss_check_gdc_job(chn, blk, vpss_ctx) != CVI_TRUE)
 			vb_done_handler(chn, CHN_TYPE_OUT, blk);
 
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
+		CVI_TRACE_VPSS(CVI_DBG_NOTICE, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
 		_update_vpss_chn_proc(workingGrp, VpssChn);
 	} while (++VpssChn < vpss_ctx->chnNum);
 	mutex_unlock(&vpssCtx[workingGrp]->lock);
@@ -2955,7 +2956,7 @@ static CVI_VOID vpss_handle_frame_done(struct vpss_handler_ctx *ctx)
 		if (_vpss_check_gdc_job(chn, blk, vpss_ctx) != CVI_TRUE)
 			vb_done_handler(chn, CHN_TYPE_OUT, blk);
 
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
+		CVI_TRACE_VPSS(CVI_DBG_NOTICE, "grp(%d) chn(%d) end\n", workingGrp, VpssChn);
 		_update_vpss_chn_proc(workingGrp, VpssChn);
 	} while (++VpssChn < vpss_ctx->chnNum);
 
@@ -4937,8 +4938,8 @@ CVI_S32 vpss_detach_vb_pool(VPSS_GRP VpssGrp, VPSS_CHN VpssChn)
 CVI_S32 vpss_set_chn_bufwrap_attr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_CHN_BUF_WRAP_S *pstVpssChnBufWrap)
 {
 	int ret;
-	uint32_t *ion_vaddr = NULL;
-	uint64_t ion_paddr = 0;
+	CVI_U32 *ion_vaddr = NULL;
+	CVI_U64 ion_paddr = 0;
 	CVI_U32 u32WrapBufferSize, u32BufWrapDepth, val;
 	char ion_name[64];
 
@@ -5310,8 +5311,8 @@ int vpss_set_grp_sbm(struct vpss_grp_sbm_cfg *cb_cfg)
 	struct vpss_grp_sbm_cfg *sbm_cfg;
 	VPSS_GRP_ATTR_S *pstGrpAttr;
 	CVI_S32 ret;
-	uint32_t *ion_vaddr = NULL;
-	uint64_t ion_paddr = 0;
+	CVI_U32 *ion_vaddr = NULL;
+	CVI_U64 ion_paddr = 0;
 	char ion_name[64];
 	MMF_CHN_S chn = {.enModId = CVI_ID_VPSS, .s32DevId = VpssGrp, .s32ChnId = 0};
 	struct vb_jobs_t *jobs;

@@ -49,8 +49,8 @@ CVI_S32 rgn_set_chn_palette(RGN_HANDLE Handle, const MMF_CHN_S *pstChn, RGN_PALE
 			RGN_RGBQUARD_S *pstInputPixelTable);
 
 /* INTERNAL */
-int32_t _rgn_init(void);
-int32_t _rgn_exit(void);
+CVI_S32 _rgn_init(void);
+CVI_S32 _rgn_exit(void);
 CVI_U32 _rgn_proc_get_idx(RGN_HANDLE hHandle);
 bool is_rect_overlap(RECT_S *r0, RECT_S *r1);
 CVI_BOOL _rgn_check_order(RECT_S *r0, RECT_S *r1);

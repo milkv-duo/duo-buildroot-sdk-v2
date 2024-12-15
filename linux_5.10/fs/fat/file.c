@@ -466,6 +466,16 @@ static int fat_allow_set_time(struct msdos_sb_info *sbi, struct inode *inode)
 /* valid file mode bits */
 #define FAT_VALID_MODE	(S_IFREG | S_IFDIR | S_IRWXUGO)
 
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
+void reset_mmu_private(struct inode *inode, loff_t offset)
+{
+	MSDOS_I(inode)->mmu_private = offset;
+#ifdef CONFIG_FATFS_UPDATE_TIME
+	inode->i_ctime = inode->i_mtime = current_time(inode);
+#endif
+}
+#endif
+
 int fat_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(dentry->d_sb);
@@ -494,6 +504,20 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 	 * hole before it. XXX: this is no longer true with new truncate
 	 * sequence.
 	 */
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
+	if (attr->ia_valid & ATTR_SIZE) {
+		if (attr->ia_size > inode->i_size) {
+			loff_t mm_bytes = attr->ia_size - inode->i_size;
+			int nr_cluster = (mm_bytes + (sbi->cluster_size - 1)) >>
+				sbi->cluster_bits;
+			while (nr_cluster-- > 0) {
+				int err = fat_add_cluster(inode);
+				if (err)
+					return err;
+			}
+		}
+	}
+#else
 	if (attr->ia_valid & ATTR_SIZE) {
 		inode_dio_wait(inode);
 
@@ -504,6 +528,7 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 			attr->ia_valid &= ~ATTR_SIZE;
 		}
 	}
+#endif
 
 	if (((attr->ia_valid & ATTR_UID) &&
 	     (!uid_eq(attr->ia_uid, sbi->options.fs_uid))) ||
@@ -534,6 +559,9 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 			goto out;
 		down_write(&MSDOS_I(inode)->truncate_lock);
 		truncate_setsize(inode, attr->ia_size);
+#ifdef CONFIG_FATFS_USE_FAST_PREALLOC
+		reset_mmu_private(inode, attr->ia_size);
+#endif
 		fat_truncate_blocks(inode, attr->ia_size);
 		up_write(&MSDOS_I(inode)->truncate_lock);
 	}

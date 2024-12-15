@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 //#include "sample_comm.h"
-#include "acodec.h"
 
 stAudioPara stAudioparam;
 int parse_command_valid;

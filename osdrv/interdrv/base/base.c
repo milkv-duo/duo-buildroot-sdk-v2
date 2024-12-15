@@ -92,7 +92,7 @@ static struct base_m_cb_info base_m_cb[E_MODULE_BUTT];
 static int __init base_init(void);
 static void __exit base_exit(void);
 
-uint32_t base_log_lv = CVI_BASE_DBG_ERR;
+CVI_U32 base_log_lv = CVI_BASE_DBG_ERR;
 module_param(base_log_lv, int, 0644);
 
 
@@ -113,7 +113,7 @@ static ssize_t base_efuse_shadow_store(struct class *class,
 				       const char *buf, size_t count)
 {
 	unsigned long addr;
-	uint32_t value = 0xDEAFBEEF;
+	CVI_U32 value = 0xDEAFBEEF;
 	int ret;
 	UNUSED(class);
 	UNUSED(attr);
@@ -144,7 +144,7 @@ static ssize_t base_efuse_prog_store(struct class *class,
 				     const char *buf, size_t count)
 {
 	int err;
-	uint32_t addr = 0, value = 0;
+	CVI_U32 addr = 0, value = 0;
 	UNUSED(class);
 	UNUSED(attr);
 
@@ -162,8 +162,8 @@ static ssize_t base_efuse_prog_store(struct class *class,
 static ssize_t base_uid_show(struct class *class,
 			     struct class_attribute *attr, char *buf)
 {
-	uint32_t uid_3 = 0xDEAFBEEF;
-	uint32_t uid_4 = 0xDEAFBEEF;
+	CVI_U32 uid_3 = 0xDEAFBEEF;
+	CVI_U32 uid_4 = 0xDEAFBEEF;
 	UNUSED(class);
 	UNUSED(attr);
 
@@ -205,7 +205,7 @@ static ssize_t base_rosc_store(struct class *class,
 			       struct class_attribute *attr,
 			       const char *buf, size_t count)
 {
-	uint32_t chip_id;
+	CVI_U32 chip_id;
 	void __iomem *rosc_base;
 	UNUSED(class);
 	UNUSED(attr);
@@ -523,7 +523,7 @@ static long base_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		unsigned long chip_id = 0;
 
 		chip_id = cvi_base_read_chip_id();
-		if (copy_to_user((uint32_t *) arg, &chip_id, sizeof(unsigned int)))
+		if (copy_to_user((CVI_U32 *) arg, &chip_id, sizeof(unsigned int)))
 			return -EFAULT;
 		break;
 	}
@@ -531,7 +531,7 @@ static long base_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		unsigned long chip_version = 0;
 
 		chip_version = cvi_base_read_chip_version();
-		if (copy_to_user((uint32_t *) arg, &chip_version, sizeof(unsigned int)))
+		if (copy_to_user((CVI_U32 *) arg, &chip_version, sizeof(unsigned int)))
 			return -EFAULT;
 		break;
 	}
@@ -539,7 +539,7 @@ static long base_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		unsigned long reason = 0;
 
 		reason = cvi_base_read_chip_pwr_on_reason();
-		if (copy_to_user((uint32_t *) arg, &reason, sizeof(unsigned int)))
+		if (copy_to_user((CVI_U32 *) arg, &reason, sizeof(unsigned int)))
 			return -EFAULT;
 		break;
 	}
@@ -927,7 +927,7 @@ static void base_cleanup(void)
 static int __init base_init(void)
 {
 	int rc;
-	uint32_t chip_id;
+	CVI_U32 chip_id;
 
 	top_base = ioremap(TOP_BASE, TOP_REG_BANK_SIZE);
 

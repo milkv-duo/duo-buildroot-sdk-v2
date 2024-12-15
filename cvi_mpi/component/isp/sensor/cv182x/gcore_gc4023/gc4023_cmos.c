@@ -14,14 +14,8 @@
 #include "cvi_isp.h"
 #include "gc4023_cmos_ex.h"
 #include "gc4023_cmos_param.h"
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_comm_video.h"
-#include "cvi_type.h"
-#else
 #include <linux/cvi_comm_video.h>
 #include <linux/cvi_type.h>
-#endif
 
 #define DIV_0_TO_1(a)   ((0 == (a)) ? 1 : (a))
 #define DIV_0_TO_1_FLOAT(a) ((((a) < 1E-10) && ((a) > -1E-10)) ? 1 : (a))

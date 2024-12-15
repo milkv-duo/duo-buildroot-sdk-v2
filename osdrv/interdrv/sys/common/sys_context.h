@@ -7,7 +7,7 @@
 
 struct sys_info {
 	char version[VERSION_NAME_MAXLEN];
-	uint32_t chip_id;
+	CVI_U32 chip_id;
 };
 
 struct sys_mode_cfg {
@@ -22,32 +22,32 @@ struct sys_ctx_info {
 };
 
 struct mem_mapping {
-	uint64_t phy_addr;
-	int32_t dmabuf_fd;
+	CVI_U64 phy_addr;
+	CVI_S32 dmabuf_fd;
 	void *vir_addr;
 	void *dmabuf;
 	pid_t fd_pid;
 	void *ionbuf;
 };
 
-int32_t sys_ctx_init(void);
+CVI_S32 sys_ctx_init(void);
 struct sys_ctx_info *sys_get_ctx(void);
-int32_t sys_ctx_mem_put(struct mem_mapping *mem_config);
-int32_t sys_ctx_mem_get(struct mem_mapping *mem_config);
-int32_t sys_ctx_mem_dump(void);
+CVI_S32 sys_ctx_mem_put(struct mem_mapping *mem_config);
+CVI_S32 sys_ctx_mem_get(struct mem_mapping *mem_config);
+CVI_S32 sys_ctx_mem_dump(void);
 
-uint32_t sys_ctx_get_chipid(void);
-uint8_t *sys_ctx_get_version(void);
+CVI_U32 sys_ctx_get_chipid(void);
+CVI_U8 *sys_ctx_get_version(void);
 void *sys_ctx_get_sysinfo(void);
 
 VPSS_MODE_E sys_ctx_get_vpssmode(void);
 
 void sys_ctx_release_bind(void);
-int32_t sys_ctx_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
-int32_t sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
+CVI_S32 sys_ctx_bind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
+CVI_S32 sys_ctx_unbind(MMF_CHN_S *pstSrcChn, MMF_CHN_S *pstDestChn);
 
-int32_t sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest);
-int32_t sys_ctx_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn);
+CVI_S32 sys_ctx_get_bindbysrc(MMF_CHN_S *pstSrcChn, MMF_BIND_DEST_S *pstBindDest);
+CVI_S32 sys_ctx_get_bindbydst(MMF_CHN_S *pstDestChn, MMF_CHN_S *pstSrcChn);
 
 
 

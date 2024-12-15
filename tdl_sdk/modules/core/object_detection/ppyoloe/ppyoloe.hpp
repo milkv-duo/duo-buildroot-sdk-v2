@@ -21,6 +21,6 @@ class PPYoloE final : public DetectionBase {
 
   std::vector<int> strides_;
   std::map<int, std::string> box_out_names_;
-  std::map<int, std::string> cls_out_names_;
+  std::map<int, std::string> class_out_names_;
 };
 }  // namespace cvitdl

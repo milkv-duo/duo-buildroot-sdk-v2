@@ -184,7 +184,7 @@ static void load_bnr_model(VI_PIPE ViPipe, char *model_path)
 
 typedef CVI_S32 (*TEAISP_INIT_FUN)(VI_PIPE ViPipe, CVI_S32 maxDev);
 
-int init_teaisp(SERVICE_CTX *ctx)
+int init_teaisp_bnr(SERVICE_CTX *ctx)
 {
     (void) ctx;
 
@@ -219,7 +219,7 @@ int init_teaisp(SERVICE_CTX *ctx)
     return 0;
 }
 
-int deinit_teaisp(SERVICE_CTX *ctx)
+int deinit_teaisp_bnr(SERVICE_CTX *ctx)
 {
     (void) ctx;
 

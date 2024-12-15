@@ -23,8 +23,8 @@ struct cvi_vi_ctx	*vi_ctx;
 struct cvi_vo_ctx	*vo_ctx;
 //struct cvi_gdc_ctx gdc_ctx;
 
-int32_t (*base_qbuf_cb[CVI_ID_BUTT])(struct cvi_buffer *buf, uint32_t param) = {0};
-int32_t (*base_dqbuf_cb[CVI_ID_BUTT])(struct cvi_buffer *buf, uint32_t param) = {0};
+CVI_S32 (*base_qbuf_cb[CVI_ID_BUTT])(struct cvi_buffer *buf, CVI_U32 param) = {0};
+CVI_S32 (*base_dqbuf_cb[CVI_ID_BUTT])(struct cvi_buffer *buf, CVI_U32 param) = {0};
 
 static void _vpss_post_job(CVI_S32 dev_id)
 {
@@ -278,7 +278,7 @@ EXPORT_SYMBOL_GPL(base_get_chn_buffer);
  * @param doneq_depth: the depth for doneq.
  */
 void base_mod_jobs_init(MMF_CHN_S chn, enum CHN_TYPE_E chn_type,
-				uint8_t waitq_depth, uint8_t workq_depth, uint8_t doneq_depth)
+				CVI_U8 waitq_depth, CVI_U8 workq_depth, CVI_U8 doneq_depth)
 {
 	struct vb_jobs_t *jobs = base_get_jobs_by_chn(chn, chn_type);
 
@@ -415,7 +415,7 @@ struct cvi_buffer *base_mod_jobs_enque_work(MMF_CHN_S chn,
 				enum CHN_TYPE_E chn_type)
 {
 	struct vb_s *vb;
-	int32_t ret = 0;
+	CVI_S32 ret = 0;
 	struct vb_jobs_t *jobs = base_get_jobs_by_chn(chn, chn_type);
 
 	if (jobs == NULL) {
@@ -553,7 +553,7 @@ VB_BLK base_mod_jobs_workq_pop(MMF_CHN_S chn, enum CHN_TYPE_E chn_type)
 }
 EXPORT_SYMBOL_GPL(base_mod_jobs_workq_pop);
 
-int32_t base_get_frame_info(PIXEL_FORMAT_E fmt, SIZE_S size, struct cvi_buffer *buf, u64 mem_base, u8 align)
+CVI_S32 base_get_frame_info(PIXEL_FORMAT_E fmt, SIZE_S size, struct cvi_buffer *buf, u64 mem_base, u8 align)
 {
 	VB_CAL_CONFIG_S stVbCalConfig;
 	u8 i = 0;
@@ -646,13 +646,13 @@ static void _handle_snap(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK blk)
  * @param chn_type: the chn is input(read) or output(write)
  * @param blk: VB_BLK to be queued.
  */
-int32_t vb_qbuf(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK blk)
+CVI_S32 vb_qbuf(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK blk)
 {
 	struct vb_jobs_t *jobs = base_get_jobs_by_chn(chn, chn_type);
 	struct vb_s *vb = (struct vb_s *)blk;
 	CVI_S32 ret = CVI_SUCCESS;
-	uint32_t chip = 0;
-	uint32_t cb_param = 0;
+	CVI_U32 chip = 0;
+	CVI_U32 cb_param = 0;
 
 	chip = sys_get_chipid();
 
@@ -727,12 +727,12 @@ EXPORT_SYMBOL_GPL(vb_qbuf);
  * @param blk: the VB_BLK dequeued.
  * @return: status of operation. CVI_SUCCESS if OK.
  */
-int32_t vb_dqbuf(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK *blk)
+CVI_S32 vb_dqbuf(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK *blk)
 {
 	struct vb_jobs_t *jobs;
 	struct vb_s *p;
 	//struct cvi_buffer buf;
-	uint32_t cb_param = 0;
+	CVI_U32 cb_param = 0;
 
 	*blk = VB_INVALID_HANDLE;
 
@@ -770,7 +770,7 @@ EXPORT_SYMBOL_GPL(vb_dqbuf);
  * @param blk: VB_BLK.
  * @return: status of operation. CVI_SUCCESS if OK.
  */
-int32_t vb_done_handler(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK blk)
+CVI_S32 vb_done_handler(MMF_CHN_S chn, enum CHN_TYPE_E chn_type, VB_BLK blk)
 {
 	MMF_BIND_DEST_S stBindDest;
 	CVI_S32 ret;

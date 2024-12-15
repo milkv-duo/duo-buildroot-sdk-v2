@@ -817,6 +817,7 @@ CVI_S32 isp_bin_getBinBypassParams(VI_PIPE ViPipe, ISP_BIN_BYPASS_U *ispBinBypas
 	return ret;
 }
 
+
 /**************************************************************************
  *   Json related APIs.
  **************************************************************************/

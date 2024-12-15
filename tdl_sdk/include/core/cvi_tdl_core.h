@@ -117,7 +117,7 @@ typedef void *cvitdl_handle_t;
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE)                       \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_SCRFDFACE)                       \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_IR)                    \
-CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_THERMALFACE)                      \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_THERMALPERSON)                    \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_FACEATTRIBUTE)                    \
@@ -183,7 +183,8 @@ CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_RETINAFACE_HARDHAT)               \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_SUPER_RESOLUTION)                 \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_DETECTION)                    \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION)                  \
-  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR) \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR)                             \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_STEREO) \
   // clang-format on
 
 #define CVI_TDL_NAME_WRAP(x) x,
@@ -252,6 +253,28 @@ DLL_EXPORT CVI_S32 CVI_TDL_DestroyHandle(cvitdl_handle_t handle);
  */
 DLL_EXPORT CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
                                      const char *filepath);
+/**
+ * @brief Get model input data tpye.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model Supported model id.
+ * @param filepath File path to the cvimodel file.
+ * @return int Return CVI_TDL_SUCCESS if load model succeed.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_GetModelInputTpye(cvitdl_handle_t handle,
+                                             CVI_TDL_SUPPORTED_MODEL_E model, int *inputDTpye);
+/**
+ * @brief Open model with given file path.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model Supported model id.
+ * @param bug memory buffer to the cvimodel.
+ * @param size cvimodel buffer size
+ * @return int Return CVI_TDL_SUCCESS if load model succeed.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle,
+                                                CVI_TDL_SUPPORTED_MODEL_E model, int8_t *buf,
+                                                uint32_t size);
 
 /**
  * @brief Get set model path from supported models.
@@ -747,6 +770,18 @@ DLL_EXPORT CVI_S32 CVI_TDL_PersonVehicle_Detection(const cvitdl_handle_t handle,
 DLL_EXPORT CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                                      CVI_TDL_SUPPORTED_MODEL_E model_index, cvtdl_object_t *obj);
 
+/**
+ * @brief Set object model output layer names.
+ *
+ * @param handle An TDL SDK handle.
+ * @param model_index The object detection model id selected to use.
+ * @param output_names output layer names
+ * @param size output layer name's size
+ * @return int Return CVI_TDL_SUCCESS on success.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_Set_Outputlayer_Names(const cvitdl_handle_t handle,
+                                                 CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                                 const char **output_names, size_t size);
 /**@}*/
 /**
  * \addtogroup core_pr Person Re-Id TDL Inference
@@ -1252,19 +1287,6 @@ DLL_EXPORT CVI_S32 CVI_TDL_FaceLandmarkerDet2(const cvitdl_handle_t handle,
 DLL_EXPORT CVI_S32 CVI_TDL_DMSLDet(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                                    cvtdl_face_t *face);
 
-/**
- * @brief Dump model input frame to npz.
- *
- * @param handle An TDL SDK handle.
- * @param model Model id.
- * @param dump_path Output path.
- * @param enable Whether enable or not.
- * @return int Return CVI_TDL_SUCCESS on success.
- */
-/**@}*/
-DLL_EXPORT CVI_S32 CVI_TDL_EnalbeDumpInput(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model,
-                                           const char *dump_path, bool enable);
-
 DLL_EXPORT CVI_S32 CVI_TDL_CropImage_With_VPSS(const cvitdl_handle_t handle,
                                                CVI_TDL_SUPPORTED_MODEL_E model,
                                                VIDEO_FRAME_INFO_S *frame,
@@ -1567,6 +1589,10 @@ DLL_EXPORT CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_f
 
 DLL_EXPORT CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame,
                                                 cvtdl_object_t *obj_meta);
+
+DLL_EXPORT CVI_S32 CVI_TDL_Depth_Stereo(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame1,
+                                        VIDEO_FRAME_INFO_S *frame2,
+                                        cvtdl_depth_logits_t *depth_logist);
 #ifdef __cplusplus
 }
 #endif

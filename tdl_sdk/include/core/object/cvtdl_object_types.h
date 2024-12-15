@@ -292,6 +292,12 @@ typedef struct {
   adas_state_e state;
 } cvtdl_adas_meta;
 
+typedef struct {
+  uint8_t *mask;
+  float *mask_point;
+  uint32_t mask_point_size;
+} cvtdl_mask_meta;
+
 /** @struct cvtdl_object_info_t
  * @ingroup core_cvitdlcore
  * @brief A structure to describe a found object.
@@ -326,11 +332,8 @@ typedef struct {
   int is_cross;
   cvtdl_feature_t feature;
   int classes;
-  uint8_t *mask;
 
-  float *mask_point;
-  uint32_t mask_point_size;
-
+  cvtdl_mask_meta *mask_properity;
   cvtdl_vehicle_meta *vehicle_properity;
   cvtdl_pedestrian_meta *pedestrian_properity;
   cvtdl_adas_meta adas_properity;
@@ -445,6 +448,30 @@ typedef struct {
   float *out_feature;
   int feature_dim;
 } cvtdl_clip_feature;
+
+/** @struct cvtdl_opencv_params
+ *  @ingroup core_cvitdlcore
+ *  @brief Set OpenCV Preprocessing Parameters. This struct can be used in
+ *  @ mean and std are based on normalized values
+ *  @ enum interpolationMethod
+ *  0 -> cv::INTER_NEAREST
+ *  1 -> cv::INTER_LINEA
+ *  2 -> cv::INTER_CUBIC
+ *  3 -> cv::INTER_AREA
+ *  4 -> cv::INTER_LANCZOS4
+ *  @ enum rgbFormat
+ *  0 -> RGB
+ *  1 -> BGR
+ */
+
+typedef struct {
+  int width;
+  int height;
+  float mean[3];
+  float std[3];
+  int interpolationMethod;
+  int rgbFormat;
+} cvtdl_opencv_params;
 
 /** @struct cvtdl_handpose21_meta_t
  * @ingroup core_cvitdlcore
@@ -569,4 +596,11 @@ typedef struct {
   int8_t *int_logits;
   float qscale;
 } cvtdl_seg_logits_t;
+
+typedef struct {
+  int w;
+  int h;
+  int8_t *int_logits;
+} cvtdl_depth_logits_t;
+
 #endif

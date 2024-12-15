@@ -1,10 +1,30 @@
-.PHONY: clean all
+.PHONY: clean all clean_all
 .SILENT: clean all
 
 include isp.mk
 
+SUB_DIRS := $(isp_chip_dir)
+
 all:
-	cp $(shell echo $(CHIP_ARCH) | tr A-Z a-z)/$(SDK_VER)/lib* $(MW_LIB)
-	if [ "$(wildcard $(isp_chip_dir))" != "" ]; then cd $(isp_chip_dir) ; $(MAKE) all || exit 1; fi;
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) all || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)
+
 clean:
-	if [ "$(wildcard $(isp_chip_dir))" != "" ]; then cd $(isp_chip_dir) ; $(MAKE) clean || exit 1; fi;
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) clean || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)
+
+clean_all: clean
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) clean_all || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)

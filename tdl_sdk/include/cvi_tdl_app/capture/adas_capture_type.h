@@ -42,6 +42,9 @@ typedef struct {
   uint32_t departure_time;
   float lane_score;
   int det_type;
+  float collison_time;
+  int sence_type;
+  int location_type;
 
   adas_data_t *data;
   cvtdl_lane_t lane_meta;
@@ -51,7 +54,7 @@ typedef struct {
 
   uint32_t miss_time_limit;
 
-  int center_info[3];
+  int center_info[3];  // front obj index, x_min, xmax
   adas_state_e lane_state;
 
   gsensor_data_t gsensor_data;

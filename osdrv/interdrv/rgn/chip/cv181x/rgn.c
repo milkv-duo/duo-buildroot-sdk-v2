@@ -98,7 +98,7 @@ static int _rgn_call_cb(u32 m_id, u32 cmd_id, void *data)
 	return base_exe_module_cb(&exe_cb);
 }
 
-int32_t _rgn_init(void)
+CVI_S32 _rgn_init(void)
 {
 	// Only init once until exit.
 	// It is guarantueed in rgn_open
@@ -113,7 +113,7 @@ int32_t _rgn_init(void)
 	return CVI_SUCCESS;
 }
 
-int32_t _rgn_exit(void)
+CVI_S32 _rgn_exit(void)
 {
 	unsigned int bkt;
 	struct cvi_rgn_ctx *obj;
@@ -1460,11 +1460,12 @@ CVI_S32 rgn_set_bit_map(RGN_HANDLE Handle, const BITMAP_S *pstBitmap)
 				}
 				cnt++;
 				usleep_range(1000, 2000);
-			} while ((cb_param.addr == pstCanvasInfo->u64PhyAddr) && (cnt <= 500));
+			} while ((cb_param.ip_idle != 1) && (cb_param.addr == pstCanvasInfo->u64PhyAddr)
+				 && (cnt <= 500));
 
 			CVI_TRACE_RGN(RGN_INFO, "VPSS_CB_GET_RGN_OW_ADDR PhyAaddr:%llx cnt:%d.\n",
 				cb_param.addr, cnt);
-			if (cb_param.addr == pstCanvasInfo->u64PhyAddr) {
+			if ((cb_param.addr == pstCanvasInfo->u64PhyAddr) && ((cb_param.ip_idle != 1))) {
 				CVI_TRACE_RGN(RGN_WARN, "get a using canvas!\n");
 				ctx->canvas_idx = 1 - ctx->canvas_idx;
 				return CVI_ERR_RGN_BUSY;
@@ -1846,12 +1847,12 @@ CVI_S32 rgn_get_canvas_info(RGN_HANDLE Handle, RGN_CANVAS_INFO_S *pstCanvasInfo)
 				}
 				cnt++;
 				usleep_range(1000, 2000);
-			} while ((cb_param.addr == pstCanvasInfo->u64PhyAddr) && (cnt <= 500));
+			} while ((cb_param.ip_idle != 1) && (cb_param.addr == pstCanvasInfo->u64PhyAddr)
+				 && (cnt <= 500));
 
 			CVI_TRACE_RGN(RGN_INFO, "VPSS_CB_GET_RGN_OW_ADDR PhyAaddr:%llx cnt:%d.\n",
 				cb_param.addr, cnt);
-			CVI_TRACE_RGN(RGN_INFO, "ow addr(%llx).\n", cb_param.addr);
-			if (cb_param.addr == pstCanvasInfo->u64PhyAddr) {
+			if ((cb_param.addr == pstCanvasInfo->u64PhyAddr) && ((cb_param.ip_idle != 1))) {
 				CVI_TRACE_RGN(RGN_WARN, "get a using canvas!\n");
 				ctx->canvas_idx = rgn_prc_ctx[proc_idx].canvas_idx = 1 - ctx->canvas_idx;
 				return CVI_ERR_RGN_BUSY;

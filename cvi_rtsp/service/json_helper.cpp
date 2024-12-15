@@ -8,6 +8,60 @@
 #define SET_CTX_STR(config, key, val) if (config.contains(key)) {std::string file = params.at(key); snprintf(val, sizeof(val), "%s", file.c_str());}
 #define GET_DATA(config, key, data) if (config.contains(key)) {data = config.at(key);}
 
+
+static void dump_json(const nlohmann::json &params)
+{
+    for (auto &j : params.items()) {
+        std::cout << j.key() << " : " << j.value() << std::endl;
+    }
+}
+
+int json_parse_from_file(const char *jsonFile, nlohmann::json &params)
+{
+    if (jsonFile == nullptr) {
+        return -1;
+    }
+
+    std::ifstream file;
+    file.open(jsonFile);
+    if (!file.is_open()) {
+        std::cout << "Open Json file: " << jsonFile << " failed" << std::endl;
+        return -1;
+    }
+
+    try {
+        file >> params;
+    } catch (...) {
+        std::cout << "fail to parse config: " << jsonFile << std::endl;
+        file.close();
+        return -1;
+    }
+
+    file.close();
+
+    dump_json(params);
+
+    return 0;
+}
+
+int json_parse_from_string(const char *jsonStr, nlohmann::json &params)
+{
+    if (jsonStr == nullptr) {
+        return -1;
+    }
+
+    try {
+        params = nlohmann::json::parse(jsonStr);
+    } catch (...) {
+        std::cout << "fail to parse json string: " << jsonStr << std::endl;
+        return -1;
+    }
+
+    dump_json(params);
+
+    return 0;
+}
+
 static COMPRESS_MODE_E get_compress_mode(const std::string &mode)
 {
     if (mode == "none") {
@@ -94,6 +148,11 @@ void set_teaisppq(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
     }
 }
 
+void set_teaisp_drc(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
+{
+    SET_CTX(params, "enable-teaisp-drc", ent->enableTeaispDrc);
+}
+
 void set_hdmi(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
 {
     SET_CTX(params, "enable-hdmi", ent->enableHdmi);
@@ -175,6 +234,8 @@ void dump_ctx_info(SERVICE_CTX *ctx)
     printf("*** buf1_blk_cnt:%d\n", ctx->buf1_blk_cnt);
     printf("*** max_use_tpu_num:%d\n", ctx->max_use_tpu_num);
     printf("*** model_path:%s\n", ctx->model_path);
+    printf("*** teaisp-pq-bmodel:%s\n", ctx->teaisppq_model_path);
+    printf("*** teaisp-drc-bmodel:%s\n", ctx->teaispdrc_model_path);
     printf("*** enable_set_sensor_config:%d\n", ctx->enable_set_sensor_config);
     printf("*** sensor_config_path:%s\n", ctx->sensor_config_path);
     printf("*** isp_debug_lvl:%d\n", ctx->isp_debug_lvl);
@@ -199,12 +260,40 @@ void dump_ctx_info(SERVICE_CTX *ctx)
 
         printf("**** - bVencBindVpss:%d\n", pEntity->bVencBindVpss);
         printf("**** - enableRetinaFace:%d\n", pEntity->enableRetinaFace);
+        printf("**** - enableTeaisppq:%d\n", pEntity->enableTeaisppq);
+        printf("**** - enableTeaispDrc:%d\n", pEntity->enableTeaispDrc);
         printf("**** - enable-hdmi:%d\n", pEntity->enableHdmi);
         printf("**** - enable-teaisp-bnr:%d\n", pEntity->enableTEAISPBnr);
         printf("**** - teaisp_model_list:%s\n", pEntity->teaisp_model_list);
 
         dump_venc_cfg(&pEntity->venc_cfg);
     }
+}
+
+void set_replay(REPLAY_PARAM *paramPtr, const char *path)
+{
+	nlohmann::json params;
+	if (json_parse_from_file(path, params) < 0) {
+		printf("fail to parse replay config, use default param!");
+		paramPtr->pixelFormat = 0;
+		paramPtr->width = 2560;
+		paramPtr->height = 1440;
+		paramPtr->timingEnable = false;
+		paramPtr->frameRate = 25;
+		paramPtr->WDRMode = 0;
+		paramPtr->bayerFormat = 0;
+		paramPtr->compressMode = COMPRESS_MODE_NONE;
+	} else {
+		SET_CTX(params, "PixelFormat", paramPtr->pixelFormat);
+		SET_CTX(params, "width", paramPtr->width);
+		SET_CTX(params, "height", paramPtr->height);
+		SET_CTX(params, "TimingEnable", paramPtr->timingEnable);
+		SET_CTX(params, "FrameRate", paramPtr->frameRate);
+		SET_CTX(params, "WDRMode", paramPtr->WDRMode);
+		SET_CTX(params, "BayerFormat", paramPtr->bayerFormat);
+		paramPtr->compressMode = get_compress_mode(params.at("CompressMode"));
+		paramPtr->frameRate = paramPtr->frameRate > 0 ? paramPtr->frameRate : 25;
+	}
 }
 
 int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
@@ -221,6 +310,7 @@ int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
     SET_CTX(params, "max-use-tpu-num", ctx->max_use_tpu_num);
     SET_CTX_STR(params, "teaisp-faceae-model", ctx->model_path);
     SET_CTX_STR(params, "teaisp-pq-model", ctx->teaisppq_model_path);
+    SET_CTX_STR(params, "teaisp-drc-model", ctx->teaispdrc_model_path);
     SET_CTX(params, "sbm", ctx->sbm.enable);
     SET_CTX(params, "sbm-buf-line", ctx->sbm.bufLine);
     SET_CTX(params, "sbm-buf-size", ctx->sbm.bufSize);
@@ -239,7 +329,7 @@ int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
 
     if (ctx->dev_num > video_src_info.size()) {
         printf("*** Invalid dev number[%d], vidoeSrcSize[%zu]\n", ctx->dev_num, video_src_info.size());
-        return -1;
+        ctx->dev_num = video_src_info.size();
     }
 
     for (int i=0; i<ctx->dev_num; i++) {
@@ -249,8 +339,19 @@ int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
         set_venc(pEntity, video_src_info[i]);
         set_ai(pEntity, video_src_info[i]);
         set_teaisppq(pEntity, video_src_info[i]);
+        set_teaisp_drc(pEntity, video_src_info[i]);
         set_hdmi(pEntity, video_src_info[i]);
         set_teaisp_bnr(pEntity, video_src_info[i]);
+    }
+
+    SET_CTX(params, "replay-mode", ctx->replayMode);
+    if (ctx->replayMode) {
+        std::string paramFile = params.at("replay-param");
+        set_replay(&ctx->replayParam, paramFile.c_str());
+        ctx->dev_num = 1;
+        ctx->rtsp_num = 1;
+        ctx->stIniCfg.devNum = 1;
+        ctx->entity[0].compress_mode = ctx->replayParam.compressMode;
     }
 
     dump_ctx_info(ctx);

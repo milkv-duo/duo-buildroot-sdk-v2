@@ -5,14 +5,9 @@
 #include <syslog.h>
 #include <errno.h>
 #include <math.h>
-#ifdef ARCH_CV182X
-#include "cvi_type.h"
-#include "cvi_comm_video.h"
-#include <linux/cvi_vip_snsr.h>
-#else
+
 #include <linux/cvi_type.h>
 #include <linux/cvi_comm_video.h>
-#endif
 #include "cvi_debug.h"
 #include "cvi_comm_sns.h"
 #include "cvi_sns_ctrl.h"
@@ -693,8 +688,11 @@ static CVI_S32 cmos_get_sns_regs_info(VI_PIPE ViPipe, ISP_SNS_SYNC_INFO_S *pstSn
 			pstI2c_data[LINEAR_FLIP_PAGE_SWITCH].u32RegAddr = OS02N10_1L_FLIP_PAGE_SWITCH_ADDR;
 			pstI2c_data[LINEAR_FLIP_PAGE_SWITCH].u32Data = 0x03;
 			pstI2c_data[LINEAR_FLIP_MIRROR_0].u32RegAddr = OS02N10_1L_FLIP_MIRROR0_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR_0].u32Data = 0x10;
 			pstI2c_data[LINEAR_FLIP_MIRROR_1].u32RegAddr = OS02N10_1L_FLIP_MIRROR1_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR_1].u32Data = 0xe2;
 			pstI2c_data[LINEAR_FLIP_MIRROR_2].u32RegAddr = OS02N10_1L_FLIP_MIRROR2_ADDR;
+			pstI2c_data[LINEAR_FLIP_MIRROR_2].u32Data = 0x50;
 			pstI2c_data[LINEAR_COL_OFFSET].u32RegAddr    = OS02N10_1L_FLIP_col_offset_ADDR;
 			pstI2c_data[LINEAR_ROW_OFFSET_0].u32RegAddr  = OS02N10_1L_FLIP_row_offset0_ADDR;
 			pstI2c_data[LINEAR_ROW_OFFSET_1].u32RegAddr  = OS02N10_1L_FLIP_row_offset1_ADDR;
@@ -886,6 +884,8 @@ static CVI_VOID sensor_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSn
 
 		pstSnsRegsInfo->astI2cData[LINEAR_PAGE_SWITCH].u32Data = 0x01;
 		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].u32Data =value;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].bDropFrm = 1;
+		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR].u8DropFrmNum = 1;
 		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_PAGE_SWITCH].u32Data = 0x03;
 		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_0].u32Data =value0;
 		pstSnsRegsInfo->astI2cData[LINEAR_FLIP_MIRROR_1].u32Data =value1;
@@ -893,8 +893,6 @@ static CVI_VOID sensor_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSn
 		pstSnsRegsInfo->astI2cData[LINEAR_COL_OFFSET].u32Data =col_offset;
 		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_0].u32Data =row_offset_0;
 		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].u32Data =row_offset_1;
-		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].bDropFrm = 1;
-		pstSnsRegsInfo->astI2cData[LINEAR_ROW_OFFSET_1].u8DropFrmNum = 1;
 
 		g_aeOs02n10_1l_MirrorFip[ViPipe] = eSnsMirrorFlip;
 		pstIspCfg0->img_size[0].stWndRect.s32X = start_x;

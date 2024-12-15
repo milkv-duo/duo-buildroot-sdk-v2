@@ -1,0 +1,111 @@
+{
+    "cmd": "WRITE_MODULE",
+    "data": {
+        "items": [
+            {
+                "key": "Enable",
+                "optype": "Auto",
+                "value": 0,
+                "value_type": "int"
+            },
+            {
+                "key": "Enable",
+                "optype": "Manual",
+                "value": 0,
+                "value_type": "int"
+            },
+            {
+                "key": "Strength",
+                "optype": "Auto",
+                "size": 16,
+                "value": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "value_type": "array"
+            },
+            {
+                "key": "Strength",
+                "optype": "Manual",
+                "value": 30,
+                "value_type": "int"
+            },
+            {
+                "key": "CumulativeThr",
+                "optype": "Auto",
+                "value": 1024,
+                "value_type": "int"
+            },
+            {
+                "key": "CumulativeThr",
+                "optype": "Manual",
+                "value": 1024,
+                "value_type": "int"
+            },
+            {
+                "key": "HistThr",
+                "optype": "Auto",
+                "value": 512,
+                "value_type": "int"
+            },
+            {
+                "key": "HistThr",
+                "optype": "Manual",
+                "value": 512,
+                "value_type": "int"
+            },
+            {
+                "key": "MinTransMapValue",
+                "optype": "Auto",
+                "value": 819,
+                "value_type": "int"
+            },
+            {
+                "key": "MinTransMapValue",
+                "optype": "Manual",
+                "value": 819,
+                "value_type": "int"
+            },
+            {
+                "key": "MaxTransMapValue",
+                "optype": "Auto",
+                "value": 8191,
+                "value_type": "int"
+            },
+            {
+                "key": "MaxTransMapValue",
+                "optype": "Manual",
+                "value": 8191,
+                "value_type": "int"
+            },
+            {
+                "key": "VarThr",
+                "optype": "Auto",
+                "value": 200,
+                "value_type": "int"
+            },
+            {
+                "key": "VarThr",
+                "optype": "Manual",
+                "value": 200,
+                "value_type": "int"
+            }
+        ],
+        "module": "Dehaze",
+        "optype": "Auto"
+    }
+}

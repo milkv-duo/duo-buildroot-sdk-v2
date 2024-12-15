@@ -74,7 +74,8 @@ void SuperResolution::outputParser(VIDEO_FRAME_INFO_S *dstFrame) {
       for (int c = 0; c < outShapeC; ++c) {
         int index = (c * outHeight * outWidth) + (h * outWidth) + w;
         float value = out[index];
-        u_char pixel_value = static_cast<u_char>(std::min(std::max(value * 255.0f, 0.0f), 255.0f));
+        unsigned char pixel_value =
+            static_cast<unsigned char>(std::min(std::max(value * 255.0f, 0.0f), 255.0f));
         int cvChannel = c == 0 ? 2 : (c == 2 ? 0 : 1);  // BGR to RGB conversion if needed
         if (cvChannel == 0) {
           vFrame->pu8VirAddr[0][w + h * vFrame->u32Stride[2]] = pixel_value;

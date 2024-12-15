@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <iostream>
 #include <fstream>
@@ -22,6 +23,7 @@
 #include "json_helper.h"
 #include "ai_helper.h"
 #include "teaisppq_helper.h"
+#include "teaispdrc_helper.h"
 #include "isp_info_osd.h"
 #include "vo_helper.h"
 #include "cvi_media_procunit.h"
@@ -38,59 +40,6 @@ static const char *teaisppq_scene_str[5] = {
     "GRASS",
     "COMMON"
 };
-
-void dump_json(const nlohmann::json &params)
-{
-    for (auto &j : params.items()) {
-        std::cout << j.key() << " : " << j.value() << std::endl;
-    }
-}
-
-static int json_parse_from_file(const char *jsonFile, nlohmann::json &params)
-{
-    if (jsonFile == nullptr) {
-        return -1;
-    }
-
-    std::ifstream file;
-    file.open(jsonFile);
-    if (!file.is_open()) {
-        std::cout << "Open Json file: " << jsonFile << " failed" << std::endl;
-        return -1;
-    }
-
-    try {
-        file >> params;
-    } catch (...) {
-        std::cout << "fail to parse config: " << jsonFile << std::endl;
-        file.close();
-        return -1;
-    }
-
-    file.close();
-
-    dump_json(params);
-
-    return 0;
-}
-
-static int json_parse_from_string(const char *jsonStr, nlohmann::json &params)
-{
-    if (jsonStr == nullptr) {
-        return -1;
-    }
-
-    try {
-        params = nlohmann::json::parse(jsonStr);
-    } catch (...) {
-        std::cout << "fail to parse json string: " << jsonStr << std::endl;
-        return -1;
-    }
-
-    dump_json(params);
-
-    return 0;
-}
 
 static int check_ctx(SERVICE_CTX *ctx)
 {
@@ -135,6 +84,11 @@ static int default_ctx(SERVICE_CTX *ctx)
     snprintf(ctx->sensor_config_path, sizeof(ctx->sensor_config_path), "%s", "/mnt/data/sensor_cfg.ini");
     ctx->isp_debug_lvl = 255;//not set debug level
     ctx->enable_set_pq_bin = false;
+    // teaisppq
+    pthread_mutex_init(&ctx->teaisppq_mutex, NULL);
+    pthread_cond_init(&ctx->teaisppq_cond, NULL);
+    ctx->teaisppq_turn_pipe = 0;
+
     for (int i=0; i<SERVICE_CTX_ENTITY_MAX_NUM; i++) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[i];
         snprintf(ent->rtspURL, sizeof(ent->rtspURL), "%s", "stream");
@@ -240,11 +194,8 @@ static int run_retinaface(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *output)
         ent->ai_face_draw_rect(ent->ai_service_handle, &face, output, true, brush);
     }
 
-    unsigned int sensorNum = 0;
-
-    CVI_VI_GetDevNum(&sensorNum);
     if ((((SERVICE_CTX *)ent->ctx)->dev_num == 1) &&
-        (sensorNum >= 2) &&
+        (((SERVICE_CTX *)ent->ctx)->sensor_number >= 2) &&
         (ent->ViChn == 0)) {
         // sensor0
         //         -> vpss
@@ -289,20 +240,18 @@ static void teaisppq_put_text(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *pstVi
     CVI_TEAISP_PQ_GetDetectSceneInfo(ent->ViPipe, &scene_info);
 
     if (stTEAISPPQAttr.TuningMode != 0) {
-        for (int i = 0; i < TEAISP_SCENE_NUM; ++i) {
-            scene_info.scene_score[i] = 100;
-        }
+        scene_info.scene_score = 100;
         scene_id = (stTEAISPPQAttr.TuningMode -1) % TEAISP_SCENE_NUM;
         scene_text +=  std::string("Tuning SCENE: ") + std::string(teaisppq_scene_str[scene_id]);
         scene_text += ", score: 100";
     } else {
         scene_id = scene_info.scene;
         scene_text += std::string("Detect SCENE: ") + std::string(teaisppq_scene_str[scene_id]);
-        scene_text += std::string(", score: ") + std::to_string(scene_info.scene_score[scene_id]);
+        scene_text += std::string(", score: ") + std::to_string(scene_info.scene_score);
     }
 
     if (stTEAISPPQAttr.Enable && stTEAISPPQAttr.SceneBypass[scene_id] == 0 \
-            && (scene_info.scene_score[scene_id] >= stTEAISPPQAttr.SceneConfThres[scene_id])) {
+            && (scene_info.scene_score >= stTEAISPPQAttr.SceneConfThres[scene_id])) {
         scene_text += " (accpet)";
     } else {
         scene_text += " (bypass)";
@@ -319,6 +268,7 @@ static void teaisppq_put_text(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *pstVi
 
 static void *rtspTask(void *arg)
 {
+#define __VPSS_TIMEOUT (3000)
     int rc = -1;
     SERVICE_CTX_ENTITY *ent = (SERVICE_CTX_ENTITY *)arg;
 #if (MW_VER == 2) && (defined _USE_GETFD_)
@@ -326,6 +276,9 @@ static void *rtspTask(void *arg)
     struct timeval timeoutVal;
     fd_set readFds;
 #endif
+
+    prctl(PR_SET_NAME, "RTSP-TASK", 0, 0, 0);
+
     while (ent->running) {
         pthread_mutex_lock(&ent->mutex);
 
@@ -338,12 +291,39 @@ static void *rtspTask(void *arg)
         VENC_CHN_STATUS_S stStat = {};
         VENC_STREAM_S stStream = {};
         VIDEO_FRAME_INFO_S stVideoFrame = {};
+        VIDEO_FRAME_INFO_S stVideoFrameDrcPost = {};
 
-        if (!ent->bVencBindVpss || ent->enableRetinaFace) {
-            if (0 != (rc = CVI_VPSS_GetChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame, 3000))) {
-                printf("CVI_VPSS_GetChnFrame Grp: %u Chn: %u failed with %#x\n", ent->VpssGrp, ent->VpssChn, rc);
-                pthread_mutex_unlock(&ent->mutex);
-                continue;
+        if (!ent->bVencBindVpss || ent->enableRetinaFace ||
+            ent->enableTeaispDrc) {
+
+            if (ent->enableTeaispDrc) {
+                get_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
+
+                rc = CVI_VPSS_SendFrame(ent->VpssGrpDrcPost, &stVideoFrameDrcPost, __VPSS_TIMEOUT);
+                if (rc != CVI_SUCCESS) {
+                    printf("send drc vpss frame failed, %d, %x\n", ent->VpssGrpDrcPost, rc);
+                    put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
+                    pthread_mutex_unlock(&ent->mutex);
+                    continue;
+                }
+
+                rc = CVI_VPSS_GetChnFrame(ent->VpssGrpDrcPost, 0, &stVideoFrame, __VPSS_TIMEOUT);
+                if (rc != CVI_SUCCESS) {
+                    printf("get drc vpss frame failed, %d, %x\n", ent->VpssGrpDrcPost, rc);
+                    put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
+                    pthread_mutex_unlock(&ent->mutex);
+                    continue;
+                }
+
+                put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
+            } else {
+                rc = CVI_VPSS_GetChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame, __VPSS_TIMEOUT);
+                if (rc != CVI_SUCCESS) {
+                    printf("CVI_VPSS_GetChnFrame Grp: %u Chn: %u failed with %#x\n",
+                        ent->VpssGrp, ent->VpssChn, rc);
+                    pthread_mutex_unlock(&ent->mutex);
+                    continue;
+                }
             }
 
             if (getenv("VPSS_DEBUG")) {
@@ -425,7 +405,8 @@ static void *rtspTask(void *arg)
         if (0 != (rc = CVI_VENC_GetStream(VencChn, &stStream, 2000))) {
             printf("CVI_VENC_GetStream failed with %#x!\n", rc);
             if (!ent->bVencBindVpss || ent->enableRetinaFace) {
-                if (0 != CVI_VPSS_ReleaseChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame)) {
+                if (0 != CVI_VPSS_ReleaseChnFrame(ent->enableTeaispDrc ? ent->VpssGrpDrcPost : ent->VpssGrp,
+                        ent->VpssChn, &stVideoFrame)) {
                     printf("CVI_VPSS_ReleaseChnFrame Grp: %u Chn: %u NG\n", ent->VpssGrp, ent->VpssChn);
                 }
             }
@@ -436,7 +417,8 @@ static void *rtspTask(void *arg)
             continue;
         }
         if (!ent->bVencBindVpss) {
-            if (0 != CVI_VPSS_ReleaseChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame)) {
+            if (0 != CVI_VPSS_ReleaseChnFrame(ent->enableTeaispDrc ? ent->VpssGrpDrcPost : ent->VpssGrp,
+                    ent->VpssChn, &stVideoFrame)) {
                 printf("CVI_VPSS_ReleaseChnFrame Grp: %u Chn: %u NG\n", ent->VpssGrp, ent->VpssChn);
             }
         }
@@ -506,8 +488,13 @@ static int init(SERVICE_CTX *ctx, const nlohmann::json &params)
         return -1;
     }
 
-    if (0 > init_teaisp(ctx)) {
-        std::cout << "init teaisp fail" << std::endl;
+    if (0 > init_teaisp_bnr(ctx)) {
+        std::cout << "init teaisp bnr fail" << std::endl;
+        return -1;
+    }
+
+    if (0 > init_teaisp_drc(ctx)) {
+        std::cout << "init teaisp drc fail" << std::endl;
         return -1;
     }
 
@@ -520,7 +507,9 @@ static void deinit(SERVICE_CTX *ctx)
 
     isp_info_osd_stop(ctx);
 
-    deinit_teaisp(ctx);
+    deinit_teaisp_drc(ctx);
+
+    deinit_teaisp_bnr(ctx);
 
     deinit_ai(ctx);
 

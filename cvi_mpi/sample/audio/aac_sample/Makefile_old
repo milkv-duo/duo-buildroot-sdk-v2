@@ -99,7 +99,6 @@ AAC_LDLIBS += -laacenc2
 #AAC_INCLUDES = -I$(MW_INC)
 AAC_INCLUDES =
 AAC_INCLUDES += -I$(PWD)
-DEFINES += -DCVI_MODIFIED
 
 AAC_CFLAGS += -I . -I ../../../include/ -fPIC -Wno-unused-result  -Wno-format -Wl,--fatal-warning $(AAC_INCLUDES) $(DEFINES)
 
@@ -138,7 +137,6 @@ endif
 ARFLAGS = rcs
 ARFLAGS_S = -shared -fPIC -o
 CFLAGS = -fPIC -c -Os  -ffunction-sections -fdata-sections
-CFLAGS += -DCVI_MODIFIED
 
 AAC_TEST_LIB = $(AAC_LDLIBS)
 

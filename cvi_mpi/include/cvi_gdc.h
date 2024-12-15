@@ -66,20 +66,6 @@ CVI_S32 CVI_GDC_AddLDCTask(GDC_HANDLE hHandle, const GDC_TASK_ATTR_S *pstTask
 	, const LDC_ATTR_S *pstLDCAttr, ROTATION_E enRotation);
 
 /**
- * @brief gen GDC LDC(Lens Distortion Correction) mesh table
- *
- * @param u32Width(In), mesh region width
- * @param u32Height(In), mesh region height
- * @param pstLDCAttr(In), GDC LDC attribute
- * @param name(In), mesh name
- * @param pu64PhyAddr(Out), mesh table physical addr in memory
- * @param ppVirAddr(Out), mesh table virtual addr in memory
- * @return CVI_S32 Return CVI_SUCCESS if succeed
- */
-CVI_S32 CVI_GDC_GenLDCMesh(CVI_U32 u32Width, CVI_U32 u32Height, const LDC_ATTR_S *pstLDCAttr
-	, const char *name, CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr);
-
-/**
  * @brief load GDC LDC(Lens Distortion Correction) mesh table
  *
  * @param u32Width(In), mesh region width

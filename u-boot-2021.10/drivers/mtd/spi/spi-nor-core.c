@@ -2749,6 +2749,10 @@ static int spi_nor_init_params(struct spi_nor *nor,
 			params->quad_enable = quad_enable_SR_bit6;
 			break;
 		case SNOR_MFR_EON:
+			if (info->id[1] == 0x40) {
+				params->quad_enable = quad_enable_SR2_bit1;
+				break;
+			}
 		case SNOR_MFR_GIGADEVICE:
 		case SNOR_MFR_WINBOND:
 		case SNOR_MFR_JUYANG:

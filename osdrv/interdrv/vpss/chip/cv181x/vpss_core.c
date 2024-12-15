@@ -484,7 +484,7 @@ static void cvi_img_device_run(struct cvi_img_vdev *idev, bool sc_need_check[])
 	if (!bdev->disp_online)
 		sclr_img_start(idev->img_type);
 
-	CVI_TRACE_VPSS(CVI_DBG_WARN, "****img(%d) grp(%d) start****\n",
+	CVI_TRACE_VPSS(CVI_DBG_NOTICE, "****img(%d) grp(%d) start****\n",
 		idev->dev_idx, idev->job_grp);
 }
 
@@ -825,7 +825,7 @@ int cvi_vip_try_schedule(struct cvi_img_vdev *idev, u8 grp_id)
 
 	// job status update
 	idev->is_tile = idev->is_online_from_isp ? false : tile;
-	CVI_TRACE_VPSS(CVI_DBG_WARN, "grp_id:%d  tile mode:%d.\n",grp_id, tile);
+	CVI_TRACE_VPSS(CVI_DBG_NOTICE, "grp_id:%d  tile mode:%d.\n",grp_id, tile);
 
 	if (idev->is_tile) {
 		if (idev->is_online_from_isp)
@@ -941,7 +941,7 @@ void cvi_vip_job_finish(struct cvi_img_vdev *idev)
 		if (!(debug & BIT(2)) && idev->clk && __clk_is_enabled(idev->clk))
 			clk_disable(idev->clk);
 
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "****img(%d) grp(%d) finish****\n", idev->dev_idx, idev->job_grp);
+		CVI_TRACE_VPSS(CVI_DBG_NOTICE, "****img(%d) grp(%d) finish****\n", idev->dev_idx, idev->job_grp);
 		vpss_notify_isr_evt(idev->dev_idx);
 	}
 
@@ -1012,7 +1012,7 @@ u32 cvi_sc_cfg_cb(struct sc_cfg_cb *post_para, struct cvi_vip_dev *dev)
 				break;
 			}
 
-			CVI_TRACE_VPSS(CVI_DBG_WARN, "online trig for snr-%d. img(%d:%d:%d)\n",
+			CVI_TRACE_VPSS(CVI_DBG_NOTICE, "online trig for snr-%d. img(%d:%d:%d)\n",
 				grp_id, i, dev->img_vdev[i].img_type, dev->img_vdev[i].input_type);
 			//CVI_TRACE_VPSS(CVI_DBG_DEBUG, "post_para: is_tile:%d is_left_tile:%d\n",
 			//		post_para->is_tile,post_para->is_left_tile);
@@ -1245,7 +1245,7 @@ int vpss_core_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		VPSS_GRP VpssGrp = attr->stChn.s32DevId;
 		VPSS_CHN VpssChn = attr->stChn.s32ChnId;
 
-		rc = vpss_get_rgn_ow_addr(VpssGrp, VpssChn, attr->layer, attr->handle, &attr->addr);
+		rc = vpss_get_rgn_ow_addr(VpssGrp, VpssChn, attr->layer, attr->handle, &attr->addr, &attr->ip_idle);
 		break;
 	}
 
@@ -1365,7 +1365,7 @@ static irqreturn_t scl_isr(int irq, void *_dev)
 
 #if 0
 static int _get_reserved_mem(struct platform_device *pdev,
-	uint64_t *addr, uint64_t *size)
+	CVI_U64 *addr, CVI_U64 *size)
 {
 	struct device_node *target = NULL;
 	struct reserved_mem *prmem = NULL;

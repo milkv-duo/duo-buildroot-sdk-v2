@@ -115,12 +115,12 @@ void cvi_ion_free_nofd(struct ion_buffer *buffer)
 }
 EXPORT_SYMBOL(cvi_ion_free_nofd);
 
-int cvi_ion_get_memory_statics(uint64_t *total_size,
+int cvi_ion_get_memory_state(uint64_t *total_size,
 	uint64_t *free_size, uint64_t *max_avail_size)
 {
-	return ion_get_memory_statics(total_size, free_size, max_avail_size);
+	return ion_get_memory_state(total_size, free_size, max_avail_size);
 }
-EXPORT_SYMBOL(cvi_ion_get_memory_statics);
+EXPORT_SYMBOL(cvi_ion_get_memory_state);
 
 void cvi_ion_dump(struct ion_heap *heap)
 {

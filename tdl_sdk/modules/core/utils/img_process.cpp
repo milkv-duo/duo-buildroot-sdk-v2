@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include "core/object/cvtdl_object_types.h"
 #include "core/utils/vpss_helper.h"
 #include "cvi_ive.h"
 #include "cvi_tdl_log.hpp"
@@ -201,6 +202,49 @@ CVI_S32 read_centercrop_resize_image(const char *filepath, VIDEO_FRAME_INFO_S *f
   return CVI_SUCCESS;
 }
 
+CVI_S32 opencv_read_float_image(const char *filepath, VIDEO_FRAME_INFO_S *frame,
+                                cvtdl_opencv_params opencv_params) {
+  cv::Mat src_img = cv::imread(filepath, cv::IMREAD_COLOR);
+
+  if (src_img.empty()) {
+    std::cerr << "Cannot read image: " << filepath << std::endl;
+    return -1;
+  }
+
+  cv::Mat resized_img;
+  cv::resize(src_img, resized_img, cv::Size(opencv_params.width, opencv_params.height), 0, 0,
+             opencv_params.interpolationMethod);
+  cv::Mat img_float;
+  resized_img.convertTo(img_float, CV_32FC3, 1.0 / 255.0);
+  cv::Scalar mean = cv::Scalar(opencv_params.mean[0], opencv_params.mean[1], opencv_params.mean[2]);
+  cv::Scalar std_dev = cv::Scalar(opencv_params.std[0], opencv_params.std[1], opencv_params.std[2]);
+  cv::subtract(img_float, mean, img_float);
+  cv::divide(img_float, std_dev, img_float);
+
+  cv::Mat channels[3];
+  cv::split(img_float, channels);
+
+  int h = img_float.rows;
+  int w = img_float.cols;
+
+  CVI_U8 *buffer = new CVI_U8[h * w * 3 * sizeof(float)];
+  if (opencv_params.rgbFormat == 0) {
+    for (int i = 0; i < 3; ++i) {
+      memcpy(buffer + i * h * w * sizeof(float), channels[2 - i].data, h * w * sizeof(float));
+    }
+  } else if (opencv_params.rgbFormat == 1) {
+    for (int i = 0; i < 3; ++i) {
+      memcpy(buffer + i * h * w * sizeof(float), channels[i].data, h * w * sizeof(float));
+    }
+  }
+
+  frame->stVFrame.pu8VirAddr[0] = buffer;
+  frame->stVFrame.u32Height = h;
+  frame->stVFrame.u32Width = w;
+
+  return CVI_SUCCESS;
+}
+
 CVI_S32 release_image(VIDEO_FRAME_INFO_S *frame) {
   if (frame->stVFrame.u64PhyAddr[0] != 0) {
     CVI_SYS_IonFree(frame->stVFrame.u64PhyAddr[0], frame->stVFrame.pu8VirAddr[0]);
@@ -223,6 +267,8 @@ class ImageProcessor {
                           uint32_t width, uint32_t height) = 0;
   virtual int read_centercrop_resize(const char *filepath, VIDEO_FRAME_INFO_S *frame,
                                      PIXEL_FORMAT_E format, uint32_t width, uint32_t height) = 0;
+  virtual int opencv_read_float(const char *filepath, VIDEO_FRAME_INFO_S *frame,
+                                cvtdl_opencv_params opencv_params) = 0;
   virtual int release(VIDEO_FRAME_INFO_S *frame) = 0;
 };
 
@@ -287,6 +333,11 @@ class ImageProcessorNoOpenCV : public ImageProcessor {
     return 0;
   }
 
+  int opencv_read_float(const char *filepath, VIDEO_FRAME_INFO_S *frame,
+                        cvtdl_opencv_params opencv_params) {
+    return 0;
+  }
+
   int release(VIDEO_FRAME_INFO_S *frame) { return CVI_SYS_FreeI(ive_handle, &image); }
 
  private:
@@ -309,6 +360,11 @@ class ImageProcessorOpenCV : public ImageProcessor {
   int read_centercrop_resize(const char *filepath, VIDEO_FRAME_INFO_S *frame, PIXEL_FORMAT_E format,
                              uint32_t width, uint32_t height) override {
     return read_centercrop_resize_image(filepath, frame, format, width, height);
+  }
+
+  int opencv_read_float(const char *filepath, VIDEO_FRAME_INFO_S *frame,
+                        cvtdl_opencv_params opencv_params) override {
+    return opencv_read_float_image(filepath, frame, opencv_params);
   }
 
   int release(VIDEO_FRAME_INFO_S *frame) override { return release_image(frame); }
@@ -348,6 +404,13 @@ CVI_S32 CVI_TDL_ReadImage_CenrerCrop_Resize(imgprocess_t handle, const char *fil
                                             uint32_t width, uint32_t height) {
   ImageProcessor *ctx = static_cast<ImageProcessor *>(handle);
   return ctx->read_centercrop_resize(filepath, frame, format, width, height);
+}
+
+CVI_S32 CVI_TDL_OpenCV_ReadImage_Float(imgprocess_t handle, const char *filepath,
+                                       VIDEO_FRAME_INFO_S *frame,
+                                       cvtdl_opencv_params opencv_params) {
+  ImageProcessor *ctx = static_cast<ImageProcessor *>(handle);
+  return ctx->opencv_read_float(filepath, frame, opencv_params);
 }
 
 CVI_S32 CVI_TDL_Destroy_ImageProcessor(imgprocess_t handle) {

@@ -1,25 +1,38 @@
 ifeq ($(PARAM_FILE), )
-     PARAM_FILE:=../Makefile.param
+     PARAM_FILE:=../mpi_param.mk
      include $(PARAM_FILE)
 endif
 
-.PHONY: all clean $(MODULES)
+.PHONY: all clean clean_all
 
-MODULES = sys bin vi vo vpss rgn gdc audio mipi_tx venc vdec misc ive isp
+SUB_DIRS = sys bin vi vo vpss rgn gdc audio mipi_tx venc vdec misc ive isp
 
 all:
 	@echo "########################################################################################################"
 	@echo "#"
 	@echo "#  Compiling 'module libs' Configs as below ..."
 	@echo "#    "CROSS_COMPILE=$(CROSS_COMPILE)
-	@echo "#    "KERNEL_DIR=$(KERNEL_DIR)
 	@echo "#"
 	@echo "########################################################################################################"
-	@for x in $(MODULES); \
-	    do cd $$x; if [ $$? ]; then $(MAKE) all || exit 1; cd -; fi; done
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) all || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)
 
 clean:
-	@for x in `find -L ./ -maxdepth 2 -mindepth 2 -name "Makefile" `; \
-	    do cd `dirname $$x`; if [ $$? ]; then $(MAKE) clean; cd -; fi; done
-	@make -C isp clean
-	@echo "#"
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) clean || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)
+
+clean_all:
+	@$(foreach dir,$(SUB_DIRS), \
+		if test -d $(dir) ; then \
+			cd $(dir);$(MAKE) clean_all || exit 1;cd -; \
+		else \
+			exit 1; \
+		fi;)

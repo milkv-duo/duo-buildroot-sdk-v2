@@ -7,13 +7,7 @@ extern "C" {
 #endif
 #endif
 
-#ifdef ARCH_CV182X
-#include <linux/cvi_vip_cif.h>
-#include <linux/cvi_vip_snsr.h>
-#include "cvi_type.h"
-#else
 #include <linux/cvi_type.h>
-#endif
 #include "cvi_sns_ctrl.h"
 
 typedef enum _GC0329_MODE_E {

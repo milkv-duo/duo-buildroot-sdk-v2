@@ -49,6 +49,15 @@ int main(int argc, char *argv[]) {
     return ret;
   }
 
+  int m_input_data_type = -1;
+  ret =
+      CVI_TDL_GetModelInputTpye(tdl_handle, CVI_TDL_SUPPORTED_MODEL_CLIP_IMAGE, &m_input_data_type);
+  std::cout << "****input data type****" << std::endl;
+  std::cout << m_input_data_type << std::endl;
+  if (ret != CVI_SUCCESS) {
+    printf("get model input data type failed with %#x!\n", ret);
+    return ret;
+  }
   std::string image_list(argv[2]);
 
   std::cout << "to read file_list:" << image_list << std::endl;
@@ -61,7 +70,11 @@ int main(int argc, char *argv[]) {
   std::string input_image_path;
   cvtdl_clip_feature clip_feature;
 
-  std::ofstream outfile("a2_image_output.txt");
+  // opencv_params ={width,height,mean[3],std[3],interpolationMethod,rgbFormat}
+  cvtdl_opencv_params opencv_params = {
+      224, 224, {0.40821073, 0.4578275, 0.48145466}, {0.27577711, 0.26130258, 0.26862954}, 1, 0};
+
+  std::ofstream outfile("a2_image_output_device.txt");
 
   std::cout << file_list.size() << std::endl;
   for (size_t i = 0; i < file_list.size(); i++) {
@@ -75,8 +88,14 @@ int main(int argc, char *argv[]) {
     std::cout << "number of img:" << i << ";last of imgname:" << pic_name << std::endl;
     imgprocess_t img_handle;
     CVI_TDL_Create_ImageProcessor(&img_handle);
-    ret = CVI_TDL_ReadImage_CenrerCrop_Resize(img_handle, input_image_path.c_str(), &rgb_frame,
-                                              PIXEL_FORMAT_RGB_888_PLANAR, 224, 224);
+    if (m_input_data_type == 2) {
+      ret = CVI_TDL_ReadImage_CenrerCrop_Resize(img_handle, input_image_path.c_str(), &rgb_frame,
+                                                PIXEL_FORMAT_RGB_888_PLANAR, 224, 224);
+    } else if (m_input_data_type == 0) {
+      ret = CVI_TDL_OpenCV_ReadImage_Float(img_handle, input_image_path.c_str(), &rgb_frame,
+                                           opencv_params);
+    }
+
     if (ret != CVI_SUCCESS) {
       printf("open img failed with %#x!\n", ret);
       return ret;

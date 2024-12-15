@@ -21,7 +21,7 @@
 
 #define PROC_NAME	"cvitek/ldc_test"
 
-uint8_t ldc_test_enabled;
+CVI_U8 ldc_test_enabled;
 
 #ifdef PORTING_TEST
 void ldc_dump_register(void)
@@ -109,7 +109,7 @@ void ldc_dump_register(void)
 	CVI_TRACE_DWA(CVI_DBG_INFO, "LDC_DST_TI_CNT_Y=0x%08x\n", _reg_read(ldc_base + LDC_LDC_DST_TI_CNT_Y));
 }
 
-void ldc_test_irq_handler(uint32_t intr_status)
+void ldc_test_irq_handler(CVI_U32 intr_status)
 {
 	if (ldc_tst_enable_cmdq) {
 		u8 status = cmdQ_intr_status(REG_LDC_CMDQ_BASE);
@@ -280,7 +280,7 @@ static int ldc_test_proc_open(struct inode *inode, struct file *file)
 
 static ssize_t ldc_test_proc_write(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)
 {
-	uint32_t input_param = 0;
+	CVI_U32 input_param = 0;
 
 	if (kstrtouint_from_user(user_buf, count, 0, &input_param)) {
 		CVI_TRACE_DWA(CVI_DBG_ERR, "input parameter incorrect\n");
@@ -327,7 +327,7 @@ static const struct file_operations ldc_test_proc_ops = {
 	.release = single_release,
 };
 #endif
-int32_t ldc_test_proc_init(void)
+CVI_S32 ldc_test_proc_init(void)
 {
 	int ret = 0;
 
@@ -339,7 +339,7 @@ int32_t ldc_test_proc_init(void)
 	return ret;
 }
 
-int32_t ldc_test_proc_deinit(void)
+CVI_S32 ldc_test_proc_deinit(void)
 {
 	remove_proc_entry(PROC_NAME, NULL);
 
@@ -349,15 +349,15 @@ int32_t ldc_test_proc_deinit(void)
 void ldc_dump_register(void)
 {
 }
-int32_t ldc_test_proc_init(void)
+CVI_S32 ldc_test_proc_init(void)
 {
 	return 0;
 }
-int32_t ldc_test_proc_deinit(void)
+CVI_S32 ldc_test_proc_deinit(void)
 {
 	return 0;
 }
-void ldc_test_irq_handler(uint32_t intr_raw_status)
+void ldc_test_irq_handler(CVI_U32 intr_raw_status)
 {
 }
 #endif

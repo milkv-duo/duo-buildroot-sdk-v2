@@ -111,7 +111,7 @@ static CVI_S32 CVI_ISPD2_Message_ComposeResponse(JSONObject *pJsonResponse,
 		}
 	}
 	if (pJsonContentPtr) {
-		struct lh_table *obj_table = json_object_get_object(pJsonContent);
+		struct lh_table *obj_table = ISPD2_json_object_get_object(pJsonContent);
 		for(int i = 0; i < obj_table->size; i++) {
 			if(obj_table->table[i].v == pJsonContentPtr) {
 				ISPD2_json_object_object_add(pJsonResult, "params", pJsonContentPtr);
@@ -445,7 +445,7 @@ CVI_S32 CVI_ISPD2_Message_HandleMessage(const char *pBufIn, CVI_U32 u32BufInSize
 	} while (u32ReadOffset < u32BufInSize);
 
 	ISPD2_json_object_put(pJsonObj);
-	json_tokener_free(pJsonTok);
+	ISPD2_json_tokener_free(pJsonTok);
 
 	return CVI_SUCCESS;
 }

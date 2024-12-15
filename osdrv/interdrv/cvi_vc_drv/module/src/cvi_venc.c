@@ -3311,7 +3311,7 @@ CVI_S32 CVI_VENC_GetStream(VENC_CHN VeChn, VENC_STREAM_S *pstStream,
 		return CVI_ERR_VENC_BUSY;
 	}
 
-#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE) && defined(__riscv)
+#if (KERNEL_VERSION(5, 10, 0) <= LINUX_VERSION_CODE)
 	pstStream->pstPack = vzalloc(sizeof(VENC_PACK_S) * _cviGetNumPacks(pChnAttr->stVencAttr.enType));
 	if (pstStream->pstPack == NULL)
 		return CVI_ERR_VENC_NOMEM;
@@ -3640,6 +3640,7 @@ static CVI_S32 cviSetVencPerfAttrToProc(venc_chn_context *pChnHandle)
 		pChnVars->u32GetStreamCnt = 0;
 	}
 	pChnVars->stFPS.u64HwTime = pEncCtx->base.u64EncHwTime;
+	pChnVars->stFPS.u64DoneFrame++;
 	MUTEX_UNLOCK(&pChnHandle->chnShmMutex);
 
 	return s32Ret;

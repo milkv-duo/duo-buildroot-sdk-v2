@@ -1,0 +1,14 @@
+
+test_start
+test_dir = /mnt/sd/raw_data
+test_pq_bin = /mnt/sd/cvi_sdr_01.bin
+test_roi = 0,0,960,540
+test_output_dir = /mnt/sd/raw_data/output_01
+test_end
+
+test_start
+test_dir = /mnt/sd/raw_data
+test_pq_bin = /mnt/sd/cvi_sdr_02.bin
+test_output_dir = /mnt/sd/raw_data/output_02
+test_end
+

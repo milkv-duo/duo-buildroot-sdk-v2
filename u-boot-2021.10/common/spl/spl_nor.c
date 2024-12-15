@@ -43,9 +43,13 @@ static void cvi_spi_nor_init(uint8_t bus_width)
 	mmio_write_32(REG_BASE + REG_SPI_DMMR, 0);
 	reg = mmio_read_32(REG_BASE + REG_SPI_CTRL);
 	reg &= ~BIT_SPI_CTRL_SCK_DIV_MASK;
+	if (bus_width == 4)
 	/* set clock to 75M */
-	reg |= 1;
+		reg |= 1;
+	else
+		reg |= 2;
 	mmio_write_32(REG_BASE + REG_SPI_CTRL, reg);
+
 	/* negative sample */
 	mmio_write_16(REG_BASE + REG_SPI_DLY_CTRL, BIT_SPI_DLY_CTRL_CET | BIT_SPI_DLY_CTRL_NEG_SAMPLE);
 	mmio_write_32(REG_SPI_CE_CTRL, 0);
