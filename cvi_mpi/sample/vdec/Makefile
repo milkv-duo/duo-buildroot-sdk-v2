@@ -36,9 +36,9 @@ VDEC_DEPS = $(VDEC_SRCS:.c=.d)
 TARGET = sample_vdec
 
 ifeq ($(TARGET_MACHINE),arm-linux-gnueabihf)
-TARGET_WITH_ASAN = sample_vdec_asan
+#TARGET_WITH_ASAN = sample_vdec_asan
 else ifeq ($(TARGET_MACHINE),aarch64-linux-gnu)
-TARGET_WITH_ASAN = sample_vdec_asan
+#TARGET_WITH_ASAN = sample_vdec_asan
 else
 TARGET_WITH_ASAN =
 endif

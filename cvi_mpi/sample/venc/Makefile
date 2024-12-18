@@ -45,11 +45,11 @@ VCODEC_DEPS = $(VCODEC_SRCS:.c=.d)
 TARGET_VENC = sample_venc
 TARGET_VCODEC = sample_vcodec
 ifeq ($(TARGET_MACHINE),arm-linux-gnueabihf)
-TARGET_VENC_WITH_ASAN = sample_venc_asan
-TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
+#TARGET_VENC_WITH_ASAN = sample_venc_asan
+#TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
 else ifeq ($(TARGET_MACHINE), aarch64-linux-gnu)
-TARGET_VENC_WITH_ASAN = sample_venc_asan
-TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
+#TARGET_VENC_WITH_ASAN = sample_venc_asan
+#TARGET_VCODEC_WITH_ASAN = sample_vcodec_asan
 else
 TARGET_VENC_WITH_ASAN =
 TARGET_VCODEC_WITH_ASAN =
