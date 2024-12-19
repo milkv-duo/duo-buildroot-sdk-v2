@@ -25,7 +25,7 @@ function get_toolchain()
   if [ ! -d host-tools ]; then
     print_info "Toolchain does not exist, download it now..."
 
-    toolchain_url="https://github.com/jacobjuneau6/host-tools.git"
+    toolchain_url="https://github.com/milkv-duo/host-tools.git"
     echo "toolchain_url: ${toolchain_url}"
 
     git clone ${toolchain_url}
