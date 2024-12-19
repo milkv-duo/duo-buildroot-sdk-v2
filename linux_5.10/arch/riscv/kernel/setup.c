@@ -89,7 +89,7 @@ void __init setup_arch(char **cmdline_p)
 	else
 		pr_err("No DTB found in kernel mappings\n");
 #endif
-
+early_init_fdt_scan_reserved_mem();
 #ifdef CONFIG_SWIOTLB
 	swiotlb_init(1);
 #endif
