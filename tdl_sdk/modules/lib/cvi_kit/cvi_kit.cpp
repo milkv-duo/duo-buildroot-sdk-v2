@@ -11,10 +11,17 @@
 #ifndef NO_OPENCV
 
 using namespace cvitdl;
+std::vector<cv::Scalar> color = {cv::Scalar(51, 153, 255), cv::Scalar(0, 153, 76),
+                                 cv::Scalar(255, 215, 0), cv::Scalar(255, 128, 0),
+                                 cv::Scalar(0, 255, 0)};
+
+int color_map[17] = {0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 4, 3, 4, 3, 4, 3};
+int line_map[19] = {4, 4, 3, 3, 0, 0, 0, 0, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0};
+int skeleton[19][2] = {{15, 13}, {13, 11}, {16, 14}, {14, 12}, {11, 12}, {5, 11}, {6, 12},
+                       {5, 6},   {5, 7},   {6, 8},   {7, 9},   {8, 10},  {1, 2},  {0, 1},
+                       {0, 2},   {1, 3},   {2, 4},   {3, 5},   {4, 6}};
+
 CVI_S32 CVI_TDL_ShowLanePoints(VIDEO_FRAME_INFO_S *bg, cvtdl_lane_t *lane_meta, char *save_path) {
-  std::vector<cv::Scalar> color = {cv::Scalar(51, 153, 255), cv::Scalar(0, 153, 76),
-                                   cv::Scalar(255, 215, 0), cv::Scalar(255, 128, 0),
-                                   cv::Scalar(0, 255, 0)};
   bg->stVFrame.pu8VirAddr[0] =
       (CVI_U8 *)CVI_SYS_Mmap(bg->stVFrame.u64PhyAddr[0], bg->stVFrame.u32Length[0]);
 
@@ -36,18 +43,143 @@ CVI_S32 CVI_TDL_ShowLanePoints(VIDEO_FRAME_INFO_S *bg, cvtdl_lane_t *lane_meta, 
   CVI_SYS_Munmap((void *)bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Length[0]);
   return CVI_SUCCESS;
 }
+cv::Scalar gen_random_color(uint64_t seed, int min) {
+  float scale = (256. - (float)min) / 256.;
+  srand((uint32_t)seed);
+
+  int r = (int)((floor(((float)rand() / (RAND_MAX)) * 256.)) * scale) + min;
+  int g = (int)((floor(((float)rand() / (RAND_MAX)) * 256.)) * scale) + min;
+  int b = (int)((floor(((float)rand() / (RAND_MAX)) * 256.)) * scale) + min;
+
+  return cv::Scalar(r, g, b);
+}
+
+DLL_EXPORT CVI_S32 CVI_TDL_Draw_ADAS(cvitdl_app_handle_t app_handle, VIDEO_FRAME_INFO_S *bg, char* save_path) {
+  static const char *enumStr[] = {"N", "S", "C", "D"};
+  int g_count = 0;
+  bg->stVFrame.pu8VirAddr[0] =
+      (CVI_U8 *)CVI_SYS_Mmap(bg->stVFrame.u64PhyAddr[0], bg->stVFrame.u32Length[0]);
+
+  cv::Mat img_rgb(bg->stVFrame.u32Height, bg->stVFrame.u32Width, CV_8UC3,
+                  bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Stride[0]);
+
+  cvtdl_object_t *obj_meta = &app_handle->adas_info->last_objects;
+  cvtdl_tracker_t *track_meta = &app_handle->adas_info->last_trackers;
+  cvtdl_lane_t *lane_meta = &app_handle->adas_info->lane_meta;
+
+  cv::Scalar box_color;
+  for (uint32_t oid = 0; oid < obj_meta->size; oid++) {
+    // if (track_meta->info[oid].state == CVI_TRACKER_NEW) {
+    //     box_color = cv::Scalar(0, 255, 0);
+    // } else if (track_meta->info[oid].state == CVI_TRACKER_UNSTABLE) {
+    //     box_color = cv::Scalar(105, 105, 105);
+    // } else {  // CVI_TRACKER_STABLE
+    //     box_color = gen_random_color(obj_meta->info[oid].unique_id, 64);
+    // }
+    box_color = gen_random_color(obj_meta->info[oid].unique_id, 64);
+
+    cv::Point top_left((int)obj_meta->info[oid].bbox.x1, (int)obj_meta->info[oid].bbox.y1);
+    cv::Point bottom_right((int)obj_meta->info[oid].bbox.x2, (int)obj_meta->info[oid].bbox.y2);
+
+    cv::rectangle(img_rgb, top_left, bottom_right, box_color, 2);
+
+    char txt_info[256];
+    snprintf(txt_info, sizeof(txt_info), "[%d][%s]S:%.1f,V:%.1f", obj_meta->info[oid].classes,
+             enumStr[obj_meta->info[oid].adas_properity.state],
+             obj_meta->info[oid].adas_properity.dis, obj_meta->info[oid].adas_properity.speed);
+
+    if (obj_meta->info[oid].adas_properity.state != 0) box_color = cv::Scalar(0, 0, 255);
+
+    cv::putText(img_rgb, txt_info, cv::Point(top_left.x, top_left.y - 10), 0, 0.5, box_color, 1);
+  }
+
+  if (app_handle->adas_info->det_type) {
+    int size = bg->stVFrame.u32Width >= 1080 ? 6 : 3;
+
+    for (int i = 0; i < lane_meta->size; i++) {
+      int x1 = (int)lane_meta->lane[i].x[0];
+      int y1 = (int)lane_meta->lane[i].y[0];
+      int x2 = (int)lane_meta->lane[i].x[1];
+      int y2 = (int)lane_meta->lane[i].y[1];
+
+      cv::line(img_rgb, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0), size);
+    }
+
+    char lane_info[64];
+
+    if (app_handle->adas_info->lane_state == 0) {
+      strcpy(lane_info, "NORMAL");
+      box_color = cv::Scalar(0, 255, 0);
+    } else {
+      strcpy(lane_info, "LANE DEPARTURE WARNING !");
+      box_color = cv::Scalar(0, 0, 255);
+    }
+
+    cv::putText(img_rgb, lane_info,
+                cv::Point((int)(0.3 * bg->stVFrame.u32Width), (int)(0.8 * bg->stVFrame.u32Height)),
+                0, size / 3, box_color, size / 3);
+
+    snprintf(lane_info, sizeof(lane_info), "%d", g_count);
+    cv::putText(img_rgb, lane_info, cv::Point(10, 50), 0, size / 3, cv::Scalar(0, 255, 0),
+                size / 3);
+
+    g_count++;
+  }
+
+  cv::imwrite(save_path, img_rgb);
+  CVI_SYS_Munmap((void *)bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Length[0]);
+  
+  return CVI_SUCCESS;
+}
+
+DLL_EXPORT CVI_S32 CVI_TDL_ShowKeypointsAndText(VIDEO_FRAME_INFO_S *bg, cvtdl_object_t *obj_meta, char* save_path,
+                    char* text, float score) {
+  bg->stVFrame.pu8VirAddr[0] =
+      (CVI_U8 *)CVI_SYS_Mmap(bg->stVFrame.u64PhyAddr[0], bg->stVFrame.u32Length[0]);
+
+  cv::Mat img_rgb(bg->stVFrame.u32Height, bg->stVFrame.u32Width, CV_8UC3,
+                  bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Stride[0]);
+
+  for (uint32_t i = 0; i < obj_meta->size; i++) {
+    for (uint32_t j = 0; j < 17; j++) {
+      // printf("j:%d\n",j);
+      if (obj_meta->info[i].pedestrian_properity->pose_17.score[i] < score) {
+        continue;
+      }
+      int x = (int)obj_meta->info[i].pedestrian_properity->pose_17.x[j];
+      int y = (int)obj_meta->info[i].pedestrian_properity->pose_17.y[j];
+      cv::circle(img_rgb, cv::Point(x, y), 5, color[color_map[j]], -1);
+    }
+
+    for (uint32_t k = 0; k < 19; k++) {
+      // printf("k:%d\n",k);
+
+      int kps1 = skeleton[k][0];
+      int kps2 = skeleton[k][1];
+      if (obj_meta->info[i].pedestrian_properity->pose_17.score[kps1] < score ||
+          obj_meta->info[i].pedestrian_properity->pose_17.score[kps2] < score)
+        continue;
+
+      int x1 = (int)obj_meta->info[i].pedestrian_properity->pose_17.x[kps1];
+      int y1 = (int)obj_meta->info[i].pedestrian_properity->pose_17.y[kps1];
+
+      int x2 = (int)obj_meta->info[i].pedestrian_properity->pose_17.x[kps2];
+      int y2 = (int)obj_meta->info[i].pedestrian_properity->pose_17.y[kps2];
+
+      cv::line(img_rgb, cv::Point(x1, y1), cv::Point(x2, y2), color[line_map[k]], 2);
+    }
+  }
+
+  cv::putText(img_rgb, text, cv::Point(10, 30), cv::FONT_HERSHEY_COMPLEX, 0.5,
+              cv::Scalar(0, 255, 255), 1);
+
+  cv::imwrite(save_path, img_rgb);
+  CVI_SYS_Munmap((void *)bg->stVFrame.pu8VirAddr[0], bg->stVFrame.u32Length[0]);
+  return CVI_SUCCESS;
+}
 
 CVI_S32 CVI_TDL_ShowKeypoints(VIDEO_FRAME_INFO_S *bg, cvtdl_object_t *obj_meta,
                                          float score, char *save_path) {
-  std::vector<cv::Scalar> color = {cv::Scalar(51, 153, 255), cv::Scalar(0, 153, 76),
-                                   cv::Scalar(255, 215, 0), cv::Scalar(255, 128, 0),
-                                   cv::Scalar(0, 255, 0)};
-
-  int color_map[17] = {0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 4, 3, 4, 3, 4, 3};
-  int line_map[19] = {4, 4, 3, 3, 0, 0, 0, 0, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0};
-  int skeleton[19][2] = {{15, 13}, {13, 11}, {16, 14}, {14, 12}, {11, 12}, {5, 11}, {6, 12},
-                         {5, 6},   {5, 7},   {6, 8},   {7, 9},   {8, 10},  {1, 2},  {0, 1},
-                         {0, 2},   {1, 3},   {2, 4},   {3, 5},   {4, 6}};
   bg->stVFrame.pu8VirAddr[0] =
       (CVI_U8 *)CVI_SYS_Mmap(bg->stVFrame.u64PhyAddr[0], bg->stVFrame.u32Length[0]);
 

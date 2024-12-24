@@ -13,6 +13,66 @@ int compareFileNames(const void *a, const void *b) {
   return strcmp(str1, str2);
 }
 
+char **getImgList(const char *dir_path, int *line_count) {
+    char **files = NULL;  // 用于存储文件名的动态数组
+    int count = 0;        // 文件数量计数
+    DIR *dir;
+    struct dirent *ptr;
+
+    // 打开目录
+    if ((dir = opendir(dir_path)) == NULL) {
+        perror("Open dir error...");
+        exit(1);
+    }
+
+    // 遍历目录中的文件和子目录
+    while ((ptr = readdir(dir)) != NULL) {
+        // 跳过当前目录和父目录
+        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)
+            continue;
+
+        // 如果是普通文件
+        if (ptr->d_type == DT_REG) {
+            // 动态分配空间给文件名数组
+            files = (char **)realloc(files, (count + 1) * sizeof(char *));
+            if (files == NULL) {
+                perror("Memory allocation error");
+                closedir(dir);
+                exit(1);
+            }
+
+            // 分配空间存储文件名，并将文件名复制到数组中
+            files[count] = (char *)malloc(strlen(ptr->d_name) + 1);
+            if (files[count] == NULL) {
+                perror("Memory allocation error");
+                closedir(dir);
+                exit(1);
+            }
+            strcpy(files[count], ptr->d_name);
+            count++;
+        }
+    }
+
+    // 关闭目录
+    closedir(dir);
+
+    // 对文件名数组进行排序
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = i + 1; j < count; j++) {
+            if (strcmp(files[i], files[j]) > 0) {
+                char *temp = files[i];
+                files[i] = files[j];
+                files[j] = temp;
+            }
+        }
+    }
+
+    // 将文件数量返回给调用者
+    *line_count = count;
+
+    return files;
+}
+
 char **read_file_lines(const char *filename, int *line_count) {
   FILE *file = fopen(filename, "r");
   if (!file) {

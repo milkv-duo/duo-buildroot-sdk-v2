@@ -7,7 +7,6 @@ include_directories(${MIDDLEWARE_INCLUDES}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../../service/
                     ${CMAKE_CURRENT_SOURCE_DIR}/../../../include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../../core/ive
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../../../include/cvi_tdl_app 
                     ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJ_SRCS   $<TARGET_OBJECTS:utils>
