@@ -1581,17 +1581,6 @@ DLL_EXPORT CVI_S32 CVI_TDL_Set_LSTR_ExportFeature(const cvitdl_handle_t handle,
                                                   const CVI_TDL_SUPPORTED_MODEL_E model_index,
                                                   int flag);
 
-DLL_EXPORT CVI_S32 CVI_TDL_Set_TextPreprocess(const char *encoderFile, const char *bpeFile,
-                                              const char *textFile, int32_t **tokens,
-                                              int numSentences);
-
-DLL_EXPORT CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_features_num,
-                                               float **image_features, int image_features_num,
-                                               float **probs);
-
-DLL_EXPORT CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame,
-                                                cvtdl_object_t *obj_meta);
-
 DLL_EXPORT CVI_S32 CVI_TDL_Depth_Stereo(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame1,
                                         VIDEO_FRAME_INFO_S *frame2,
                                         cvtdl_depth_logits_t *depth_logist);

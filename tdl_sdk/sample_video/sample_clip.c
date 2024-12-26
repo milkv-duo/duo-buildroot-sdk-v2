@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "cvi_kit.h"
 
 static volatile bool bExit = false;
 

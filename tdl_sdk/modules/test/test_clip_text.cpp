@@ -14,8 +14,7 @@
 #include "cvi_tdl_media.h"
 #include "mapi.hpp"
 #include "sys_utils.hpp"
-#include "utils/token.hpp"
-
+#include "cvi_kit.h"
 cvitdl_handle_t tdl_handle = NULL;
 static CVI_S32 vpssgrp_width = 1920;
 static CVI_S32 vpssgrp_height = 1080;

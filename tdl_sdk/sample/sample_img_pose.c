@@ -7,7 +7,7 @@
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
-#include "sample_utils.h"
+#include "cvi_kit.h"
 #include "sys_utils.h"
 
 int process_img_simcc(cvitdl_handle_t tdl_handle, char* pd_model, char* pose_model,

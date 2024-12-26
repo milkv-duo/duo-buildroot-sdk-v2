@@ -14,15 +14,15 @@ set(PROJ_SRCS   $<TARGET_OBJECTS:utils>
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../core/cvi_tdl_utils.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../core/cvi_tdl_types_mem.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../service/draw_rect/draw_rect.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/sample_utils.cpp )
+                ${CMAKE_CURRENT_SOURCE_DIR}/cvi_kit.cpp )
 
-project(sample_utils)
+project(cvi_kit)
 add_library(${PROJECT_NAME} SHARED ${PROJ_SRCS})
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 
-project(sample_utils-static)
+project(cvi_kit-static)
 add_library(${PROJECT_NAME} STATIC ${PROJ_SRCS})
-SET_TARGET_PROPERTIES(sample_utils-static PROPERTIES OUTPUT_NAME "sample_utils")
+SET_TARGET_PROPERTIES(cvi_kit-static PROPERTIES OUTPUT_NAME "cvi_kit")
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/sample_utils.h DESTINATION include/sample_utils)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cvi_kit.h DESTINATION include/cvi_kit)

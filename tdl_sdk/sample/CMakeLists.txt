@@ -37,9 +37,9 @@ endfunction(buildninstall)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils
                     ${CMAKE_CURRENT_SOURCE_DIR}/../include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core/core     
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core/core
                     ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core/utils
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/lib/sample_utils)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/lib/cvi_kit)
 set(REG_INCLUDES
     ${MIDDLEWARE_SDK_ROOT}/include
     ${MIDDLEWARE_SDK_ROOT}/sample/common
@@ -147,20 +147,20 @@ else()
 endif()
 if (NOT DEFINED NO_OPENCV)
     # buildninstall(NAME sample_img_fall_monitor INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_fdfr INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_hrnet INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_simcc_pose INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_lane_det INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_lstr INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_fdfr INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_hrnet INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_simcc_pose INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_lane_det INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_lstr INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
     buildninstall(NAME sample_img_ocr INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_pose INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_sr INC ${REG_INCLUDES} DEPS cvi_tdl atomic sample_utils ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_pose INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_sr INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_kit ${SAMPLE_LIBS})
     # # buildninstall(NAME test_vpss_fuse_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     # # buildninstall(NAME test_vpss_mosaic INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     # # buildninstall(NAME test_vpss_pd INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstall(NAME sample_img_lpd_lpr_v1 INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstall(NAME sample_img_lpd_lpr_v2 INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
-    buildninstall(NAME sample_img_yolov8_seg INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS})
+    buildninstall(NAME sample_img_yolov8_seg INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS})
 endif()
 
 if("${CVI_PLATFORM}" STREQUAL "CV186X")
@@ -188,8 +188,8 @@ buildninstall(NAME sample_audio_cls INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SA
 # buildninstall(NAME sample_img_irregular_people_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
 # buildninstall(NAME sample_img_people_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
 buildninstall(NAME sample_dms_landmarks INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS})
-buildninstall(NAME sample_clip_text INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
-buildninstall(NAME sample_clip_pipeline INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
+buildninstall(NAME sample_clip_text INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
+buildninstall(NAME sample_clip_pipeline INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
 buildninstall(NAME sample_hardhat_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
 buildninstall(NAME sample_hardhat_retinaface INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)
 buildninstall(NAME sample_fire_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.c)

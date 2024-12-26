@@ -8,7 +8,7 @@
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
-#include "sample_utils.h"
+#include "cvi_kit.h"
 
 int process_image_file(cvitdl_handle_t tdl_handle, char* imgf, cvtdl_face_t* p_obj) {
   VIDEO_FRAME_INFO_S bg;

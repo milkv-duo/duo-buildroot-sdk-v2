@@ -19,7 +19,18 @@ DLL_EXPORT CVI_S32 CVI_TDL_SavePicture(VIDEO_FRAME_INFO_S *bg, char *save_path);
 
 DLL_EXPORT CVI_S32 CVI_TDL_Cal_Similarity(cvtdl_feature_t feature, cvtdl_feature_t feature1,
                                           float *similarity);
+
+DLL_EXPORT CVI_S32 CVI_TDL_Set_MaskOutlinePoint(VIDEO_FRAME_INFO_S *frame,
+                                                cvtdl_object_t *obj_meta);
+
 #endif
+DLL_EXPORT CVI_S32 CVI_TDL_Set_ClipPostprocess(float **text_features, int text_features_num,
+                                               float **image_features, int image_features_num,
+                                               float **probs);
+                                               
+DLL_EXPORT CVI_S32 CVI_TDL_Set_TextPreprocess(const char *encoderFile, const char *bpeFile,
+                                              const char *textFile, int32_t **tokens,
+                                              int numSentences);
 
 #ifdef __cplusplus
 }

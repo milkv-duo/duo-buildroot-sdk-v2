@@ -7,7 +7,7 @@
 #include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
 #include "cvi_tdl_media.h"
-#include "sample_utils.h"
+#include "cvi_kit.h"
 #include "sys_utils.h"
 
 int main(int argc, char* argv[]) {

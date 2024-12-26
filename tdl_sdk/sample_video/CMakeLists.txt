@@ -62,6 +62,12 @@ function(buildninstallcpp)
   endif()
 endfunction(buildninstallcpp)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core/core
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/core/utils
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../modules/lib/cvi_kit)
 set(SAMPLE_INC
     ${MIDDLEWARE_SDK_ROOT}/include
     ${MIDDLEWARE_SDK_ROOT}/sample/common
@@ -295,7 +301,7 @@ buildninstall(NAME sample_stream_consumer_counting INC ${SAMPLE_INC} SRCS middle
 buildninstall(NAME sample_stream_personvehicle_cross INC ${SAMPLE_INC} SRCS vi_vo_utils.c ${SAMPLE_LIBS_FILE} DEPS cvi_tdl cvi_tdl_app pthread ${SAMPLE_LIBS} )
 buildninstall(NAME sample_stream_hardhat INC ${SAMPLE_INC} SRCS vi_vo_utils.c ${SAMPLE_LIBS_FILE} DEPS cvi_tdl cvi_tdl_app pthread ${SAMPLE_LIBS})
 buildninstall(NAME sample_stream_fr INC ${SAMPLE_INC} SRCS vi_vo_utils.c ${SAMPLE_LIBS_FILE} DEPS cvi_tdl cvi_tdl_app pthread ${SAMPLE_LIBS})
-buildninstall(NAME sample_clip INC ${SAMPLE_INC} SRCS middleware_utils.c sample_utils.c ${SAMPLE_LIBS_FILE} DEPS cvi_tdl ${SAMPLE_LIBS} )
+buildninstall(NAME sample_clip INC ${SAMPLE_INC} SRCS middleware_utils.c sample_utils.c ${SAMPLE_LIBS_FILE} DEPS cvi_tdl cvi_kit ${SAMPLE_LIBS} )
 
 if((DEFINED BUILD_WEB_VIEW) AND ("${CVI_PLATFORM}" STREQUAL "CV182X"))
   buildninstall(NAME sample_web_multi_model INC ${SAMPLE_INC_WEB} SRCS middleware_utils.c ${SAMPLE_SRC_WEB} DEPS cvi_tdl ${SAMPLE_LIBS_WEB} )
@@ -306,4 +312,3 @@ install(FILES vi_vo_utils.h sample_utils.h middleware_utils.h DESTINATION sample
 install(FILES Makefile DESTINATION sample/cvi_tdl)
 install(FILES Makefile DESTINATION sample/cvi_tdl_app)
 install(FILES Makefile DESTINATION sample/cvi_yolo)
-

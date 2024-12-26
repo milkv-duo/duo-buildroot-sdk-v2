@@ -23,7 +23,8 @@ endfunction(buildninstallcpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils
                     ${CMAKE_CURRENT_SOURCE_DIR}/../core
                     ${CMAKE_CURRENT_SOURCE_DIR}/../core/core
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../core/utils)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../core/utils
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../lib/cvi_kit)
 
 set(REG_INCLUDES
     ${MIDDLEWARE_SDK_ROOT}/include
@@ -145,7 +146,7 @@ if (NOT DEFINED NO_OPENCV)
     # buildninstallcpp(NAME test_vpss_pd INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstallcpp(NAME test_img_lpd_lpr_v1 INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
     buildninstallcpp(NAME test_img_lpd_lpr_v2 INC ${REG_INCLUDES} DEPS cvi_tdl atomic ${SAMPLE_LIBS})
-    buildninstallcpp(NAME test_img_yolov8_seg INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+    buildninstallcpp(NAME test_img_yolov8_seg INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 endif()
 
 if("${CVI_PLATFORM}" STREQUAL "SOPHON")
@@ -174,8 +175,8 @@ buildninstallcpp(NAME test_img_consumer_counting INC ${REG_INCLUDES} DEPS cvi_td
 buildninstallcpp(NAME test_img_irregular_people_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app pthread ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_img_people_vehicle INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_dms_landmarks INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS})
-buildninstallcpp(NAME test_clip_text INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
-buildninstallcpp(NAME test_clip_pipeline INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+buildninstallcpp(NAME test_clip_text INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
+buildninstallcpp(NAME test_clip_pipeline INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app cvi_kit ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_hardhat_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_hardhat_retinaface INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)
 buildninstallcpp(NAME test_fire_yolov8 INC ${REG_INCLUDES} DEPS cvi_tdl atomic cvi_tdl_app ${SAMPLE_LIBS} SRCS ${CMAKE_CURRENT_SOURCE_DIR}/utils/sys_utils.cpp)

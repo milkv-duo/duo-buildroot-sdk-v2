@@ -14,8 +14,7 @@
 #include "cvi_tdl_media.h"
 #include "mapi.hpp"
 #include "sys_utils.hpp"
-#include "utils/clip_postprocess.hpp"
-#include "utils/token.hpp"
+#include "cvi_kit.h"
 
 double __get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
 cvitdl_handle_t tdl_handle = NULL;
