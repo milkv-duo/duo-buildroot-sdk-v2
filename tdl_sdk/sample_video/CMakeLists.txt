@@ -99,13 +99,21 @@ set(AUDIO_SAMPLE_LIBS ${MIDDLEWARE_SDK_ROOT}/lib/libcvi_ssp.so
                       ${MIDDLEWARE_SDK_ROOT}/lib/libtinyalsa.so
                       ${MIDDLEWARE_SDK_ROOT}/lib/libcvi_VoiceEngine.so
                       ${MIDDLEWARE_SDK_ROOT}/lib/libcvi_RES1.so
+
 )
+
+if(${CVI_PLATFORM} STREQUAL "SOPHON")
+else()
+  set(AUDIO_SAMPLE_LIBS
+    ${AUDIO_SAMPLE_LIBS}
+    ${MIDDLEWARE_SDK_ROOT}/lib/3rd/libsbc.so
+  )
+endif()
 
 if(${CONFIG_DUAL_OS} STREQUAL "ON")
   set(AUDIO_SAMPLE_LIBS
     ${AUDIO_SAMPLE_LIBS}
     ${MIDDLEWARE_SDK_ROOT}/lib/libdnvqe.so
-    ${MIDDLEWARE_SDK_ROOT}/lib/3rd/libsbc.so
   )
 else()
   set(AUDIO_SAMPLE_LIBS
