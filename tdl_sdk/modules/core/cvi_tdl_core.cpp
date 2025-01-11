@@ -23,6 +23,7 @@
 #include "human_keypoints_detection/simcc/simcc.hpp"
 #include "human_keypoints_detection/yolov8_pose/yolov8_pose.hpp"
 
+#include "occlusion_classification/occlusion_classification.hpp"
 #include "image_classification/image_classification.hpp"
 #include "incar_object_detection/incar_object_detection.hpp"
 #include "lane_detection/lane_detection.hpp"
@@ -58,6 +59,7 @@
 #include "osnet/osnet.hpp"
 #include "raw_image_classification/raw_image_classification.hpp"
 #include "segmentation/deeplabv3.hpp"
+#include "segmentation/topformer_seg/topformer_seg.hpp"
 #include "sound_classification/sound_classification_v2.hpp"
 #include "super_resolution/super_resolution.hpp"
 
@@ -190,6 +192,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
 #endif
 
     {CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, CREATOR(IspImageClassification)},
+    {CVI_TDL_SUPPORTED_MODEL_OCCLUSION_CLASSIFICATION, CREATOR(OcclusionClassification)},
     {CVI_TDL_SUPPORTED_MODEL_IRLIVENESS, CREATOR(IrLiveness)},
     {CVI_TDL_SUPPORTED_MODEL_YOLO, CREATOR(Yolo)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV3, CREATOR(Yolov3)},
@@ -248,6 +251,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
     {CVI_TDL_SUPPORTED_MODEL_WPODNET, CREATOR(LicensePlateDetection)},
 
     {CVI_TDL_SUPPORTED_MODEL_DEEPLABV3, CREATOR(Deeplabv3)},
+    {CVI_TDL_SUPPORTED_MODEL_TOPFORMER_SEG, CREATOR(TopformerSeg)},
     {CVI_TDL_SUPPORTED_MODEL_MOTIONSEGMENTATION, CREATOR(MotionSegmentation)},
 
     {CVI_TDL_SUPPORTED_MODEL_FACELANDMARKER, CREATOR(FaceLandmarker)},
@@ -1018,6 +1022,8 @@ DEFINE_INF_FUNC_F1_P1(CVI_TDL_SoundClassification, SoundClassification,
                       CVI_TDL_SUPPORTED_MODEL_SOUNDCLASSIFICATION, int *)
 DEFINE_INF_FUNC_F2_P1(CVI_TDL_DeeplabV3, Deeplabv3, CVI_TDL_SUPPORTED_MODEL_DEEPLABV3,
                       cvtdl_class_filter_t *)
+DEFINE_INF_FUNC_F1_P1(CVI_TDL_Topformer_Seg, TopformerSeg, CVI_TDL_SUPPORTED_MODEL_TOPFORMER_SEG,
+                      cvtdl_seg_t *)                      
 DEFINE_INF_FUNC_F2_P1(CVI_TDL_MotionSegmentation, MotionSegmentation,
                       CVI_TDL_SUPPORTED_MODEL_MOTIONSEGMENTATION, cvtdl_seg_logits_t *)
 
@@ -1034,6 +1040,8 @@ DEFINE_INF_FUNC_F1_P1(CVI_TDL_IncarObjectDetection, IncarObjectDetection,
                       CVI_TDL_SUPPORTED_MODEL_INCAROBJECTDETECTION, cvtdl_face_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_License_Plate_Detectionv2, YoloV8Pose,
                       CVI_TDL_SUPPORTED_MODEL_LP_DETECTION, cvtdl_object_t *)
+DEFINE_INF_FUNC_F1_P1(CVI_TDL_Occlusion_Classification, OcclusionClassification,
+                      CVI_TDL_SUPPORTED_MODEL_OCCLUSION_CLASSIFICATION, cvtdl_class_meta_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_Image_Classification, ImageClassification,
                       CVI_TDL_SUPPORTED_MODEL_IMAGE_CLASSIFICATION, cvtdl_class_meta_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_Raw_Image_Classification, RawImageClassification,
@@ -1883,5 +1891,21 @@ CVI_S32 CVI_TDL_Set_LSTR_ExportFeature(const cvitdl_handle_t handle,
     return CVI_SUCCESS;
   }
   LOGE("not supported model index\n");
+  return CVI_FAILURE;
+}
+
+CVI_S32 CVI_TDL_Set_Segmentation_DownRato(const cvitdl_handle_t handle,
+                                         const CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                         int down_rato) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+  std::cout << "CVI_TDL_Set_Segmentation_DownRato into" << std::endl;
+  if (model_index == CVI_TDL_SUPPORTED_MODEL_TOPFORMER_SEG) {
+    TopformerSeg *topformer_model =
+        dynamic_cast<TopformerSeg *>(getInferenceInstance(model_index, ctx));
+    topformer_model->setDownRato(down_rato);
+    return CVI_SUCCESS;
+  }
+  LOGE("not supported model index\n");
+  std::cout << "CVI_TDL_Set_Segmentation_DownRato out" << std::endl;
   return CVI_FAILURE;
 }

@@ -24,7 +24,7 @@ std::vector<std::string> read_file_lines(std::string strfile) {
   std::string line;
   while (getline(file, line)) {
     if (line.length() > 0 && line[0] == '#') continue;
-    if (line.at(line.length() - 1) == '\n') {
+    if (line.at(line.length() - 1) != 'g') {  // img type include '.jpg' and '.png' and '.jpeg'
       line = line.substr(0, line.length() - 1);
     }
     lines.push_back(line);

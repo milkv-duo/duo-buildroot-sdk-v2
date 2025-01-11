@@ -186,6 +186,8 @@ typedef void *cvitdl_handle_t;
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCR_RECOGNITION)                  \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_LSTR)                             \
   CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_STEREO) \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_OCCLUSION_CLASSIFICATION)         \
+  CVI_TDL_NAME_WRAP(CVI_TDL_SUPPORTED_MODEL_TOPFORMER_SEG)                    \
   // clang-format on
 
 #define CVI_TDL_NAME_WRAP(x) x,
@@ -835,12 +837,12 @@ DLL_EXPORT CVI_S32 CVI_TDL_SoundClassification(const cvitdl_handle_t handle,
 /**
  * @brief Do sound classification.
  *
- * @param handle An AI SDK handle.
+ * @param handle An TDL SDK handle.
  * @param frame Input video frame.
  * @param pack_idx The start pack index of this frame
  * @param pack_len Pack length,the frame is combined with many packs
  * @param index The index of sound classes.
- * @return int Return CVIAI_SUCCESS on success.
+ * @return int Return CVI_TDL_SUCCESS on success.
  */
 DLL_EXPORT CVI_S32 CVI_TDL_SoundClassificationPack(const cvitdl_handle_t handle,
                                                    VIDEO_FRAME_INFO_S *frame, int pack_idx,
@@ -1418,6 +1420,33 @@ DLL_EXPORT CVI_S32 CVI_TDL_Image_Classification(const cvitdl_handle_t handle,
                                                 VIDEO_FRAME_INFO_S *frame,
                                                 cvtdl_class_meta_t *obj_meta);
 
+/**
+ * @brief occlusion classification
+ *
+ * @param handle An TDL SDK handle.
+ * @param frame Input video frame.
+ * @param object cvtdl_class_meta_t structure, no occlusion score and occlusion score
+ * @return int Return CVI_TDL_SUCCESS on success.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_Occlusion_Classification(const cvitdl_handle_t handle,
+                                                VIDEO_FRAME_INFO_S *frame,
+                                                cvtdl_class_meta_t *obj_meta);
+
+ /**
+ * @brief Topformer segmentation.
+ * @param handle An TDL SDK handle.
+ * @param frame Input video frame.
+ * @param out_frame Output frame which each pixel represents class label.
+ * @param filter Class id filter. Set NULL to ignore.
+ * @return int Return CVI_TDL_SUCCESS on success.
+ */
+DLL_EXPORT CVI_S32 CVI_TDL_Topformer_Seg(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
+                                     cvtdl_seg_t *filter);   
+
+
+DLL_EXPORT CVI_S32 CVI_TDL_Set_Segmentation_DownRato(const cvitdl_handle_t handle,
+                                             const CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                             int down_rato);
 /**
  * @brief raw image classification
  *

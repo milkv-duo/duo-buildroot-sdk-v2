@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -17,8 +16,6 @@
 #include "opencv2/imgproc.hpp"
 #include "sys_utils.hpp"
 #include "cvi_tdl_media.h"
-
-
 
 double __get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
 bool CompareFileNames(std::string a, std::string b) { return a < b; }

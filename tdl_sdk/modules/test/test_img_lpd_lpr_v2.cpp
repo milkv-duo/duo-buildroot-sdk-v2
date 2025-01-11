@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -17,7 +16,6 @@
 #include "opencv2/imgproc.hpp"
 #include "sys_utils.hpp"
 #include "cvi_tdl_media.h"
-
 
 CVI_S32 init_param(const cvitdl_handle_t tdl_handle) {
   // setup preprocess
