@@ -136,11 +136,6 @@ int ms41929_set_focus_speed(struct spi_device *p_spi, unsigned char speed)
 
 int ms41929_zoom_in(struct spi_device *p_spi, unsigned char step)
 {
-	if (step == 32)
-		step = 255;
-	else
-		step = step * 8;
-
 	ms41929_write(p_spi, 0x29, ((0x4 + 0) << 8) | step);//set dir and step
 
 	return 0;
@@ -148,11 +143,6 @@ int ms41929_zoom_in(struct spi_device *p_spi, unsigned char step)
 
 int ms41929_zoom_out(struct spi_device *p_spi, unsigned char step)
 {
-	if (step == 32)
-		step = 255;
-	else
-		step = step * 8;
-
 	ms41929_write(p_spi, 0x29, ((0x4 + 1) << 8) | step);//set dir and step
 
 	return 0;
@@ -160,11 +150,6 @@ int ms41929_zoom_out(struct spi_device *p_spi, unsigned char step)
 
 int ms41929_focus_in(struct spi_device *p_spi, unsigned char step)
 {
-	if (step == 32)
-		step = 255;
-	else
-		step = step * 8;
-
 	ms41929_write(p_spi, 0x24, ((0x4 + 0) << 8) | step);//set focus dir and step
 
 	return 0;
@@ -172,11 +157,6 @@ int ms41929_focus_in(struct spi_device *p_spi, unsigned char step)
 
 int ms41929_focus_out(struct spi_device *p_spi, unsigned char step)
 {
-	if (step == 32)
-		step = 255;
-	else
-		step = step * 8;
-
 	ms41929_write(p_spi, 0x24, ((0x4 + 1) << 8) | step);//set focus dir and step
 
 	return 0;
@@ -196,6 +176,7 @@ int ms41929_get_info(struct spi_device *p_spi, struct cvi_lens_info *info)
 	info->zoom_max_speed = ZOOM_MAX_SPEED;
 	info->zoom_time_cost_one_step = ZOOM_ONE_STEP_TIME_COST;
 	info->zoom_max_step = ZOOM_MAX_STEP;
+	info->motor_type = MOTOR_TYPE;
 
 	memcpy(info->zoom_focus_table, zoom_focus_tab, sizeof(info->zoom_focus_table));
 
