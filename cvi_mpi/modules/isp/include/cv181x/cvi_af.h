@@ -154,6 +154,7 @@ CVI_S32 CVI_AF_GetAttr(VI_PIPE ViPipe, ISP_FOCUS_ATTR_S *pstFocusAttr);
  * return: Function run success or not
  */
 CVI_S32 CVI_ISP_QueryFocusInfo(VI_PIPE ViPipe, ISP_FOCUS_Q_INFO_S *pstFocusQInfo);
+ISP_AF_MOTOR_FUNC_S *CVI_AF_GetMotorCB(VI_PIPE ViPipe);
 
 #ifdef __cplusplus
 #if __cplusplus

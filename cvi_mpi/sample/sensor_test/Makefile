@@ -33,7 +33,7 @@ REQUIRES = cvi_common cvi_sample
 MW_LIBS = $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
 
 LIBS = $(MW_LIBS)
-LIBS += -lcvi_ispd2 -lsys
+LIBS += -lcvi_ispd2 -lsys -lgdc -ldl
 ifeq ($(MULTI_PROCESS_SUPPORT), 1)
 DEFS += -DRPC_MULTI_PROCESS
 LIBS += -lnanomsg
@@ -41,6 +41,17 @@ endif
 
 EXTRA_CFLAGS = $(INCS) $(DEFS)
 EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini
+
+ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-musl)
+  EXTRA_LDFLAGS += $(MW_PATH)/modules/bin/prebuilt/riscv64-unknown-linux-musl/libcvi_json-c.a
+else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-gnu)
+  EXTRA_LDFLAGS += $(MW_PATH)/modules/bin/prebuilt/riscv64-unknown-linux-gnu/libcvi_json-c.a
+else ifeq  ($(TARGET_MACHINE), aarch64-linux-gnu)
+  EXTRA_LDFLAGS += $(MW_PATH)/modules/bin/prebuilt/aarch64-linux-gnu/libcvi_json-c.a
+else ifeq  ($(TARGET_MACHINE), arm-linux-gnueabihf)
+  EXTRA_LDFLAGS += $(MW_PATH)/modules/bin/prebuilt/arm-linux-gnueabihf/libcvi_json-c.a
+endif
+
 EXTRA_LDFLAGS += $(MW_LIB)/libvpss.a
 
 # IVE_SUPPORT = 1

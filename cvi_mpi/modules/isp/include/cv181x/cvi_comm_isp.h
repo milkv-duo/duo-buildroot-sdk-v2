@@ -1051,6 +1051,11 @@ typedef enum _AF_DIRECTION {
 	AF_DIR_FAR,
 } AF_DIRECTION;
 
+typedef enum _AF_CHASINGFOCUS_MODE {
+	AF_CHASINGFOCUS_FAST_MODE,
+	AF_CHASINGFOCUS_NORMAL_MODE,
+} AF_CHASINGFOCUS_MODE;
+
 typedef enum _AF_STATUS {
 	AF_NOT_INIT,
 	AF_INIT_POSITION,
@@ -1066,12 +1071,16 @@ typedef enum _AF_STATUS {
 
 typedef struct _ISP_FOCUS_ATTR_S {
 	CVI_U8 u8DebugMode;
-	CVI_U8 u8CalibMode;
+	AF_CHASINGFOCUS_MODE eChasingFocusMode;
 	CVI_U8 u8AFRunInterval;
+	CVI_BOOL bEnableRealTimeFocus;
 	CVI_BOOL bEnableChasingFocus;
 	CVI_BOOL bEnableReFocus;
 	CVI_BOOL bEnableMixHlc;
-	CVI_FLOAT fMaxDiffRatio;
+	CVI_U8   u8RtFocusStableFrm;
+	CVI_FLOAT fRtMaxDiffFvRatio;
+	CVI_FLOAT fMaxDiffFvRatio;
+	CVI_FLOAT fMaxDiffLumaRatio;
 	CVI_FLOAT fDetectDiffRatio;
 	CVI_FLOAT fSearchDiffRatio;
 	CVI_FLOAT fLocalDiffRatio;
@@ -1097,6 +1106,9 @@ typedef struct _ISP_AF_Q_INFO_S {
 	CVI_U32 u32PreFv;       /*R;*/
 	CVI_U32 u32CurFv;       /*R;*/
 	CVI_U32 u32MaxFv;       /*R;*/
+	CVI_U32 u32MinFv;       /*R;*/
+	CVI_U8 u8PreLuma;		/*R;*/
+	CVI_U8 u8CurLuma;		/*R;*/
 	CVI_U32 u32Fv;          /*R;*/
 	AF_DIRECTION eZoomDir;  /*R;*/
 	CVI_U16 u16ZoomStep;      /*R;*/

@@ -10,13 +10,15 @@ SRCS_C	:= $(SDIR)/cvi_transcode_interface.c
 SRCS_C	+= $(SDIR)/g711.c
 SRCS_C	+= $(SDIR)/g726.c
 SRCS_C	+= $(SDIR)/ima_adpcm.c
+SRCS_C	+= $(SDIR)/sbc.c
+SRCS_C	+= $(SDIR)/cvi_audio_aac_adp.c
 #
 ODIR    := $(CURDIR)/obj
 OBJS	:= $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)
 DEPS	:= $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).d)
 #
-INCS = -I./include -I$(MW_INC) -I$(KERNEL_INC)
-DEFS = -DUSE_ALGO_SOURCE
+INCS = -I./include -I$(MW_INC) -I$(KERNEL_INC) -I$(CURDIR)/../fdk_aac_fake/include -I../include -I$(COMMON_INC)
+DEFS = -DUSE_ALGO_SOURCE -DSUPPORT_EXTERNAL_AAC
 
 TARGET_A = $(MW_LIB)/libcvi_VoiceEngine.a
 TARGET_SO = $(MW_LIB)/libcvi_VoiceEngine.so

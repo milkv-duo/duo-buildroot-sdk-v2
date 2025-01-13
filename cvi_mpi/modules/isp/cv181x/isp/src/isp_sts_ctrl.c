@@ -1462,6 +1462,7 @@ static void isp_sts_ctrl_set_3aCfg_default(VI_PIPE ViPipe)
 	stsCfg.stFocusCfg.stConfig.u8GainHigh = 20;
 	stsCfg.stFocusCfg.stConfig.u8SlopLow = 8;
 	stsCfg.stFocusCfg.stConfig.u8SlopHigh = 15;
+	stsCfg.stFocusCfg.stConfig.u16HighLumaTh = 230;
 
 	memcpy(&pstIspCtx->stsCfgInfo, &stsCfg, sizeof(ISP_STATISTICS_CFG_S));
 	memcpy(&pst3a->stAeStatCfg, &stsCfg.stAECfg, sizeof(ISP_AE_STATISTICS_CFG_S));

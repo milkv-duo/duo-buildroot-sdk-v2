@@ -209,6 +209,7 @@ endif
 BUILDLIST += $(LIBAUDIO_A)
 BUILDLIST += $(LIBAUDIO_SO)
 BUILDLIST += libvqe
+BUILDLIST += libsbc
 BUILDLIST += libvoice_engine
 BUILDLIST += libcvi_RES1
 BUILDLIST += libaac
@@ -239,20 +240,20 @@ AUDIO_SRCS += $(AUDIO_SDIR)/cvi_audio_fader.c
 AUDIO_SRCS += $(AUDIO_SDIR)/sharebuffer.c
 AUDIO_SRCS += $(AUDIO_SDIR)/volume_ctrl.c
 AUDIO_SRCS += $(AUDIO_SDIR)/cvi_ai_internal.c
+AUDIO_SRCS += $(AUDIO_SDIR)/cvi_audio_dl_adp.c
 
 ifeq ($(USE_SPEED), yes)
 AUDIO_SRCS += $(AUDIO_SDIR)/cvi_audio_speed.c
 endif
 
 ifeq ($(MULTI_PROCESS_SUPPORT_AUDIO), yes)
-INCLUDES += -I ./$(AUDIO_SDIR)/audio_rpc
-INCLUDES += -I ./$(AUDIO_SDIR)/audio_rpc/nanomsg/include
-AUDIO_SRCS += ./$(AUDIO_SDIR)/audio_rpc/cvi_audio_rpc.c
+INCLUDES += -I $(AUDIO_SDIR)/audio_rpc
+AUDIO_SRCS += $(AUDIO_SDIR)/audio_rpc/cvi_audio_rpc.c
 EXTRA_CFLAGS += -DRPC_MULTI_PROCESS_AUDIO
 LDLIBS += -lnanomsg
 ifeq ($(USE_SHARE_MEM_IN_AUDIO_RPC), yes)
 EXTRA_CFLAGS += -DSHARE_MEM_IN_AUDIO_RPC
-AUDIO_SRCS += ./$(AUDIO_SDIR)/audio_rpc/cvi_audio_shm.c
+AUDIO_SRCS += $(AUDIO_SDIR)/audio_rpc/cvi_audio_shm.c
 endif
 ifeq ($(TARGET_MACHINE), aarch64-linux-gnu)
 EXTRA_LDFLAGS += -L $(MW_PATH)/3rdparty/nanomsg/lib_64
@@ -308,6 +309,8 @@ $(LIBAUDIO_SO): $(AUDIO_OBJS)
 	@$(LD) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $@ --start-group $(AUDIO_OBJS) --end-group
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $@)
 
+libsbc:
+	@cd ./sbc_codec; make all
 
 libvoice_engine:
 	@cd ./audio_codec; make all
@@ -358,6 +361,7 @@ clean:
 	@rm -f $(INSTALL_LIBDIR)/libtinyalsa*
 	@make -C ./fdk_aac_fake clean
 	@cd ./src/audio_rpc; rm -f *.o
+	@make -C ./sbc_codec clean
 	@make -C ./audio_codec clean
 	@make -C ./audio_vqe clean
 	@make -C ./algo/SSP_Algorithm_20220128 clean
@@ -368,6 +372,7 @@ clean:
 clean_all: clean
 	@rm -rf $(AUDIO_ODIR)
 	@make -C ./fdk_aac_fake clean_all
+	@make -C ./sbc_codec clean_all
 	@make -C ./audio_codec clean_all
 	@make -C ./audio_vqe clean_all
 	@make -C ./algo/SSP_Algorithm_20220128 clean_all

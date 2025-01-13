@@ -87,6 +87,10 @@ static void *cvi_uv_read(void *arg)
 
 	prctl(PR_SET_NAME, "cvi_uv_read");
 
+	if (cb->alloc_cb) {
+		cb->alloc_cb(NULL, 4096, &(cb->pBuf));
+	}
+
 	while (ptObject->bServiceThreadRunning) {
 		FD_ZERO(&readFd);
 		FD_SET(socket_id, &readFd);
@@ -94,20 +98,15 @@ static void *cvi_uv_read(void *arg)
 		tv.tv_usec = 0;
 
 		ret = select(socket_id + 1, &readFd, NULL, NULL, &tv);
-
 		if (ret > 0) {
 			if (FD_ISSET(socket_id, &readFd)) {
-				if (cb->alloc_cb) {
-					cb->alloc_cb(NULL, 4096, &(cb->pBuf));
-				}
 				memset(cb->pBuf.base, 0, cb->pBuf.len);
 
 				ret  = recv(socket_id, cb->pBuf.base, cb->pBuf.len, 0);
 
 				if (ret > 0) {
-					cb->pBuf.len = ret;
 					if (cb->read_cb) {
-						cb->read_cb(cb->handle, cb->pBuf.len, &(cb->pBuf));
+						cb->read_cb(cb->handle, ret, &(cb->pBuf));
 					}
 				} else if (ret == 0) {		// client close
 					break;

@@ -63,18 +63,24 @@ typedef enum _AF_CHASING_FOCUS_FLAG {
 typedef enum _AF_DBG_MODE {
 	AF_DBG_DISABLE,
 	AF_DBG_CODE_FLOW,
+	AF_DBG_HLC,
+	AF_DBG_TIME_COST,
+	AF_CALIB_CLOW,
 } AF_DBG_MODE;
 
 typedef struct _AF_CTX_S {
 	//common param
-	CVI_BOOL bAeByPassSts;
+	ISP_EXPOSURE_ATTR_S stExpAttr;
+	ISP_WDR_EXPOSURE_ATTR_S stWdrExpAttr;
 	AF_POS_FLAG   ePosFlag; //0:not init 1:reset 2:init pos
 	AF_CHASING_FOCUS_FLAG eChasingFocusFlag;
 	CVI_U16 u16ZoomOffsetCnt;
 	CVI_U16 u16FocusOffsetCnt;
+	CVI_U16 u16ZoomResetCnt;
+	CVI_U16 u16FocusResetCnt;
 	Queue q;
-	CVI_U16 u16MaxZoomStep; //auto cal by frameRate
-	CVI_U16 u16MaxFocusStep; //auto cal by frameRate
+	CVI_U16 u16MaxZoomStep; //auto cal by frameRate and interval
+	CVI_U16 u16MaxFocusStep; //auto cal by frameRate and interval
 	//auto focus param
 	ISP_FOCUS_Q_INFO_S *pstFocusQInfo;
 	CVI_BOOL bInitFocusPos;
@@ -84,8 +90,9 @@ typedef struct _AF_CTX_S {
 	CVI_BOOL bChasingFocus;
 	//hw param
 	ISP_AF_LEN_INFO_S stLenInfo;
-	//calib param
-	CVI_BOOL bCailb;
+	//debug param
+	struct timeval tAfS, tAfE;
+	struct timeval tRunS, tRunE;
 } AF_CTX_S;
 
 typedef enum _AF_PARAMETER_UPDATE {
@@ -321,6 +328,7 @@ CVI_S32 AF_SetStatisticsConfig(CVI_U8 sID, const ISP_FOCUS_STATISTICS_CFG_S *pst
  * return: Function run success or not
  */
 CVI_S32 AF_GetStatisticsConfig(CVI_U8 sID, ISP_FOCUS_STATISTICS_CFG_S *pstAfStatCfg);
+CVI_S32 AF_ENTER_CAILB_FLOW(VI_PIPE ViPipe);
 #ifdef __cplusplus
 #if __cplusplus
 }

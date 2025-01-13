@@ -164,6 +164,11 @@ extern "C" {
 #define CVI_VI_CHN_2_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn2 buffer num */
 #define CVI_VI_CHN_3_BUF            (2 + CVI_VI_VPSS_EXTRA_BUF)        /* chn3 buffer num */
 
+#define VI_MAX_ADCHN_NUM 4 /*Maximum number of analog-to-digital channels*/
+#define VI_COMPMASK_NUM 2 /*Compare the number of masks*/
+#define VI_SHARPEN_GAIN_NUM 32 /*Number of sharpening gain parameters*/
+#define VI_AUTO_ISO_STRENGTH_NUM 16 /*Number of automatic ISO strength parameters*/
+#define VI_INVALID_CHN -1 /*Invalid video input channel number*/
 
 /* For VO */
 #define VO_MIN_CHN_WIDTH        32      /* channel minimal width */
@@ -178,21 +183,20 @@ extern "C" {
 #define AENC_MAX_CHN_NUM        3       /* max channel num of audio encoder */
 #define ADEC_MAX_CHN_NUM        3       /* max channel num of audio decoder */
 
-#define AI_MAX_CHN_NUM          2       /* max channel num of input device */
-#define AO_MAX_CHN_NUM          1       /* max channel num of output device */
-#define AO_SYSCHN_CHNID         (AO_MAX_CHN_NUM - 1) /* system channel id */
-                                        /* max channel num of input/output device */
-#define AIO_MAX_CHN_NUM         ((AO_MAX_CHN_NUM > AI_MAX_CHN_NUM) ? AO_MAX_CHN_NUM:AI_MAX_CHN_NUM)
-
 #define CVI_MAX_AUDIO_FRAME_NUM    300       /* max count of audio frame in Buffer */
 #define CVI_AUD_MAX_VOICE_POINT_NUM    1280      /* max sample per frame for voice encode */
 #define CVI_AUD_MAX_AUDIO_POINT_NUM    2048     /* max sample per frame for all encoder */
-#define CVI_AUD_MAX_CHANNEL_NUM      3         /* Maximum number of audio channels supported */
+#define CVI_AUD_MAX_CHANNEL_NUM      8         /* Maximum number of audio channels supported */
 #define CVI_MAX_AUDIO_STREAM_LEN   (4 * 4096)  /* Maximum length of an audio stream in bytes */
 
 #define MAX_AUDIO_FILE_PATH_LEN	256           /* Maximum length of the file path for an audio file */
 #define MAX_AUDIO_FILE_NAME_LEN	256           /* Maximum length of the file name for an audio file */
 #define MAX_AUDIO_VQE_CUSTOMIZE_NAME	64      /* Maximum length of the name for a custom VQE setting */
+
+#define CVI_MAX_AI_DEVICE_ID_NUM 5   /* Maximum number of AI device ID */
+#define CVI_MAX_AI_CARD_ID_NUM 5   /* Maximum number of AI card ID */
+#define CVI_MAX_AO_DEVICE_ID_NUM 5   /* Maximum number of AO device ID */
+#define CVI_MAX_AO_CARD_ID_NUM 5   /* Maximum number of AO card ID */
 
 /* For VPSS */
 #define VPSS_IP_NUM              2   /* VPSS IP num */

@@ -19,28 +19,17 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-
-#define VI_MAX_ADCHN_NUM 4
-
-#define VI_COMPMASK_NUM 2
-#define VI_PRO_MAX_FRAME_NUM (8UL)
-#define VI_SHARPEN_GAIN_NUM 32
-#define VI_AUTO_ISO_STRENGTH_NUM 16
-
-#define VI_INVALID_FRMRATE (-1)
-#define VI_CHN0 0
-#define VI_CHN1 1
-#define VI_CHN2 2
-#define VI_CHN3 3
-#define VI_INVALID_CHN -1
-
-#define VI_MAX_VC_NUM 4
-
+/**
+ * @deprecated
+**/
 typedef struct _VI_LOW_DELAY_INFO_S {
 	CVI_BOOL bEnable; /* RW; Low delay enable. */
 	CVI_U32 u32LineCnt; /* RW; Range: [32, 16384]; Low delay shoreline. */
 } VI_LOW_DELAY_INFO_S;
 
+/**
+ * @deprecated
+**/
 /* Information of raw data cmpresss param */
 typedef struct _VI_CMP_PARAM_S {
 	CVI_U8 au8CmpParam[VI_CMP_PARAM_SIZE];
@@ -204,9 +193,10 @@ typedef enum _VI_VSYNC_VALID_NEG_E {
 	VI_VSYNC_VALID_NEG_BUTT
 } VI_VSYNC_VALID_NEG_E;
 
+/*VI status information*/
 typedef enum _VI_STATE {
-	VI_RUNNING,
-	VI_SUSPEND,
+	VI_RUNNING, /*VI is running*/
+	VI_SUSPEND, /*VI is in sleep mode*/
 	VI_MAX,
 } VI_STATE_E;
 
@@ -269,9 +259,9 @@ typedef struct _VI_BT656_SYNC_CFG_S {
 
 /* Input data type */
 typedef enum _VI_DATA_TYPE_E {
-	VI_DATA_TYPE_YUV = 0,
-	VI_DATA_TYPE_RGB,
-	VI_DATA_TYPE_YUV_EARLY,
+	VI_DATA_TYPE_YUV = 0, /*type yuv*/
+	VI_DATA_TYPE_RGB, /*type rgb*/
+	VI_DATA_TYPE_YUV_EARLY, /*type yuv (Interrupt in advance)*/
 
 	VI_DATA_TYPE_BUTT
 } VI_DATA_TYPE_E;
@@ -356,6 +346,9 @@ typedef struct _VI_DEV_BIND_PIPE_S {
 	VI_PIPE PipeId[VI_MAX_PIPE_NUM]; /* RW;Array of pipe ID */
 } VI_DEV_BIND_PIPE_S;
 
+/**
+ * @deprecated
+**/
 /* Source of 3DNR reference frame */
 typedef enum _VI_NR_REF_SOURCE_E {
 	VI_NR_REF_FROM_RFR = 0, /* Reference frame from reconstruction frame */
@@ -365,15 +358,20 @@ typedef enum _VI_NR_REF_SOURCE_E {
 } VI_NR_REF_SOURCE_E;
 
 // ++++++++ If you want to change these interfaces, please contact the isp team. ++++++++
+
+/* VI pipeline bypass mode */
 typedef enum _VI_PIPE_BYPASS_MODE_E {
-	VI_PIPE_BYPASS_NONE,
-	VI_PIPE_BYPASS_FE,
-	VI_PIPE_BYPASS_BE,
+	VI_PIPE_BYPASS_NONE, /*VI pipeline no bypass*/
+	VI_PIPE_BYPASS_FE, /*VI pipeline fe bypass*/
+	VI_PIPE_BYPASS_BE, /*VI pipeline be bypas*/
 
 	VI_PIPE_BYPASS_BUTT
 } VI_PIPE_BYPASS_MODE_E;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
+/**
+ * @deprecated
+**/
 /* The attributes of 3DNR */
 typedef struct _VI_NR_ATTR_S {
 	PIXEL_FORMAT_E enPixFmt; /* RW;Pixel format of reference frame */
@@ -404,6 +402,9 @@ typedef struct _VI_PIPE_ATTR_S {
 } VI_PIPE_ATTR_S;
 // -------- If you want to change these interfaces, please contact the isp team. --------
 
+/**
+ * @deprecated
+**/
 /*
  * au16TextureStr: RW; range: [0, 4095]; Format:7.5;Undirectional sharpen strength for texture and detail enhancement.
  * au16EdgeStr: RW; range: [0, 4095]; Format:7.5;Directional sharpen strength for edge enhancement.
@@ -425,6 +426,9 @@ typedef struct _VI_PIPE_SHARPEN_MANUAL_ATTR_S {
 
 } VI_PIPE_SHARPEN_MANUAL_ATTR_S;
 
+/**
+ * @deprecated
+**/
 /*
  * au16TextureStr: RW; range: [0, 4095]; Format:7.5;Undirectional sharpen strength for texture and detail enhancement.
  * au16EdgeStr:  RW; range: [0, 4095]; Format:7.5;Directional sharpen strength for edge enhancement
@@ -446,6 +450,9 @@ typedef struct _VI_PIPE_SHARPEN_AUTO_ATTR_S {
 
 } VI_PIPE_SHARPEN_AUTO_ATTR_S;
 
+/**
+ * @deprecated
+**/
 typedef struct _VI_PIPE_SHARPEN_ATTR_S {
 	OPERATION_MODE_E enOpType;
 	CVI_U8 au8LumaWgt[VI_SHARPEN_GAIN_NUM]; /* RW; range: [0, 127];  Format:7.0;*/
@@ -453,6 +460,9 @@ typedef struct _VI_PIPE_SHARPEN_ATTR_S {
 	VI_PIPE_SHARPEN_AUTO_ATTR_S stSharpenAutoAttr;
 } VI_PIPE_SHARPEN_ATTR_S;
 
+/**
+ * @deprecated
+**/
 typedef enum _VI_PIPE_REPEAT_MODE_E {
 	VI_PIPE_REPEAT_NONE = 0,
 	VI_PIPE_REPEAT_ONCE = 1,
@@ -522,6 +532,9 @@ typedef struct {
 
 } tV59aNRc;
 
+/**
+ * @deprecated
+**/
 typedef enum _VI_NR_VERSION_E { VI_NR_V1 = 1, VI_NR_V2 = 2, VI_NR_V3 = 3, VI_NR_V4 = 4, VI_NR_BUTT } VI_NR_VERSION_E;
 
 /* The attributes of channel */
@@ -575,7 +588,7 @@ typedef enum _VI_EXT_CHN_SOURCE_E {
 
 typedef struct _VI_EXT_CHN_ATTR_S {
 	VI_EXT_CHN_SOURCE_E enSource;
-	VI_CHN s32BindChn; /* RW;Range [VI_CHN0, VI_MAX_PHY_CHN_NUM);The channel num which extend channel will bind to*/
+	VI_CHN s32BindChn; /* RW;Range [0, VI_MAX_PHY_CHN_NUM);The channel num which extend channel will bind to*/
 	SIZE_S stSize; /* RW;Channel out put size */
 	PIXEL_FORMAT_E enPixelFormat; /* RW;Pixel format */
 	CVI_U32 u32Depth; /* RW;Range [0x00, 0x08], Depth */
@@ -641,6 +654,9 @@ typedef enum _VI_PIPE_FRAME_SOURCE_E {
 	VI_PIPE_FRAME_SOURCE_BUTT
 } VI_PIPE_FRAME_SOURCE_E;
 
+/**
+ * @deprecated
+**/
 typedef struct _VI_RAW_INFO_S {
 	VIDEO_FRAME_INFO_S stVideoFrame;
 	ISP_CONFIG_INFO_S stIspInfo;
@@ -658,8 +674,8 @@ typedef struct _VI_DEV_TIMING_ATTR_S {
 } VI_DEV_TIMING_ATTR_S;
 
 typedef struct _VI_EARLY_INTERRUPT_S {
-	CVI_BOOL bEnable;
-	CVI_U32 u32LineCnt;
+	CVI_BOOL bEnable; /*Enable the early interrupt function or not*/
+	CVI_U32 u32LineCnt; /*Early Interrupted line Count*/
 } VI_EARLY_INTERRUPT_S;
 
 /* VI dump register table */
@@ -686,7 +702,7 @@ typedef struct _VI_SMOOTH_RAW_DUMP_INFO_S {
 	VI_PIPE ViPipe;
 	CVI_U8  u8BlkCnt;	// ring buffer number
 	CVI_U64 *phy_addr_list;	// ring buffer addr
-	RECT_S  stCropRect;
+	RECT_S  stCropRect; // Crop rectangular area
 } VI_SMOOTH_RAW_DUMP_INFO_S;
 
 #ifdef __cplusplus

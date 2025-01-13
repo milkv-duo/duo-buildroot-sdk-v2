@@ -115,7 +115,7 @@ OBJS_DEC = $(AACDEC_SRC:.cpp=.o)
 #AAC  test sample code --------------------------start
 AAC_TEST =  $(CURDIR)/sample_audio_aac
 AAC_TEST_SRC += $(CURDIR)/cvi_audio_aac_adp.c
-AAC_TEST_SRC += $(CURDIR)/../cvi_audio_dl_adp.c
+AAC_TEST_SRC += $(CURDIR)/cvi_audio_dl_adp.c
 
 MW_LIB ?= $(CURDIR)/../../../lib
 AAC_LDFLAGS =

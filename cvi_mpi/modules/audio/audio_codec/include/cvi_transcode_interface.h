@@ -24,7 +24,8 @@ typedef enum _cvi_audiocodec {
 	AUD_CODEC_ADPCM_DVI4 = 0x5,
 	AUD_CODEC_ADPCM_VDVI = 0x6,
 	AUD_CODEC_AAC = 0x7,//AAC support externally, please check sample/audio/AAC
-	AUD_CODEC_END = 0x08,
+	AUD_CODEC_SBC = 0x8,
+	AUD_CODEC_END = 0x09,
 } E_CVI_AUDIOCODEC;
 
 typedef enum _eRate {
@@ -38,6 +39,15 @@ typedef struct _cvi_audio_config {
 	eRate bitrate;
 	int sample_rate;
 	int channel_num;
+
+	/*for sbc*/
+	CVI_U32 subbands;            /*4 or 8, default 8*/
+	CVI_U32 bitpool;			 /*default 32*/
+	CVI_U32 blocks;              /*4, 8, 12 or 16*/
+	CVI_BOOL joint;              /*default 0*/
+	CVI_BOOL dualchannel;        /*default 0*/
+	CVI_BOOL snr;                /*Use SNR mode, default is loudness*/
+	CVI_BOOL dec;
 } S_CVI_AUDIO_CONFIG;
 
 /* Decode(unsigned char* pout_buf, unsigned int* pout_len ,	*/

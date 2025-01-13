@@ -62,11 +62,6 @@ extern "C" {
 #define DNVQE_DRC_LIMITER			0x8  /* bit 3: DRC Limiter */
 
 
-#define CVI_MAX_AI_DEVICE_ID_NUM 5   /* Maximum number of AI device ID */
-#define CVI_MAX_AI_CARD_ID_NUM 5   /* Maximum number of AI card ID */
-#define CVI_MAX_AO_DEVICE_ID_NUM 5   /* Maximum number of AO device ID */
-#define CVI_MAX_AO_CARD_ID_NUM 5   /* Maximum number of AO card ID */
-/* define macro */
 
 /* Check if the AI device ID is valid */
 #define CHECK_AI_DEVID_VALID(x) \
