@@ -1,0 +1,90 @@
+project_name: osdrv
+commit_id: b163aa05bd8c4f67d2d9114f0ae0ac6c8e633a27 osdrv: weekly rls 2025.01.11
+
+project_name: cviruntime
+commit_id: 3f4938648950a7f3bf9a19c320ca9fae7c52de20 [feat] cviruntime opensource for cv18xx soc.
+
+project_name: buildroot-2021.05
+commit_id: 5b7acd1bf99574b818f9ec1f61232c69f6150202 (master):Support Xuantie toolchains, and modify the defconfigs.
+
+project_name: freertos
+commit_id: eb9faf5fe6e63968bc47cb15eca87616445db8f3 freertos: weekly rls 2024.06.6
+
+project_name: Lab-Project-FreeRTOS-POSIX
+commit_id: 5042bfd07b1a176d25e24424c4751a497e3bf83a sg200x C906/CA53 cpu boot up.
+
+project_name: FreeRTOS-Kernel
+commit_id: d52c1b6e6193e0ab08950120068a3f8fe6beab1c sg200x C906/CA53 cpu boot up.
+
+project_name: cvi_rtsp
+commit_id: ff71340a6fa342c618cc911d6a3467f43809971b cvi_rtsp: weekly rls 2025.01.13
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4309f2a649fc7cfe7160389d52a81c469dbdd7bc [feat] cvibuilder opensource for cv18xx soc.
+
+project_name: cvikernel
+commit_id: 9f1f57a19c3c281a931dfc71b318494487193d56 [feat] cvikernel opensource for cv18xx soc.
+
+project_name: opensbi
+commit_id: 3b045ae374d18e0d36528254bed39fff742fcb42 opensbi: weekly rls 2025.01.10
+
+project_name: build
+commit_id: a62106ded25da5cd311a0522b7e6b7fc4a5f3ab9 build: weekly rls 2025.01.10
+
+project_name: host-tools
+commit_id: b1c3b20de7ccdeaafafa9d5e1fd57c3fb4c79748 host-tools: upload gcc11.3.1
+
+project_name: oss
+commit_id: a9d88d33c403c652e4d4eadbfe69b48942591d0a (sg200x-dev):add oss_release_tarbar for glibc_riscv64
+
+project_name: cnpy
+commit_id: 2f56f4c23ea840f9d15c43801368cf4a089efa84 [feat] cnpy opensource for cv18xx soc.
+
+project_name: isp_tuning
+commit_id: 321f7041fb212c8fdd133fff4e028acfc56f67f7 isp_tuning: weekly rls 2025.01.11
+
+project_name: ive
+commit_id: 269c9d010d8cec4f4d83ae7029fb62be18b4c9a0 fit new cvi_mpi repository
+
+project_name: sophpi
+commit_id: e0a45a851060964ccd37e18a4c07b1810791ab58 (sophpi): update weekly rls 2024.12.04 git version
+
+project_name: fsbl
+commit_id: 21baebd232820722b264b10c6968b9c5f61ad0c3 fsbl: weekly rls 2025.01.10
+
+project_name: cvimath
+commit_id: ce8705f49da5e5f59c2ddb3253ef88323a0cd9c4 [feat] cvimath opensource for cv18xx soc.
+
+project_name: u-boot-2021.10
+commit_id: 5ab9e1f91b17db85d6a550f502d01794cf19cf84 u-boot-2021.10: weekly rls 2025.01.11
+
+project_name: ramdisk
+commit_id: 2a08fd2db2259d77267c73d2d6532c955b3c315e ramdisk: weekly rls 2025.01.11
+
+project_name: googletest
+commit_id: e2239ee6043f73722e7aa812a459f54a28552929 Googletest export
+
+project_name: stb
+commit_id: 5c205738c191bcb0abc65c4febfa9bd25ff35234 Merge branch 'master' of https://github.com/nothings/stb
+
+project_name: eigen
+commit_id: 82b152dbe73d0c8b6ec34968d643bc08e45defbf Add signbit function
+
+project_name: cvi_opencv
+commit_id: 1429572021c1e021ed3116e350e17ccf1e63dc1b musl_riscv64 opencv
+
+project_name: tdl_sdk
+commit_id: dfc3d2ebc12ef13e82e59b9a4224f9a66be22ecc update readme
+
+project_name: linux_5.10
+commit_id: 4edc0609750277f5ea648f75a290c586c26e0965 linux_5.10: weekly rls 2025.01.10
+
+project_name: SensorSupportList
+commit_id: 257c6965539073bb11dfb8ffe0ac2ba3f2737d04 SensorSupportList: weekly rls 2024.11.13
+
+project_name: cvi_mpi
+commit_id: e1bfa7cfe3fdaa07c5128d99b0f3e591754c674c cvi_mpi: weekly rls 2025.01.10
+

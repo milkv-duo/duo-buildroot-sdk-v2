@@ -1,0 +1,72 @@
+project_name: osdrv
+commit_id: eacb9823c1d426eb6f8bd564a2677971e3d9ee38     [fix](alios):Delete unnecessary macro definitions     [description]:Delete unnecessary macro definitions     [root  cause]:NA     [JIRA     ID]:CV180X181X-2535     [chip project]:NA     [side effects]:NA     [Affected *.ko/*.so/*.a]:NA
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: freertos
+commit_id: c314e9510fc7cb85cf505c49db43fb689bd91eda [fix](rgn):Fixed the obj_attr uses old memory [description]:NA [root  cause]:NA [JIRA     ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a]:NA
+
+project_name: cvi_rtsp
+commit_id: 5055a5a2804b88949d898a04b7b4babc4e45a39d [fix](cvi_rtsp): add rls_info.txt
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: b21a5481f9854be4043d573bd1d43844d6fe5a5f [test](opensbi): opensbi tailoring (time optimizing) [description ]: 39ms ---> 6ms [root cause  ]: NA [mantis id   ]: NA [chip project]: NA [confirm test]: NA [side effects]: NA
+
+project_name: build
+commit_id: 1e717090b442b0ed71967856b41b893df532fa19 [fix](build): add rls_info.txt for release
+
+project_name: oss
+commit_id: 46017282af8019d658d4d3e619c7f3506380f2fa add submodule fsck
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 4f046bb7cf74db4a34bb1cd7b2d73ddc9b843171 [fix](pqbin): update gc4653 pqbin
+
+project_name: ive
+commit_id: ccd109cfcf609a854a3d6411b73f57b513de58ab add CVI_IVE_TPU_Blend_ROI interface
+
+project_name: fsbl
+commit_id: ae4b0cfe1b2629b01c395da3adef5656ef4dd04a [fix](fsbl): Optimize the startup time of fsbl and ddr [description ]: 1. fsbl changed to 4-wire 		2. Optimize ddr repeat & phyd 		3. imporve axi clock while bl2 loading bin 		4. close fsbl uart output
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: b7f5a1bde8e1af7980250a9f212eed2ab95090e4 [feat](uboot):set spl spi nor bus_width to 4 [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: ipcamera
+commit_id: 968a491d749646be8958e19af3918108eecea0b4 [fix](ipcamera): modify rls_info.txt
+
+project_name: ramdisk
+commit_id: 62e7c04b034f73b490c3e4bac0178ac2ac9fea1a [fix](v4.1.0):fix scp fail. [description ]:NA [root   cause]:NA [JIRA      ID]:CV180X181X-3362 [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: tdl_sdk
+commit_id: 0813bfa42533207e7726df5ae8bbb04d4784fa2c sync the lpr pipe from branch 410
+
+project_name: linux_5.10
+commit_id: 60cf639e43b38094048c75d9ae998dce9e622dc3 [fix](sdhci):Change the OCR register to keep a range of 3.2V/3.3V and 3.3V/3.4V to fixed some SD card can't switch to HS mode [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: isp
+commit_id: 25cd8570494f59463abcfb2d9a936784b8fc7419 [refactor](isp_af):Decoupling the algorithm code and calibration code of AF [description ]:Decoupling the algorithm code and calibration code of AF [root   cause]:NA [JIRA      ID]:NA [chip project]:cv180x/cv181x [side effects]:NA [Affected *.ko/*.so/*.a]:libaf.so
+
+project_name: mediapipe
+commit_id: 4d00904623b7de72f5c9db49eabd4d774642b2d2 [fix](mediapipe):fix rtsp bug
+
+project_name: SensorSupportList
+commit_id: 72752f0d166f5d2a53d63fcdab0e639dbec003ab [fix] ov_os02n10 flip bug
+
+project_name: cvi_mpi
+commit_id: 4d06574c70ba791ecedf228d365df398fe3511a4 [fix](cvi_mpi): modify rls_info.txt & gitignore
+
