@@ -1,21 +1,25 @@
 #!/bin/bash
 
-# [Usage-Example] : ./scripts/repo_clone.sh --gitclone scripts/subtree.xml
-# [Usage-Example] : ./scripts/repo_clone.sh --gitpull scripts/subtree.xml
-# [Usage-Example] : ./scripts/repo_clone.sh --gitclone scripts/subtree.xml --normal
-# [Usage-Example] : ./scripts/repo_clone.sh --gitclone scripts/subtree.xml --reproduce git_version_2023-08-18.txt
-
-function print_usage {
-    echo "Usage: $0 arg1 arg2 [arg3] [arg4] [arg5 arg6]"
-    echo "arg1: --gitclone or --gitpull(DEFAULT: git clone)"
-    echo "arg2: xxx.xml"
-    echo "arg3: --normal(DEFAULT: clone single branch)"
-    echo "arg4: --reproduce"
-    echo "arg5: git_version.txt"
+# 打印用法信息
+function print_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --gitclone xxx.xml      Clone the repo in xml file"
+    echo "  --gitpull xxx.xml       Pull the repo in xml file"
+    echo "  --normal                Clone the repo with all branches"
+    echo "  --reproduce xxx.txt     Reproduce the repo as per the commit_id in xxx.txt"
+    echo ""
+    echo "Example:"
+    echo "  $0 --gitclone scripts/subtree.xml"
+    echo "  $0 --gitpull scripts/subtree.xml"
+    echo "  $0 --gitclone scripts/subtree.xml --normal"
+    echo "  $0 --gitclone scripts/subtree.xml --reproduce scripts/git_version_v410/git_version_v410_2024-11-18.txt"
 }
 
 # 打印等级及颜色设置
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # 判断传参数目是否合法
@@ -45,13 +49,14 @@ while [[ $# -gt 0 ]]; do
         --gitclone)
            shift
            xml_file=$1
+           DOWNLOAD=1
            REMOTE_URL=$(grep -o '<remote.*/>' ${xml_file} | sed 's/.*fetch="\([^"]*\)".*/\1/' | sed "s/ssh:\/\/\(.*\)/ssh:\/\/$USERNAME@\1/")
            shift
            ;;
         --gitpull)
            shift
            xml_file=$1
-           DOWNLOAD=1
+           DOWNLOAD=0
            shift
            ;;
         --normal)
@@ -76,91 +81,95 @@ REMOTE_NAME=$(grep -o '<remote.*/>' ${xml_file} | sed 's/.*name="\([^"]*\)".*/\1
 DEFAULT_REVISION=$(grep -o '<default.*/>' ${xml_file} | sed 's/.*revision="\([^"]*\)".*/\1/')
 PARAMETERS="--single-branch --depth 2000"
 
-# 获取xml文件中所有的project name
-repo_list=$(grep -o '<project name="[^"]*"' ${xml_file} | sed 's/.*name="\([^"]*\)".*/\1/')
-
 # git clone function
 function git_clone {
+    # 逐行读取 XML 文件
+    while IFS= read -r line
+    do
+        repo=$(echo "$line" | grep -o '<project name="[^"]*"' | sed 's/.*name="\([^"]*\)".*/\1/')
+        revision=$(echo "$line" | grep -o 'revision="[^"]*"' | sed 's/.*revision="\([^"]*\)".*/\1/')
+        path=$(echo "$line" | grep -o 'path="[^"]*"' | sed 's/.*path="\([^"]*\)".*/\1/')
+        sync=$(echo "$line" | grep -o 'sync-s="[^"]*"' | sed 's/.*sync-s="\([^"]*\)".*/\1/')
 
-    revision=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*revision="\([^"]*\)".*/\1/p')
-    path=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
-    sync=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*sync-s="\([^"]*\)".*/\1/p')
+        # 判断参数是否匹配到project行
+        if [[ -z $repo ]]; then
+            continue
+        fi
 
-    # 判断参数是否带有revision
-    if [[ -z $revision ]]; then
-        revision=$DEFAULT_REVISION
-    fi
+        # 判断参数是否带有revision
+        if [[ -z $revision ]]; then
+            revision=$DEFAULT_REVISION
+        fi
 
-    # 判断参数是否带有path
-    if [[ -z $path ]]; then
-        path=$repo
-    fi
+        # 判断参数是否带有path
+        if [[ -z $path ]]; then
+            path=$repo
+        fi
 
-    # 判断参数是否带有normal
-    if [ $NORMAL == 0 ]; then
-        git clone $REMOTE_URL$repo.git $PWD/$path -b $revision $PARAMETERS
-    else
-        git clone $REMOTE_URL$repo.git $PWD/$path
-        pushd $PWD/$path
-          git checkout $revision
-        popd
-    fi
+        # 判断是否已经下载了repo
+        if [[ -d $PWD/$path ]]; then
+            echo -e "${YELLOW}Warning: target porject already exist!! $PWD/$path${NC}"
+            continue
+        fi
 
-    # 判断参数是否带有sync-s
-    if [[ "$sync" == "true" ]]; then
-        echo -e "${YELLOW}Warning: Pay attention to managing $repo/, as it requires submodule management${NC}"
-        pushd $PWD/$path
-            git submodule update --init
-        popd
-    fi
+        # 判断参数是否带有normal
+        if [ $NORMAL == 0 ]; then
+            git clone $REMOTE_URL$repo.git $PWD/$path -b $revision $PARAMETERS
+        else
+            git clone $REMOTE_URL$repo.git $PWD/$path
+            pushd $PWD/$path
+                git checkout $revision
+            popd
+        fi
+
+        # 判断参数是否带有sync-s
+        if [[ "$sync" == "true" ]]; then
+            echo -e "${YELLOW}Warning: Pay attention to managing $repo/, as it requires submodule management${NC}"
+            pushd $PWD/$path
+                git submodule update --init
+            popd
+        fi
+    done < ${xml_file}
 }
 
 # git pull function
 function git_pull {
+    # 逐行读取 XML 文件
+    while IFS= read -r line
+    do
+        repo=$(echo "$line" | grep -o '<project name="[^"]*"' | sed 's/.*name="\([^"]*\)".*/\1/')
+        revision=$(echo "$line" | grep -o 'revision="[^"]*"' | sed 's/.*revision="\([^"]*\)".*/\1/')
+        path=$(echo "$line" | grep -o 'path="[^"]*"' | sed 's/.*path="\([^"]*\)".*/\1/')
 
-    path=$(grep "name=\"$repo\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
+        # 判断参数是否匹配到project行
+        if [[ -z $repo ]]; then
+            continue
+        fi
 
-    # 判断参数是否带有path
-    if [[ -z $path ]]; then
-        path=$repo
-    fi
+        # 判断参数是否带有revision
+        if [[ -z $revision ]]; then
+            revision=$DEFAULT_REVISION
+        fi
 
-    if [ ! -d $PWD/$path ]; then
-        echo -e "\033[31merror, target porject already exist!! $PWD/$path}\033[0m"
-        continue
-    fi
+        # 判断参数是否带有path
+        if [[ -z $path ]]; then
+            path=$repo
+        fi
 
-    pushd $PWD/$path
-      git pull
-    popd
+        if [[ ! -d $PWD/$path ]]; then
+            echo -e "${RED}ERROR: target porject not exist!! $PWD/$path${NC}"
+            continue
+        fi
+
+        pushd $PWD/$path
+            git checkout .
+            git clean -f .
+            git reset --hard $REMOTE_NAME/$revision
+            git pull
+        popd
+    done < ${xml_file}
 }
 
-# git reproduce function
-function reproduce_repo {
-    local _repo=$1
-    local _commit_id=$2
-    echo "reproduce_repo: ""${_repo}" " reset to " "${_commit_id}"
-    path=$(grep "name=\"${_repo}\"" ${xml_file} | sed -n 's/.*path="\([^"]*\)".*/\1/p')
-
-    # 判断参数是否带有path
-    if [[ -z ${path} ]]; then
-        path=${_repo}
-    fi
-
-    if [ ! -d ${PWD}/${path} ]; then
-        echo -e "\033[31merror, target porject not exist!! ${PWD}/${path}}\033[0m"
-        continue
-    fi
-
-    pushd $PWD/$path
-    git reset --hard "${_commit_id}" ||
-    {
-        echo "Error: Unable to reset to project ${_repo}";
-        echo "Error: Unable to reset to commit ${_commit_id}";
-        exit 1;
-    }
-    popd
-}
 
 function get_commit_id {
     local Project_name="$1"
@@ -177,30 +186,69 @@ function get_commit_id {
             found = 0;
         }
         found && /^commit_id: / {
-            print $2;
-            exit;  # 找到后退出awk,避免打印多余信息
+            split($0, parts, " ");  # 将整行按空格拆分
+            print parts[2];         # 打印第二个字段，即提交 ID
+            exit;                   # 找到后退出awk,避免打印多余信息
         }
     ' "$File")
 
     echo "$Commit_id"
 }
 
+# git reproduce function
+function reproduce_repo {
+    # 逐行读取 XML 文件
+    while IFS= read -r line
+    do
+        repo=$(echo "$line" | grep -o '<project name="[^"]*"' | sed 's/.*name="\([^"]*\)".*/\1/')
+        path=$(echo "$line" | grep -o 'path="[^"]*"' | sed 's/.*path="\([^"]*\)".*/\1/')
+
+        # 判断参数是否匹配到project行
+        if [[ -z $repo ]]; then
+            continue
+        fi
+
+        commit_id=$(get_commit_id $(basename ${repo}) ${gitver_txt})
+
+        # 判断是否从txt中读取到commit_id
+        if [[ -z $commit_id ]]; then
+            continue
+        fi
+
+        echo -e "\nReproduce: ""${repo}" " reset to " "${commit_id}"
+
+        # 判断参数是否带有path
+        if [[ -z $path ]]; then
+            path=$repo
+        fi
+
+        if [[ ! -d $PWD/$path ]]; then
+            echo -e "${RED}ERROR: target porject not exist!! $PWD/$path${NC}"
+            continue
+        fi
+
+        pushd $PWD/$path
+            git reset --hard "${commit_id}" ||
+            {
+                echo "${RED}ERROR: Unable to reset to project ${repo}${NC}";
+                echo "${RED}ERROR: Unable to reset to commit ${commit_id}${NC}";
+                exit 1;
+            }
+        popd
+    done < ${xml_file}
+}
+
 function main {
-    for repo in $repo_list; do
-        if [ $DOWNLOAD == 0 ]; then
-            git_clone
-        else
-            git_pull
-        fi
-        # 复现git_version.txt中的所有仓库
-        if [ $REPRODUCE -eq 1 ]; then
-            item=$(basename ${repo})
-            commit_id=$(get_commit_id ${item} ${gitver_txt})
-            if [ "$commit_id" != "" ]; then
-                reproduce_repo ${repo} ${commit_id}
-            fi
-        fi
-    done
+    if [ $DOWNLOAD -eq 1 ]; then
+        git_clone
+    else
+        git_pull
+    fi
+
+    # 复现git_version.txt中的所有仓库
+    if [ $REPRODUCE -eq 1 ]; then
+        reproduce_repo
+    fi
 }
 
 main
