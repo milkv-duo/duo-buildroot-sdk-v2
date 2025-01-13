@@ -103,11 +103,11 @@ static int cv181x_dac_proc_show(struct seq_file *m, void *v)
 		audio_freq = 24576000;
 
 	seq_puts(m, "\n------------- CVI AO ATTRIBUTE -------------\n");
-	seq_puts(m, "AiDev    Workmode    SampleRate    BitWidth\n");
+	seq_puts(m, "AoDev    Workmode    SampleRate    BitWidth\n");
 	val1 = (readl(i2s3) >> 1) & 0x1;
 	val2 = audio_freq/((readl(i2s3 + 0x64) & 0x0000ffff)*(0x1 << (readl(dac + AUDIO_PHY_TXDAC_CTRL1) & 0x3))*64*4);
 	val3 = ((readl(i2s3 + 0x10) >> 1) & 0x3) * 16;
-	seq_printf(m, "  %d       %s        %6d        %2d\n", 1, val1 == 0 ? "slave" : "master", val2, val3);
+	seq_printf(m, "  %d       %s        %6d        %2d\n", 0, val1 == 0 ? "slave" : "master", val2, val3);
 	seq_puts(m, "\n");
 	seq_puts(m, "-------------  CVI AO STATUS   -------------\n");
 	val1 = (readl(i2s3 + 0x18));
