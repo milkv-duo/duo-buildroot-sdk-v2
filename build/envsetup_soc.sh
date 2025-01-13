@@ -12,7 +12,7 @@ function _build_default_env()
   COMPRESSOR_UBOOT=${COMPRESSOR_UBOOT:-lzma} # or none to disable
   MULTI_PROCESS_SUPPORT=${MULTI_PROCESS_SUPPORT:-0}
   ENABLE_BOOTLOGO=${ENABLE_BOOTLOGO:-0}
-  TPU_REL=${TPU_REL:-0} # TPU release build
+  TPU_REL=${TPU_REL:-1} # TPU release build
   SENSOR=${SENSOR:-sony_imx327}
 }
 
@@ -512,16 +512,16 @@ function build_3rd_party()
 {
   mkdir -p "$OSS_TARBALL_PATH"
 
+  # Try to download from oss repo
   if [ -d "${OSS_PATH}/oss_release_tarball" ]; then
     echo "oss prebuilt tarball found!"
+    echo "cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}"
+    cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}
   else
     echo "Try to download oss_release_tarball.tar tarball ..."
-    #wget ...
-    #tar -xvf ${OSS_PATH}/oss_release_tarball.tar -C ${OSS_PATH}
   fi
-  echo "cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}"
-  cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}
 
+  # Try to download from internal ftp server
   local oss_list=(
     "zlib"
     "glog"
@@ -545,10 +545,18 @@ function build_3rd_party()
   do
     if [ -f "${OSS_TARBALL_PATH}/${name}.tar.gz" ]; then
       echo "$name found"
-      "$OSS_PATH"/run_build.sh -n "$name" -e -t "$OSS_TARBALL_PATH" -i "$TPU_SDK_INSTALL_PATH"
-        echo "$name successfully downloaded and untared."
     else
-      echo "$name not found"
+      echo "Try to download $name tarball ..."
+      wget ftp://${FTP_SERVER_NAME}:${FTP_SERVER_PWD}@${FTP_SERVER_IP}/sw_rls/third_party/latest/${SDK_VER}/${name}.tar.gz \
+          -T 3 -t 3 -q -P ${OSS_TARBALL_PATH}
+    fi
+
+    if [ -f "${OSS_TARBALL_PATH}/${name}.tar.gz" ]; then
+      "$OSS_PATH"/run_build.sh -n "$name" -e -t "$OSS_TARBALL_PATH" -i "$TPU_SDK_INSTALL_PATH"
+      echo "$name successfully downloaded and untared."
+    else
+      echo "No prebuilt tarball, build oss $name"
+      "$OSS_PATH"/run_build.sh -n "$name" -t "$OSS_TARBALL_PATH" -r "$SYSROOT_PATH" -s "$SDK_VER"
     fi
   done
 }
@@ -586,14 +594,18 @@ function build_all()
   build_uboot || return $?
   build_kernel || return $?
   build_ramboot || return $?
-  build_osdrv || return $?
-  build_3rd_party || return $?
-  build_middleware || return $?
-  if [ "$TPU_REL" = 1 ]; then
-    build_tpu_sdk || return $?
-    build_ive_sdk || return $?
-    build_ivs_sdk || return $?
-    build_tdl_sdk  || return $?
+  if [[ "$BOARD" != "fpga" ]] && [[ "$BOARD" != "palladium" ]]; then
+    build_osdrv || return $?
+    build_3rd_party || return $?
+    build_middleware || return $?
+    if [ "$TPU_REL" = 1 ]; then
+      build_cvi_rtsp || return $?
+      build_tpu_sdk || return $?
+      build_ive_sdk || return $?
+      build_ivs_sdk || return $?
+      build_tdl_sdk || return $?
+    fi
+    build_pqtool_server || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?
@@ -613,6 +625,7 @@ function clean_all()
   clean_ramdisk
   clean_3rd_party
   if [ "$TPU_REL" = 1 ]; then
+    clean_cvi_rtsp
     clean_ive_sdk
     clean_ivs_sdk
     clean_tpu_sdk
@@ -621,6 +634,7 @@ function clean_all()
   fi
   clean_middleware
   clean_osdrv
+  clean_pqtool_server
 }
 
 function distclean_all()
@@ -909,11 +923,11 @@ export TOP_DIR BUILD_PATH
 # import common functions
 # shellcheck source=./common_functions.sh
 source "$TOP_DIR/build/common_functions.sh"
-# shellcheck source=./release_functions.sh
-#source "$TOP_DIR/build/release_functions.sh"
 # shellcheck source=./riscv_functions.sh
 source "$TOP_DIR/build/riscv_functions.sh"
-# shellcheck source=./alios_functions.sh
-#source "$TOP_DIR/build/alios_functions.sh"
+# import credential messages
+if [ -f "${TOP_DIR}/build/credential.sh" ]; then
+  source "$TOP_DIR/build/credential.sh"
+fi
 
 print_usage

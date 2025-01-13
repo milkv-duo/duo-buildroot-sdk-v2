@@ -31,7 +31,6 @@ qstrip = $(strip $(subst ",,$(1)))
 # Default actions
 ################################################################################
 NPROC := $(shell nproc)
-
 export CHIP_ARCH_L := $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 export BORAD_FOLDER_PATH := ${BUILD_PATH}/boards/${CHIP_ARCH_L}/${PROJECT_FULLNAME}
 
@@ -149,7 +148,12 @@ UBOOT_CVI_BOARD_INIT_PATH := ${UBOOT_PATH}/board/cvitek/cvi_board_init.c
 UBOOT_CVITEK_PATH := ${UBOOT_PATH}/include/cvitek/cvitek.h
 
 u-boo%: export KBUILD_OUTPUT=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}
+ifeq ($(CONFIG_UBOOT_FASTBOOT),y)
+u-boo%: export RELEASE=1
+u-boo%: export CONFIG_UBOOT_FASTBOOT:=${CONFIG_UBOOT_FASTBOOT}
+else
 u-boo%: export RELEASE=${RELEASE_VERSION}
+endif
 u-boo%: export CVIBOARD=${BOARD}
 u-boo%: export CONFIG_SKIP_RAMDISK:=${CONFIG_SKIP_RAMDISK}
 u-boo%: export CONFIG_USE_DEFAULT_ENV:=${CONFIG_USE_DEFAULT_ENV}
@@ -216,7 +220,11 @@ u-boot-clean:
 ifeq ($(CONFIG_BUILD_FOR_DEBUG),y)
 KERNEL_CONFIG_NAME := ${BRAND}_${PROJECT_FULLNAME}_defconfig
 else
+ifeq ($(CONFIG_KERNEL_FASTBOOT),y)
+KERNEL_CONFIG_NAME := ${BRAND}_${PROJECT_FULLNAME}_fastboot_defconfig
+else
 KERNEL_CONFIG_NAME := ${BRAND}_${PROJECT_FULLNAME}_rls_defconfig
+endif
 endif
 
 KERNEL_VERSION ?= -tag-$(shell git -C ${KERNEL_PATH} describe --exact-match HEAD 2>/dev/null)
@@ -408,7 +416,7 @@ endif
 
 	${Q}python3 "${BUILD_PATH}/scripts/boards_scan.py" ${BOOT_IMAGE_ARG}
 	${Q}mv "${BUILD_PATH}/output/multi.its.tmp" "${RAMDISK_PATH}/${RAMDISK_OUTPUT_FOLDER}/multi.its"
-ifeq ($(CONFIG_KERNEL_UNCOMPRESSED),y)
+ifneq ($(CONFIG_KERNEL_UNCOMPRESSED)$(CONFIG_KERNEL_FASTBOOT), )
 	${Q}sed -i "s/data = \/incbin\/(\".\/Image.gz\");/data = \/incbin\/(\".\/Image\");/g" ${RAMDISK_PATH}/${RAMDISK_OUTPUT_FOLDER}/multi.its
 else
 	${Q}${KERNEL_COMPRESS} -c -9 -f -k ${RAMDISK_PATH}/${RAMDISK_OUTPUT_FOLDER}/Image > ${RAMDISK_PATH}/${RAMDISK_OUTPUT_FOLDER}/Image.${KERNEL_COMPRESS}

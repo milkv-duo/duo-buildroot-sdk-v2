@@ -212,6 +212,33 @@ config BUILD_FOR_DEBUG
 	  "n":build kernel with release config(disable CONFIG_DEBUG_FS and so on)
 	      build uboot without commands.
 
+menuconfig BUILD_FOR_FASTBOOT
+	bool "Build SDK with fastboot mode"
+	depends on !BUILD_FOR_DEBUG
+	default n
+
+if BUILD_FOR_FASTBOOT
+
+config FSBL_FASTBOOT
+	bool "optimization fsbl boottime"
+	default y
+
+config OPENSBI_FASTBOOT
+	bool "optimization opensbi boottime"
+	default y
+
+config UBOOT_FASTBOOT
+	bool "optimization uboot boottime"
+	default y
+	select UBOOT_SPL_CUSTOM
+
+config KERNEL_FASTBOOT
+	bool
+	default y
+
+endif # BUILD_FOR_FASTBOOT
+
+
 config ENABLE_SDK_ASAN
 	bool "Enable SDK sanitizer"
 	default n
@@ -479,6 +506,7 @@ endchoice
 
 config KERNEL_COMPRESS
 	string
+	default "none" if KERNEL_FASTBOOT
 	default "gzip" if KERNEL_GZIP
 	default "lzma" if KERNEL_LZMA
 	default "lz4" if KERNEL_LZ4
