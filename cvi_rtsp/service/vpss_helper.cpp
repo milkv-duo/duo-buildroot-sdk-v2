@@ -1,12 +1,11 @@
 #include <unistd.h>
 #include <algorithm>
 #include <sample_comm.h>
-#if MW_VER == 2
-#include <cvi_comm_video.h>
-#endif
+#include <linux/cvi_comm_video.h>
 #include <cvi_isp.h>
 #include <cvi_ae.h>
 #include <cvi_awb.h>
+#include <cvi_af.h>
 #include <cvi_sys.h>
 #include <cvi_buffer.h>
 #include <cvi_bin.h>
@@ -16,7 +15,7 @@ static CVI_S32 replay_vi_init(SERVICE_CTX *ctx);
 
 int vpss_init_helper(uint32_t vpssGrpId, uint32_t enSrcWidth, uint32_t enSrcHeight,
         PIXEL_FORMAT_E enSrcFormat, uint32_t enDstWidth, uint32_t enDstHeight,
-        PIXEL_FORMAT_E enDstFormat, uint32_t enabledChannel,
+        PIXEL_FORMAT_E enDstFormat, VPSS_MODE_E mode, uint32_t enabledChannel,
         bool keepAspectRatio, uint8_t u8Dev, SERVICE_SBM sbm) {
     printf("VPSS init with src (%u, %u) dst (%u, %u).\n", enSrcWidth, enSrcHeight, enDstWidth, enDstHeight);
     int s32Ret = CVI_FAILURE;
@@ -50,8 +49,6 @@ int vpss_init_helper(uint32_t vpssGrpId, uint32_t enSrcWidth, uint32_t enSrcHeig
                 break;
             }
 
-#if MW_VER == 2
-#if defined(__CV181X__) || defined(__CV180X__)
             if (sbm.enable) {
                 VPSS_CHN_BUF_WRAP_S stVpssChnBufWrap = {};
                 stVpssChnBufWrap.bEnable = sbm.enable;
@@ -66,8 +63,6 @@ int vpss_init_helper(uint32_t vpssGrpId, uint32_t enSrcWidth, uint32_t enSrcHeig
                     }
                 }
             }
-#endif
-#endif
 
             s32Ret = CVI_VPSS_EnableChn(vpssGrpId, i);
             if (s32Ret != CVI_SUCCESS) {
@@ -115,32 +110,7 @@ int init_vi(SERVICE_CTX *ctx)
         printf("Set log level[%d] done", log_conf.s32Level);
     }
 
-#if MW_VER == 1
-    if (ctx->enable_set_pq_bin) {
-        // read wdr mode from sensor_cfg.ini
-        if (ctx->stIniCfg.enWDRMode <= WDR_MODE_QUDRA) {
-            CVI_BIN_SetBinName(ctx->stIniCfg.enWDRMode, ctx->sdr_pq_bin_path);
-            printf("SdrMode[%d] Set SdrPqBin[%s] done",
-                ctx->stIniCfg.enWDRMode, ctx->sdr_pq_bin_path);
-        } else {
-            CVI_BIN_SetBinName(ctx->stIniCfg.enWDRMode, ctx->wdr_pq_bin_path);
-            printf("WdrMode[%d] Set WdrPqBin[%s] done",
-                ctx->stIniCfg.enWDRMode, ctx->wdr_pq_bin_path);
-        }
-    }
-#endif
-
     CVI_VI_SetDevNum(ctx->dev_num);
-
-#if MW_VER == 1
-    //change vi_vpss_mode by check runTime status
-    if (((ctx->stIniCfg.devNum >= 2) || (ctx->stIniCfg.enWDRMode > WDR_MODE_QUDRA)) &&
-        ((ctx->vi_vpss_mode == VI_ONLINE_VPSS_OFFLINE) || (ctx->vi_vpss_mode == VI_ONLINE_VPSS_ONLINE))) {
-        printf("When it's wdr mode or dual sensor, we can't set vi online mode\n");
-        printf("preViVpssMode:%d curViVpssMode:%d\n", ctx->vi_vpss_mode, ctx->vi_vpss_mode - 2);
-        ctx->vi_vpss_mode = (VI_VPSS_MODE_E)((int)(ctx->vi_vpss_mode) - 2);
-    }
-#endif
 
     if ((ctx->stIniCfg.devNum >= 2) &&
         (ctx->rtsp_num == 1) &&
@@ -162,8 +132,6 @@ int init_vi(SERVICE_CTX *ctx)
     CVI_U32 u32BlkSize, u32BlkRotSize, i;
     memset(&stVbConf, 0, sizeof(VB_CONFIG_S));
 
-    int teaisp_bnr_enable_cnt = 0;
-
     SAMPLE_COMM_VI_IniToViCfg(&ctx->stIniCfg, pstViCfg);
     for (i = 0; i < ctx->dev_num; ++i) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[i];
@@ -175,10 +143,6 @@ int init_vi(SERVICE_CTX *ctx)
             pstViCfg->astViInfo[i].stPipeInfo.aPipe[1] = -1;
             pstViCfg->astViInfo[i].stPipeInfo.aPipe[2] = -1;
             pstViCfg->astViInfo[i].stPipeInfo.aPipe[3] = -1;
-        }
-
-        if (ent->enableTEAISPBnr) {
-            teaisp_bnr_enable_cnt++;
         }
 
         s32Ret = SAMPLE_COMM_VI_GetSizeBySensor(pstViCfg->astViInfo[i].stSnsInfo.enSnsType, &enPicSize);
@@ -193,20 +157,18 @@ int init_vi(SERVICE_CTX *ctx)
             return -1;
         }
 
-		PIXEL_FORMAT_E pixFomart = VI_PIXEL_FORMAT;
+        PIXEL_FORMAT_E pixFomart = VI_PIXEL_FORMAT;
 
-		if (ctx->replayMode) {
-			ent->src_width = ent->dst_width = stSize.u32Width = ctx->replayParam.width;
-			ent->src_height = ent->dst_height = stSize.u32Height = ctx->replayParam.height;
-			if (ctx->replayParam.pixelFormat)
-				pixFomart = (PIXEL_FORMAT_E)ctx->replayParam.pixelFormat;
-		} else {
-			ent->src_width = stSize.u32Width;
-			ent->src_height = stSize.u32Height;
-			ent->dst_width = ent->src_width;
-			ent->dst_height = ent->src_height;
-		}
-
+        ent->src_width = stSize.u32Width;
+        ent->src_height = stSize.u32Height;
+        ent->dst_width = ent->src_width;
+        ent->dst_height = ent->src_height;
+        if (ctx->replayMode) {
+            ent->src_width = ent->dst_width = stSize.u32Width = ctx->replayParam.width;
+            ent->src_height = ent->dst_height = stSize.u32Height = ctx->replayParam.height;
+            if (ctx->replayParam.pixelFormat)
+                pixFomart = (PIXEL_FORMAT_E)ctx->replayParam.pixelFormat;
+        }
         stVbConf.u32MaxPoolCnt++;
         u32BlkSize = COMMON_GetPicBufferSize(stSize.u32Width, stSize.u32Height, pixFomart, DATA_BITWIDTH_8,
                 COMPRESS_MODE_NONE, DEFAULT_ALIGN);
@@ -218,22 +180,7 @@ int init_vi(SERVICE_CTX *ctx)
         stVbConf.astCommPool[i].enRemapMode = VB_REMAP_MODE_CACHED;
     }
 
-    for (int j = 0; j < ctx->dev_num; j++) {
-        if (teaisp_bnr_enable_cnt > 1) {
-            pstViCfg->astViInfo[j].stPipeInfo.u32TEAISPMode = TEAISP_AFTER_FE_RAW_MODE;
-        } else if (teaisp_bnr_enable_cnt == 1) {
-            pstViCfg->astViInfo[j].stPipeInfo.u32TEAISPMode = TEAISP_BEFORE_FE_RAW_MODE;
-        }
-    }
-
     for (int k=0; k<ctx->dev_num; ++k) {
-#if MW_VER == 1
-        if (!ctx->entity[k].enableRetinaFace) continue;
-#endif
-        if (ctx->buf1_blk_cnt == 0 && ctx->entity[k].enableTeaispDrc) {
-            ctx->buf1_blk_cnt = 5;
-        }
-
         if (ctx->buf1_blk_cnt > 0) {
             stVbConf.u32MaxPoolCnt++;
             CVI_U32 u32BlkTpuSize = COMMON_GetPicBufferSize(stSize.u32Width, stSize.u32Height, PIXEL_FORMAT_RGB_888_PLANAR,
@@ -252,6 +199,7 @@ int init_vi(SERVICE_CTX *ctx)
 
     if (ctx->vi_vpss_mode != VI_OFFLINE_VPSS_OFFLINE) { //online
         VI_VPSS_MODE_S stVIVPSSMode = {};
+        VPSS_MODE_S stVPSSMode = {};
 
         printf("enable online mode %d\n", ctx->vi_vpss_mode);
         //cv183x does not support different mode Settings for dual sensor
@@ -262,6 +210,32 @@ int init_vi(SERVICE_CTX *ctx)
             printf("CVI_SYS_SetVIVPSSMode failed with %#x\n", s32Ret);
             return s32Ret;
         }
+
+        stVPSSMode.enMode = VPSS_MODE_DUAL;
+        stVPSSMode.aenInput[0] = VPSS_INPUT_MEM;
+        stVPSSMode.ViPipe[0] = 0;
+        stVPSSMode.aenInput[1] = VPSS_INPUT_ISP;
+        stVPSSMode.ViPipe[1] = 0;
+
+        s32Ret = CVI_SYS_SetVPSSModeEx(&stVPSSMode);
+        if (s32Ret != CVI_SUCCESS) {
+            printf("CVI_SYS_SetVPSSModeEx failed with %#x\n", s32Ret);
+            return -1;
+        }
+     } else {
+        VPSS_MODE_S stVPSSMode = {};
+
+        stVPSSMode.enMode = VPSS_MODE_DUAL;
+        stVPSSMode.aenInput[0] = VPSS_INPUT_MEM;
+        stVPSSMode.ViPipe[0] = 0;
+        stVPSSMode.aenInput[1] = VPSS_INPUT_MEM;
+        stVPSSMode.ViPipe[1] = 0;
+
+        s32Ret = CVI_SYS_SetVPSSModeEx(&stVPSSMode);
+        if (s32Ret != CVI_SUCCESS) {
+            printf("CVI_SYS_SetVPSSModeEx failed with %#x\n", s32Ret);
+            return -1;
+        }
     }
 
     if (ctx->replayMode) {
@@ -269,6 +243,7 @@ int init_vi(SERVICE_CTX *ctx)
     } else {
         s32Ret = SAMPLE_PLAT_VI_INIT(pstViCfg);
     }
+
     if (s32Ret != CVI_SUCCESS) {
         printf("vi init failed. s32Ret: 0x%x !\n", s32Ret);
         return -1;
@@ -297,8 +272,6 @@ int init_vi(SERVICE_CTX *ctx)
 int init_vpss(SERVICE_CTX *ctx)
 {
     CVI_S32 s32Ret = CVI_SUCCESS;
-    PIXEL_FORMAT_E dstFormat = SAMPLE_PIXEL_FORMAT;
-
     for (int idx = 0; idx < ctx->rtsp_num; ++idx) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
         if (ent->bVpssBinding || ent->src_width != ent->dst_width || ent->src_height != ent->dst_height) {
@@ -316,46 +289,17 @@ int init_vpss(SERVICE_CTX *ctx)
 
                 printf("VpssChn0 , Enable Vpss Grp: %d\n", ent->VpssGrp);
 
-                if (ent->enableTeaispDrc) {
-                    dstFormat = PIXEL_FORMAT_RGB_888_PLANAR;
-                } else if (ent->enableRetinaFace) {
-                    dstFormat = PIXEL_FORMAT_YUV_PLANAR_420;
-                } else {
-                    dstFormat = SAMPLE_PIXEL_FORMAT;
-                }
-
                 vpss_init_helper(ent->VpssGrp, ent->src_width, ent->src_height,
                         VI_PIXEL_FORMAT, ent->dst_width, ent->dst_height,
-                        dstFormat, 1, false, 1, ctx->sbm);
-
+                        ent->enableRetinaFace?PIXEL_FORMAT_YUV_PLANAR_420:SAMPLE_PIXEL_FORMAT, VPSS_MODE_DUAL, 1, false, 1, ctx->sbm);
                 CVI_VPSS_SetGrpParamfromBin(ent->VpssGrp, ent->VpssChn);
-
                 if (ctx->vi_vpss_mode == VI_OFFLINE_VPSS_OFFLINE) {
-#if MW_VER == 2
                     s32Ret = SAMPLE_COMM_VI_Bind_VPSS(0, ent->ViChn, ent->VpssGrp);
-#else
-                    s32Ret = SAMPLE_COMM_VI_Bind_VPSS(ent->ViChn, ent->VpssGrp);
-#endif
                     if (s32Ret != CVI_SUCCESS) {
                         printf("SAMPLE_COMM_VI_Bind_VPSS Failed, s32Ret: 0x%x !\n", s32Ret);
                         return -1;
                     }
                 }
-
-                if (ent->enableTeaispDrc) {
-                    ent->VpssGrpDrcPost = CVI_VPSS_GetAvailableGrp();
-
-                    if (ent->enableRetinaFace) {
-                        dstFormat = PIXEL_FORMAT_YUV_PLANAR_420;
-                    } else {
-                        dstFormat = SAMPLE_PIXEL_FORMAT;
-                    }
-
-                    vpss_init_helper(ent->VpssGrpDrcPost, ent->dst_width, ent->dst_height,
-                        PIXEL_FORMAT_RGB_888_PLANAR, ent->dst_width, ent->dst_height,
-                        dstFormat, 1, false, 1, ctx->sbm);
-                }
-
             } else {
                 printf("Enable VpssChn %d: %d x %d\n", ent->VpssChn, ent->dst_width, ent->dst_height);
                 VPSS_CHN_ATTR_S vpss_chn_attr = {};
@@ -410,17 +354,7 @@ void deinit_vi(SERVICE_CTX *ctx)
         if (ent->bVpssBinding) {
             CVI_BOOL abChnEnable[VPSS_MAX_PHY_CHN_NUM] = {0};
             if (ctx->vi_vpss_mode == VI_OFFLINE_VPSS_OFFLINE) {
-#if MW_VER == 2
-                MMF_CHN_S stDestChn, stSrcChn;
-                stDestChn.enModId = CVI_ID_VPSS;
-                stDestChn.s32DevId = ent->VpssGrp;
-                stDestChn.s32ChnId = 0;
-
-                CVI_SYS_GetBindbyDest(&stDestChn, &stSrcChn);
-                SAMPLE_COMM_VI_UnBind_VPSS(0, stSrcChn.s32ChnId, ent->VpssGrp);
-#else
-                SAMPLE_COMM_VI_UnBind_VPSS(ent->ViChn, ent->VpssGrp);
-#endif
+                SAMPLE_COMM_VI_UnBind_VPSS(0, ent->ViChn, ent->VpssGrp);
             }
             abChnEnable[0] = CVI_TRUE;
             if (ent->enableRetinaFace) {
@@ -477,11 +411,8 @@ static ISP_PUB_ATTR_S ISP_PUB_ATTR_DEFAULT = {
 	25,
 	BAYER_RGGB,
 	WDR_MODE_NONE,
-	0,
-	4,
-	2
+	0
 };
-
 
 static CVI_S32 replay_startIsp(SERVICE_CTX *ctx)
 {
@@ -537,10 +468,6 @@ static CVI_S32 replay_startIsp(SERVICE_CTX *ctx)
 	if (s32Ret != CVI_SUCCESS) {
 		SAMPLE_PRT("ISP Init failed with %#x!\n", s32Ret);
 		return s32Ret;
-	}
-
-	if (ctx->entity[0].enableTEAISPBnr) {
-		CVI_TEAISP_SetMode(ViPipe, TEAISP_BEFORE_FE_RAW_MODE);
 	}
 
 	return CVI_SUCCESS;
@@ -624,7 +551,6 @@ static CVI_S32 replay_vi_start_dev(SERVICE_CTX *ctx)
 {
 	CVI_S32 s32Ret;
 	VI_DEV_ATTR_S stViDevAttr;
-	VI_DEV_BIND_PIPE_S stViDevBindAttr;
 
 	memcpy(&stViDevAttr, &DEV_ATTR_SENSOR_DEFAULT, sizeof(VI_DEV_ATTR_S));
 
@@ -634,6 +560,7 @@ static CVI_S32 replay_vi_start_dev(SERVICE_CTX *ctx)
 		if (ctx->replayParam.WDRMode) {
 			stViDevAttr.stWDRAttr.enWDRMode = WDR_MODE_2To1_LINE;
 			stViDevAttr.stWDRAttr.u32CacheLine = ctx->replayParam.width;
+			stViDevAttr.stWDRAttr.bSyntheticWDR = 0;
 		}
 		stViDevAttr.enInputDataType = VI_DATA_TYPE_RGB;
 		stViDevAttr.enBayerFormat = (BAYER_FORMAT_E)ctx->replayParam.bayerFormat;
@@ -644,21 +571,12 @@ static CVI_S32 replay_vi_start_dev(SERVICE_CTX *ctx)
 		stViDevAttr.enDataSeq = VI_DATA_SEQ_YUYV;
 		stViDevAttr.enInputDataType = VI_DATA_TYPE_YUV;
 		stViDevAttr.enIntfMode = VI_MODE_MIPI_YUV422;
-		stViDevAttr.enYuvSceneMode = VI_ISP_YUV_SCENE_ISP;
 	}
 	stViDevAttr.snrFps = ctx->replayParam.frameRate;
-	stViDevBindAttr.PipeId[0] = 0;
-	stViDevBindAttr.u32Num = 1;
 
 	s32Ret = CVI_VI_SetDevAttr(0, &stViDevAttr);
 	if (s32Ret != CVI_SUCCESS) {
 		SAMPLE_PRT("CVI_VI_SetDevAttr failed with %#x!\n", s32Ret);
-		return s32Ret;
-	}
-
-	s32Ret = CVI_VI_SetDevBindAttr(0, &stViDevBindAttr);
-	if (s32Ret != CVI_SUCCESS) {
-		SAMPLE_PRT("CVI_VI_SetDevBindAttr failed with %#x!\n", s32Ret);
 		return s32Ret;
 	}
 
@@ -751,7 +669,6 @@ static CVI_S32 replay_trig_pic(SERVICE_CTX *ctx)
 			CVI_SYS_Munmap(puVirAddr_se, u32BlkSize);
 		}
 	}
-
 	stVideoFrame.stVFrame.u64PhyAddr[0] = u64PhyAddr_le;
 	stVideoFrame.stVFrame.u64PhyAddr[1] = u64PhyAddr_se;
 	pstVideoFrame[0] =  &stVideoFrame;
@@ -830,4 +747,3 @@ static CVI_S32 replay_vi_init(SERVICE_CTX *ctx)
 
 	return CVI_SUCCESS;
 }
-

@@ -21,14 +21,21 @@ fi
 
 if [ "${LIVE555_DIR}" = "" ]; then
     mkdir -p prebuilt
-	cd prebuilt
-	pip3 install dfss --upgrade
-    python -m dfss --url=open@sophgo.com:/gemini-sdk/oss/latest/${SDK_VER}/live555.tar.gz
-	cd ..
+
+    REMOTE_URL=$(git remote -v | grep 'fetch' | awk '{print $2}')
+    ## Try to download from Github Server
+    if echo "$REMOTE_URL" | grep -q "github.com"; then
+        cp -rpf ${TOP_DIR}/oss/oss_release_tarball/${SDK_VER}/live555.tar.gz prebuilt/live555.tar.gz
+    else
+    ## Try to download from FTP Server
+        curl ftp://${FTP_SERVER_NAME}:${FTP_SERVER_PWD}@${FTP_SERVER_IP}/sw_rls/third_party/latest/${SDK_VER}/live555.tar.gz \
+        --output prebuilt/live555.tar.gz
+    fi
     if [ $? != 0 ]; then
-        echo "fail to download live555..."
+        echo "Failed to download live555."
         exit 1
     fi
+
     tar -xf prebuilt/live555.tar.gz -C prebuilt/
     LIVE555_DIR=$(pwd)/prebuilt/
 elif [ ! -f ${LIVE555_DIR}/lib/libUsageEnvironment.a ]; then
@@ -43,6 +50,3 @@ RANLIB=${CROSS_COMPILE}ranlib
 
 make clean;
 make CC=${CC} CXX=${CXX} AR=${AR} RANLIB=${RANLIB} LIVE555_DIR=${LIVE555_DIR} MW_DIR=${MW_DIR}
-test $? -ne 0 && echo "build cvi rtsp fail!!!" && exit 1
-exit 0
-

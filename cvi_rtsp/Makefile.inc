@@ -4,8 +4,6 @@ else
 CHIP_ARCH ?= CV182X
 endif
 
-CHIP_ARCH := CV186X
-
 CHIP_ARCH_LOWERCASE := $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 SDK_VER ?= 64bit
 AISDK_VER ?= 2021-09-27
@@ -16,10 +14,12 @@ ifeq ($(CONFIG_ENABLE_SDK_ASAN),y)
 endif
 
 ifeq ($(SDK_VER), glibc_riscv64)
-  CFLAGS += -march=rv64imafdcvxthead -mcmodel=medany -mabi=lp64dv
+  CFLAGS += -march=rv64imafdcv0p7xthead -mcmodel=medany -mabi=lp64d
+endif
+ifeq ($(SDK_VER), musl_riscv64)
+  CFLAGS += -march=rv64imafdcv0p7xthead -mcmodel=medany -mabi=lp64d
 endif
 
-CFLAGS += -DMW_VER=$(subst v,,$(MW_VER))
 CFLAGS += -O3 -Wall  -Werror=all -DNO_OPENSSL=1
 CPPFLAGS = -fPIC
 CXXFLAGS = $(CPPFLAGS)
@@ -28,7 +28,7 @@ LIVE555_DIR ?= /system
 LIVE555_INC ?= -I$(LIVE555_DIR)/include/BasicUsageEnvironment -I$(LIVE555_DIR)/include/groupsock -I$(LIVE555_DIR)/include/liveMedia -I$(LIVE555_DIR)/include/UsageEnvironment
 LIVE555_LIB ?= $(LIVE555_DIR)/lib/libliveMedia.a $(LIVE555_DIR)/lib/libBasicUsageEnvironment.a $(LIVE555_DIR)/lib/libUsageEnvironment.a $(LIVE555_DIR)/lib/libgroupsock.a
 
-MW_DIR ?= $(PWD)/../middleware/$(MW_VER)
+MW_DIR ?= $(PWD)/../cvi_mpi
 KERNEL_DIR ?= $(KERNEL_PATH)/build/$(PROJECT_FULLNAME)
 ifeq ($(SDK_VER), 32bit)
     KERNEL_INC ?= $(KERNEL_DIR)/arm/usr/include
@@ -42,28 +42,22 @@ else ifeq ($(SDK_VER), musl_riscv64)
     KERNEL_INC := $(KERNEL_DIR)/riscv/usr/include
 endif
 
+PKG_CONFIG_PATH = $(MW_DIR)/pkgconfig
+MW_INC ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --cflags --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample) -I$(KERNEL_INC) -I$(MW_DIR)/include/linux
+MW_LIB ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample)
 
-ifeq ($(MW_VER), v2)
-    PKG_CONFIG_PATH = $(MW_DIR)/pkgconfig
-    MW_INC ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --cflags --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample) -I$(KERNEL_INC)
-    MW_LIB ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_DIR) cvi_common cvi_sample)
-    # for tdl_sdk
-    CFLAGS += -D_MIDDLEWARE_V2_=1
-
-    MW_INC += -I$(MW_DIR)/include/isp/$(CHIP_ARCH_LOWERCASE)
-else
-
-ifeq ($(CHIP_ARCH), CV183X)
-    MW_ISP_LIB ?= -L$(MW_DIR)/lib -lisp -lae -laf -lawb
-else
-    MW_ISP_LIB ?= -L$(MW_DIR)/lib -lisp -lisp_algo -lae -laf -lawb
-endif
-
-    MW_INC ?= -I$(MW_DIR)/include -I$(MW_DIR)/sample/common -I$(MW_DIR)/include/isp/$(CHIP_ARCH_LOWERCASE) -I$(CVI_TRACER_INC) $(CVI_TARGET_PACKAGES_INCLUDE)
-    MW_LIB ?= -L$(MW_DIR)/lib -lsample -lcvi_bin -lcvi_bin_isp -lvpu -lm -lsys -lvenc -lvdec -lsns_full -lcvi_jpeg -lcvi_vcodec -lz -lini $(MW_ISP_LIB) -L$(MW_DIR)/lib/3rd $(CVI_TARGET_PACKAGES_LIBDIR) $(CVI_TRACER_LIB)
-endif
+SENSOR_LIST_INC ?= -I$(MW_DIR)/component/isp/common
+ISP_INC ?= -I$(MW_DIR)/include/isp/$(CHIP_ARCH_LOWERCASE)
+SAMPLE_COMMON_DIR := $(MW_DIR)/sample/common
 
 CFLAGS += -DARCH_$(CHIP_ARCH)
+
+ifeq ("$(CVIARCH)", "CV181X")
+CFLAGS += -D__CV181X__
+endif
+ifeq ("$(CVIARCH)", "CV180X")
+CFLAGS += -D__CV180X__
+endif
 
 RAMDISK_DIR ?= $(PWD)/../ramdisk
 CVI_TRACER_INC ?= $(RAMDISK_DIR)/rootfs/public/cvitracer/include
@@ -75,11 +69,7 @@ else
 CVI_TRACER_LIB ?= -L$(RAMDISK_DIR)/rootfs/public/cvitracer/uclibc/lib/3rd/ -lcvitracer
 endif
 
-MW_AUDIO_LIB ?= -L$(MW_DIR)/lib -ldl -lcvi_audio -lcvi_vqe -lae -lcvi_VoiceEngine -lcvi_RES1 -L/$(MW_DIR)/lib/3rd -ltinyalsa
+MW_AUDIO_LIB ?= -L$(MW_DIR)/lib -ldl -lcvi_audio -lcvi_vqe -lcvi_dnvqe -lcvi_ssp2 -lae -lcvi_VoiceEngine -lsbc -lcvi_RES1 -L/$(MW_DIR)/lib/3rd -ltinyalsa
 
 AISDK_DIR ?= $(PWD)/../tdl_sdk
 AISDK_INC ?= -I$(AISDK_DIR)/include
-
-TPU_SDK_DIR ?= $(PWD)/../libsophon
-TPU_SDK_INC ?= -I$(TPU_SDK_DIR)/bmlib/include -I$(TPU_SDK_DIR)/tpu-runtime/include
-
