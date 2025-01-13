@@ -1,6 +1,6 @@
 include(ExternalProject)
 ExternalProject_Add(tracer
-                    GIT_REPOSITORY ssh://${REPO_USER}${DL_SERVER_IP}:29418/cvitek/tracer
+                    GIT_REPOSITORY ssh://${DL_SERVER_IP}:29418/cvitek/tracer
                     PREFIX ${BUILD_DOWNLOAD_DIR}/tracer
                     CMAKE_ARGS
                     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}

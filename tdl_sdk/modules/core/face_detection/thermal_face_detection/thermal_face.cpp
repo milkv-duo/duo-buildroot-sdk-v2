@@ -118,8 +118,8 @@ int ThermalFace::onModelOpened() {
   std::vector<float> scales = {1, 1.25992105, 1.58740105};
 
   CVI_SHAPE input_shape = getInputShape(0);
-  uint32_t input_w = input_shape.dim[3];
-  uint32_t input_h = input_shape.dim[2];
+  int input_w = input_shape.dim[3];
+  int input_h = input_shape.dim[2];
   std::vector<std::vector<int>> image_shapes;
   image_shapes.reserve(strides.size());
   for (int s : strides) {

@@ -51,6 +51,7 @@
 #include "face_detection/retina_face/retina_face.hpp"
 #include "face_detection/retina_face/scrfd_face.hpp"
 #include "face_detection/thermal_face_detection/thermal_face.hpp"
+#include "isp_image_classification/isp_image_classification.hpp"
 #include "mask_classification/mask_classification.hpp"
 #include "ocr/ocr_recognition/ocr_recognition.hpp"
 #include "osnet/osnet.hpp"
@@ -58,9 +59,7 @@
 #include "segmentation/deeplabv3.hpp"
 #include "sound_classification/sound_classification_v2.hpp"
 #include "super_resolution/super_resolution.hpp"
-#ifdef CV186X
-#include "isp_image_classification/isp_image_classification.hpp"
-#endif
+
 #ifndef NO_OPENCV
 #include "eye_classification/eye_classification.hpp"
 #include "face_quality/face_quality.hpp"
@@ -89,7 +88,6 @@
 #include "utils/clip_postprocess.hpp"
 #include "utils/core_utils.hpp"
 #include "utils/token.hpp"
-#include "version.hpp"
 
 using namespace std;
 using namespace cvitdl;
@@ -188,17 +186,17 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
     {CVI_TDL_SUPPORTED_MODEL_MASKFACERECOGNITION, CREATOR(MaskFaceRecognition)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV8_SEG, CREATOR(YoloV8Seg)},
 #endif
-#ifdef CV186X
-    {CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, CREATOR(IspImageClassification)},
-#endif
-    {CVI_TDL_SUPPORTED_MODEL_IRLIVENESS, CREATOR(IrLiveness)},
 
+    {CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, CREATOR(IspImageClassification)},
+    {CVI_TDL_SUPPORTED_MODEL_IRLIVENESS, CREATOR(IrLiveness)},
+    {CVI_TDL_SUPPORTED_MODEL_YOLO, CREATOR(Yolo)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV3, CREATOR(Yolov3)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV5, CREATOR(Yolov5)},
+    {CVI_TDL_SUPPORTED_MODEL_YOLOX, CREATOR(YoloX)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV6, CREATOR(Yolov6)},
     {CVI_TDL_SUPPORTED_MODEL_YOLOV7, CREATOR(Yolov5)},
-    {CVI_TDL_SUPPORTED_MODEL_YOLO, CREATOR(Yolo)},
-    {CVI_TDL_SUPPORTED_MODEL_YOLOX, CREATOR(YoloX)},
+    {CVI_TDL_SUPPORTED_MODEL_YOLOV10_DETECTION,
+     CREATOR_P1(YoloV10Detection, PAIR_INT, std::make_pair(64, 80))},
     {CVI_TDL_SUPPORTED_MODEL_PPYOLOE, CREATOR(PPYoloE)},
     {CVI_TDL_SUPPORTED_MODEL_SCRFDFACE, CREATOR(ScrFDFace)},
     {CVI_TDL_SUPPORTED_MODEL_RETINAFACE, CREATOR_P1(RetinaFace, PROCESS, CAFFE)},
@@ -261,8 +259,7 @@ unordered_map<int, CreatorFunc> MODEL_CREATORS = {
      CREATOR_P1(YoloV8Pose, TUPLE_INT, std::make_tuple(64, 17, 1))},
     {CVI_TDL_SUPPORTED_MODEL_LP_DETECTION,
      CREATOR_P1(YoloV8Pose, TUPLE_INT, std::make_tuple(64, 4, 2))},
-    {CVI_TDL_SUPPORTED_MODEL_YOLOV10_DETECTION,
-     CREATOR_P1(YoloV10Detection, PAIR_INT, std::make_pair(64, 80))},
+
     {CVI_TDL_SUPPORTED_MODEL_SIMCC_POSE, CREATOR(Simcc)},
     {CVI_TDL_SUPPORTED_MODEL_HRNET_POSE, CREATOR(Hrnet)},
     {CVI_TDL_SUPPORTED_MODEL_LANDMARK_DET3, CREATOR(FaceLandmarkDet3)},
@@ -376,7 +373,7 @@ CVI_S32 CVI_TDL_CreateHandle2(cvitdl_handle_t *handle, const VPSS_GRP vpssGroupI
   ctx->ive_handle = NULL;
   ctx->vec_vpss_engine.push_back(new VpssEngine(vpssGroupId, vpssDev));
   const char timestamp[] = __DATE__ " " __TIME__;
-  LOGI("cvitdl_handle_t is created, version %s-%s\n", CVI_TDL_TAG, timestamp);
+  LOGI("cvitdl_handle_t is created, %s\n", timestamp);
   *handle = ctx;
   return CVI_TDL_SUCCESS;
 }
@@ -385,7 +382,7 @@ CVI_S32 CVI_TDL_CreateHandle3(cvitdl_handle_t *handle) {
   cvitdl_context_t *ctx = new cvitdl_context_t;
   ctx->ive_handle = NULL;
   const char timestamp[] = __DATE__ " " __TIME__;
-  LOGI("cvitdl_handle_t is created, version %s-%s\n", CVI_TDL_TAG, timestamp);
+  LOGI("cvitdl_handle_t is created, %s\n", timestamp);
   *handle = ctx;
   return CVI_TDL_SUCCESS;
 }
@@ -444,7 +441,7 @@ CVI_S32 CVI_TDL_OpenModel(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E conf
   return CVI_TDL_SUCCESS;
 }
 
-#ifndef CV186X
+#ifndef __CV186X__
 CVI_S32 CVI_TDL_OpenModel_FromBuffer(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
                                      int8_t *buf, uint32_t size) {
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
@@ -510,7 +507,7 @@ CVI_S32 CVI_TDL_SetPerfEvalInterval(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MO
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
   Core *instance = getInferenceInstance(config, ctx);
   if (instance != nullptr) {
-    instance->set_perf_eval_interval(interval);
+    instance->setPerfEvalInterval(interval);
   } else {
     LOGE("Cannot create model: %s\n", CVI_TDL_GetModelName(config));
     return CVI_TDL_ERR_OPEN_MODEL;
@@ -583,15 +580,15 @@ CVI_S32 CVI_TDL_GetModelNmsThreshold(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_M
   return CVI_TDL_SUCCESS;
 }
 
-CVI_S32 CVI_TDL_UseMmap(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model, bool mmap) {
-  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
-  Core *instance = getInferenceInstance(model, ctx);
-  if (instance == nullptr) {
-    return CVI_TDL_FAILURE;
-  }
-  instance->setUseMmap(mmap);
-  return CVI_TDL_SUCCESS;
-}
+// CVI_S32 CVI_TDL_UseMmap(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E model, bool mmap) {
+//   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+//   Core *instance = getInferenceInstance(model, ctx);
+//   if (instance == nullptr) {
+//     return CVI_TDL_FAILURE;
+//   }
+//   instance->setUseMmap(mmap);
+//   return CVI_TDL_SUCCESS;
+// }
 
 CVI_S32 CVI_TDL_SetVpssThread(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL_E config,
                               const uint32_t thread) {
@@ -799,7 +796,7 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
         if (ret != CVI_TDL_SUCCESS)                                                            \
           return ret;                                                                          \
         else                                                                                   \
-          return obj->after_inference();                                                       \
+          return obj->afterInference();                                                        \
       }                                                                                        \
     } else {                                                                                   \
       LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n", \
@@ -825,7 +822,7 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
         if (ret != CVI_TDL_SUCCESS)                                                            \
           return ret;                                                                          \
         else                                                                                   \
-          return obj->after_inference();                                                       \
+          return obj->afterInference();                                                        \
       }                                                                                        \
     } else {                                                                                   \
       LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n", \
@@ -851,7 +848,7 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
         if (ret != CVI_TDL_SUCCESS)                                                            \
           return ret;                                                                          \
         else                                                                                   \
-          return obj->after_inference();                                                       \
+          return obj->afterInference();                                                        \
       }                                                                                        \
     } else {                                                                                   \
       LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n", \
@@ -877,7 +874,7 @@ CVI_S32 CVI_TDL_GetVpssChnConfig(cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
         if (ret != CVI_TDL_SUCCESS)                                                            \
           return ret;                                                                          \
         else                                                                                   \
-          return obj->after_inference();                                                       \
+          return obj->afterInference();                                                        \
       }                                                                                        \
     } else {                                                                                   \
       LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n", \
@@ -1107,11 +1104,9 @@ DEFINE_INF_FUNC_F1_P1(CVI_TDL_OCR_Recognition, OCRRecognition,
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_LSTR_Det, LSTR, CVI_TDL_SUPPORTED_MODEL_LSTR, cvtdl_lane_t *)
 DEFINE_INF_FUNC_F1_P1(CVI_TDL_IrLiveness, IrLiveness, CVI_TDL_SUPPORTED_MODEL_IRLIVENESS,
                       cvtdl_face_t *)
-#ifdef CV186X
 DEFINE_INF_FUNC_F1_P2(CVI_TDL_Isp_Image_Classification, IspImageClassification,
                       CVI_TDL_SUPPORTED_MODEL_ISP_IMAGE_CLASSIFICATION, cvtdl_class_meta_t *,
                       cvtdl_isp_meta_t *)
-#endif
 
 CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                           CVI_TDL_SUPPORTED_MODEL_E model_index, cvtdl_object_t *obj) {
@@ -1157,7 +1152,7 @@ CVI_S32 CVI_TDL_Detection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *fram
       if (ret != CVI_TDL_SUCCESS)
         return ret;
       else
-        return model->after_inference();
+        return model->afterInference();
     }
   } else {
     LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n",
@@ -1210,7 +1205,7 @@ CVI_S32 CVI_TDL_FaceDetection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *
       if (ret != CVI_TDL_SUCCESS)
         return ret;
       else
-        return model->after_inference();
+        return model->afterInference();
     }
   } else {
     LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n",
@@ -1243,7 +1238,7 @@ CVI_S32 CVI_TDL_PoseDetection(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *
       if (ret != CVI_TDL_SUCCESS)
         return ret;
       else
-        return model->after_inference();
+        return model->afterInference();
     }
   } else {
     LOGE("Model (%s)is not yet opened! Please call CVI_TDL_OpenModel to initialize model\n",
@@ -1606,7 +1601,7 @@ CVI_S32 CVI_TDL_Change_Img(const cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
     return CVI_FAILURE;
   }
 
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
@@ -1628,7 +1623,7 @@ CVI_S32 CVI_TDL_Delete_Img(const cvitdl_handle_t handle, CVI_TDL_SUPPORTED_MODEL
     LOGE("model not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
   }
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
 
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
@@ -1648,7 +1643,7 @@ CVI_S32 CVI_TDL_CropImage_With_VPSS(const cvitdl_handle_t handle,
     LOGE("model not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
   }
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
 
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
@@ -1699,7 +1694,7 @@ CVI_S32 CVI_TDL_CropResizeImage(const cvitdl_handle_t handle, CVI_TDL_SUPPORTED_
     LOGE("model not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
   }
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
 
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
@@ -1746,7 +1741,7 @@ CVI_S32 CVI_TDL_Resize_VideoFrame(const cvitdl_handle_t handle,
     LOGE("model not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
   }
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
 
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
@@ -1774,7 +1769,7 @@ DLL_EXPORT CVI_S32 CVI_TDL_Release_VideoFrame(const cvitdl_handle_t handle,
     LOGE("model not initialized:%d\n", (int)model_type);
     return CVI_FAILURE;
   }
-  VpssEngine *p_vpss_inst = modelt.instance->get_vpss_instance();
+  VpssEngine *p_vpss_inst = modelt.instance->getVpssInstance();
 
   if (p_vpss_inst == nullptr) {
     LOGE("vpssmodel not initialized:%d\n", (int)model_type);
@@ -1805,7 +1800,7 @@ CVI_S32 CVI_TDL_PersonVehicle_Detection(const cvitdl_handle_t handle, VIDEO_FRAM
       return CVI_TDL_ERR_INIT_VPSS;
     } else {
       int ret = yolo_model->inference(frame, obj_meta);
-      ret = yolo_model->after_inference();
+      ret = yolo_model->afterInference();
 
       if (ret == CVI_TDL_SUCCESS) {
         for (uint32_t i = 0; i < obj_meta->size; i++) {
@@ -1844,14 +1839,14 @@ InputPreParam CVI_TDL_GetPreParam(const cvitdl_handle_t handle,
                                   const CVI_TDL_SUPPORTED_MODEL_E model_index) {
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
   cvitdl::Core *instance = getInferenceInstance(model_index, ctx);
-  return instance->get_preparam();
+  return instance->getPreparam();
 }
 
 CVI_S32 CVI_TDL_SetPreParam(const cvitdl_handle_t handle,
                             const CVI_TDL_SUPPORTED_MODEL_E model_index, InputPreParam pre_param) {
   cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
   cvitdl::Core *instance = getInferenceInstance(model_index, ctx);
-  instance->set_preparam(pre_param);
+  instance->setPreparam(pre_param);
   return CVI_SUCCESS;
 }
 
@@ -1923,6 +1918,19 @@ CVI_S32 CVI_TDL_Set_Polylanenet_Lower(const cvitdl_handle_t handle,
     Polylanenet *polylane_model =
         dynamic_cast<Polylanenet *>(getInferenceInstance(model_index, ctx));
     polylane_model->set_lower(th);
+    return CVI_SUCCESS;
+  }
+  LOGE("not supported model index\n");
+  return CVI_FAILURE;
+}
+
+CVI_S32 CVI_TDL_Set_LSTR_ExportFeature(const cvitdl_handle_t handle,
+                                       const CVI_TDL_SUPPORTED_MODEL_E model_index, int flag) {
+  cvitdl_context_t *ctx = static_cast<cvitdl_context_t *>(handle);
+
+  if (model_index == CVI_TDL_SUPPORTED_MODEL_LSTR) {
+    LSTR *lstr_model = dynamic_cast<LSTR *>(getInferenceInstance(model_index, ctx));
+    lstr_model->export_feature = flag;
     return CVI_SUCCESS;
   }
   LOGE("not supported model index\n");

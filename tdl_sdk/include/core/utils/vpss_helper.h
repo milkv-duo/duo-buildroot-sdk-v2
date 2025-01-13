@@ -11,6 +11,10 @@
 #include <string.h>
 #include <syslog.h>
 
+#ifdef _MIDDLEWARE_V3_
+#include "cvi_msg_client.h"
+#endif
+
 /**
  * \addtogroup core_vpss Vpss Helper Functions
  * \ingroup core_cvitdlcore
@@ -93,9 +97,12 @@ MMF_INIT_HELPER2(uint32_t enSrcWidth, uint32_t enSrcHeight, PIXEL_FORMAT_E enSrc
                  const uint32_t inBlkCount, uint32_t enDstWidth, uint32_t enDstHeight,
                  PIXEL_FORMAT_E enDstFormat, const uint32_t outBlkCount) {
   COMPRESS_MODE_E enCompressMode = COMPRESS_MODE_NONE;
-  // Init SYS and Common VB,
-  // Running w/ Vi don't need to do it again. Running Vpss along need init below
-  // FIXME: Can only be init once in one pipeline
+// Init SYS and Common VB,
+// Running w/ Vi don't need to do it again. Running Vpss along need init below
+// FIXME: Can only be init once in one pipeline
+#ifdef _MIDDLEWARE_V3_
+  CVI_MSG_Init();
+#endif
   VB_CONFIG_S stVbConf;
   memset(&stVbConf, 0, sizeof(VB_CONFIG_S));
   stVbConf.u32MaxPoolCnt = 2;
@@ -149,7 +156,7 @@ VPSS_GRP_DEFAULT_HELPER2(VPSS_GRP_ATTR_S *pstVpssGrpAttr, CVI_U32 srcWidth, CVI_
   pstVpssGrpAttr->enPixelFormat = enSrcFormat;
   pstVpssGrpAttr->u32MaxW = srcWidth;
   pstVpssGrpAttr->u32MaxH = srcHeight;
-#ifndef CV186X
+#ifndef __CV186X__
   pstVpssGrpAttr->u8VpssDev = dev;
 #endif
 }
@@ -704,13 +711,8 @@ CREATE_ION_HELPER(VIDEO_FRAME_INFO_S *vbFrame, CVI_U32 srcWidth, CVI_U32 srcHeig
   }
 
   CVI_U32 u32MapSize = vFrame->u32Length[0] + vFrame->u32Length[1] + vFrame->u32Length[2];
-#ifdef CONFIG_ALIOS
-  int ret = CVI_SYS_IonAlloc64Align(&vFrame->u64PhyAddr[0], (CVI_VOID **)&vFrame->pu8VirAddr[0],
-                                    alloc_name, u32MapSize);
-#else
   int ret = CVI_SYS_IonAlloc(&vFrame->u64PhyAddr[0], (CVI_VOID **)&vFrame->pu8VirAddr[0],
                              alloc_name, u32MapSize);
-#endif
   if (ret != CVI_SUCCESS) {
     syslog(LOG_ERR, "Cannot allocate ion, size: %d, ret=%#x\n", u32MapSize, ret);
     return CVI_FAILURE;

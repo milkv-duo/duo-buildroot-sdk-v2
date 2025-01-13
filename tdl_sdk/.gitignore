@@ -1,4 +1,3 @@
-build*
 install*
 *.o
 *.so

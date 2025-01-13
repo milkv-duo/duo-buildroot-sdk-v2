@@ -120,7 +120,7 @@ MobileDetV2::MobileDetV2(MobileDetV2::Category model, float iou_thresh)
   m_preprocess_param[0].mean[1] = static_cast<float>(MEAN_G);
   m_preprocess_param[0].mean[2] = static_cast<float>(MEAN_B);
   m_preprocess_param[0].rescale_type = RESCALE_RB;
-#ifndef CV186X
+#ifndef __CV186X__
   m_preprocess_param[0].resize_method = VPSS_SCALE_COEF_OPENCV_BILINEAR;
 #endif
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <bitset>
+#include "core.hpp"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 
 namespace cvitdl {
 class LSTR final : public Core {
@@ -11,6 +11,7 @@ class LSTR final : public Core {
   float gen_x_by_y(float ys, std::vector<float> &point_line);
   int inference(VIDEO_FRAME_INFO_S *frame, cvtdl_lane_t *lane_meta);
   virtual bool allowExportChannelAttribute() const override { return true; }
+  int export_feature = 0;
 
  private:
   // int vpssPreprocess(VIDEO_FRAME_INFO_S *srcFrame, VIDEO_FRAME_INFO_S *dstFrame,

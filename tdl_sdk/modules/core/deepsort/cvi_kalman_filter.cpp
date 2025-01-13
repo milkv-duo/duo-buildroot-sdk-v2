@@ -1,6 +1,5 @@
 #include "cvi_kalman_filter.hpp"
 #include <math.h>
-#include <cassert>
 
 #include <iostream>
 #include "cvi_tdl_log.hpp"

@@ -1,6 +1,6 @@
 #pragma once
+#include "core.hpp"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 #include "melspec.hpp"
 #define SCALE_FACTOR_FOR_INT16 32768.0
 

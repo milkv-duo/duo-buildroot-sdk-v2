@@ -1,6 +1,6 @@
 #include "service/cvi_tdl_service.h"
 
-#ifndef CV186X
+#ifndef __CV186X__
 #include <cvimath/cvimath.h>
 #include "feature_matching/feature_matching.hpp"
 #endif
@@ -14,7 +14,7 @@
 
 typedef struct {
   cvitdl_handle_t tdl_handle = NULL;
-#ifndef CV186X
+#ifndef __CV186X__
   cvitdl::service::FeatureMatching *m_fm = nullptr;
 #endif
   cvitdl::service::DigitalTracking *m_dt = nullptr;
@@ -34,7 +34,7 @@ CVI_S32 CVI_TDL_Service_CreateHandle(cvitdl_service_handle_t *handle, cvitdl_han
 
 CVI_S32 CVI_TDL_Service_DestroyHandle(cvitdl_service_handle_t handle) {
   cvitdl_service_context_t *ctx = static_cast<cvitdl_service_context_t *>(handle);
-#ifndef CV186X
+#ifndef __CV186X__
   delete ctx->m_fm;
 #endif
   delete ctx->m_dt;
@@ -45,7 +45,7 @@ CVI_S32 CVI_TDL_Service_DestroyHandle(cvitdl_service_handle_t handle) {
 CVI_S32 CVI_TDL_Service_RegisterFeatureArray(cvitdl_service_handle_t handle,
                                              const cvtdl_service_feature_array_t featureArray,
                                              const cvtdl_service_feature_matching_e method) {
-#ifdef CV186X
+#ifdef __CV186X__
   return CVI_TDL_SUCCESS;
 #else
   cvitdl_service_context_t *ctx = static_cast<cvitdl_service_context_t *>(handle);
@@ -96,7 +96,7 @@ CVI_S32 CVI_TDL_Service_FaceInfoMatching(cvitdl_service_handle_t handle,
                                          const cvtdl_face_info_t *face_info, const uint32_t topk,
                                          float threshold, uint32_t *indices, float *sims,
                                          uint32_t *size) {
-#ifdef CV186X
+#ifdef __CV186X__
   return CVI_TDL_SUCCESS;
 #else
   cvitdl_service_context_t *ctx = static_cast<cvitdl_service_context_t *>(handle);
@@ -115,7 +115,7 @@ CVI_S32 CVI_TDL_Service_ObjectInfoMatching(cvitdl_service_handle_t handle,
                                            const cvtdl_object_info_t *object_info,
                                            const uint32_t topk, float threshold, uint32_t *indices,
                                            float *sims, uint32_t *size) {
-#ifdef CV186X
+#ifdef __CV186X__
   return CVI_TDL_SUCCESS;
 #else
   cvitdl_service_context_t *ctx = static_cast<cvitdl_service_context_t *>(handle);
@@ -133,7 +133,7 @@ CVI_S32 CVI_TDL_Service_ObjectInfoMatching(cvitdl_service_handle_t handle,
 CVI_S32 CVI_TDL_Service_RawMatching(cvitdl_service_handle_t handle, const void *feature,
                                     const feature_type_e type, const uint32_t topk, float threshold,
                                     uint32_t *indices, float *scores, uint32_t *size) {
-#ifdef CV186X
+#ifdef __CV186X__
   return CVI_TDL_SUCCESS;
 #else
   cvitdl_service_context_t *ctx = static_cast<cvitdl_service_context_t *>(handle);

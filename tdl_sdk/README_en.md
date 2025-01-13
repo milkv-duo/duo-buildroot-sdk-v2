@@ -32,131 +32,25 @@ Currently, the TDL SDK includes algorithms for [motion detection](./modules/core
 **tutorial**: Contains tutorial documents for the project to help users quickly get started and use the project.
 Intermediate files generated during compilation and third-party library downloads will be located in the **tmp** folder.
 ## 3. Compilation Process
-Before compiling TDL_SDK,**please ensure that the firmware and other dependent libraries for the development board have been compiled!**
-Otherwise, please refer to[SG200x SDK Software Package](https://github.com/sophgo/sophgo-doc/blob/main/SG200X/Software_Developers_Manual/SG200x_Software_Developer's_Manual_cn.md)sections 2-4.
-Depending on the development board chip, four parameters need to be specified for compilation. Here, we list the parameters corresponding to all development boards.
-<table>
-  <tr>
-    <th>CHIP_ARCH</th>
-    <th>BOARD</th>
-    <th>SDK_VER</th>
-    <th>MW_VER</th>
-  </tr>
-  <tr>
-    <td rowspan="8">CV180X<br /></td>
-    <td>fpga</td>
-    <td rowspan="2">glibc_riscv64<br /></td>
-    <td rowspan="8">v2<br /></td>
-  </tr>
-  <tr>
-    <td>palladium</td>
-  </tr>
-  <tr>
-    <td>wdmb_0008a_spinand</td>
-    <td rowspan="6">musl_riscv64<br /></td>
-  </tr>
-  <tr>
-    <td>wdmb_0008a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0008a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0009a_spinor</td>
-  </tr>
-  <tr>
-    <td>wdmb_0009a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0009a_spinand</td>
-  </tr>
-  <tr>
-    <td rowspan="18">CV181X<br /></td>
-    <td>wdmb_0006a_spinor</td>
-    <td rowspan="12">musl_riscv64<br /></td>
-    <td rowspan="18">v2<br /></td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinand</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinor</td>
-  </tr>
-  <tr>
-    <td>sophpi_duo_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinand</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinand_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinor_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_riscv64_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc</td>
-    <td>glibc_riscv64</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinor</td>
-    <td>32bit</td>
-  <tr>
-  <tr>
-    <td>wevb_0006a_spinand</td>
-    <td rowspan="3">64bit </td>
-  </tr>
-    <td>wevb_arm64_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_arm64_sd</td>
-  </tr>
-
-  <tr>
-    <td rowspan="6">CV186X<br /></td>
-    <td>fpga</td>
-    <td rowspan="5">64bit<br /></td>
-    <td rowspan="6">v2<br /></td>
-  </tr>
-  <tr>
-    <td>palladium</td>
-  </tr>
-  <tr>
-    <td>wevb_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_spinand</td>
-  </tr>
-  <tr>
-    <td>palladium_c906</td>
-    <td>glibc_riscv64</td>
-  </tr>
-</table>
 
 
 ```
-cd tdl_sdk
-# The parameters for `export` should be given according to the specific development board.
-export CHIP_ARCH=CV180X BOARD=wevb_riscv64_sd SDK_VER=musl_riscv64 MW_VER=v2
-./scripts/native_sdk_release.sh
+step1:
+git clone -b sg200x-evb git@github.com:sophgo/sophpi.git
+cd sophpi
+./scripts/repo_clone.sh --gitclone scripts/subtree.xml
+
+step2:
+source build/cvisetup.sh
+defconfig sg2002_wevb_riscv64_sd
+clean_all
+export TPU_REL=1
+build_all
+
+step3: (After modifying the TDL_SDK content, execute this step)
+clean_tdl_sdk
+build_tdl_sdk
+
 ```
 ## 4. Use Cases
 Algorithm Interface
@@ -274,8 +168,12 @@ int main(int argc, char *argv[]) {
 </div>
 
 More examples can be found in the [tutorial](tutorial)
-## 5. Development Guide
+
+## 5. models
+Released models：[tdl_models](https://github.com/sophgo/tdl_models)
+
+## 6. Development Guide
 For more details, please refer to the [TDL SDK Software Development Guide](https://doc.sophgo.com/cvitek-develop-docs/master/docs_latest_release/CV180x_CV181x/zh/01.software/TPU/TDL_SDK_Software_Development_Guide/build/html/index.html#)
 
-## 6. SDK Issue Feedback
+## 7. SDK Issue Feedback
 Lastly, if you have any questions or suggestions for improvements regarding the repository, please submit them through Issues. We welcome all forms of contributions, including documentation improvements, bug fixes, new feature additions, and more. By directly participating in the development and maintenance of the project, you can help us continuously improve. With your assistance, we aim to develop this project into a more comprehensive and user-friendly deep learning SDK library.

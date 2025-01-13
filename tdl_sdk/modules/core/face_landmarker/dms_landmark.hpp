@@ -1,8 +1,8 @@
 #pragma once
 #include <bitset>
+#include "core.hpp"
 #include "core/face/cvtdl_face_types.h"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 
 namespace cvitdl {
 

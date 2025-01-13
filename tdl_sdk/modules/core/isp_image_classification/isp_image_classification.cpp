@@ -21,7 +21,7 @@
 namespace cvitdl {
 
 IspImageClassification::IspImageClassification() : Core(CVI_MEM_DEVICE) {
-  this->setraw(true);
+  this->setRaw(true);
   float mean[3] = {123.675, 116.28, 103.52};
   float std[3] = {58.395, 57.12, 57.375};
 
@@ -35,12 +35,13 @@ IspImageClassification::IspImageClassification() : Core(CVI_MEM_DEVICE) {
   m_preprocess_param[0].keep_aspect_ratio = true;
 }
 
+#ifdef __CV186X__
 int IspImageClassification::onModelOpened() {
   // if (getNumOutputTensor() != 1) {
   //   LOGE("IspImageClassification only expected 1 output branch!\n");
   // }
   // 分配设备内存
-  bm_malloc_device_byte(bm_handle, &(getModelInfo()->in.tensors[1].device_mem), 12);
+  bm_malloc_device_byte(bm_handle, &(getModelInfo()->in.tensors[1].device_mem), 3 * sizeof(float));
   return CVI_TDL_SUCCESS;
 }
 
@@ -54,6 +55,7 @@ int IspImageClassification::onModelClosed() {
 
   return CVI_TDL_SUCCESS;
 }
+#endif
 
 std::vector<int> IspImageClassification::TopKIndex(std::vector<float> &vec, int topk) {
   std::vector<int> topKIndex;
@@ -106,11 +108,20 @@ int IspImageClassification::inference(VIDEO_FRAME_INFO_S *srcFrame, cvtdl_class_
                                       cvtdl_isp_meta_t *isparg) {
   std::vector<VIDEO_FRAME_INFO_S *> frames = {srcFrame};
   float awbarg[3] = {isparg->rgain, isparg->contant_1024, isparg->bgain};
-  bm_memcpy_s2d_partial(bm_handle, getModelInfo()->in.tensors[1].device_mem, (void *)awbarg, 12);
+
+#ifdef __CV186X__
+  bm_memcpy_s2d_partial(bm_handle, getModelInfo()->in.tensors[1].device_mem, (void *)awbarg,
+                        3 * sizeof(float));
   bm_status_t status =
       bm_mem_flush_device_mem(bm_handle, &(getModelInfo()->in.tensors[1].device_mem));
   assert(BM_SUCCESS == status);
-
+#else
+  const TensorInfo &tinfo = getInputTensorInfo(1);
+  float *input_ptr1 = tinfo.get<float>();
+  memcpy(input_ptr1, awbarg, 3 * sizeof(float));
+  srcFrame->stVFrame.enPixelFormat = PIXEL_FORMAT_RGB_888_PLANAR;
+#endif
+  printf("***************before inference****************\n");
   if (srcFrame->stVFrame.u64PhyAddr[0] == 0 && hasSkippedVpssPreprocess()) {
     const TensorInfo &tinfo = getInputTensorInfo(0);
     int8_t *input_ptr = tinfo.get<int8_t>();

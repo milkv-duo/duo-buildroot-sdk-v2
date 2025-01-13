@@ -1425,7 +1425,6 @@ DLL_EXPORT CVI_S32 CVI_TDL_Raw_Image_Classification(const cvitdl_handle_t handle
                                                     VIDEO_FRAME_INFO_S *frame,
                                                     cvtdl_class_meta_t *obj_meta);
 
-#ifdef CV186X
 /**
  * @brief isp image classification
  *
@@ -1438,7 +1437,6 @@ DLL_EXPORT CVI_S32 CVI_TDL_Isp_Image_Classification(const cvitdl_handle_t handle
                                                     VIDEO_FRAME_INFO_S *frame,
                                                     cvtdl_class_meta_t *obj_meta,
                                                     cvtdl_isp_meta_t *isp_meta);
-#endif
 
 /**
  * @brief get model preprocess param struct
@@ -1578,6 +1576,10 @@ DLL_EXPORT CVI_S32 CVI_TDL_Set_Polylanenet_Lower(const cvitdl_handle_t handle,
 
 DLL_EXPORT CVI_S32 CVI_TDL_LSTR_Det(const cvitdl_handle_t handle, VIDEO_FRAME_INFO_S *frame,
                                     cvtdl_lane_t *lane_meta);
+
+DLL_EXPORT CVI_S32 CVI_TDL_Set_LSTR_ExportFeature(const cvitdl_handle_t handle,
+                                                  const CVI_TDL_SUPPORTED_MODEL_E model_index,
+                                                  int flag);
 
 DLL_EXPORT CVI_S32 CVI_TDL_Set_TextPreprocess(const char *encoderFile, const char *bpeFile,
                                               const char *textFile, int32_t **tokens,

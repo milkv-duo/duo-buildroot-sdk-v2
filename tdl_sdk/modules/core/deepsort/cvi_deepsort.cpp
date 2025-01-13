@@ -5,7 +5,6 @@
 #include "cvi_tdl_log.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -1463,11 +1462,14 @@ MatchResult DeepSORT::match(const std::vector<BBOX> &BBoxes, const std::vector<F
   for (int i = 0; i < tracker_num; i++) {
     int bbox_j = cvi_munkres_solver.m_match_result[i];
     if (bbox_j != -1) {
-      if (cost_matrix(i, bbox_j) < max_distance) {
+      int tracker_idx = Tracker_IDXes[i];
+      int bbox_idx = BBox_IDXes[bbox_j];
+      BBOX tracker_box = k_trackers[tracker_idx].getBBox_TLWH();
+      BBOX det_box = BBoxes[bbox_idx];
+      float matched_iou = cal_iou_bbox(tracker_box, det_box);
+      if (cost_matrix(i, bbox_j) < max_distance && matched_iou > 0.3) {
         matched_tracker_i[i] = true;
         matched_bbox_j[bbox_j] = true;
-        int tracker_idx = Tracker_IDXes[i];
-        int bbox_idx = BBox_IDXes[bbox_j];
         result_.matched_pairs.push_back(std::make_pair(tracker_idx, bbox_idx));
       }
     }

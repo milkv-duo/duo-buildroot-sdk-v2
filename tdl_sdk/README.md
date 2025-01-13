@@ -34,131 +34,24 @@ Core提供了算法相关接口，封装复杂的底层操作及算法细节，�
 **tutorial**: 包含项目的教程文档，帮助用户快速上手和使用项目。
 编译产生的中间文件以及第三方库的下载都会位于tmp文件夹内
 ## 3. 编译流程
-在编译TDL_SDK前，**请确保已完成了开发板固件以及其他依赖库的编译！**
-否则请参考[SG200x SDK软件包](https://github.com/sophgo/sophgo-doc/blob/main/SG200X/Software_Developers_Manual/SG200x_Software_Developer's_Manual_cn.md)中的2~4。
-根据开发板芯片的不同，编译需要指定4个参数，此处我们列出所有的开发板对应的参数
-<table>
-  <tr>
-    <th>CHIP_ARCH</th>
-    <th>BOARD</th>
-    <th>SDK_VER</th>
-    <th>MW_VER</th>
-  </tr>
-  <tr>
-    <td rowspan="8">CV180X<br /></td>
-    <td>fpga</td>
-    <td rowspan="2">glibc_riscv64<br /></td>
-    <td rowspan="8">v2<br /></td>
-  </tr>
-  <tr>
-    <td>palladium</td>
-  </tr>
-  <tr>
-    <td>wdmb_0008a_spinand</td>
-    <td rowspan="6">musl_riscv64<br /></td>
-  </tr>
-  <tr>
-    <td>wdmb_0008a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0008a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0009a_spinor</td>
-  </tr>
-  <tr>
-    <td>wdmb_0009a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0009a_spinand</td>
-  </tr>
-  <tr>
-    <td rowspan="18">CV181X<br /></td>
-    <td>wdmb_0006a_spinor</td>
-    <td rowspan="12">musl_riscv64<br /></td>
-    <td rowspan="18">v2<br /></td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinand</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinor</td>
-  </tr>
-  <tr>
-    <td>sophpi_duo_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinand</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinand_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_spinor_huashan</td>
-  </tr>
-  <tr>
-    <td>wevb_riscv64_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_0007a_emmc</td>
-    <td>glibc_riscv64</td>
-  </tr>
-  <tr>
-    <td>wevb_0006a_spinor</td>
-    <td>32bit</td>
-  <tr>
-  <tr>
-    <td>wevb_0006a_spinand</td>
-    <td rowspan="3">64bit </td>
-  </tr>
-    <td>wevb_arm64_sd</td>
-  </tr>
-  <tr>
-    <td>wevb_arm64_sd</td>
-  </tr>
-
-  <tr>
-    <td rowspan="6">CV186X<br /></td>
-    <td>fpga</td>
-    <td rowspan="5">64bit<br /></td>
-    <td rowspan="6">v2<br /></td>
-  </tr>
-  <tr>
-    <td>palladium</td>
-  </tr>
-  <tr>
-    <td>wevb_emmc</td>
-  </tr>
-  <tr>
-    <td>wevb_spinor</td>
-  </tr>
-  <tr>
-    <td>wevb_spinand</td>
-  </tr>
-  <tr>
-    <td>palladium_c906</td>
-    <td>glibc_riscv64</td>
-  </tr>
-</table>
-
 
 ```
-cd tdl_sdk
-# export中的参数根据具体开发板给定
-export CHIP_ARCH=CV180X BOARD=wevb_riscv64_sd SDK_VER=musl_riscv64 MW_VER=v2
-./scripts/native_sdk_release.sh
+第一步:
+git clone -b sg200x-evb git@github.com:sophgo/sophpi.git
+cd sophpi
+./scripts/repo_clone.sh --gitclone scripts/subtree.xml
+
+第二步:
+source build/cvisetup.sh
+defconfig sg2002_wevb_riscv64_sd
+clean_all
+export TPU_REL=1
+build_all
+
+第三步: (后续修改TDL_SDK内容后执行第三步即可)
+clean_tdl_sdk
+build_tdl_sdk
+
 ```
 ## 4. 使用案例
 算法接口
@@ -276,8 +169,12 @@ int main(int argc, char *argv[]) {
 </div>
 
 更多案例还请参考[教程](tutorial)
-## 5. 开发指南
+
+## 5. 模型
+相关模型获取：[tdl_models](https://github.com/sophgo/tdl_models)
+
+## 6. 开发指南
 详见[TDL SDK软件开发指南](https://doc.sophgo.com/cvitek-develop-docs/master/docs_latest_release/CV180x_CV181x/zh/01.software/TPU/TDL_SDK_Software_Development_Guide/build/html/index.html#)
 
-## 6. SDK问题反馈
+## 7. SDK问题反馈
 最后，如果您对仓库有任何的疑问或者改进想法，请通过 Issues 提交。我们欢迎所有形式的贡献，包括文档改进、bug 修复、新特性添加等等，直接参与到项目的开发和维护中，帮助我们不断改进。我们期待在您的帮助下，将本项目发展成为更加完善、易于使用的深度学习SDK库。

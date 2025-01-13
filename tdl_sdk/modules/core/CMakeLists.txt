@@ -13,9 +13,7 @@ if(NOT DEFINED NO_OPENCV)
   add_subdirectory(fall_detection)
   add_subdirectory(mask_face_recognition)
 endif()
-if("${CVI_PLATFORM}" STREQUAL "CV186X")
   add_subdirectory(isp_image_classification)
-endif()
   add_subdirectory(core)
   add_subdirectory(utils)
   add_subdirectory(face_attribute)
@@ -73,11 +71,11 @@ endif()
   add_subdirectory(depth_estimation)
   set(CORE_INTERFACE cvi_tdl_core.cpp)
 
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core
                     ${CMAKE_CURRENT_SOURCE_DIR}/utils
                     ${CMAKE_CURRENT_SOURCE_DIR}/ive)
-      set(CORE_SRCS cvi_tdl_types_mem.cpp
+
+set(CORE_SRCS cvi_tdl_types_mem.cpp
               cvi_tdl_rescale_bbox.cpp
               cvi_tdl_utils.cpp
               ${CORE_INTERFACE})

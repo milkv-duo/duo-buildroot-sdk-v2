@@ -1,2 +1,0 @@
-#pragma once
-#cmakedefine CVI_TDL_TAG     "@CVI_TDL_TAG@"

@@ -685,8 +685,8 @@ CVI_S32 update_data(cvitdl_handle_t tdl_handle, face_capture_t *face_cpt_info,
     eye_dist = sqrt(eye_dist_x * eye_dist_x + eye_dist_y * eye_dist_y);
     if (eye_dist < face_cpt_info->cfg.eye_dist_thresh ||
         obj_meta.info[0].pts.score < face_cpt_info->cfg.landmark_score_thresh) {
-      // printf("skip track:%d,eyedist:%.3f,ptscore:%.3f\n", (int)trk_id, eye_dist,
-      //        obj_meta.info[0].pts.score);
+      LOGD("skip track:%d,eyedist:%.3f,ptscore:%.3f\n", (int)trk_id, eye_dist,
+           obj_meta.info[0].pts.score);
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_frame, true);
       CVI_TDL_Release_VideoFrame(tdl_handle, face_cpt_info->fl_model, crop_big_frame, true);
       CVI_TDL_Free(&obj_meta);

@@ -393,10 +393,12 @@ typedef struct {
   uint32_t size;
   uint32_t width;
   uint32_t height;
+  uint32_t feature_size;
+  int lane_state;
 
   meta_rescale_type_e rescale_type;
   cvtdl_lane_point_t *lane;
-  int lane_state;
+  float *feature;
 } cvtdl_lane_t;
 
 // consumer line

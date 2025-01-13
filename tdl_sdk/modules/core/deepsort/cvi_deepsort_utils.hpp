@@ -23,3 +23,4 @@ bool is_bbox_crowded(const std::vector<BBOX> &bboxes, int check_idx, float expan
 void update_corre(const BBOX &cur_box, const BBOX &pair_box, stCorrelateInfo &prev, float w_cur);
 float cal_object_pair_score(stRect boxa, stRect boxb, ObjectType typea, ObjectType typeb,
                             bool strict_order = true);
+float self_iou(const stRect &box1, const stRect &box2);

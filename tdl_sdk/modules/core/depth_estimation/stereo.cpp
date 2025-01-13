@@ -20,8 +20,7 @@
 
 namespace cvitdl {
 
-Stereo::Stereo() : Core(CVI_MEM_DEVICE) {
-  setUseMmap(false);
+Stereo::Stereo() : Core(CVI_MEM_SYSTEM) {
   m_preprocess_param[0].factor[0] = 0.017125;
   m_preprocess_param[0].factor[1] = 0.017507;
   m_preprocess_param[0].factor[2] = 0.017429;

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <string>
 #include "cvi_tdl_log.hpp"
+#include "cvi_comm_ive.h"
 
 namespace ive {
 
@@ -14,14 +15,14 @@ class HWIVEImage : public IVEImageImpl {
   HWIVEImage &operator=(const HWIVEImage &other) = delete;
 
   virtual void *getHandle() override;
-  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame) override;
+  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage = false) override;
   virtual CVI_S32 fromFrame(VIDEO_FRAME_INFO_S *frame) override;
   virtual CVI_S32 bufFlush(IVEImpl *ive_instance) override;
   virtual CVI_S32 bufRequest(IVEImpl *ive_instance) override;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, bool cached) override;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, IVEImageImpl *buf, bool cached) override;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, bool cached) override;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, IVEImageImpl *buf, bool cached) override;
   virtual CVI_S32 create(IVEImpl *ive_instance) override;
   virtual CVI_S32 free() override;
   static IVE_IMAGE_TYPE_E convert(ImageType type);
@@ -104,8 +105,8 @@ CVI_S32 HWIVEImage::bufRequest(IVEImpl *ive_instance) {
   return CVI_IVE_BufRequest(m_handle, &ive_image);
 }
 
-CVI_S32 HWIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                           CVI_U32 u32Height, bool cached) {
+CVI_S32 HWIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                           CVI_U16 u16Height, bool cached) {
   auto m_handle_ = reinterpret_cast<IVE_HANDLE>(ive_instance->getHandle());
   if (m_handle_ == NULL) {
     LOGE("create cached  handle should not be null\n");
@@ -113,14 +114,14 @@ CVI_S32 HWIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32W
   }
   m_handle = m_handle_;
   if (cached) {
-    return CVI_IVE_CreateImage_Cached(m_handle, &ive_image, convert(enType), u32Width, u32Height);
+    return CVI_IVE_CreateImage_Cached(m_handle, &ive_image, convert(enType), u16Width, u16Height);
   } else {
-    return CVI_IVE_CreateImage(m_handle, &ive_image, convert(enType), u32Width, u32Height);
+    return CVI_IVE_CreateImage(m_handle, &ive_image, convert(enType), u16Width, u16Height);
   }
 }
 
-CVI_S32 HWIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                           CVI_U32 u32Height, IVEImageImpl *buf, bool cached) {
+CVI_S32 HWIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                           CVI_U16 u16Height, IVEImageImpl *buf, bool cached) {
   auto m_handle_ = reinterpret_cast<IVE_HANDLE>(ive_instance->getHandle());
   if (m_handle_ == NULL) {
     LOGE("create buf handle should not be null\n");
@@ -154,7 +155,7 @@ CVI_S32 HWIVEImage::write(const std::string &fname) {
   return CVI_IVE_WriteImg(m_handle, fname.c_str(), &ive_image);
 }
 
-CVI_S32 HWIVEImage::toFrame(VIDEO_FRAME_INFO_S *frame) {
+CVI_S32 HWIVEImage::toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage) {
   frame->stVFrame.u64PhyAddr[0] = ive_image.u64PhyAddr[0];
   frame->stVFrame.u64PhyAddr[1] = ive_image.u64PhyAddr[1];
   frame->stVFrame.u64PhyAddr[2] = ive_image.u64PhyAddr[2];

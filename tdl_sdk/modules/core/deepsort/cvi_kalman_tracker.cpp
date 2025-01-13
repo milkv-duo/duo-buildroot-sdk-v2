@@ -1,5 +1,4 @@
 #include "cvi_kalman_tracker.hpp"
-#include <cassert>
 #include "cvi_deepsort_utils.hpp"
 
 #include <math.h>
@@ -312,6 +311,10 @@ void KalmanTracker::update(KalmanFilter &kf, const stRect *p_tlwh_bbox,
 
   } else {
     kalman_state = kalman_state_e::UPDATED;
+#ifdef DEBUG_TRACK
+    printf("missed track id:%d, tracker_state: %d, unmatched_times:%d, max_unmatched_num:%d\n", id,
+           tracker_state, unmatched_times, conf->ktracker_conf.max_unmatched_num);
+#endif
     if (tracker_state == k_tracker_state_e::PROBATION) {
       tracker_state = k_tracker_state_e::MISS;
     } else if (unmatched_times >= conf->ktracker_conf.max_unmatched_num) {

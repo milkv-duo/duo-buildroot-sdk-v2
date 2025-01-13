@@ -16,14 +16,14 @@ class IVEImageImpl {
   virtual ~IVEImageImpl() = default;
   static IVEImageImpl *create();
 
-  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame) = 0;
+  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage = false) = 0;
   virtual CVI_S32 fromFrame(VIDEO_FRAME_INFO_S *frame) = 0;
   virtual CVI_S32 bufFlush(IVEImpl *ive_instance) = 0;
   virtual CVI_S32 bufRequest(IVEImpl *ive_instance) = 0;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, bool cached) = 0;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, IVEImageImpl *buf, bool cached) = 0;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, bool cached) = 0;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, IVEImageImpl *buf, bool cached) = 0;
   virtual CVI_S32 create(IVEImpl *ive_instance) = 0;
   virtual CVI_S32 free() = 0;
 

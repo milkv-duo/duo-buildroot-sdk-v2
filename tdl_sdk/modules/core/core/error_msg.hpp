@@ -1,13 +1,13 @@
 #pragma once
 
-#ifndef CV186X
+#ifndef __CV186X__
 #include <cviruntime.h>
 #endif
 #include "cvi_comm.h"
 
 namespace cvitdl {
 
-#ifndef CV186X
+#ifndef __CV186X__
 inline const char *get_tpu_error_msg(int code) {
   switch (code) {
     case CVI_RC_AGAIN:
