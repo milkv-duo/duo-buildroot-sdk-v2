@@ -15,16 +15,10 @@
 #include <mmc.h>
 #include <asm/gpio.h>
 #include <mmio.h>
-#if defined(CONFIG_TARGET_CVITEK_CV1835)
-#include <../../board/cvitek/cv1835/sdhci_reg.h>
-#elif defined(CONFIG_TARGET_CVITEK_CV1822)
-#include <../../board/cvitek/cv1822/sdhci_reg.h>
-#elif defined(CONFIG_TARGET_CVITEK_CV181X)
+#if defined(CONFIG_TARGET_CVITEK_CV181X)
 #include <../../board/cvitek/cv181x/sdhci_reg.h>
 #elif defined(CONFIG_TARGET_CVITEK_CV180X)
 #include <../../board/cvitek/cv180x/sdhci_reg.h>
-#elif defined(CONFIG_TARGET_CVITEK_ATHENA2)
-#include <../../board/cvitek/athena2/sdhci_reg.h>
 #endif
 /*
  * Controller registers

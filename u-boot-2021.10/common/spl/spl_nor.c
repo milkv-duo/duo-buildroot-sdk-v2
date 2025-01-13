@@ -73,8 +73,14 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 {
 	debug("%s: sector %lx, count %lx, buf %p\n",
 	      __func__, sector, count, buf);
-	if (spinor_status != Initialized)
+	if (spinor_status != Initialized) {
+	#ifdef CONFIG_UBOOT_FASTBOOT
+		cvi_spi_nor_init(4);
+	#else
 		cvi_spi_nor_init(1);
+	#endif
+
+	}
 
 	memcpy(buf, (void *)sector, count);
 
@@ -105,7 +111,11 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 		 * location in SDRAM
 		 */
 		if (spinor_status != Initialized) {
+		#ifdef CONFIG_UBOOT_FASTBOOT
+			cvi_spi_nor_init(4);
+		#else
 			cvi_spi_nor_init(1);
+		#endif
 			spinor_status = Initialized;
 		}
 		header = (const struct image_header *)(REG_BASE + SPL_BOOT_PART_OFFSET);

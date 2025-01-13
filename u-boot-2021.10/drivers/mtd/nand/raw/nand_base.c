@@ -371,9 +371,13 @@ static int nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 			else
 				bad &= 0xFF;
 		} else {
-			chip->cmdfunc(mtd, NAND_CMD_READOOB, chip->badblockpos,
-					page);
-			bad = chip->read_byte(mtd);
+			res = chip->ecc.read_oob(mtd, chip, page);
+			if (res < 0) {
+				printf("[%s] read oob area fail !\n", __FUNCTION__);
+				return res;
+			}
+
+			bad = chip->oob_poi[chip->badblockpos];
 		}
 
 		if (likely(chip->badblockbits == 8))
