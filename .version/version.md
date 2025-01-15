@@ -12,7 +12,7 @@
 | SensorSupportList          | cvi_mpi/component/isp               | https://github.com/sophgo/SensorSupportList.git          | sg200x-dev    | 257c696      |
 | isp_tuning                 | isp_tuning                          | https://github.com/sophgo/isp_tuning.git                 | sg200x-dev    | 321f704      |
 | osdrv                      | osdrv                               | https://github.com/sophgo/osdrv.git                      | sg200x-dev    | b163aa0      |
-| oss                        | oss                                 | https://github.com/sophgo/oss.git                        | master        | a9d88d3      |
+| oss                        | oss                                 | https://github.com/sophgo/oss.git                        | master        | 095978b      |
 | freertos                   | freertos                            | https://github.com/sophgo/freertos.git                   | sg200x-dev    | eb9faf5fe    |
 | FreeRTOS-Kernel            | freertos/Source                     | https://github.com/sophgo/FreeRTOS-Kernel.git            | sg200x-dev    | d52c1b6e6    |
 | Lab-Project-FreeRTOS-POSIX | freertos/Source/FreeRTOS-Plus-POSIX | https://github.com/sophgo/Lab-Project-FreeRTOS-POSIX.git | sg200x-dev    | 5042bfd      |
@@ -25,4 +25,4 @@
 | buildroot-2021.05          | buildroot-2021.05                   | https://github.com/sophgo/buildroot-2021.05.git          | sg200x-dev    | 5b7acd1b     |
 | ive                        | ive                                 | https://github.com/sophgo/ive.git                        | master        | 269c9d0      |
 | cvi_rtsp                   | cvi_rtsp                            | https://github.com/sophgo/cvi_rtsp.git                   | sg200x-dev    | ff71340      |
-| tdl_sdk                    | tdl_sdk                             | https://github.com/sophgo/tdl_sdk.git                    | master        | dfc3d2eb     |
+| tdl_sdk                    | tdl_sdk                             | https://github.com/sophgo/tdl_sdk.git                    | master        | e7b67ec8     |
