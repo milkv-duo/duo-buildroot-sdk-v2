@@ -7,7 +7,7 @@ INNER_INC = -I../include
 INNER_LIB = -L../src -lcvi_rtsp -L../service -lcvi_rtsp_service
 
 CFLAGS += $(INNER_INC) $(LIVE555_INC)
-LDFLAGS += $(INNER_LIB) $(MW_LIB) $(LIVE555_LIB)
+LDFLAGS += $(INNER_LIB) $(MW_LIB) $(LIVE555_LIB) $(MW_AUDIO_LIB)
 
 CPPFLAGS += $(CFLAGS)
 

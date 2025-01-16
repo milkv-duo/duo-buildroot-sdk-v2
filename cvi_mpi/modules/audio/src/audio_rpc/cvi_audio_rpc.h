@@ -6,7 +6,7 @@
 #include "cvi_comm_adec.h"
 #include "cvi_comm_aenc.h"
 #include "cvi_comm_aio.h"
-#include "cvi_errno.h"
+#include "linux/cvi_errno.h"
 #include "cvi_debug.h"
 #include "cvi_audio.h"
 
@@ -115,6 +115,7 @@ enum RPC_AUD_CMD {
 	RPC_CMD_ADEC_RELEASE_FRAME = 70,//ok
 	RPC_CMD_ADEC_SEND_END_OF_STREAM = 71,//ok->need test
 	RPC_CMD_ADEC_QUERY_CHN_STAT = 72,//not available
+	RPC_CMD_CHECK_INIT = 73,
 	RPC_CMD_MAX
 };
 
@@ -175,6 +176,8 @@ CVI_S32 rpc_client_aud_ao_send_frame(AUDIO_DEV AoDevId,
 			AO_CHN AoChn,
 			const AUDIO_FRAME_S *pstData,
 			CVI_S32 s32MilliSec);
+CVI_S32 rpc_client_aud_ao_querychn_stat(AUDIO_DEV AoDevId, AO_CHN AoChn,
+			    AO_CHN_STATE_S *pstStatus);
 CVI_S32 rpc_client_aud_ao_set_volume(AUDIO_DEV AoDevId, CVI_S32 s32VolumeDb);
 CVI_S32 rpc_client_aud_ao_get_volume(AUDIO_DEV AoDevId, CVI_S32 *ps32VolumeDb);
 CVI_S32 rpc_client_aud_ai_set_chn_param(AUDIO_DEV AiDevId, AI_CHN AiChn,
@@ -207,6 +210,7 @@ CVI_S32 rpc_client_aud_adec_create_chn(ADEC_CHN AdChn,
 				const ADEC_CHN_ATTR_S *pstAttr);
 CVI_S32 rpc_client_aud_adec_destroy_chn(ADEC_CHN AdChn);
 CVI_S32 rpc_client_aud_adec_send_end_of_stream(ADEC_CHN AdChn, CVI_BOOL bInstant);
+CVI_S32 rpc_client_aud_check_init(CVI_BOOL *pbInit);
 //audio mapping rpc api ------stop
 
 int rpc_server_audio_init(void);

@@ -107,6 +107,10 @@ def gen_cvipart_h(output, parser):
                 else:
                     comma = ","
                 of.write("%s(%s)%s" % (part_size, p["label"], comma))
+            # For A/B boot
+            for i, p in enumerate(parts):
+                if p["label"] == "MISC":
+                    of.write('#define MISC_START 0x%x\n' % int(p["offset"] / LBA_SIZE))
 
         elif parser.getStorage() == "spinor":
             if env_exist:

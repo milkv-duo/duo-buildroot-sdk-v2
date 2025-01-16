@@ -164,7 +164,7 @@ typedef struct _cviEncOnePicCfg_ {
 	int picDciLv;
 	unsigned char *picMotionMap;
 	int picMotionMapSize;
-	uint64_t u64Pts;
+	CVI_U64 u64Pts;
 } cviEncOnePicCfg;
 
 typedef struct _cviDispFrameCfg_ {
@@ -181,7 +181,7 @@ typedef struct _cviDispFrameCfg_ {
 	int cbcrInterleave;
 	int nv21;
 	int indexFrameDisplay;
-	uint64_t decHwTime;
+	CVI_U64 decHwTime;
 } cviDispFrameCfg;
 
 typedef struct _cviBufInfo {
@@ -195,12 +195,12 @@ typedef struct _cviBufInfo {
 #define RET_VDEC_LOCK_TIMEOUT (-2)
 
 typedef struct _stPack_ {
-	uint64_t u64PhyAddr;
+	CVI_U64 u64PhyAddr;
 	void *addr;
 	int len;
 	int cviNalType;
 	int need_free;
-	uint64_t u64PTS;
+	CVI_U64 u64PTS;
 	int bUsed;
 } stPack;
 
@@ -214,8 +214,8 @@ typedef struct _stStreamPack_ {
 
 typedef struct _cviVEncStreamInfo_ {
 	stStreamPack *psp;
-	uint64_t encHwTime;
-	uint32_t u32MeanQp;
+	CVI_U64 encHwTime;
+	CVI_U32 u32MeanQp;
 } cviVEncStreamInfo;
 
 typedef struct _cviRcParam_ {
@@ -259,7 +259,7 @@ typedef struct _cviVbVencBufConfig {
 	//set in frm cnt & size by user
 	int VbSetFrameBufSize;
 	int VbSetFrameBufCnt;
-	uint64_t vbModeAddr[10];
+	CVI_U64 vbModeAddr[10];
 } cviVbVencBufConfig;
 
 typedef struct _cviPred_ {

@@ -15,7 +15,7 @@ int HandKeypointClassification::inference(VIDEO_FRAME_INFO_S *stOutFrame,
   const TensorInfo &tinfo = getInputTensorInfo(0);
   float qscale = tinfo.qscale;
 
-#ifdef CV186X
+#ifdef __CV186X__
 
   uint8_t *input_ptr = tinfo.get<uint8_t>();
   for (int i = 0; i < 42; i++) {

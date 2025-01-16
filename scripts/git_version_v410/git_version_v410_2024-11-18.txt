@@ -1,0 +1,75 @@
+project_name: osdrv
+commit_id: 674d2bb4b1c86407954f0976b10a3030c35ae413 Merge "[fix](saradc): fix adc wrong read value after suspend/resume [description ]:NA [root   cause]:some registers are not store and restore duing suspend/resume [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA" into v4.1.0
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: freertos
+commit_id: c314e9510fc7cb85cf505c49db43fb689bd91eda [fix](rgn):Fixed the obj_attr uses old memory [description]:NA [root  cause]:NA [JIRA     ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a]:NA
+
+project_name: cvi_rtsp
+commit_id: ad0ce049a4eaba6c36a5b0767ddad5d250b70a48 [fix](cvi_rtsp): rename cviai to tdl_sdk
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cviai
+commit_id: bc285cd924d18de5fd97a6cb9fc5cb36dc288701 add yolov8 seg model inference
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: 0f5edbb76c35645a56841b52d0f31ddd4cb9b2a7 [fix](str):fix chip id miss and fix suspend bug on rtc [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: build
+commit_id: 661899a919d8d77f9fbf02af187ce6d11b8e4cc9 [feat](nfs): modify cv1812cpa_wevb_006a_spinand_defconfig to enable nfs. [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cvi_manifest
+commit_id: 77164fb4a4ee09ff592ac6eb3ab2ca38693fc3d1 add more sw modules.
+
+project_name: mediapipe
+commit_id: 9da7d35ae601afabcdf6de4255d8ddd6728a46c8 [fix](venc):locate header
+
+project_name: host-tools
+commit_id: 9c8df80d472e9e4b856e1c49d2046c301850a071 [feat](host-tools):upload gcc 9.3.0 [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: oss
+commit_id: 225e39c95e563ac433eca514739adb14a97ac3b0 [fix](riscv glibc toolchain): use v0.7 Vector instruction for C906
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 4f046bb7cf74db4a34bb1cd7b2d73ddc9b843171 [fix](pqbin): update gc4653 pqbin
+
+project_name: ive
+commit_id: ccd109cfcf609a854a3d6411b73f57b513de58ab add CVI_IVE_TPU_Blend_ROI interface
+
+project_name: fsbl
+commit_id: a879df131f5bc2fb42b3e66271fd220fd9155ce8 [fix](fsbl): recover alios boot0 API [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: b62e83dee246173b0b564f1fae5d643e4d15393a [fix](fip.bin):fix fip.bin can not use for alios update by usb [description ]:modify cvi_update_rtos.c [root   cause]:NA [JIRA      ID]:CV180X181X-3286 [chip project]:cv180x-cv181x [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: ramdisk
+commit_id: bb806e68d32f803145c9c1d144be3dbd0d2ceadd [fix](bin):change cvi_pinmux and logrotate to arm64 [description ]:change cvi_pinmux and logrotate to arm64 [root   cause]:NA [JIRA      ID]:CV180X181X-2923 [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: linux_5.10
+commit_id: 870b80b7462f85cb91b118ae70349c77d8fe983a Merge "[fix](uvc): The frame-based format parameter bVariableSize corresponding to H264 is missing, which does not comply with the UVC specification." into v4.1.0
+
+project_name: isp
+commit_id: e2cdcc08bc6c4779b05514c95c7f40e0d0ca3852 [fix](isp): optimize V410 isp compilation
+
+project_name: SensorSupportList
+commit_id: 72752f0d166f5d2a53d63fcdab0e639dbec003ab [fix] ov_os02n10 flip bug
+
+project_name: cvi_mpi
+commit_id: e3bac4809be31da4e7271196090864115851da81 Revert "[fix](venc):fix chgNum ineffective in proc info"
+

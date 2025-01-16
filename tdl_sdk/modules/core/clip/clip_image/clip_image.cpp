@@ -20,8 +20,7 @@
 
 namespace cvitdl {
 
-Clip_Image::Clip_Image() : Core() {
-  setUseMmap(false);
+Clip_Image::Clip_Image() : Core(CVI_MEM_SYSTEM) {
   // m_preprocess_param[0].factor[0] = 0.0145984266;
   // m_preprocess_param[0].factor[1] = 0.0150077685;
   // m_preprocess_param[0].factor[2] = 0.0142200657;
@@ -46,12 +45,17 @@ int Clip_Image::inference(VIDEO_FRAME_INFO_S* frame, cvtdl_clip_feature* clip_fe
   const TensorInfo& tinfo = getInputTensorInfo(0);
 
   if (tinfo.data_type == 2) {
-    int height = frame->stVFrame.u32Height;
-    int width = frame->stVFrame.u32Width;
-    int left_up = (width - height) / 2;
+    CVI_U32 height = frame->stVFrame.u32Height;
+    CVI_U32 width = frame->stVFrame.u32Width;
+    int left_up = 0;
     m_vpss_config[0].crop_attr.enCropCoordinate = VPSS_CROP_RATIO_COOR;
-    m_vpss_config[0].crop_attr.stCropRect = {left_up, 0, height, height};
-
+    if (width > height) {
+      left_up = (width - height) / 2;
+      m_vpss_config[0].crop_attr.stCropRect = {left_up, 0, height, height};
+    } else {
+      left_up = (height - width) / 2;
+      m_vpss_config[0].crop_attr.stCropRect = {0, left_up, width, width};
+    }
   } else if (tinfo.data_type == 0) {
     float* input_ptr = tinfo.get<float>();
     float* temp_buffer;

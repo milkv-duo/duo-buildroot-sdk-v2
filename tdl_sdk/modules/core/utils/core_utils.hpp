@@ -2,7 +2,7 @@
 #include "core/core/cvtdl_core_types.h"
 #include "rescale_utils.hpp"
 
-#ifndef CV186X
+#ifndef __CV186X__
 #include <cviruntime.h>
 #endif
 #include <algorithm>

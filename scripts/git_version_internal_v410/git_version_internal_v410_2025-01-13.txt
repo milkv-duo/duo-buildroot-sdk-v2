@@ -1,0 +1,66 @@
+project_name: osdrv
+commit_id: 3cb307748ae56d5c1c7bb7b2ab043fe0620e0420 osdrv: weekly rls 2025.01.11
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: buildroot-2021.05
+commit_id: 72f28b932cc6dcd693c36dc70e4ea35a6c35211b [feat](master):Support Xuantie toolchains, and modify the defconfigs. [description ]:refs https://github.com/T-head-Semi/buildroot. [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: freertos
+commit_id: 5f0e2d5bb27f21cc44a883d928431f71d174b1d8 [fix](audio): del audio src code [description ]:del audio src code [root   cause]:Audio 3A [JIRA      ID]:NA [chip project]:CV180X & CV181X [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: Lab-Project-FreeRTOS-POSIX
+commit_id: 046832f6fd1564ee4bf22728d139d70c7af6f434 [FreeRTOS-POSIX] sg200x C906 cpu boot up.
+
+project_name: FreeRTOS-Kernel
+commit_id: 1b74c50f532bb4d9b8912d62b59bdfae46e9c7a3 sg200x C906/CA53 cpu boot up.
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: 4e16c82c3b5c75de6a174b6230fded8936aebc10 opensbi: weekly rls 2025.01.10
+
+project_name: build
+commit_id: dab149274f0fb399e17e8b62896aaae3c7d3204c build: weekly rls 2025.01.10
+
+project_name: oss
+commit_id: 17a7c6780e0c43a50aab76b218f0a27702c02f47 Revert "add ffmpeg."
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: d3bcb94db66c316fe862e7347a101dd243836af4 isp_tuning: weekly rls 2025.01.11
+
+project_name: sophpi
+commit_id: 0d675c5e33f1613142d255e9df9905ea4c497357 [fix](sophpi): modify repo_clone.sh
+
+project_name: fsbl
+commit_id: dd0dcb9d0094d1135d7b2fa2c6776f4b580eb7d2 fsbl: weekly rls 2025.01.10
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: b0320f1e1caf004e07ca0c40a43308117ad380e1 u-boot-2021.10: weekly rls 2025.01.11
+
+project_name: ramdisk
+commit_id: 0fac4cc81abfd053990e9d66aef88bf31d933f59 ramdisk: weekly rls 2025.01.11
+
+project_name: linux_5.10
+commit_id: cdc81642b7611c8ffbbf64753177750670693486 linux_5.10: weekly rls 2025.01.10
+
+project_name: SensorSupportList
+commit_id: 72752f0d166f5d2a53d63fcdab0e639dbec003ab [fix] ov_os02n10 flip bug
+
+project_name: cvi_mpi
+commit_id: 172773b4c66bf0cc65b54ee528455dd192857d49 cvi_mpi: weekly rls 2025.01.10
+

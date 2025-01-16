@@ -13,12 +13,6 @@
 #include "cvi_video_smss.hpp"
 #include "cvi_audio_smss.hpp"
 #include "cvi_rtsp.hpp"
-#include <string>
-#include <vector>
-#include <stdio.h>
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 static std::mutex mutex;
 
@@ -168,40 +162,6 @@ int CVI_RTSP_WriteFrame(CVI_RTSP_CTX *ctx, CVI_RTSP_TRACK track, CVI_RTSP_DATA *
     return 0;
 }
 
-static std::vector<std::string> get_ip_address()
-{
-    std::vector<std::string> ip_addr_vec;
-    struct ifaddrs *ifaddr, *ifa;
-
-    // Get the list of network interfaces
-    if (getifaddrs(&ifaddr) == -1) {
-        perror("getifaddrs");
-        return ip_addr_vec;
-    }
-
-    // Iterate through the list of interfaces
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_INET) {
-            continue;  // Skip if not an IPv4 address
-        }
-
-        // Print the interface name and its IPv4 address
-        struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
-        char ip_addr[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(addr->sin_addr), ip_addr, INET_ADDRSTRLEN);
-
-        if (std::string(ifa->ifa_name).find(std::string("eth")) != std::string::npos) {
-            ip_addr_vec.emplace_back(std::string(ip_addr));
-            std::cout << ifa->ifa_name << " ip address: " << ip_addr << std::endl;
-        }
-    }
-
-    // Free the memory allocated by getifaddrs
-    freeifaddrs(ifaddr);
-
-    return ip_addr_vec;
-}
-
 int CVI_RTSP_CreateSession(CVI_RTSP_CTX *ctx, CVI_RTSP_SESSION_ATTR *attr, CVI_RTSP_SESSION **session)
 {
     std::lock_guard<std::mutex> lock(mutex);
@@ -216,10 +176,10 @@ int CVI_RTSP_CreateSession(CVI_RTSP_CTX *ctx, CVI_RTSP_SESSION_ATTR *attr, CVI_R
         return -1;
     }
 
-    if (attr->audio.codec != RTSP_AUDIO_NONE && attr->audio.sampleRate == 0) {
-        SYSLOG(LOG_ERR, "no audio sample rate");
-        return -1;
-    }
+	if (attr->audio.codec != RTSP_AUDIO_NONE && attr->audio.sampleRate == 0) {
+		SYSLOG(LOG_ERR, "no audio sample rate");
+		return -1;
+	}
 
     if (nullptr == (*session = (CVI_RTSP_SESSION *)malloc(sizeof(CVI_RTSP_SESSION)))) {
         SYSLOG(LOG_ERR, "malloc session fail");
@@ -260,26 +220,7 @@ int CVI_RTSP_CreateSession(CVI_RTSP_CTX *ctx, CVI_RTSP_SESSION_ATTR *attr, CVI_R
     snprintf((*session)->name, sizeof((*session)->name), "%s", attr->name);
 
     char* url = server->rtspURL(sms);
-    // check if url is the localhost
-    std::string input_url(url);
-    std::string loopback_url("127.0.1.1");
-    std::string get_ip_addr;
-    size_t pos = input_url.find(loopback_url);
-
-    if (pos != std::string::npos) {
-        std::vector<std::string>ip_addr_vec = get_ip_address();
-        for (auto ip_addr : ip_addr_vec) {
-            std::string input_url_tmp = input_url;
-            if (ip_addr.length() > 0) {
-                input_url_tmp.replace(pos, loopback_url.length(), ip_addr);
-                std::cout << input_url_tmp << std::endl;
-            }
-        }
-    }
-    else {
-        std::cout << input_url << std::endl;
-    }
-
+    std::cout << url << std::endl;
     delete[] url;
 
     return 0;
@@ -314,10 +255,3 @@ int CVI_RTSP_SetListener(CVI_RTSP_CTX *ctx, CVI_RTSP_STATE_LISTENER *listener)
 
     return 0;
 }
-
-void CVI_RTSP_SetOutPckBuf_MaxSize(uint32_t rtsp_max_buf_size)
-{
-    OutPacketBuffer::maxSize = rtsp_max_buf_size;
-    printf("Set the rtsp max buffer size: %u\n", rtsp_max_buf_size);
-}
-

@@ -2,13 +2,13 @@
 #elif defined(linux) || defined(__linux) || defined(ANDROID)
 
 #include <malloc.h>
+#include "cpu_func.h"
 #include "jdi.h"
 #include "jpulog.h"
 #include "jdi_osal.h"
 #include "dm/device.h"
 #include "timer.h"
 #include "asm/cache.h"
-#include "cpu_func.h"
 
 #define JPU_BIT_REG_SIZE    0x1000
 #define JPU_BIT_REG_BASE    (0x0B000000)

@@ -5,11 +5,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <inttypes.h>
 #include <nlohmann/json.hpp>
 #include <cvi_rtsp_service/service.h>
@@ -22,10 +20,7 @@
 #include "venc_helper.h"
 #include "json_helper.h"
 #include "ai_helper.h"
-#include "teaisppq_helper.h"
-#include "teaispdrc_helper.h"
 #include "isp_info_osd.h"
-#include "vo_helper.h"
 #include "cvi_media_procunit.h"
 
 // #define DEBUG_RTSP /* create a task for debug using */
@@ -33,13 +28,7 @@
 #define _USE_GETFD_
 
 static CVI_RTSP_CTX *gRtspCtx = NULL;
-static const char *teaisppq_scene_str[5] = {
-    "SNOW",
-    "FOG",
-    "BACKLIGHT",
-    "GRASS",
-    "COMMON"
-};
+
 
 static int check_ctx(SERVICE_CTX *ctx)
 {
@@ -84,11 +73,6 @@ static int default_ctx(SERVICE_CTX *ctx)
     snprintf(ctx->sensor_config_path, sizeof(ctx->sensor_config_path), "%s", "/mnt/data/sensor_cfg.ini");
     ctx->isp_debug_lvl = 255;//not set debug level
     ctx->enable_set_pq_bin = false;
-    // teaisppq
-    pthread_mutex_init(&ctx->teaisppq_mutex, NULL);
-    pthread_cond_init(&ctx->teaisppq_cond, NULL);
-    ctx->teaisppq_turn_pipe = 0;
-
     for (int i=0; i<SERVICE_CTX_ENTITY_MAX_NUM; i++) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[i];
         snprintf(ent->rtspURL, sizeof(ent->rtspURL), "%s", "stream");
@@ -110,7 +94,7 @@ static int default_ctx(SERVICE_CTX *ctx)
     }
 
     // Get config from ini if found.
-    if (!SAMPLE_COMM_VI_ParseIni(&ctx->stIniCfg)) {
+    if (SAMPLE_COMM_VI_ParseIni(&ctx->stIniCfg) != CVI_SUCCESS) {
         printf("SAMPLE_COMM_VI_ParseIni Failed!\n");
         return -1;
     }
@@ -135,7 +119,7 @@ static void rtsp_disconnect(const char *ip, void *arg)
     std::cout << "disconnect: " << ip << std::endl;
 }
 
-static void update_face_ae(cvai_face_t *face, CVI_U32 width, CVI_U32 height, VI_PIPE ViPipe) {
+static void update_face_ae(cvtdl_face_t *face, CVI_U32 width, CVI_U32 height, VI_PIPE ViPipe) {
     ISP_SMART_INFO_S stFaceInfo;
     memset(&stFaceInfo, 0, sizeof(ISP_SMART_INFO_S));
     stFaceInfo.stROI[0].bEnable = 1;
@@ -143,14 +127,14 @@ static void update_face_ae(cvai_face_t *face, CVI_U32 width, CVI_U32 height, VI_
         float max_area = 0.0;
         size_t max_idx = 0;
         for (size_t i = 0; i < face->size; i++) {
-            cvai_bbox_t bbox = face->info[i].bbox;
+            cvtdl_bbox_t bbox = face->info[i].bbox;
             float area = std::abs(bbox.x2 - bbox.x1) * std::abs(bbox.y2 - bbox.y1);
             if (area > max_area) {
                 max_area = area;
                 max_idx = i;
             }
         }
-        cvai_bbox_t max_bbox = face->info[max_idx].bbox;
+        cvtdl_bbox_t max_bbox = face->info[max_idx].bbox;
         stFaceInfo.stROI[0].u8Num = 1;
         stFaceInfo.stROI[0].u16PosX[0] = max_bbox.x1;
         stFaceInfo.stROI[0].u16PosY[0] = max_bbox.y1;
@@ -163,39 +147,41 @@ static void update_face_ae(cvai_face_t *face, CVI_U32 width, CVI_U32 height, VI_
         if (getenv("AI_DEBUG")) {
             printf("CVI_ISP_SetFaceAeInfo, ViPipe:%d, u8FDNum:%d\n", ViPipe, stFaceInfo.stROI[0].u8Num);
         }
-       CVI_ISP_SetSmartInfo(ViPipe, &stFaceInfo, 0);
-    } else {
-        // cout << "Face AE No Face disable it" << endl;
-       CVI_ISP_SetSmartInfo(ViPipe, &stFaceInfo, 0);
+       CVI_ISP_SetSmartInfo(ViPipe, &stFaceInfo, 50);
     }
 }
 
 static int run_retinaface(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *output)
 {
-    cvai_face_t face = {};
-    cvai_service_brush_t brush = {};
+    cvtdl_face_t face = {};
+    cvtdl_service_brush_t brush = {};
     brush.color.b = 53.f;
     brush.color.g = 208.f;
     brush.color.r = 217.f;
     brush.size = 4;
+
     VIDEO_FRAME_INFO_S preprocessFrame = {};
 
     if (CVI_VPSS_GetChnFrame(ent->VpssGrp, VPSS_CHN1, &preprocessFrame, -1) != CVI_SUCCESS) {
         printf("CVI_VPSS_GetChnFrame OD Preprocess Frame Failed!");
         return -1;
     }
+
     ent->ai_retinaface(ent->ai_handle, &preprocessFrame, &face);
     ent->rescale_fd(output, &face);
     if (getenv("AI_DEBUG")) {
-        printf("detect %d faces, width:%d, height:%d\n", face.size, face.width, face.height);
+        printf("detect %d faces\n", face.size);
     }
 
     if (face.size > 0) {
         ent->ai_face_draw_rect(ent->ai_service_handle, &face, output, true, brush);
     }
 
+    unsigned int sensorNum = 0;
+
+    CVI_VI_GetDevNum(&sensorNum);
     if ((((SERVICE_CTX *)ent->ctx)->dev_num == 1) &&
-        (((SERVICE_CTX *)ent->ctx)->sensor_number >= 2) &&
+        (sensorNum >= 2) &&
         (ent->ViChn == 0)) {
         // sensor0
         //         -> vpss
@@ -218,67 +204,15 @@ static int run_retinaface(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *output)
     return 0;
 }
 
-static void teaisppq_put_text(SERVICE_CTX_ENTITY *ent, VIDEO_FRAME_INFO_S *pstVideoFrame)
-{
-    std::string scene_text;
-
-    // the scene text in yuv
-    int pos_x, pos_y;
-    float c_r, c_g, c_b;
-
-    pos_x = pos_y = 50;
-    c_r = 255;
-    c_g = 0;
-    c_b = 255;
-
-    // get teaisppq scene
-    TEAISP_PQ_ATTR_S stTEAISPPQAttr;
-    TEAISP_PQ_SCENE_INFO scene_info;
-    int scene_id;
-
-    CVI_TEAISP_PQ_GetAttr(ent->ViPipe, &stTEAISPPQAttr);
-    CVI_TEAISP_PQ_GetDetectSceneInfo(ent->ViPipe, &scene_info);
-
-    if (stTEAISPPQAttr.TuningMode != 0) {
-        scene_info.scene_score = 100;
-        scene_id = (stTEAISPPQAttr.TuningMode -1) % TEAISP_SCENE_NUM;
-        scene_text +=  std::string("Tuning SCENE: ") + std::string(teaisppq_scene_str[scene_id]);
-        scene_text += ", score: 100";
-    } else {
-        scene_id = scene_info.scene;
-        scene_text += std::string("Detect SCENE: ") + std::string(teaisppq_scene_str[scene_id]);
-        scene_text += std::string(", score: ") + std::to_string(scene_info.scene_score);
-    }
-
-    if (stTEAISPPQAttr.Enable && stTEAISPPQAttr.SceneBypass[scene_id] == 0 \
-            && (scene_info.scene_score >= stTEAISPPQAttr.SceneConfThres[scene_id])) {
-        scene_text += " (accpet)";
-    } else {
-        scene_text += " (bypass)";
-        if (!stTEAISPPQAttr.Enable)
-            scene_text += "[disable]";
-        else if (stTEAISPPQAttr.SceneBypass[scene_id] != 0)
-            scene_text += "[scene bypass]";
-        else
-            scene_text += "[Low score]";
-    }
-
-    ent->ai_write_text((char *)scene_text.c_str(), pos_x, pos_y, pstVideoFrame, c_r, c_g, c_b);
-}
-
 static void *rtspTask(void *arg)
 {
-#define __VPSS_TIMEOUT (3000)
     int rc = -1;
     SERVICE_CTX_ENTITY *ent = (SERVICE_CTX_ENTITY *)arg;
-#if (MW_VER == 2) && (defined _USE_GETFD_)
+#if defined(_USE_GETFD_)
     int vencFd = -1;
     struct timeval timeoutVal;
     fd_set readFds;
 #endif
-
-    prctl(PR_SET_NAME, "RTSP-TASK", 0, 0, 0);
-
     while (ent->running) {
         pthread_mutex_lock(&ent->mutex);
 
@@ -291,50 +225,22 @@ static void *rtspTask(void *arg)
         VENC_CHN_STATUS_S stStat = {};
         VENC_STREAM_S stStream = {};
         VIDEO_FRAME_INFO_S stVideoFrame = {};
-        VIDEO_FRAME_INFO_S stVideoFrameDrcPost = {};
 
-        if (!ent->bVencBindVpss || ent->enableRetinaFace ||
-            ent->enableTeaispDrc) {
-
-            if (ent->enableTeaispDrc) {
-                get_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
-
-                rc = CVI_VPSS_SendFrame(ent->VpssGrpDrcPost, &stVideoFrameDrcPost, __VPSS_TIMEOUT);
-                if (rc != CVI_SUCCESS) {
-                    printf("send drc vpss frame failed, %d, %x\n", ent->VpssGrpDrcPost, rc);
-                    put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
-                    pthread_mutex_unlock(&ent->mutex);
-                    continue;
-                }
-
-                rc = CVI_VPSS_GetChnFrame(ent->VpssGrpDrcPost, 0, &stVideoFrame, __VPSS_TIMEOUT);
-                if (rc != CVI_SUCCESS) {
-                    printf("get drc vpss frame failed, %d, %x\n", ent->VpssGrpDrcPost, rc);
-                    put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
-                    pthread_mutex_unlock(&ent->mutex);
-                    continue;
-                }
-
-                put_teaisp_drc_video_frame(ent->ViPipe, &stVideoFrameDrcPost);
-            } else {
-                rc = CVI_VPSS_GetChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame, __VPSS_TIMEOUT);
-                if (rc != CVI_SUCCESS) {
-                    printf("CVI_VPSS_GetChnFrame Grp: %u Chn: %u failed with %#x\n",
-                        ent->VpssGrp, ent->VpssChn, rc);
-                    pthread_mutex_unlock(&ent->mutex);
-                    continue;
-                }
+        if (!ent->bVencBindVpss || ent->enableRetinaFace) {
+            if (0 != (rc = CVI_VPSS_GetChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame, 3000))) {
+                printf("CVI_VPSS_GetChnFrame Grp: %u Chn: %u failed with %#x\n", ent->VpssGrp, ent->VpssChn, rc);
+                pthread_mutex_unlock(&ent->mutex);
+                continue;
             }
 
             if (getenv("VPSS_DEBUG")) {
                 uint64_t vpss_pts_diff = (stVideoFrame.stVFrame.u64PTS - ent->vpssPrePTS);
-                printf("VPSS PTS: %" PRIu64 ", prePTS: %" PRIu64 ", Diff: %" PRIu64 "\n",
+                printf("VPSS PTS: %llu, prePTS: %" PRIu64 ", Diff: %" PRIu64 "\n",
                 stVideoFrame.stVFrame.u64PTS, ent->vpssPrePTS, vpss_pts_diff);
                 ent->vpssPrePTS = stVideoFrame.stVFrame.u64PTS;
             }
 
             if (ent->enableRetinaFace) {
-                //std::cout << "run face ae ..." << std::endl;
                 rc = run_retinaface(ent, &stVideoFrame);
                 if (0 != rc) {
                     std::cout << "fail to handle retinaface" << std::endl;
@@ -343,29 +249,22 @@ static void *rtspTask(void *arg)
                 }
             }
 
-            if (ent->enableTeaisppq) {
-                if (access("teaisppq_put_text", F_OK) == 0) {
-                    teaisppq_put_text(ent, &stVideoFrame);
-                }
-            }
-
             CVI_S32 s32SetFrameMilliSec = 20000;
-
             if (0 != (rc = CVI_VENC_SendFrame(VencChn, &stVideoFrame, s32SetFrameMilliSec))) {
                 printf("CVI_VENC_SendFrame failed! %d\n", rc);
                 pthread_mutex_unlock(&ent->mutex);
                 continue;
             }
         }
-#if (MW_VER == 2) && (defined _USE_GETFD_)
+#if defined(_USE_GETFD_)
 
-        vencFd = CVI_VENC_GetFd(VencChn);
         if (vencFd < 0) {
-            printf("CVI_VENC_GetFd failed with%#x!\n", vencFd);
-            pthread_mutex_unlock(&ent->mutex);
-            break;
+            vencFd = CVI_VENC_GetFd(VencChn);
+            if (vencFd < 0) {
+                printf("CVI_VENC_GetFd failed with%#x!\n", vencFd);
+                break;
+            }
         }
-
         FD_ZERO(&readFds);
         FD_SET(vencFd, &readFds);
         timeoutVal.tv_sec = 2;
@@ -404,12 +303,6 @@ static void *rtspTask(void *arg)
         }
         if (0 != (rc = CVI_VENC_GetStream(VencChn, &stStream, 2000))) {
             printf("CVI_VENC_GetStream failed with %#x!\n", rc);
-            if (!ent->bVencBindVpss || ent->enableRetinaFace) {
-                if (0 != CVI_VPSS_ReleaseChnFrame(ent->enableTeaispDrc ? ent->VpssGrpDrcPost : ent->VpssGrp,
-                        ent->VpssChn, &stVideoFrame)) {
-                    printf("CVI_VPSS_ReleaseChnFrame Grp: %u Chn: %u NG\n", ent->VpssGrp, ent->VpssChn);
-                }
-            }
             free(stStream.pstPack);
             stStream.pstPack = NULL;
             usleep(40 * 1000);
@@ -417,15 +310,14 @@ static void *rtspTask(void *arg)
             continue;
         }
         if (!ent->bVencBindVpss) {
-            if (0 != CVI_VPSS_ReleaseChnFrame(ent->enableTeaispDrc ? ent->VpssGrpDrcPost : ent->VpssGrp,
-                    ent->VpssChn, &stVideoFrame)) {
+            if (0 != CVI_VPSS_ReleaseChnFrame(ent->VpssGrp, ent->VpssChn, &stVideoFrame)) {
                 printf("CVI_VPSS_ReleaseChnFrame Grp: %u Chn: %u NG\n", ent->VpssGrp, ent->VpssChn);
             }
         }
         if (getenv("VENC_DEBUG")) {
             uint64_t venc_pts_diff = (stStream.pstPack[0].u64PTS - ent->vencPrePTS);
             ent->vencPrePTS = stStream.pstPack[0].u64PTS;
-            printf("VENC pts: %" PRIu64 ", prePTS: %" PRIu64 ", duration: %" PRIu64 "\n", stStream.pstPack[0].u64PTS, ent->vencPrePTS, venc_pts_diff);
+            printf("VENC pts: %llu, prePTS: %" PRIu64 ", duration: %" PRIu64 "\n", stStream.pstPack[0].u64PTS, ent->vencPrePTS, venc_pts_diff);
         }
 
         CVI_MEDIA_ListPushBack(VencChn, &stStream);
@@ -441,12 +333,7 @@ static void *rtspTask(void *arg)
         free(stStream.pstPack);
         stStream.pstPack = NULL;
         pthread_mutex_unlock(&ent->mutex);
-        usleep(5000);
     }
-
-    pthread_mutex_lock(&ent->mutex);
-    deinit_venc(ent);
-    pthread_mutex_unlock(&ent->mutex);
 
     return NULL;
 }
@@ -478,46 +365,19 @@ static int init(SERVICE_CTX *ctx, const nlohmann::json &params)
         return -1;
     }
 
-    if (0 > init_teaisppq(ctx)) {
-        std::cout << "init teaisppq fail" << std::endl;
-        return -1;
-    }
-
-    if (0 > init_vo(ctx)) {
-        std::cout << "init vo fail" << std::endl;
-        return -1;
-    }
-
-    if (0 > init_teaisp_bnr(ctx)) {
-        std::cout << "init teaisp bnr fail" << std::endl;
-        return -1;
-    }
-
-    if (0 > init_teaisp_drc(ctx)) {
-        std::cout << "init teaisp drc fail" << std::endl;
-        return -1;
-    }
-
     return 0;
 }
 
 static void deinit(SERVICE_CTX *ctx)
 {
-    deinit_vo(ctx);
-
     isp_info_osd_stop(ctx);
 
-    deinit_teaisp_drc(ctx);
-
-    deinit_teaisp_bnr(ctx);
-
     deinit_ai(ctx);
-
-    deinit_teaisppq(ctx);
 
     for (int idx=0; idx<ctx->rtsp_num; idx++) {
         deinit_venc(&(ctx->entity[idx]));
     }
+    CVI_MEDIA_ProcUnitDeInit();
     deinit_vi(ctx);
 }
 
@@ -526,21 +386,16 @@ static void rtsp_play(int references, void *arg)
     SERVICE_CTX_ENTITY *ent =(SERVICE_CTX_ENTITY *)arg;
 
     pthread_mutex_lock(&ent->mutex);
+    CVI_RTSP_SERVICE_SetVencCfg(ent->venc_json, &ent->venc_cfg);
 
-    if (ent->VencChn < 0) {
-
-        CVI_RTSP_SERVICE_SetVencCfg(ent->venc_json, &ent->venc_cfg);
-
-        const char *venc_debug = getenv("RTSP_VENC_DEBUG");
-        if (venc_debug && 0 == strcmp(venc_debug, "1")) {
-            dump_venc_cfg(&ent->venc_cfg);
-        }
-
-        if (0 > init_venc(ent)) {
-            ent->VencChn = -1;
-            ent->venc_cfg.bCreateChn = 0;
-            std::cout << "init venc chn fail" << std::endl;
-        }
+    const char *venc_debug = getenv("RTSP_VENC_DEBUG");
+    if (venc_debug && 0 == strcmp(venc_debug, "1")) {
+        dump_venc_cfg(&ent->venc_cfg);
+    }
+    if (0 > init_venc(ent)) {
+        ent->VencChn = -1;
+        ent->venc_cfg.bCreateChn = 0;
+        std::cout << "init venc chn fail" << std::endl;
     }
 
     pthread_mutex_unlock(&ent->mutex);
@@ -548,7 +403,11 @@ static void rtsp_play(int references, void *arg)
 
 static void rtsp_teardown(int references, void *arg)
 {
+    SERVICE_CTX_ENTITY *ent =(SERVICE_CTX_ENTITY *)arg;
 
+    pthread_mutex_lock(&ent->mutex);
+    deinit_venc(ent);
+    pthread_mutex_unlock(&ent->mutex);
 }
 
 #ifdef DEBUG_RTSP
@@ -752,8 +611,6 @@ static int service_create(RTSP_SERVICE_HANDLE *hdl, const nlohmann::json &params
 
         snprintf(attr.name, sizeof(attr.name), "%s%d", ent->rtspURL, ent->ViChn);
 
-        ent->VencChn = -1;
-
         attr.video.play = rtsp_play;
         attr.video.playArg = (void *)ent;
         attr.video.teardown = rtsp_teardown;
@@ -791,7 +648,6 @@ static int service_create(RTSP_SERVICE_HANDLE *hdl, const nlohmann::json &params
         SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
         ent->running = true;
         pthread_create(&ent->worker, NULL, rtspTask, (void *)ent);
-        pthread_create(&ent->teaisppq_worker, NULL, teaisppqTask, (void *)ent);
     }
 
 #ifdef DEBUG_RTSP
@@ -830,18 +686,10 @@ int CVI_RTSP_SERVICE_CreateFromJsonStr(RTSP_SERVICE_HANDLE *hdl, const char *jso
 int CVI_RTSP_SERVICE_Destroy(RTSP_SERVICE_HANDLE *hdl)
 {
     SERVICE_CTX *ctx = (SERVICE_CTX *)(*hdl);
-
     for (int idx=0; idx<ctx->dev_num; idx++) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
         ent->running = false;
         pthread_join(ent->worker, NULL);
-        pthread_join(ent->teaisppq_worker, NULL);
-    }
-
-    CVI_MEDIA_ProcUnitDeInit();
-
-    for (int idx=0; idx<ctx->dev_num; idx++) {
-        SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
         if (idx < ctx->rtsp_num)
             CVI_RTSP_DestroySession(ctx->rtspCtx, ent->rtspSession);
     }

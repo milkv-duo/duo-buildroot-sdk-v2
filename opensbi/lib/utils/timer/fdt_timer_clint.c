@@ -15,7 +15,9 @@
 #define CLINT_TIMER_MAX_NR			16
 
 static unsigned long clint_timer_count = 0;
-static struct clint_data clint_timer[CLINT_TIMER_MAX_NR];
+static struct clint_data clint_timer[CLINT_TIMER_MAX_NR] = {
+	{.addr = 0x74000000, .first_hartid = 0, .hart_count = 1, .has_64bit_mmio = 0, },
+};
 
 static int timer_clint_cold_init(void *fdt, int nodeoff,
 				  const struct fdt_match *match)
@@ -29,9 +31,11 @@ static int timer_clint_cold_init(void *fdt, int nodeoff,
 	if (1 < clint_timer_count)
 		ctmaster = &clint_timer[0];
 
-	rc = fdt_parse_clint_node(fdt, nodeoff, TRUE, ct);
-	if (rc)
-		return rc;
+	if (clint_timer_count != 1) {
+		rc = fdt_parse_clint_node(fdt, nodeoff, TRUE, ct);
+		if (rc)
+			return rc;
+	}
 
 	return clint_cold_timer_init(ct, ctmaster);
 }

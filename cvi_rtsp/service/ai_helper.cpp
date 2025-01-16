@@ -1,15 +1,12 @@
 #include "ctx.h"
 #include "vpss_helper.h"
+#include <cvi_tdl.h>
 #include <dlfcn.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include "cvi_isp.h"
-
-#define AI_LIB "libcvi_tdl.so"
 
 #define LOAD_SYMBOL(dl, sym, type, fn) \
 do { \
-    if (NULL == fn && NULL == (fn = (type)dlsym(dl, sym))) { \
+    if (NULL == (fn = (type)dlsym(dl, sym))) { \
         printf("load symbol %s fail, %s\n", sym, dlerror()); \
         return -1; \
     } \
@@ -17,30 +14,26 @@ do { \
 
 int load_ai_symbol(SERVICE_CTX *ctx)
 {
+    ctx->ai_dl = dlopen("libcviai.so", RTLD_LAZY);
     if (!ctx->ai_dl) {
-        std::cout << "Loading " AI_LIB " ..." << std::endl;
-        ctx->ai_dl = dlopen(AI_LIB, RTLD_LAZY);
-
-        if (!ctx->ai_dl) {
-            std::cout << "dlopen " AI_LIB " fail: " << std::endl;
-            std::cout << dlerror() << std::endl;
-            return -1;
-        }
+        std::cout << "dlopen libcviai.so fail" << std::endl;
+        return -1;
     }
+
+    dlerror();
 
     for (int idx=0; idx<ctx->dev_num; idx++) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[idx];
-        // common
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_CreateHandle2", AI_CreateHandle2, ent->ai_create_handle2);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_DestroyHandle", AI_DestroyHandle, ent->ai_destroy_handle);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_SetSkipVpssPreprocess", AI_SetSkipVpssPreprocess, ent->ai_set_skip_vpss_preprocess);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_OpenModel", AI_OpenModel, ent->ai_open_model);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_CreateHandle", AI_Service_CreateHandle, ent->ai_service_create_handle);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_DestroyHandle", AI_Service_DestroyHandle, ent->ai_service_destroy_handle);
-        // face det
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_GetVpssChnConfig", AI_GetVpssChnConfig, ent->ai_get_vpss_chn_config);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_ScrFDFace", AI_RetinaFace, ent->ai_retinaface);
-        LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_Service_FaceDrawRect", AI_Service_FaceDrawRect, ent->ai_face_draw_rect);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_CreateHandle2", AI_CreateHandle2, ent->ai_create_handle2);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_DestroyHandle", AI_DestroyHandle, ent->ai_destroy_handle);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_SetSkipVpssPreprocess", AI_SetSkipVpssPreprocess, ent->ai_set_skip_vpss_preprocess);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_OpenModel", AI_OpenModel, ent->ai_open_model);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_GetVpssChnConfig", AI_GetVpssChnConfig, ent->ai_get_vpss_chn_config);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_RetinaFace", AI_RetinaFace, ent->ai_retinaface);
+
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_Service_CreateHandle", AI_Service_CreateHandle, ent->ai_service_create_handle);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_Service_DestroyHandle", AI_Service_DestroyHandle, ent->ai_service_destroy_handle);
+        LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_Service_FaceDrawRect", AI_Service_FaceDrawRect, ent->ai_face_draw_rect);
     }
 
     return 0;
@@ -76,22 +69,22 @@ int init_ai(SERVICE_CTX *ctx)
             return -1;
         }
 
-        if (ent->ai_open_model(ent->ai_handle, CVI_AI_SUPPORTED_MODEL_RETINAFACE, ctx->model_path) != CVI_SUCCESS) {
+        if (ent->ai_open_model(ent->ai_handle, CVI_TDL_SUPPORTED_MODEL_RETINAFACE, ctx->model_path) != CVI_SUCCESS) {
             printf("CVI_AI_SetModelPath: %s failed!\n", ctx->model_path);
             return -1;
         }
 
-        ent->ai_set_skip_vpss_preprocess(ent->ai_handle, CVI_AI_SUPPORTED_MODEL_RETINAFACE, true);
+        ent->ai_set_skip_vpss_preprocess(ent->ai_handle, CVI_TDL_SUPPORTED_MODEL_RETINAFACE, true);
 
-        if (ent->ai_get_vpss_chn_config(ent->ai_handle, CVI_AI_SUPPORTED_MODEL_RETINAFACE, 1920, 1080, 0, &ent->retinaVpssConfig) != CVI_SUCCESS) {
+        if (ent->ai_get_vpss_chn_config(ent->ai_handle, CVI_TDL_SUPPORTED_MODEL_RETINAFACE, 1920, 1080, 0, &ent->retinaVpssConfig) != CVI_SUCCESS) {
             printf("CVI_AI_GetVpssChnConfig Failed!\n");
             return -1;
         }
 
         if (ent->retinaVpssConfig.chn_attr.stAspectRatio.enMode != ASPECT_RATIO_AUTO) {
-            LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_RescaleMetaCenterFace", FD_RescaleFunc, ent->rescale_fd);
+            LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_RescaleMetaCenterFace", FD_RescaleFunc, ent->rescale_fd);
         } else {
-            LOAD_SYMBOL(ctx->ai_dl, "CVI_TDL_RescaleMetaRBFace", FD_RescaleFunc, ent->rescale_fd);
+            LOAD_SYMBOL(ctx->ai_dl, "CVI_AI_RescaleMetaRBFace", FD_RescaleFunc, ent->rescale_fd);
         }
 
         int rc = -1;
@@ -116,8 +109,6 @@ int init_ai(SERVICE_CTX *ctx)
         }
     }
 
-    ctx->tdl_ref_count++;
-
     return 0;
 }
 
@@ -135,93 +126,13 @@ void deinit_ai(SERVICE_CTX *ctx)
         }
     }
 
-    if (ctx->ai_dl && --ctx->tdl_ref_count <= 0) {
+    if (ctx->ai_dl) {
         dlclose(ctx->ai_dl);
         ctx->ai_dl = NULL;
     }
-}
 
-static void load_bnr_model(VI_PIPE ViPipe, char *model_path)
-{
-    FILE *fp = fopen(model_path, "r");
-
-    if (fp == NULL) {
-        printf("open model path failed, %s\n", model_path);
-        return;
-    }
-
-    char line[1024];
-    char *token;
-    char *rest;
-
-    TEAISP_BNR_MODEL_INFO_S stModelInfo;
-
-    while (fgets(line, sizeof(line), fp) != NULL) {
-
-        printf("load model, list, %s", line);
-
-        rest = line;
-        token = strtok_r(rest, " ", &rest);
-
-        memset(&stModelInfo, 0, sizeof(TEAISP_BNR_MODEL_INFO_S));
-        snprintf(stModelInfo.path, TEAISP_MODEL_PATH_LEN, "%s", token);
-
-        printf("load model, path, %s\n", token);
-
-        token = strtok_r(rest, " ", &rest);
-
-        int iso = atoi(token);
-
-        stModelInfo.enterISO = iso;
-        stModelInfo.tolerance = iso * 10 / 100;
-
-        printf("load model, iso, %d, %d\n", stModelInfo.enterISO, stModelInfo.tolerance);
-        CVI_TEAISP_BNR_SetModel(ViPipe, &stModelInfo);
-    }
-
-    fclose(fp);
-}
-
-typedef CVI_S32 (*TEAISP_INIT_FUN)(VI_PIPE ViPipe, CVI_S32 maxDev);
-
-int init_teaisp_bnr(SERVICE_CTX *ctx)
-{
-    (void) ctx;
-
-    void *teaisp_dl = NULL;
-    TEAISP_INIT_FUN teaisp_init = NULL;
-
-    for (int i = 0; i < ctx->dev_num; i++) {
-
-        SERVICE_CTX_ENTITY *pEntity = &ctx->entity[i];
-
-        if (!pEntity->enableTEAISPBnr) {
-            continue;
-        }
-
-        if (teaisp_dl == NULL) {
-
-            teaisp_dl = dlopen("libteaisp.so", RTLD_LAZY);
-            if (!teaisp_dl) {
-                std::cout << "dlopen libteaisp.so fail" << std::endl;
-                return -1;
-            }
-
-            dlerror();
-
-            LOAD_SYMBOL(teaisp_dl, "CVI_TEAISP_Init", TEAISP_INIT_FUN, teaisp_init);
-        }
-
-        teaisp_init(i, ctx->max_use_tpu_num);
-        load_bnr_model(i, pEntity->teaisp_model_list);
-    }
-
-    return 0;
-}
-
-int deinit_teaisp_bnr(SERVICE_CTX *ctx)
-{
-    (void) ctx;
-
-    return 0;
+    if (ctx->ai_dl) {
+        dlclose(ctx->ai_dl);
+        ctx->ai_dl = NULL;
+     }
 }

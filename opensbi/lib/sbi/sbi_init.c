@@ -225,7 +225,9 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 {
 	int rc;
 	unsigned long *init_count;
+#ifndef CONFIG_OPENSBI_FASTBOOT
 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+#endif
 
 	/* Note: This has to be first thing in coldboot init sequence */
 	rc = sbi_scratch_init(scratch);
@@ -246,20 +248,25 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	if (rc)
 		sbi_hart_hang();
 
+#ifndef CONFIG_OPENSBI_FASTBOOT
 	rc = sbi_platform_early_init(plat, TRUE);
 	if (rc)
 		sbi_hart_hang();
+#endif
 
 	rc = sbi_hart_init(scratch, TRUE);
 	if (rc)
 		sbi_hart_hang();
 
+#ifndef CONFIG_OPENSBI_FASTBOOT
 	rc = sbi_console_init(scratch);
 	if (rc)
 		sbi_hart_hang();
+#endif
 
 	sbi_boot_print_banner(scratch);
 
+#ifndef CONFIG_OPENSBI_FASTBOOT
 	rc = sbi_platform_irqchip_init(plat, TRUE);
 	if (rc) {
 		sbi_printf("%s: platform irqchip init failed (error %d)\n",
@@ -272,6 +279,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 		sbi_printf("%s: ipi init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
+#endif
 
 	rc = sbi_tlb_init(scratch, TRUE);
 	if (rc) {
@@ -319,12 +327,14 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * Note: Platform final initialization should be last so that
 	 * it sees correct domain assignment and PMP configuration.
 	 */
+#ifndef CONFIG_OPENSBI_FASTBOOT
 	rc = sbi_platform_final_init(plat, TRUE);
 	if (rc) {
 		sbi_printf("%s: platform final init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
+#endif
 
 	sbi_boot_print_hart(scratch, hartid);
 

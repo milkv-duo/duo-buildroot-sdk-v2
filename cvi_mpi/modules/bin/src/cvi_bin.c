@@ -651,6 +651,8 @@ CVI_S32 CVI_BIN_ImportBinData(CVI_U8 *pu8Buffer, CVI_U32 u32DataLength)
 		goto ERROR_HANDLER;
 	}
 
+	set_loadbin_state(CVI_FALSE);
+
 	for (CVI_U32 idx = CVI_BIN_ID_MIN; idx < CVI_BIN_ID_MAX; idx++) {
 		if ((getParamFromBinFunc[idx] != NULL) && (check_is_register_id(idx) == CVI_SUCCESS)) {
 			if (idx <= CVI_BIN_ID_ISP3) {

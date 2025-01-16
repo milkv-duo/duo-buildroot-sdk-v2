@@ -69,13 +69,6 @@ int CVI_RTSP_DestroySession(CVI_RTSP_CTX *ctx, CVI_RTSP_SESSION *session);
  */
 int CVI_RTSP_SetListener(CVI_RTSP_CTX *ctx, CVI_RTSP_STATE_LISTENER *listener);
 
-/**
- * @brief          for c program to set OutPacketBuffer::maxSize
- * @param rtsp_max_buf_size In: rtsp max buffer size
- * @return         void
- */
-void CVI_RTSP_SetOutPckBuf_MaxSize(uint32_t rtsp_max_buf_size);
-
 #ifdef __cplusplus
 }
 #endif

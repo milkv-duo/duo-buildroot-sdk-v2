@@ -9,19 +9,6 @@
 #include "cvi_json_struct_comm.h"
 #include "vpss_ioctl.h"
 
-static VPSS_BIN_DATA vpss_bin_data[VPSS_MAX_GRP_NUM];
-static CVI_BOOL g_bLoadBinDone = CVI_FALSE;
-
-VPSS_BIN_DATA *get_vpssbindata_addr(void)
-{
-	return vpss_bin_data;
-}
-
-CVI_BOOL get_loadbin_state(void)
-{
-	return g_bLoadBinDone;
-}
-
 static CVI_S32 get_vpss_ctx_proc_amp(VPSS_BIN_DATA *pBinData)
 {
 	CVI_S32 fd = get_vpss_fd();
@@ -52,7 +39,7 @@ CVI_S32 vpss_bin_getbinsize(CVI_U32 *size)
 CVI_S32 vpss_bin_getparamfrombin(CVI_U8 *addr, CVI_U32 size)
 {
 	CVI_U32 u32DataSize = 0;
-	VPSS_BIN_DATA *pstVpssBinData = vpss_bin_data;
+	VPSS_BIN_DATA *pstVpssBinData = get_vpssbindata_addr();
 
 	vpss_bin_getbinsize(&u32DataSize);
 	memset(pstVpssBinData, 0, u32DataSize);
@@ -61,7 +48,7 @@ CVI_S32 vpss_bin_getparamfrombin(CVI_U8 *addr, CVI_U32 size)
 		return CVI_FAILURE;
 	}
 	memcpy(pstVpssBinData, addr, size);
-	g_bLoadBinDone = CVI_TRUE;
+	set_loadbin_state(CVI_TRUE);
 
 	return CVI_SUCCESS;
 }
@@ -70,7 +57,7 @@ CVI_S32 vpss_bin_setparamtobuf(CVI_U8 *buffer)
 {
 	CVI_S32 ret = CVI_SUCCESS;
 	CVI_U32 u32DataSize = 0;
-	VPSS_BIN_DATA *pstVpssBinData = vpss_bin_data;
+	VPSS_BIN_DATA *pstVpssBinData = get_vpssbindata_addr();
 	VPSS_BIN_DATA stVpssCtxProcAmp[VPSS_MAX_GRP_NUM];
 
 	get_vpss_ctx_proc_amp(stVpssCtxProcAmp);
@@ -86,7 +73,7 @@ CVI_S32 vpss_bin_setparamtobin(FILE *fp)
 {
 	CVI_S32 ret = CVI_SUCCESS;
 	CVI_U32 u32DataSize = 0;
-	VPSS_BIN_DATA *pstVpssBinData = vpss_bin_data;
+	VPSS_BIN_DATA *pstVpssBinData = get_vpssbindata_addr();
 	VPSS_BIN_DATA stVpssCtxProcAmp[VPSS_MAX_GRP_NUM];
 
 	get_vpss_ctx_proc_amp(stVpssCtxProcAmp);
@@ -108,7 +95,7 @@ static CVI_S32 vpss_json_getparam(CVI_U8 *addr)
 	CVI_S32 ret = CVI_SUCCESS;
 	CVI_U32 u32DataSize = 0;
 	VPSS_BIN_DATA *pstPtr = (VPSS_BIN_DATA *)addr;
-	VPSS_BIN_DATA *pstVpssBinData = vpss_bin_data;
+	VPSS_BIN_DATA *pstVpssBinData = get_vpssbindata_addr();
 	VPSS_BIN_DATA stVpssCtxProcAmp[VPSS_MAX_GRP_NUM];
 
 	get_vpss_ctx_proc_amp(stVpssCtxProcAmp);
@@ -124,11 +111,11 @@ static CVI_S32 vpss_json_getparam(CVI_U8 *addr)
 static CVI_S32 vpss_json_setparam(CVI_U8 *addr)
 {
 	CVI_U32 u32DataSize = 0;
-	VPSS_BIN_DATA *pstVpssBinData = vpss_bin_data;
+	VPSS_BIN_DATA *pstVpssBinData = get_vpssbindata_addr();
 
 	vpss_bin_getbinsize(&u32DataSize);
 	memcpy(pstVpssBinData, addr, u32DataSize);
-	g_bLoadBinDone = CVI_TRUE;
+	set_loadbin_state(CVI_TRUE);
 
 	return CVI_SUCCESS;
 }

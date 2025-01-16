@@ -304,8 +304,23 @@ void YoloV8Pose::postProcess(Detections &dets, int frame_width, int frame_height
   }
   if (!hasSkippedVpssPreprocess()) {
     for (uint32_t i = 0; i < obj->size; ++i) {
-      obj->info[i] =
+      cvtdl_object_info_t rescale_info =
           info_rescale_c(frame_width, frame_height, obj->width, obj->height, obj->info[i]);
+
+      obj->info[i].bbox.x1 = rescale_info.bbox.x1;
+      obj->info[i].bbox.y1 = rescale_info.bbox.y1;
+      obj->info[i].bbox.x2 = rescale_info.bbox.x2;
+      obj->info[i].bbox.y2 = rescale_info.bbox.y2;
+
+      int num_keypoints = m_kpts_channel_ / 3;
+      for (int j = 0; j < num_keypoints; j++) {
+        obj->info[i].pedestrian_properity->pose_17.x[j] =
+            rescale_info.pedestrian_properity->pose_17.x[j];
+        obj->info[i].pedestrian_properity->pose_17.y[j] =
+            rescale_info.pedestrian_properity->pose_17.y[j];
+      }
+      CVI_TDL_FreeCpp(&rescale_info);
+      
     }
     obj->width = frame_width;
     obj->height = frame_height;

@@ -111,7 +111,7 @@ static RetCode BitLoadFirmware(Uint32 coreIdx, PhysicalAddress codeBase,
 #else
 
 	for (i = 0; i < len; i += 4) {
-		uint64_t code = *(uint64_t *)&codeWord[i];
+		Uint64 code = *(Uint64 *)&codeWord[i];
 
 		VpuWriteReg(coreIdx, BIT_CODE_DOWN,
 			    (i << 16) | ((code >> 48) & 0xFFFF));
@@ -449,7 +449,7 @@ Int32 Coda9VpuWaitInterrupt(CodecInst *handle, Int32 timeout)
 	Int32 reason = 0;
 
 	reason = vdi_wait_interrupt(handle->coreIdx, timeout,
-				    (uint64_t *)&handle->u64EndTime);
+				    (Uint64 *)&handle->u64EndTime);
 
 	if ((Uint32)reason != INTERRUPT_TIMEOUT_VALUE) {
 		VpuWriteReg(handle->coreIdx, BIT_INT_CLEAR,
@@ -2815,7 +2815,7 @@ static int get_num_ref_frames(rps_t *rps, int gop_size, int use_long_term)
 }
 static void get_num_reorder_frames(gop_entry_t *gop, int gop_size,
 				   int *max_num_reorder_pic,
-				   int32_t *src_latency)
+				   Int32 *src_latency)
 {
 	int curr;
 	int max_num_reorder = 0;
@@ -2894,7 +2894,7 @@ static int get_num_ref_frames_for_decoder(
 	{
 		int enc_idx;
 		int frmnum = 0;
-		uint8_t poc_to_frmnum[2 * MAX_GOP_SIZE + 1];
+		Uint8 poc_to_frmnum[2 * MAX_GOP_SIZE + 1];
 
 		poc_to_frmnum[0] = 0;
 

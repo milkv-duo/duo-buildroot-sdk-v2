@@ -9,14 +9,6 @@ config TARGET_CVITEK
 choice
 	prompt "Cvitek target"
 
-config TARGET_CVITEK_CV1835
-	bool "Support CVITEK CV1835"
-	select TARGET_CVITEK
-
-config TARGET_CVITEK_CV1822
-	bool "Support CVITEK CV1822"
-	select TARGET_CVITEK
-
 config TARGET_CVITEK_CV181X
 	bool "Support CVITEK CV181X"
 	select TARGET_CVITEK
@@ -25,16 +17,9 @@ config TARGET_CVITEK_CV180X
 	bool "Support CVITEK CV180X"
 	select TARGET_CVITEK
 
-config TARGET_CVITEK_ATHENA2
-	bool "Support CVITEK ATHENA2"
-	select TARGET_CVITEK
-
 endchoice
 
-#source "board/cvitek/cv1835/Kconfig"
-#source "board/cvitek/cv1822/Kconfig"
 source "board/cvitek/cv181x/Kconfig"
 source "board/cvitek/cv180x/Kconfig"
-#source "board/cvitek/athena2/Kconfig"
 
 endif

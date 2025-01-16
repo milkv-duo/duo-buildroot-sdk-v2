@@ -1,75 +1,66 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <cvi_ive.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
+#include "core/utils/vpss_helper.h"
 #include "cvi_tdl.h"
+#include "cvi_tdl_media.h"
+#include "sys_utils.h"
 
 int main(int argc, char *argv[]) {
+  int vpssgrp_width = 1920;
+  int vpssgrp_height = 1080;
+  CVI_S32 ret = MMF_INIT_HELPER2(vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 1,
+                                 vpssgrp_width, vpssgrp_height, PIXEL_FORMAT_RGB_888, 1);
+  if (ret != CVI_TDL_SUCCESS) {
+    printf("Init sys failed with %#x!\n", ret);
+    return ret;
+  }
   cvitdl_handle_t tdl_handle = NULL;
-  printf("start to run img md\n");
-  CVI_S32 ret = CVI_TDL_CreateHandle(&tdl_handle);
+  ret = CVI_TDL_CreateHandle(&tdl_handle);
   if (ret != CVI_SUCCESS) {
     printf("Create tdl handle failed with %#x!\n", ret);
     return ret;
   }
-  IVE_HANDLE ive_handle = CVI_IVE_CreateHandle();
 
-  VIDEO_FRAME_INFO_S bg, frame;
-  // printf("toread image:%s\n",argv[1]);
-  const char *strf1 = "/mnt/data/admin1_data/alios_test/set/a.jpg";
-  IVE_IMAGE_S image1 = CVI_IVE_ReadImage(ive_handle, strf1, IVE_IMAGE_TYPE_U8C1);
-  ret = CVI_SUCCESS;
-
-  int imgw = image1.u32Width;
-  if (imgw == 0) {
-    printf("Read image failed with %x!\n", ret);
-    return CVI_FAILURE;
-  }
-  ret = CVI_IVE_Image2VideoFrameInfo(&image1, &bg);
-  if (ret != CVI_SUCCESS) {
-    printf("Convert to video frame failed with %#x!\n", ret);
-    return ret;
-  }
-  const char *strf2 = "/mnt/data/admin1_data/alios_test/set/b.jpg";
-  IVE_IMAGE_S image2 = CVI_IVE_ReadImage(ive_handle, strf2, IVE_IMAGE_TYPE_U8C1);
-  ret = CVI_SUCCESS;
-  int imgw2 = image2.u32Width;
-  if (imgw2 == 0) {
-    printf("Read image failed with %x!\n", ret);
-    return CVI_FAILURE;
-  }
-
-  ret = CVI_IVE_Image2VideoFrameInfo(&image2, &frame);
-  if (ret != CVI_SUCCESS) {
-    printf("Convert to video frame failed with %#x!\n", ret);
-    return ret;
-  }
+  imgprocess_t img_handle = NULL;
+  CVI_TDL_Create_ImageProcessor(&img_handle);
+  VIDEO_FRAME_INFO_S bg;
+  CVI_TDL_ReadImage(img_handle, argv[1], &bg, PIXEL_FORMAT_YUV_400);
+  printf("read image1 done\n");
+  VIDEO_FRAME_INFO_S frame;
   cvtdl_object_t obj_meta;
+  memset(&obj_meta, 0, sizeof(cvtdl_object_t));
+  CVI_TDL_ReadImage(img_handle, argv[2], &frame, PIXEL_FORMAT_YUV_400);
+  printf("read image2 done\n");
+  MDROI_t roi_s;
+  roi_s.num = 2;
+  roi_s.pnt[0].x1 = 0;
+  roi_s.pnt[0].y1 = 0;
+  roi_s.pnt[0].x2 = 512;
+  roi_s.pnt[0].y2 = 512;
+  roi_s.pnt[1].x1 = 1000;
+  roi_s.pnt[1].y1 = 150;
+  roi_s.pnt[1].x2 = 1150;
+  roi_s.pnt[1].y2 = 250;
   CVI_TDL_Set_MotionDetection_Background(tdl_handle, &bg);
+  printf("set image bg done\n");
+  CVI_TDL_Set_MotionDetection_ROI(tdl_handle, &roi_s);
+  CVI_TDL_MotionDetection(tdl_handle, &frame, &obj_meta, 30, 100);
 
-  CVI_TDL_MotionDetection(tdl_handle, &frame, &obj_meta, 20, 50);
-  // CVI_TDL_MotionDetection(tdl_handle, &frame, &obj_meta, 20, 50);
-  // CVI_TDL_MotionDetection(tdl_handle, &frame, &obj_meta, 20, 50);
-  // VIDEO_FRAME_INFO_S motionmap;
-  // ret = CVI_TDL_GetMotionMap(tdl_handle, &motionmap);
-
-  CVI_TDL_DumpImage("img1.bin", &bg);
-  CVI_TDL_DumpImage("img2.bin", &frame);
-  // CVI_TDL_DumpImage("md.bin", &motionmap);
-
-  for (int i = 0; i < obj_meta.size; i++) {
-    printf("[%f,%f,%f,%f]\n", obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1,
+  for (size_t i = 0; i < obj_meta.size; i++) {
+    printf("[%f,%f,%f,%f],", obj_meta.info[i].bbox.x1, obj_meta.info[i].bbox.y1,
            obj_meta.info[i].bbox.x2, obj_meta.info[i].bbox.y2);
   }
 
   CVI_TDL_Free(&obj_meta);
-  CVI_SYS_FreeI(ive_handle, &image1);
-  CVI_SYS_FreeI(ive_handle, &image2);
+  CVI_TDL_ReleaseImage(img_handle, &bg);
+  CVI_TDL_ReleaseImage(img_handle, &frame);
 
   CVI_TDL_DestroyHandle(tdl_handle);
-  CVI_IVE_DestroyHandle(ive_handle);
+  CVI_TDL_Destroy_ImageProcessor(img_handle);
   return ret;
 }

@@ -15,7 +15,7 @@
     <project name="osdrv"/>
     <project name="ramdisk"/>
     <project name="oss" revision="master"/>
-    <project name="cvi_rtsp" revision="master"/>
+    <project name="cvi_rtsp">
     <project name="cvi_mpi"/>
     <project name="isp_tuning"/>
     <project name="SensorSupportList" path="cvi_mpi/component/isp"/>

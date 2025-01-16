@@ -430,6 +430,15 @@ config CMD_ZBOOT
 	  booting both 32- and 64-bit kernels, as well as secure boot.
 	  Documentation is available in doc/uImage.FIT/x86-fit-boot.txt
 
+config CMD_BOOT_MODE_NAND
+    bool "boot mode command for nand flash"
+    depends on MTD_RAW_NAND
+    help
+      Enable A/B boot function.(Currently, spl boot is not supported.)
+      The BOOT and ROOTFS partitions are backed up to ensure that the
+      system can be automatically switched to the inactive partition
+      for boot if the related upgrade fails.
+      For details, see Android A/B system Description.
 endmenu
 
 menu "Environment commands"

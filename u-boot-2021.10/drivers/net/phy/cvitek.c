@@ -63,8 +63,8 @@ static void cv182xa_ephy_init(void)
 	//Set rg_eth_txitune0  0x03009064 [7:0]
 	if ((mmio_read_32(EPHY_EFUSE_VALID_BIT_BASE) & EPHY_EFUSE_TXITUNE_FLAG) ==
 		EPHY_EFUSE_TXITUNE_FLAG) {
-		val = ((mmio_read_32(0x03051024) >> 24) & 0xFF) |
-				(((mmio_read_32(0x03051024) >> 16) & 0xFF) << 8);
+		val = ((mmio_read_32(0x03050124) >> 24) & 0xFF) |
+				(((mmio_read_32(0x03050124) >> 16) & 0xFF) << 8);
 		mmio_clrsetbits_32(0x03009064, 0xFFFF, val);
 	} else
 		mmio_write_32(0x03009064, 0x5a5a);
@@ -73,7 +73,7 @@ static void cv182xa_ephy_init(void)
 	// Set rg_eth_txechoiadj 0x03009054  [15:8]
 	if ((mmio_read_32(EPHY_EFUSE_VALID_BIT_BASE) & EPHY_EFUSE_TXECHORC_FLAG) ==
 		EPHY_EFUSE_TXECHORC_FLAG) {
-		mmio_clrsetbits_32(0x03009054, 0xFF00, ((mmio_read_32(0x03051024) >> 8) & 0xFF) << 8);
+		mmio_clrsetbits_32(0x03009054, 0xFF00, ((mmio_read_32(0x03050124) >> 8) & 0xFF) << 8);
 	} else
 		mmio_write_32(0x03009054, 0x0000);
 
@@ -83,8 +83,8 @@ static void cv182xa_ephy_init(void)
 	// Set rg_eth_txechorcadj 0x03009058  [3:0]
 	if ((mmio_read_32(EPHY_EFUSE_VALID_BIT_BASE) & EPHY_EFUSE_TXRXTERM_FLAG) ==
 		EPHY_EFUSE_TXRXTERM_FLAG) {
-		val = (((mmio_read_32(0x03051020) >> 28) & 0xF) << 4) |
-				(((mmio_read_32(0x03051020) >> 24) & 0xF) << 8);
+		val = (((mmio_read_32(0x03050120) >> 28) & 0xF) << 4) |
+				(((mmio_read_32(0x03050120) >> 24) & 0xF) << 8);
 		mmio_clrsetbits_32(0x03009058, 0xFF0, val);
 	} else
 		mmio_write_32(0x03009058, 0x0bb0);

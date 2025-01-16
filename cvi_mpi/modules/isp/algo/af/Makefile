@@ -9,6 +9,7 @@ SDIR = $(CURDIR)
 SRCS_C := $(SDIR)/af_buf.c
 SRCS_C += $(SDIR)/afalgo.c
 SRCS_C += $(SDIR)/cvi_af.c
+SRCS_C += $(SDIR)/af_calib.c
 #
 ODIR := $(CURDIR)/obj
 OBJS := $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o)

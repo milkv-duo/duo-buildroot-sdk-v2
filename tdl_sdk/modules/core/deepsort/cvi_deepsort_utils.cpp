@@ -93,6 +93,13 @@ float cal_iou(const stRect &box1, const stRect &box2) {
   return iou;
 }
 
+float self_iou(const stRect &box1, const stRect &box2) {
+  float inter = get_inter_area(box1, box2);
+  float area1 = box1.width * box1.height;
+  float iou = inter / area1;
+  return iou;
+}
+
 float compute_box_sim(stRect box1, stRect box2) {
   int ctx = box1.width + box2.width;
   int cty = box1.height + box2.height;
@@ -173,6 +180,8 @@ float cal_object_pair_score(stRect boxa, stRect boxb, ObjectType typea, ObjectTy
     float xdiff_score = 1.0 - xdiff / face_size;
     stRect ped_top_box(ped_box.x + ped_box.width * 0.2, ped_box.y + face_size * yoffset,
                        ped_box.width * 0.8, face_size * (1 + yoffset));
+    if (self_iou(face_box, ped_box) < 0.8) return 0;
+
     float iou = cal_iou(face_box, ped_top_box);
 
     float pair_score = ydiff_score * 0.2 + iou * 0.7 + xdiff_score * 0.1;
@@ -200,6 +209,8 @@ float cal_object_pair_score(stRect boxa, stRect boxb, ObjectType typea, ObjectTy
     float xdiff_score = 1.0 - xdiff / head_size;
     stRect ped_top_box(ped_box.x + ped_box.width * 0.2, ped_box.y + head_size * yoffset,
                        ped_box.width * 0.8, head_size * (1 + yoffset));
+
+    if (self_iou(head_box, ped_box) < 0.8) return 0;
     float iou = cal_iou(head_box, ped_top_box);
 
     float pair_score = ydiff_score * 0.2 + iou * 0.7 + xdiff_score * 0.1;

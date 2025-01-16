@@ -17,22 +17,14 @@ sample/audio/sample_audio_nr
 sample/audio/sample_audio_resample
 sample/audio/sample_audio_transcode
 sample/audio/sample_audio_rtos
-sample/cipher/sample_cipher
-sample/cvg/sample_cvg
-sample/mipi_tx/sample_dsi
-sample/fisheye/sample_fisheye
-sample/overlay/sample_overlay
 sample/region/sample_region
 sample/venc/sample_vcodec
 sample/vdec/sample_vdec
 sample/venc/sample_venc
 sample/vio/sample_vio
 sample/vdecvo/sample_vdecvo
-sample/multivenc/sample_multivenc
 sample/sample_ir_auto/sample_ir_auto
-sample/mipi_tx/lt9611/lt9611
 sample/osdc/sample_osdc
-sample/scene_auto/sample_scene_auto
 sample/sensor_test/sample_sensor_test
 sample/tp2863_tp2803/sample_test_tp2863_tp2803
 sample/sample_panel/sample_panel
@@ -52,5 +44,6 @@ modules/venc/vc/jpeg/driver/include/version.h
 
 .vscode/settings.json
 
-#modules/isp
+modules/isp
 component/isp
+self_test/mediapipe

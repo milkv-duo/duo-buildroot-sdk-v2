@@ -1,0 +1,69 @@
+project_name: osdrv
+commit_id: 20b993879380ed102a91766b9c6327b2663b68b9 [feat](vc):Modification of uintxx_t/intxx_t Data Types
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: freertos
+commit_id: c314e9510fc7cb85cf505c49db43fb689bd91eda [fix](rgn):Fixed the obj_attr uses old memory [description]:NA [root  cause]:NA [JIRA     ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a]:NA
+
+project_name: cvi_rtsp
+commit_id: f506b4920b9725227fe1b72cd707180c68fb35da [fix](cvi_rtsp): adapt tdl_sdk master branch.
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: 0f5edbb76c35645a56841b52d0f31ddd4cb9b2a7 [fix](str):fix chip id miss and fix suspend bug on rtc [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: build
+commit_id: f9a4608bde76a03f2337cc8eac4b85292e97463c [feat] change build_ai_sdk to build_tdl_sdk, adapt tdl_sdk:master branch.
+
+project_name: oss
+commit_id: 46017282af8019d658d4d3e619c7f3506380f2fa add submodule fsck
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 4f046bb7cf74db4a34bb1cd7b2d73ddc9b843171 [fix](pqbin): update gc4653 pqbin
+
+project_name: ive
+commit_id: ccd109cfcf609a854a3d6411b73f57b513de58ab add CVI_IVE_TPU_Blend_ROI interface
+
+project_name: fsbl
+commit_id: a4c3ad911511e0311cf7ff384efbed596d4af026 [feat](fsbl): Make DDR2 ESMT KGD & ETRON KGD compatible [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv180x [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: 2765b7eaa9bc834c818f8296bd4aed78ceb65240 [feat]: Add A/B boot mode(Nand)
+
+project_name: ramdisk
+commit_id: 62e7c04b034f73b490c3e4bac0178ac2ac9fea1a [fix](v4.1.0):fix scp fail. [description ]:NA [root   cause]:NA [JIRA      ID]:CV180X181X-3362 [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: tdl_sdk
+commit_id: 28eb13618caf8d1bff0f5d60a0d043c08042d8ae create build_tdl_sdk.sh and validate it in v4.2.0 v4.1.0 a2
+
+project_name: linux_5.10
+commit_id: 4eebaa8e11bbc499991cb131702f95871ebe03af [fix](phy): Fix link status error when unplug the network cable [description ]: Fix link status error when unplug the network cable [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA
+
+project_name: isp
+commit_id: a744f71c49e8dc00555780b2a0bf00df7e3c3b97 [fix](isp):fix lack of libsample.so
+
+project_name: mediapipe
+commit_id: 9da7d35ae601afabcdf6de4255d8ddd6728a46c8 [fix](venc):locate header
+
+project_name: SensorSupportList
+commit_id: 72752f0d166f5d2a53d63fcdab0e639dbec003ab [fix] ov_os02n10 flip bug
+
+project_name: cvi_mpi
+commit_id: 40901b88afed093dcd4f78282b071b42f323c52d [feat](vc):Modification of uintxx_t/intxx_t Data Types
+

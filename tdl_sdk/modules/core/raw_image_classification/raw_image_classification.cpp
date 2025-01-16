@@ -23,8 +23,7 @@
 namespace cvitdl {
 
 RawImageClassification::RawImageClassification() : Core(CVI_MEM_DEVICE) {
-  this->setUseMmap(true);
-  this->setraw(true);
+  this->setRaw(true);
   float mean[3] = {123.675, 116.28, 103.52};
   float std[3] = {58.395, 57.12, 57.375};
 

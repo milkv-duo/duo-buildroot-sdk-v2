@@ -1,6 +1,6 @@
 #include "cvi_float_point.h"
 
-float32 FRAC_INT_TO_CVI_FLOAT(int32_t a, int frac_bit)
+float32 FRAC_INT_TO_CVI_FLOAT(CVI_S32 a, int frac_bit)
 {
 #if SOFT_FLOAT
 	struct roundingData roundData;
@@ -17,7 +17,7 @@ float32 FRAC_INT_TO_CVI_FLOAT(int32_t a, int frac_bit)
 #endif
 }
 
-int32_t CVI_FLOAT_TO_FRAC_INT(float32 a, int frac_bit)
+CVI_S32 CVI_FLOAT_TO_FRAC_INT(float32 a, int frac_bit)
 {
 #if SOFT_FLOAT
 	struct roundingData roundData;
@@ -25,11 +25,11 @@ int32_t CVI_FLOAT_TO_FRAC_INT(float32 a, int frac_bit)
 	roundData.mode = float_round_nearest_even;
 	return cvi_float32_to_frac_int(&roundData, a, frac_bit);
 #else
-	return (int32_t)(a*((int32_t)1 << frac_bit));
+	return (CVI_S32)(a*((CVI_S32)1 << frac_bit));
 #endif
 }
 
-float32 INT_TO_CVI_FLOAT(int32_t a)
+float32 INT_TO_CVI_FLOAT(CVI_S32 a)
 {
 #if SOFT_FLOAT
 	struct roundingData roundData;
@@ -40,14 +40,14 @@ float32 INT_TO_CVI_FLOAT(int32_t a)
 #endif
 }
 
-int32_t CVI_FLOAT_TO_INT(float32 a)
+CVI_S32 CVI_FLOAT_TO_INT(float32 a)
 {
 #if SOFT_FLOAT
 	struct roundingData roundData;
 	roundData.mode = float_round_nearest_even;
 	return cvi_float32_to_int32(&roundData, a);
 #else
-	return (int32_t)(a + 0.5);
+	return (CVI_S32)(a + 0.5);
 #endif
 }
 
@@ -149,7 +149,7 @@ float32 CVI_FLOAT_DIV(float32 a, float32 b)
 	return c;
 }
 
-uint32_t CVI_FLOAT_EQ(float32 a, float32 b)
+CVI_U32 CVI_FLOAT_EQ(float32 a, float32 b)
 {
 #if SOFT_FLOAT
 	return cvi_float32_eq(a, b);
@@ -158,7 +158,7 @@ uint32_t CVI_FLOAT_EQ(float32 a, float32 b)
 #endif
 }
 
-uint32_t CVI_FLOAT_LE(float32 a, float32 b)
+CVI_U32 CVI_FLOAT_LE(float32 a, float32 b)
 {
 #if SOFT_FLOAT
 	return cvi_float32_le(a, b);
@@ -167,7 +167,7 @@ uint32_t CVI_FLOAT_LE(float32 a, float32 b)
 #endif
 }
 
-uint32_t CVI_FLOAT_LT(float32 a, float32 b)
+CVI_U32 CVI_FLOAT_LT(float32 a, float32 b)
 {
 #if SOFT_FLOAT
 	return cvi_float32_lt(a, b);
@@ -176,7 +176,7 @@ uint32_t CVI_FLOAT_LT(float32 a, float32 b)
 #endif
 }
 
-uint32_t CVI_FLOAT_GT(float32 a, float32 b)
+CVI_U32 CVI_FLOAT_GT(float32 a, float32 b)
 {
 #if SOFT_FLOAT
 	return cvi_float32_le(b, a);
@@ -185,7 +185,7 @@ uint32_t CVI_FLOAT_GT(float32 a, float32 b)
 #endif
 }
 
-uint32_t CVI_FLOAT_GE(float32 a, float32 b)
+CVI_U32 CVI_FLOAT_GE(float32 a, float32 b)
 {
 #if SOFT_FLOAT
 	return cvi_float32_lt(b, a);

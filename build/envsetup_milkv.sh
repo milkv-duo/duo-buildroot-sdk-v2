@@ -12,7 +12,7 @@ function _build_default_env()
   COMPRESSOR_UBOOT=${COMPRESSOR_UBOOT:-lzma} # or none to disable
   MULTI_PROCESS_SUPPORT=${MULTI_PROCESS_SUPPORT:-0}
   ENABLE_BOOTLOGO=${ENABLE_BOOTLOGO:-0}
-  TPU_REL=${TPU_REL:-0} # TPU release build
+  TPU_REL=${TPU_REL:-1} # TPU release build
   SENSOR=${SENSOR:-sony_imx327}
 }
 
@@ -326,9 +326,6 @@ function build_sdk()
   elif [[ "$1" = ivs ]]; then
     SDK_PATH="$IVS_SDK_PATH"
     SDK_INSTALL_PATH="$IVS_SDK_INSTALL_PATH"
-  elif [[ "$1" = ai ]]; then
-    SDK_PATH="$AI_SDK_PATH"
-    SDK_INSTALL_PATH="$AI_SDK_INSTALL_PATH"
   elif [[ "$1" = cnv ]]; then
     SDK_PATH="$CNV_SDK_PATH"
     SDK_INSTALL_PATH="$CNV_SDK_INSTALL_PATH"
@@ -341,7 +338,6 @@ function build_sdk()
   TRACER_INSTALL_PATH="$IVE_SDK_INSTALL_PATH" \
   TPU_SDK_INSTALL_PATH="$TPU_SDK_INSTALL_PATH" \
   IVE_SDK_INSTALL_PATH="$IVE_SDK_INSTALL_PATH" \
-  AI_SDK_INSTALL_PATH="$AI_SDK_INSTALL_PATH" \
   IVS_SDK_INSTALL_PATH="$IVS_SDK_INSTALL_PATH" \
   CNV_SDK_INSTALL_PATH="$CNV_SDK_INSTALL_PATH" \
   KERNEL_HEADER_PATH="$KERNEL_PATH"/"$KERNEL_OUTPUT_FOLDER"/usr/ \
@@ -364,12 +360,6 @@ function clean_sdk()
   [[ "$1" = ive ]] && rm -rf "$IVE_SDK_INSTALL_PATH"
   [[ "$1" = ivs ]] && rm -rf "$IVS_SDK_INSTALL_PATH"
   [[ "$1" = cnv ]] && rm -rf "$CNV_SDK_INSTALL_PATH"
-  if [[ "$1" = ai ]]; then
-    rm -rf "$AI_SDK_INSTALL_PATH"
-    rm -rf "$AI_SDK_PATH"/tmp/_deps
-  fi
-
-  rm -f "$SYSTEM_OUT_DIR"/lib/libcviai.so*
   rm -f "$SYSTEM_OUT_DIR"/lib/libcvi_"$1"_tpu.so*
   rm -rf "${SYSTEM_OUT_DIR:?}"/usr/bin/"$1"
 }
@@ -402,14 +392,21 @@ function clean_ivs_sdk()
   fi
 }
 
-function build_ai_sdk()
+function build_tdl_sdk()
 {
-  build_sdk ai || return "$?"
+  print_notice "Run ${FUNCNAME[0]}() function"
+  pushd "$TDL_SDK_PATH"
+  ./build_tdl_sdk.sh all
+  test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
+  popd
 }
 
-function clean_ai_sdk()
+function clean_tdl_sdk()
 {
-    clean_sdk ai
+  print_notice "Run ${FUNCNAME[0]}() function"
+  pushd "$TDL_SDK_PATH"
+  ./build_tdl_sdk.sh clean
+  popd
 }
 
 function build_cnv_sdk()
@@ -527,16 +524,16 @@ function build_3rd_party()
 {
   mkdir -p "$OSS_TARBALL_PATH"
 
+  # Try to download from oss repo
   if [ -d "${OSS_PATH}/oss_release_tarball" ]; then
     echo "oss prebuilt tarball found!"
+    echo "cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}"
+    cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}
   else
     echo "Try to download oss_release_tarball.tar tarball ..."
-    #wget ...
-    #tar -xvf ${OSS_PATH}/oss_release_tarball.tar -C ${OSS_PATH}
   fi
-  echo "cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}"
-  cp -rpf ${OSS_PATH}/oss_release_tarball/${SDK_VER}/*  ${OSS_TARBALL_PATH}
 
+  # Try to download from internal ftp server
   local oss_list=(
     "zlib"
     "glog"
@@ -560,10 +557,18 @@ function build_3rd_party()
   do
     if [ -f "${OSS_TARBALL_PATH}/${name}.tar.gz" ]; then
       echo "$name found"
-      "$OSS_PATH"/run_build.sh -n "$name" -e -t "$OSS_TARBALL_PATH" -i "$TPU_SDK_INSTALL_PATH"
-        echo "$name successfully downloaded and untared."
     else
-      echo "$name not found"
+      echo "Try to download $name tarball ..."
+      wget ftp://${FTP_SERVER_NAME}:${FTP_SERVER_PWD}@${FTP_SERVER_IP}/sw_rls/third_party/latest/${SDK_VER}/${name}.tar.gz \
+          -T 3 -t 3 -q -P ${OSS_TARBALL_PATH}
+    fi
+
+    if [ -f "${OSS_TARBALL_PATH}/${name}.tar.gz" ]; then
+      "$OSS_PATH"/run_build.sh -n "$name" -e -t "$OSS_TARBALL_PATH" -i "$TPU_SDK_INSTALL_PATH"
+      echo "$name successfully downloaded and untared."
+    else
+      echo "No prebuilt tarball, build oss $name"
+      "$OSS_PATH"/run_build.sh -n "$name" -t "$OSS_TARBALL_PATH" -r "$SYSROOT_PATH" -s "$SDK_VER"
     fi
   done
 }
@@ -601,14 +606,18 @@ function build_all()
   build_uboot || return $?
   build_kernel || return $?
   build_ramboot || return $?
-  build_osdrv || return $?
-  build_3rd_party || return $?
-  build_middleware || return $?
-  if [ "$TPU_REL" = 1 ]; then
-    build_tpu_sdk || return $?
-    build_ive_sdk || return $?
-    build_ivs_sdk || return $?
-    build_ai_sdk  || return $?
+  if [[ "$BOARD" != "fpga" ]] && [[ "$BOARD" != "palladium" ]]; then
+    build_osdrv || return $?
+    build_3rd_party || return $?
+    build_middleware || return $?
+    if [ "$TPU_REL" = 1 ]; then
+      build_cvi_rtsp || return $?
+      build_tpu_sdk || return $?
+      build_ive_sdk || return $?
+      build_ivs_sdk || return $?
+      build_tdl_sdk || return $?
+    fi
+    build_pqtool_server || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?
@@ -628,14 +637,16 @@ function clean_all()
   clean_ramdisk
   clean_3rd_party
   if [ "$TPU_REL" = 1 ]; then
+    clean_cvi_rtsp
     clean_ive_sdk
     clean_ivs_sdk
     clean_tpu_sdk
-    clean_ai_sdk
+    clean_tdl_sdk
     clean_cnv_sdk
   fi
   clean_middleware
   clean_osdrv
+  clean_pqtool_server
 }
 
 function distclean_all()
@@ -690,7 +701,6 @@ function envs_sdk_ver()
   TPU_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_tpu_sdk
   IVE_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ive_sdk
   IVS_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ivs_sdk
-  AI_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_ai_sdk
   CNV_SDK_INSTALL_PATH="$TPU_OUTPUT_PATH"/cvitek_cnv_sdk
   TPU_MODEL_PATH="$TPU_OUTPUT_PATH"/models
   IVE_CMODEL_INSTALL_PATH="$TPU_OUTPUT_PATH"/tools/ive_cmodel
@@ -758,7 +768,7 @@ function cvi_setup_env()
   IVE_SDK_PATH="$TOP_DIR"/ive
   IVS_SDK_PATH="$TOP_DIR"/ivs
   CNV_SDK_PATH="$TOP_DIR"/cnv
-  AI_SDK_PATH="$TOP_DIR"/tdl_sdk
+  TDL_SDK_PATH="$TOP_DIR"/tdl_sdk
   CVI_PIPELINE_PATH="$TOP_DIR"/cvi_pipeline
   CVI_RTSP_PATH="$TOP_DIR"/cvi_rtsp
   OPENSBI_PATH="$TOP_DIR"/opensbi
@@ -851,8 +861,13 @@ function cvi_setup_env()
 
     if [[ "$ENABLE_ALIOS" != "y" ]]; then
       pushd "$BUILD_PATH"/boards/"${CHIP_ARCH,,}"/"$PROJECT_FULLNAME"/partition/
-      ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX".xml \
-        partition_"$STORAGE_TYPE".xml
+      if [[ "$AB_SYSTEM" == "y" ]]; then
+        ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX"_ab.xml \
+          partition_"$STORAGE_TYPE".xml
+	  else
+        ln -fs ../../../default/partition/partition_spinand_page_"$PAGE_SUFFIX".xml \
+          partition_"$STORAGE_TYPE".xml
+	  fi
       popd
     fi
   fi
@@ -951,11 +966,11 @@ export TOP_DIR BUILD_PATH
 # import common functions
 # shellcheck source=./common_functions.sh
 source "$TOP_DIR/build/common_functions.sh"
-# shellcheck source=./release_functions.sh
-#source "$TOP_DIR/build/release_functions.sh"
 # shellcheck source=./riscv_functions.sh
 source "$TOP_DIR/build/riscv_functions.sh"
-# shellcheck source=./alios_functions.sh
-#source "$TOP_DIR/build/alios_functions.sh"
+# import credential messages
+if [ -f "${TOP_DIR}/build/credential.sh" ]; then
+  source "$TOP_DIR/build/credential.sh"
+fi
 
 print_usage

@@ -192,7 +192,7 @@ void BezierLaneNet::outputParser(const int nn_width, const int nn_height, const 
     }
   }
 
-  CVI_TDL_MemAllocInit(final_index.size(), lane_meta);
+  CVI_TDL_MemAllocInit(final_index.size(), lane_meta, 0);
   for (int i = 0; i < final_index.size(); i++) {
     lane_meta->lane[i].x[0] =
         std::max(gen_x_by_y(0.6, lane_info[final_index[i]]) * frame_width, 0.0f);

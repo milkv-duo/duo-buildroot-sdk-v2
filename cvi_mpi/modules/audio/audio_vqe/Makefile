@@ -11,9 +11,6 @@ SDIR	:= $(CURDIR)/src
 SRCS_C	:= $(SDIR)/cvi_audio_vqe.c
 SRCS_C	+= $(SDIR)/cvi_audio_vqe_load.c
 SRCS_C	+= $(SDIR)/farend_buffer.c
-ifeq ($(USE_CVIAUDIO_STATIC), yes)
-SRCS_C +=  $(SDIR)/cvi_audio_dl_adp.c
-endif
 #
 EXTRA_DEF =
 ifeq ($(CONFIG_ENABLE_FREERTOS),y)
@@ -34,6 +31,11 @@ TARGET_A = $(MW_LIB)/libcvi_vqe.a
 TARGET_SO = $(MW_LIB)/libcvi_vqe.so
 
 INCS += -I./include -I../include -I../algo/aec/
+
+ifeq ($(MULTI_PROCESS_SUPPORT_AUDIO), yes)
+INCS += -I ../src/audio_rpc
+EXTRA_DEF += -DRPC_MULTI_PROCESS_AUDIO
+endif
 
 ifeq ($(USE_CVI_AEC), no)
 DEFS = -DEXTERNAL_AEC

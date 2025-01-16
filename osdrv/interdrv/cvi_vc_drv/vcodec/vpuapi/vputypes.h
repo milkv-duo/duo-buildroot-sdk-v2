@@ -18,38 +18,39 @@
 #define _VPU_TYPES_H_
 
 #include <linux/types.h>
+#include <linux/cvi_type.h>
 
 /**
  * @brief    This type is an 8-bit unsigned integral type, which is used for
  * declaring pixel data.
  */
-typedef uint8_t Uint8;
+typedef CVI_U8 Uint8;
 
 /**
  * @brief    This type is a 32-bit unsigned integral type, which is used for
  * declaring variables with wide ranges and no signs such as size of buffer.
  */
-typedef uint32_t Uint32;
+typedef CVI_U32 Uint32;
 
 /**
  * @brief    This type is a 16-bit unsigned integral type.
  */
-typedef uint16_t Uint16;
+typedef CVI_U16 Uint16;
 
 /**
  * @brief    This type is an 8-bit signed integral type.
  */
-typedef int8_t Int8;
+typedef CVI_S8 Int8;
 
 /**
  * @brief    This type is a 32-bit signed integral type.
  */
-typedef int32_t Int32;
+typedef CVI_S32 Int32;
 
 /**
  * @brief    This type is a 16-bit signed integral type.
  */
-typedef int16_t Int16;
+typedef CVI_S16 Int16;
 #if defined(_MSC_VER)
 typedef unsigned __int64 Uint64;
 typedef __int64 Int64;
@@ -58,8 +59,8 @@ typedef __int64 Int64;
 typedef __u64 Uint64;
 typedef __s32 Int64;
 #else
-typedef uint64_t Uint64;
-typedef int64_t Int64;
+typedef CVI_U64 Uint64;
+typedef CVI_S64 Int64;
 #endif
 #ifndef PhysicalAddress
 /**

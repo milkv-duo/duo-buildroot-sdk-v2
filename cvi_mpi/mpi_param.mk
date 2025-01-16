@@ -148,7 +148,7 @@ else ifeq ("$(CHIP_ARCH)", "CV180X")
 CFLAGS += -D__CV180X__
 CXXFLAGS += -D__CV180X__
 else
-$(error "nuknown soc type.")
+$(error "unknown soc type.")
 endif
 
 CFLAGS += -DOS_IS_LINUX

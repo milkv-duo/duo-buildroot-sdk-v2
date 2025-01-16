@@ -33,7 +33,8 @@ endif
 #
 PKG_CONFIG_PATH = $(MW_PATH)/pkgconfig
 REQUIRES = cvi_common cvi_vdec cvi_sample
-LIBS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --libs --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
+LIBS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --define-variable=mw_dir=$(MW_PATH) $(REQUIRES))
+LIBS += -lvdec -lmisc -lsys -lvi -lvpss -lvo  -lgdc -lvenc -lcvi_bin -lcvi_bin_isp -lisp -lisp_algo -lsns_full -lae -laf -lawb -latomic
 #
 ifeq ($(MULTI_PROCESS_SUPPORT), 1)
 DEFS += -DRPC_MULTI_PROCESS
@@ -44,7 +45,7 @@ EXTRA_CFLAGS = $(DEFS) $(INCS)
 EXTRA_LDFLAGS = $(LIBS) -lini -lm -lpthread
 
 EXTRA_LDFLAGS_WITH_ASAN = -Wl,-Bdynamic $(LIBS) -lini -lm -lpthread
-EXTRA_LDFLAGS_WITH_ASAN +=  -fno-omit-frame-pointer -fsanitize-recover=address -lasan -lcvi_dnvqe -lcvi_ssp2
+EXTRA_LDFLAGS_WITH_ASAN +=  -fno-omit-frame-pointer -fsanitize-recover=address -lasan
 
 .PHONY : clean all
 all: $(TARGET) $(TARGET_WITH_ASAN)

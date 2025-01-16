@@ -225,7 +225,7 @@ CVI_S32 DeepSORT::face_head_iou_score(cvtdl_face_t *faces, cvtdl_face_t *heads) 
     stRect boxa = extract_box(faces->info[i].bbox);
 
     for (size_t j = 0; j < heads->size; j++) {
-      stRect boxb = extract_box(heads->info[i].bbox);
+      stRect boxb = extract_box(heads->info[j].bbox);
       float cur_iou = cal_iou(boxa, boxb);
       pair_cost(i, j) = 1 - cur_iou;
     }
@@ -750,12 +750,14 @@ CVI_S32 DeepSORT::track_fuse(cvtdl_object_t *ped, cvtdl_face_t *face, cvtdl_trac
 
   face_res = get_match_result(face_res, face_boxes, face_feats, false, 0.1, conf);
 
+  std::map<uint64_t, int> face_track_indices;
   for (auto &m : face_res.matched_pairs) {
     int t_idx = m.first;
     int det_idx = m.second;
 
     int pair_ped_idx = cls_objs[face_label][det_idx].pair_obj_id;
     cls_objs[face_label][det_idx].track_id = k_trackers[t_idx].id;
+    face_track_indices[k_trackers[t_idx].id] = det_idx;
 #ifdef DEBUG_TRACK
     std::cout << "matched face:" << det_idx << ",track:" << k_trackers[t_idx].id
               << ",pairped:" << pair_ped_idx << std::endl;
@@ -798,13 +800,24 @@ CVI_S32 DeepSORT::track_fuse(cvtdl_object_t *ped, cvtdl_face_t *face, cvtdl_trac
     int t_idx = m.first;
     int det_idx = m.second;
     int pair_face_idx = cls_objs[ped_label][det_idx].pair_obj_id;
+    uint64_t pair_face_trackid = k_trackers[t_idx].get_pair_trackid();
+
+    if (face_track_indices.count(pair_face_trackid) > 0) {
+      stRect box_face = extract_box(cls_objs[face_label][face_track_indices[pair_face_trackid]]);
+      stRect box_ped = tlwh2rect(k_trackers[t_idx].getBBox_TLWH());
+
+      if (self_iou(box_face, box_ped) < 0.8) {
+        LOGI("skip det_idx:%d, track_id: %d\n", det_idx, k_trackers[t_idx].id);
+        continue;
+      }
+    }
+
     cls_objs[ped_label][det_idx].track_id = k_trackers[t_idx].id;
 #ifdef DEBUG_TRACK
     std::cout << "matched ped:" << det_idx << ",track:" << k_trackers[t_idx].id
               << ",pairface:" << pair_face_idx << std::endl;
 #endif
     if (pair_face_idx != -1) {
-      uint64_t pair_face_trackid = k_trackers[t_idx].get_pair_trackid();
 #ifdef DEBUG_TRACK
       std::cout << "pedtrack:" << k_trackers[t_idx].id << ",pairfacetrack:" << pair_face_trackid
                 << std::endl;

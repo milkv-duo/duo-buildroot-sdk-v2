@@ -3,6 +3,7 @@
 #define __CVI_SOFTFLOAT__
 
 #include <linux/types.h>
+#include <linux/cvi_type.h>
 
 // exactly the same with IEEE 754 single-floating point binary representation
 typedef unsigned int sw_float;
@@ -44,16 +45,16 @@ sw_float cvi_float32_sub(struct roundingData *roundData, sw_float a, sw_float b)
 sw_float cvi_float32_mul(struct roundingData *roundData, sw_float a, sw_float b);
 sw_float cvi_float32_div(struct roundingData *roundData, sw_float a, sw_float b);
 
-uint32_t cvi_float32_eq(sw_float a, sw_float b);
-uint32_t cvi_float32_le(sw_float a, sw_float b);
-uint32_t cvi_float32_lt(sw_float a, sw_float b);
+CVI_U32 cvi_float32_eq(sw_float a, sw_float b);
+CVI_U32 cvi_float32_le(sw_float a, sw_float b);
+CVI_U32 cvi_float32_lt(sw_float a, sw_float b);
 
-int32_t cvi_float32_to_int32(struct roundingData *roundData, sw_float a);
-int32_t cvi_float32_to_frac_int(struct roundingData *roundData, sw_float a, int frac_bit);
-int32_t cvi_float32_to_int32_round_to_zero(sw_float a);
+CVI_S32 cvi_float32_to_int32(struct roundingData *roundData, sw_float a);
+CVI_S32 cvi_float32_to_frac_int(struct roundingData *roundData, sw_float a, int frac_bit);
+CVI_S32 cvi_float32_to_int32_round_to_zero(sw_float a);
 sw_float cvi_float32_round_to_int(struct roundingData *roundData, sw_float a);
-sw_float cvi_int32_to_float32(struct roundingData *roundData, int32_t a);
-sw_float cvi_frac_int_to_float32(struct roundingData *roundData, int32_t a, int32_t frac_bit);
+sw_float cvi_int32_to_float32(struct roundingData *roundData, CVI_S32 a);
+sw_float cvi_frac_int_to_float32(struct roundingData *roundData, CVI_S32 a, CVI_S32 frac_bit);
 sw_float cvi_float32_abs(sw_float x);
 sw_float cvi_float32_sqrt(struct roundingData *roundData, sw_float a);
 sw_float cvi_float32_exp(sw_float x);

@@ -3,6 +3,7 @@
 #define __CVI_FLOAT_POINT__
 
 #include <linux/types.h>
+#include <linux/cvi_type.h>
 
 #define SOFT_FLOAT 1
 
@@ -14,11 +15,11 @@ typedef sw_float float32;
 typedef float float32;
 #endif
 
-float32 FRAC_INT_TO_CVI_FLOAT(int32_t a, int frac_bit);
-int32_t CVI_FLOAT_TO_FRAC_INT(float32 a, int frac_bit);
+float32 FRAC_INT_TO_CVI_FLOAT(CVI_S32 a, int frac_bit);
+CVI_S32 CVI_FLOAT_TO_FRAC_INT(float32 a, int frac_bit);
 
-float32 INT_TO_CVI_FLOAT(int32_t a);
-int32_t CVI_FLOAT_TO_INT(float32 a);
+float32 INT_TO_CVI_FLOAT(CVI_S32 a);
+CVI_S32 CVI_FLOAT_TO_INT(float32 a);
 
 float32 CVI_FLOAT_ADD(float32 a, float32 b);
 float32 CVI_FLOAT_SUB(float32 a, float32 b);
@@ -28,11 +29,11 @@ float32 CVI_FLOAT_LOG(float32 a);
 float32 CVI_FLOAT_POW(float32 a, float32 b);
 float32 CVI_FLOAT_DIV(float32 a, float32 b);
 
-uint32_t CVI_FLOAT_EQ(float32 a, float32 b);
-uint32_t CVI_FLOAT_LT(float32 a, float32 b);
-uint32_t CVI_FLOAT_LE(float32 a, float32 b);
-uint32_t CVI_FLOAT_GT(float32 a, float32 b);
-uint32_t CVI_FLOAT_GE(float32 a, float32 b);
+CVI_U32 CVI_FLOAT_EQ(float32 a, float32 b);
+CVI_U32 CVI_FLOAT_LT(float32 a, float32 b);
+CVI_U32 CVI_FLOAT_LE(float32 a, float32 b);
+CVI_U32 CVI_FLOAT_GT(float32 a, float32 b);
+CVI_U32 CVI_FLOAT_GE(float32 a, float32 b);
 
 float32 CVI_FLOAT_MIN(float32 a, float32 b);
 float32 CVI_FLOAT_MAX(float32 a, float32 b);

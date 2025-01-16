@@ -46,11 +46,11 @@ typedef struct {
 } rps_t;
 
 typedef struct {
-	// int32_t pic_type;
-	int32_t curr_poc;
-	int32_t qp;
-	// int32_t temporal_id;
-	// int32_t ref_poc[2];
+	// CVI_S32 pic_type;
+	CVI_S32 curr_poc;
+	CVI_S32 qp;
+	// CVI_S32 temporal_id;
+	// CVI_S32 ref_poc[2];
 } fw_gop_entry_t;
 
 typedef struct {

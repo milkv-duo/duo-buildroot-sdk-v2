@@ -47,6 +47,7 @@ struct cvi_lens_info {
 	//so we need to do normalization
 	unsigned int focus_max_step;//After normalization, not every motor can be used up to 0-255
 	unsigned int zoom_max_step; //After normalization, not every motor can be used up to 0-255
+	unsigned int motor_type;//0:Stepper motor 1:Vcm motor
 };
 
 #define CVI_MOTOR_IOC_MAGIC      'm'

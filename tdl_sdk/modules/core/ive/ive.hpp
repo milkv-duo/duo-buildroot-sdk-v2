@@ -23,13 +23,13 @@ class IVEImage {
 
   CVI_S32 bufFlush(IVE *ive_instance);
   CVI_S32 bufRequest(IVE *ive_instance);
-  CVI_S32 create(IVE *ive_instance, ImageType enType, CVI_U32 u32Width, CVI_U32 u32Height,
+  CVI_S32 create(IVE *ive_instance, ImageType enType, CVI_U16 u16Width, CVI_U16 u16Height,
                  bool cached = false);
-  CVI_S32 create(IVE *ive_instance, ImageType enType, CVI_U32 u32Width, CVI_U32 u32Height,
+  CVI_S32 create(IVE *ive_instance, ImageType enType, CVI_U16 u16Width, CVI_U16 u16Height,
                  IVEImage *buf, bool cached = false);
   CVI_S32 create(IVE *ive_instance);
   CVI_S32 free();
-  CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame);
+  CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage = false);
   CVI_S32 fromFrame(VIDEO_FRAME_INFO_S *frame);
   CVI_S32 write(const std::string &fname);
   CVI_U32 getHeight();

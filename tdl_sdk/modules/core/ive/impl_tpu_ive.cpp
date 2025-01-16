@@ -1,8 +1,10 @@
 #include <cstring>
 #include <iostream>
-#include "cvi_ive.h"
+// #include "cvi_ive.h"
 #include "cvi_tdl_log.hpp"
 #include "impl_ive.hpp"
+#include "ive/cvi_comm_ive.h"
+#include "ive/ive.h"
 namespace ive {
 
 class TPUIVEImage : public IVEImageImpl {
@@ -13,14 +15,14 @@ class TPUIVEImage : public IVEImageImpl {
   TPUIVEImage &operator=(const TPUIVEImage &other) = delete;
 
   virtual void *getHandle() override;
-  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame) override;
+  virtual CVI_S32 toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage = false) override;
   virtual CVI_S32 fromFrame(VIDEO_FRAME_INFO_S *frame) override;
   virtual CVI_S32 bufFlush(IVEImpl *ive_instance) override;
   virtual CVI_S32 bufRequest(IVEImpl *ive_instance) override;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, bool cached) override;
-  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                         CVI_U32 u32Height, IVEImageImpl *buf, bool cached) override;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, bool cached) override;
+  virtual CVI_S32 create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                         CVI_U16 u16Height, IVEImageImpl *buf, bool cached) override;
   virtual CVI_S32 create(IVEImpl *ive_instance) override;
   virtual CVI_S32 free() override;
   static IVE_IMAGE_TYPE_E convert(ImageType type);
@@ -104,16 +106,16 @@ CVI_S32 TPUIVEImage::bufRequest(IVEImpl *ive_instance) {
   return CVI_IVE_BufRequest(m_handle, &ive_image);
 }
 
-CVI_S32 TPUIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                            CVI_U32 u32Height, bool cached) {
+CVI_S32 TPUIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                            CVI_U16 u16Height, bool cached) {
   m_handle = reinterpret_cast<IVE_HANDLE>(ive_instance->getHandle());
-  return CVI_IVE_CreateImage(m_handle, &ive_image, convert(enType), u32Width, u32Height);
+  return CVI_IVE_CreateImage(m_handle, &ive_image, convert(enType), u16Width, u16Height);
 }
 
-CVI_S32 TPUIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U32 u32Width,
-                            CVI_U32 u32Height, IVEImageImpl *buf, bool cached) {
+CVI_S32 TPUIVEImage::create(IVEImpl *ive_instance, ImageType enType, CVI_U16 u16Width,
+                            CVI_U16 u16Height, IVEImageImpl *buf, bool cached) {
   m_handle = reinterpret_cast<IVE_HANDLE>(ive_instance->getHandle());
-  return CVI_IVE_CreateImage2(m_handle, &ive_image, convert(enType), u32Width, u32Height,
+  return CVI_IVE_CreateImage2(m_handle, &ive_image, convert(enType), u16Width, u16Height,
                               UNWRAP(buf));
 }
 
@@ -152,8 +154,8 @@ CVI_S32 TPUIVEImage::write(const std::string &fname) {
   CVI_IVE_BufRequest(m_handle, &ive_image);
   std::cout << "towrite:" << fname << std::endl;
   // return CVI_IVE_WriteImage(m_handle, fname.c_str(), &ive_image);
-  return dump_ive_image_framex(fname, ive_image.pu8VirAddr[0], ive_image.u32Height,
-                               ive_image.u32Height, ive_image.u16Stride[0]);
+  return dump_ive_image_framex(fname, ive_image.pu8VirAddr[0], ive_image.u16Width,
+                               ive_image.u16Height, ive_image.u16Stride[0]);
 }
 
 CVI_S32 TPUIVEImage::free() {
@@ -161,17 +163,17 @@ CVI_S32 TPUIVEImage::free() {
   return CVI_SYS_FreeI(m_handle, &ive_image);
 }
 
-CVI_S32 TPUIVEImage::toFrame(VIDEO_FRAME_INFO_S *frame) {
-  return CVI_IVE_Image2VideoFrameInfo(&ive_image, frame);
+CVI_S32 TPUIVEImage::toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage) {
+  return CVI_IVE_Image2VideoFrameInfo(&ive_image, frame, invertPackage);
 }
 
 CVI_S32 TPUIVEImage::fromFrame(VIDEO_FRAME_INFO_S *frame) {
   return CVI_IVE_VideoFrameInfo2Image(frame, &ive_image);
 }
 
-CVI_U32 TPUIVEImage::getHeight() { return ive_image.u32Height; }
+CVI_U32 TPUIVEImage::getHeight() { return ive_image.u16Height; }
 
-CVI_U32 TPUIVEImage::getWidth() { return ive_image.u32Height; }
+CVI_U32 TPUIVEImage::getWidth() { return ive_image.u16Width; }
 
 std::vector<CVI_U32> TPUIVEImage::getStride() {
   return std::vector<CVI_U32>(std::begin(ive_image.u16Stride), std::end(ive_image.u16Stride));

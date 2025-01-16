@@ -108,13 +108,20 @@ inline void CVI_TDL_MemAllocInit(const uint32_t size, const uint32_t pts_num, cv
   }
 }
 
-inline void CVI_TDL_MemAllocInit(const uint32_t size, cvtdl_lane_t *meta) {
+inline void CVI_TDL_MemAllocInit(const uint32_t size, cvtdl_lane_t *meta, const uint32_t feature_size) {
   if (meta->size != size) {
-    // for (uint32_t i = 0; i < meta->size; i++) {
     free(meta->lane);
-    // }
     meta->size = size;
     meta->lane = (cvtdl_lane_point_t *)malloc(sizeof(cvtdl_lane_point_t) * meta->size);
+  }
+  if(feature_size){
+    if (meta->feature_size != feature_size){
+      free(meta->feature);
+
+      meta->feature_size = feature_size;
+      meta->feature = (float *)malloc(sizeof(float) * meta->feature_size);
+
+    }
   }
 }
 

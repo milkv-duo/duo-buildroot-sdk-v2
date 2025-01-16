@@ -74,12 +74,7 @@ CVI_S32 FaceAttribute::allocateION() {
 
 void FaceAttribute::releaseION() {
   if (m_wrap_frame.stVFrame.u64PhyAddr[0] != 0) {
-#ifdef CONFIG_ALIOS
-    CVI_SYS_IonFree64Align(m_wrap_frame.stVFrame.u64PhyAddr[0],
-                           m_wrap_frame.stVFrame.pu8VirAddr[0]);
-#else
     CVI_SYS_IonFree(m_wrap_frame.stVFrame.u64PhyAddr[0], m_wrap_frame.stVFrame.pu8VirAddr[0]);
-#endif
     m_wrap_frame.stVFrame.u64PhyAddr[0] = (CVI_U64)0;
     m_wrap_frame.stVFrame.u64PhyAddr[1] = (CVI_U64)0;
     m_wrap_frame.stVFrame.u64PhyAddr[2] = (CVI_U64)0;
@@ -123,7 +118,7 @@ int FaceAttribute::dump_bgr_pack(const char *p_img_file, VIDEO_FRAME_INFO_S *p_i
 }
 int FaceAttribute::inference(VIDEO_FRAME_INFO_S *stOutFrame, cvtdl_face_t *meta, int face_idx) {
   if (m_use_wrap_hw) {
-#if defined(CV183X) || defined(CV186X)
+#if defined(__CV181X__) || defined(__CV186X__)
     if (stOutFrame->stVFrame.enPixelFormat != PIXEL_FORMAT_RGB_888_PLANAR &&
         stOutFrame->stVFrame.enPixelFormat != PIXEL_FORMAT_YUV_PLANAR_420) {
       LOGE(

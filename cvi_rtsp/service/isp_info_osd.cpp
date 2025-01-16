@@ -4,17 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/prctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#if MW_VER == 2
-#include <cvi_type.h>
-#include <cvi_comm_video.h>
-#else
-#include <cvi_type.h>
-#include <cvi_comm_region.h>
-#endif
+#include <linux/cvi_type.h>
+#include <linux/cvi_comm_video.h>
 #include <cvi_ae.h>
 #include <cvi_region.h>
 #include <cvi_awb.h>
@@ -272,8 +266,6 @@ static void* osd_task(void* param)
     OSD_TASK_PARAM *pstParam = (OSD_TASK_PARAM*) param;
     OSD_DEV *pOsdDev = &gOsdDev[pstParam->Dev];
     char ispInfoStr[CVI_MEDIA_MAX_INFO_OSD_LEN] = {0};
-
-    prctl(PR_SET_NAME, "OSD-TASK", 0, 0, 0);
 
     int curIdx=pstParam->RgnHdl%2;
     while(pOsdDev->g_OsdCtx[curIdx].infoTskRun) {

@@ -2,7 +2,7 @@ add_subdirectory(digital_tracking)
 add_subdirectory(draw_rect)
 add_subdirectory(tracker)
 add_subdirectory(area_detect)
-if(NOT ${CVI_PLATFORM} STREQUAL "CV186X")
+if(NOT ${CVI_PLATFORM} STREQUAL "SOPHON")
 add_subdirectory(feature_matching)
 endif()
 

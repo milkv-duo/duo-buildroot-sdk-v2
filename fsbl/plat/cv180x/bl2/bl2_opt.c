@@ -25,7 +25,6 @@ uint64_t reading_size = 0x020000;
 
 struct _time_records *time_records = (void *)TIME_RECORDS_ADDR;
 struct fip_param1 *fip_param1 = (void *)PARAM1_BASE;
-enum CHIP_CLK_MODE chip_clk_mode = CLK_ND;
 static struct fip_param2 fip_param2 __aligned(BLOCK_SIZE);
 static union {
 	struct ddr_param ddr_param;
@@ -139,53 +138,17 @@ int load_param2(int retry)
 	return 0;
 }
 
-int load_ddr_param(int retry)
-{
-	uint32_t crc;
-	int ret = -1;
-
-	NOTICE("DPS/0x%x/0x%x.\n", fip_param2.ddr_param_loadaddr, fip_param2.ddr_param_size);
-
-	if (fip_param2.ddr_param_size >= sizeof(sram_union_buf.ddr_param))
-		fip_param2.ddr_param_size = sizeof(sram_union_buf.ddr_param);
-
-#ifdef USB_DL_BY_FSBL
-	if (p_rom_api_get_boot_src() == BOOT_SRC_USB)
-		ret = load_image_by_usb(&sram_union_buf.ddr_param, fip_param2.ddr_param_loadaddr,
-		fip_param2.ddr_param_size,  retry);
-	else
-#endif
-		ret = p_rom_api_load_image(&sram_union_buf.ddr_param, fip_param2.ddr_param_loadaddr,
-		fip_param2.ddr_param_size, retry);
-	if (ret < 0) {
-		return ret;
-	}
-
-	crc = p_rom_api_image_crc(&sram_union_buf.ddr_param, fip_param2.ddr_param_size);
-	if (crc != fip_param2.ddr_param_cksum) {
-		ERROR("ddr_param_cksum (0x%x/0x%x)\n", crc, fip_param2.ddr_param_cksum);
-		return -1;
-	}
-
-	NOTICE("DPE.\n");
-
-	return 0;
-}
-
 int load_ddr(void)
 {
+#ifndef ENABLE_BOOT0
 	int retry = 0;
 
 retry_from_flash:
 	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
 		if (load_param2(retry) < 0)
 			continue;
-		if (load_ddr_param(retry) < 0)
-			continue;
-
 		break;
 	}
-
 	if (retry >= p_rom_api_get_number_of_retries()) {
 		switch (p_rom_api_get_boot_src()) {
 		case BOOT_SRC_UART:
@@ -196,11 +159,11 @@ retry_from_flash:
 			p_rom_api_flash_init();
 			goto retry_from_flash;
 		default:
-			ERROR("Failed to load DDR param (%d).\n", retry);
+			ERROR("Failed to load param2 (%d).\n", retry);
 			panic_handler();
 		}
 	}
-
+#endif
 	time_records->ddr_init_start = read_time_ms();
 	ddr_init(&sram_union_buf.ddr_param);
 	time_records->ddr_init_end = read_time_ms();
@@ -543,73 +506,9 @@ int load_rest(void)
 	// Init sys PLL and switch clocks to PLL
 	sys_pll_init();
 #ifndef ENABLE_BOOT0
-retry_from_flash:
-	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
-		if (load_blcp_2nd(retry) < 0)
-			continue;
-
-		if (load_monitor(retry, &monitor_entry) < 0)
-			continue;
-
-		if (load_loader_2nd(retry, &loader_2nd_entry) < 0)
-			continue;
-
-		break;
-	}
-
-	if (retry >= p_rom_api_get_number_of_retries()) {
-		switch (p_rom_api_get_boot_src()) {
-		case BOOT_SRC_UART:
-		case BOOT_SRC_SD:
-		case BOOT_SRC_USB:
-			WARN("DL cancelled. Load flash. (%d).\n", retry);
-			// Continue to boot from flash if boot from external source
-			p_rom_api_flash_init();
-			goto retry_from_flash;
-		default:
-			ERROR("Failed to load rest (%d).\n", retry);
-			panic_handler();
-		}
-	}
-
-	sync_cache();
-	console_flush();
-
-	switch_rtc_mode_2nd_stage();
-#else
-	#ifdef ENABLE_FASTBOOT0
-	mmio_write_32(0x030020B8, 0x00030009);
-	#endif
-	if (load_loader_2nd_alios(retry, &loader_2nd_entry) < 0)
-		return -1;
-	#ifdef ENABLE_FASTBOOT0
-	mmio_write_32(0x030020B8, 0x00050009);
-	#endif
-	sync_cache();
-
-	switch_rtc_mode_2nd_stage();
-	monitor_entry = run_addr;
+#ifdef FSBL_FASTBOOT
+	mmio_write_32(0x030020B8, 0x00030009); // improve axi clock from 300m to 500m
 #endif
-	if (monitor_entry) {
-		NOTICE("Jump to monitor at 0x%lx.\n", monitor_entry);
-		jump_to_monitor(monitor_entry, loader_2nd_entry);
-	} else {
-		NOTICE("Jump to loader_2nd at 0x%lx.\n", loader_2nd_entry);
-		jump_to_loader_2nd(loader_2nd_entry);
-	}
-
-	return 0;
-}
-
-int load_rest_od_sel(void)
-{
-	int retry = 0;
-	uint64_t monitor_entry = 0;
-	uint64_t loader_2nd_entry = 0;
-
-	// Init sys PLL and switch clocks to PLL
-	sys_pll_init_od_sel();
-#ifndef ENABLE_BOOT0
 retry_from_flash:
 	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
 		if (load_blcp_2nd(retry) < 0)
@@ -639,6 +538,9 @@ retry_from_flash:
 		}
 	}
 
+#ifdef FSBL_FASTBOOT
+	mmio_write_32(0x030020B8, 0x00050009); // restore axi clock from 500m to 300m
+#endif
 	sync_cache();
 	console_flush();
 

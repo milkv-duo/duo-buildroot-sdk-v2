@@ -82,13 +82,13 @@
 venc_dbg vencDbg;
 venc_context *handle;
 
-extern int32_t vb_create_pool(struct cvi_vb_pool_cfg *config);
-extern int32_t vb_get_config(struct cvi_vb_cfg *pstVbConfig);
-extern VB_BLK vb_get_block_with_id(VB_POOL poolId, uint32_t u32BlkSize,
+extern CVI_S32 vb_create_pool(struct cvi_vb_pool_cfg *config);
+extern CVI_S32 vb_get_config(struct cvi_vb_cfg *pstVbConfig);
+extern VB_BLK vb_get_block_with_id(VB_POOL poolId, CVI_U32 u32BlkSize,
 				   MOD_ID_E modId);
-extern uint64_t vb_handle2PhysAddr(VB_BLK blk);
-extern VB_BLK vb_physAddr2Handle(uint64_t u64PhyAddr);
-extern int32_t vb_release_block(VB_BLK blk);
+extern CVI_U64 vb_handle2PhysAddr(VB_BLK blk);
+extern VB_BLK vb_physAddr2Handle(CVI_U64 u64PhyAddr);
+extern CVI_S32 vb_release_block(VB_BLK blk);
 extern void wake_sbm_waitinng(void);
 extern void cvi_VENC_SBM_IrqDisable(void);
 extern void cvi_VENC_SBM_IrqEnable(void);

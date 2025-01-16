@@ -29,8 +29,7 @@ static uint32_t lastend;
 uint32_t update_magic;
 
 
-#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA) && \
-	(!defined ATHENA2_FPGA_PALLDIUM_ENV)
+#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA)
 static uint32_t bcd2hex4(uint32_t bcd)
 {
 	return ((bcd) & 0x0f) + (((bcd) >> 4) & 0xf0) + (((bcd) >> 8) & 0xf00) + (((bcd) >> 12) & 0xf000);
@@ -113,8 +112,7 @@ int _prgImage(char *file, uint32_t chunk_header_size, char *file_name)
 	return size;
 }
 
-#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA) && \
-	(!defined ATHENA2_FPGA_PALLDIUM_ENV)
+#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA)
 static int _checkHeader(char *file, char strStorage[10])
 {
 	char *magic = (void *)HEADER_ADDR;
@@ -406,8 +404,7 @@ static int do_cvi_update(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
 
-#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA) && \
-	(!defined ATHENA2_FPGA_PALLDIUM_ENV)
+#if (!defined CONFIG_TARGET_CVITEK_CV181X_FPGA) && (!defined CONFIG_TARGET_CVITEK_ATHENA2_FPGA)
 	int ret = 1;
 	uint32_t usb_pid = 0;
 

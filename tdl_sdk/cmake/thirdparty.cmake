@@ -4,7 +4,7 @@ if (NOT IS_DIRECTORY  "${BUILD_DOWNLOAD_DIR}/libeigen-src")
 FetchContent_Declare(
   libeigen
   GIT_REPOSITORY https://github.com/milkv-duo/eigen.git
-  GIT_TAG origin/master
+  GIT_TAG 3c4637640b449a17d56ff472d8325c47ac10eba3
 )
 FetchContent_MakeAvailable(libeigen)
 message("Content downloaded to ${libeigen_SOURCE_DIR}")

@@ -1,9 +1,9 @@
 opensbi: export CROSS_COMPILE=$(CONFIG_CROSS_COMPILE_SDK)
 opensbi: u-boot-build
 	$(call print_target)
-	$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic \
-	    FW_PAYLOAD_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin \
-	    FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
+	$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} CONFIG_OPENSBI_FASTBOOT=$(CONFIG_OPENSBI_FASTBOOT) \
+		PLATFORM=generic FW_PAYLOAD_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin \
+		FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
 
 opensbi-clean:
 	$(call print_target)
@@ -29,35 +29,38 @@ fsbl%: export SUSPEND=${CONFIG_SUSPEND}
 fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ] || [ "${CONFIG_CHIP_cv1812cpa}" = "y" ]; then echo "y";else echo "n";fi)
 fsbl%: export BUILD_BOOT0=${CONFIG_ENABLE_BOOT0}
 fsbl%: export BUILD_FASTBOOT0=${CONFIG_ENABLE_FASTBOOT0}
+fsbl%: export FSBL_FASTBOOT=${CONFIG_FSBL_FASTBOOT}
 fsbl%: export STORAGE=${STORAGE_TYPE}
+ifeq (${FSBL_FASTBOOT},y)
+fsbl%: export LOG_LEVEL=0
+else
+fsbl%: export LOG_LEVEL=2
+endif
 
 ifeq (${CONFIG_ENABLE_BOOT0},y)
 fsbl-build: u-boot-build memory-map
 	$(call print_target)
 	${Q}mkdir -p ${FSBL_PATH}/build
 	${Q}ln -snrf -t ${FSBL_PATH}/build ${CVI_BOARD_MEMMAP_H_PATH}
-	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH}
+	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} LOG_LEVEL=${LOG_LEVEL}
 	${Q}cp ${FSBL_OUTPUT_PATH}/boot0 ${OUTPUT_DIR}/
 else
 fsbl-build: u-boot-build memory-map
 	$(call print_target)
 	${Q}mkdir -p ${FSBL_PATH}/build
 	${Q}ln -snrf -t ${FSBL_PATH}/build ${CVI_BOARD_MEMMAP_H_PATH}
-	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
+	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} LOG_LEVEL=${LOG_LEVEL} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
 		LOADER_2ND_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/
 ifeq (${CONFIG_UBOOT_SPL_CUSTOM},y)
 	${Q}$(MAKE) -C ${FSBL_PATH} clean O=${FSBL_OUTPUT_PATH}
-	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
+	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} LOG_LEVEL=${LOG_LEVEL} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
 		CONFIG_SKIP_UBOOT=$(CONFIG_SKIP_UBOOT) LOADER_2ND_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/spl/u-boot-spl-raw.bin
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
 else
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
 endif
 endif
-
-
-
 
 fsbl-clean: rtos-clean
 	$(call print_target)

@@ -1,0 +1,78 @@
+project_name: osdrv
+commit_id: d8c0b2b16a4de49199071da78362680515da50e3 osdrv: weekly rls 2024.11.13
+
+project_name: cviruntime
+commit_id: 3f4938648950a7f3bf9a19c320ca9fae7c52de20 [feat] cviruntime opensource for cv18xx soc.
+
+project_name: buildroot-2021.05
+commit_id: 5b7acd1bf99574b818f9ec1f61232c69f6150202 (master):Support Xuantie toolchains, and modify the defconfigs.
+
+project_name: freertos
+commit_id: eb9faf5fe6e63968bc47cb15eca87616445db8f3 freertos: weekly rls 2024.06.6
+
+project_name: Lab-Project-FreeRTOS-POSIX
+commit_id: 5042bfd07b1a176d25e24424c4751a497e3bf83a sg200x C906/CA53 cpu boot up.
+
+project_name: FreeRTOS-Kernel
+commit_id: d52c1b6e6193e0ab08950120068a3f8fe6beab1c sg200x C906/CA53 cpu boot up.
+
+project_name: cvi_rtsp
+commit_id: 6d4a2febebdc9b6800f3b9fafb1545922837cbc4 upload 1.8,rename tdl
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4309f2a649fc7cfe7160389d52a81c469dbdd7bc [feat] cvibuilder opensource for cv18xx soc.
+
+project_name: cvikernel
+commit_id: 9f1f57a19c3c281a931dfc71b318494487193d56 [feat] cvikernel opensource for cv18xx soc.
+
+project_name: opensbi
+commit_id: fffb4754ee904180713798bbc7c261148dafd0d5 opensbi: weekly rls 2024.10.14
+
+project_name: build
+commit_id: b901d17defef742a6d4aa8d72c0c90479ad437de build: weekly rls 2024.11.11
+
+project_name: host-tools
+commit_id: e43a8a6aceab1e8868a1a72175589b78b449d657 (host-tools):upload gcc 9.3.0
+
+project_name: oss
+commit_id: a9d88d33c403c652e4d4eadbfe69b48942591d0a (sg200x-dev):add oss_release_tarbar for glibc_riscv64
+
+project_name: cnpy
+commit_id: 2f56f4c23ea840f9d15c43801368cf4a089efa84 [feat] cnpy opensource for cv18xx soc.
+
+project_name: isp_tuning
+commit_id: 96731d10bbaeccde440ab6b3a128925159535f25 (pqbin): update gc4653 pqbin
+
+project_name: ive
+commit_id: 269c9d010d8cec4f4d83ae7029fb62be18b4c9a0 fit new cvi_mpi repository
+
+project_name: sophpi
+commit_id: d9fca8993306f66004ed4b633cf3a3ccf6bc3059 (sophpi): modify .gitignore
+
+project_name: fsbl
+commit_id: 20391137c4b24e29ac9c87a53d3ce204cc3f0b8f (fsbl): recover alios boot0 API
+
+project_name: cvimath
+commit_id: ce8705f49da5e5f59c2ddb3253ef88323a0cd9c4 [feat] cvimath opensource for cv18xx soc.
+
+project_name: u-boot-2021.10
+commit_id: b70d08ad8d42213167e05a2509c1d0af2d057268 u-boot-2021.10: weekly rls 2024.11.11
+
+project_name: ramdisk
+commit_id: 8bf2a7446007a2ce02aba56622303a7a5906f91c ramdisk: weekly rls 2024.09.11
+
+project_name: tdl_sdk
+commit_id: 8a044e27902105010a3da4771ddf061155cebde1 add LICENSE
+
+project_name: linux_5.10
+commit_id: 6fe963974e5d2476888b16e4d1344d697a9a2ef2 linux_5.10: weekly rls 2024.11.13
+
+project_name: SensorSupportList
+commit_id: 257c6965539073bb11dfb8ffe0ac2ba3f2737d04 SensorSupportList: weekly rls 2024.11.13
+
+project_name: cvi_mpi
+commit_id: 8c594a098ddcb45c2af5cc9461d4cad958c84dcc cvi_mpi: weekly rls 2024.11.13
+

@@ -7,7 +7,9 @@ IVEImage::IVEImage() : mpImpl(IVEImageImpl::create()) {}
 
 IVEImage::~IVEImage() {}
 
-CVI_S32 IVEImage::toFrame(VIDEO_FRAME_INFO_S *frame) { return mpImpl->toFrame(frame); }
+CVI_S32 IVEImage::toFrame(VIDEO_FRAME_INFO_S *frame, bool invertPackage) {
+  return mpImpl->toFrame(frame, invertPackage);
+}
 
 CVI_S32 IVEImage::fromFrame(VIDEO_FRAME_INFO_S *frame) { return mpImpl->fromFrame(frame); }
 
@@ -17,14 +19,14 @@ CVI_S32 IVEImage::bufRequest(IVE *ive_instance) {
   return mpImpl->bufRequest(ive_instance->getImpl());
 }
 
-CVI_S32 IVEImage::create(IVE *ive_instance, ImageType enType, CVI_U32 u32Width, CVI_U32 u32Height,
+CVI_S32 IVEImage::create(IVE *ive_instance, ImageType enType, CVI_U16 u16Width, CVI_U16 u16Height,
                          bool cached) {
-  return mpImpl->create(ive_instance->getImpl(), enType, u32Width, u32Height, cached);
+  return mpImpl->create(ive_instance->getImpl(), enType, u16Width, u16Height, cached);
 }
 
-CVI_S32 IVEImage::create(IVE *ive_instance, ImageType enType, CVI_U32 u32Width, CVI_U32 u32Height,
+CVI_S32 IVEImage::create(IVE *ive_instance, ImageType enType, CVI_U16 u16Width, CVI_U16 u16Height,
                          IVEImage *buf, bool cached) {
-  return mpImpl->create(ive_instance->getImpl(), enType, u32Width, u32Height, buf->getImpl(),
+  return mpImpl->create(ive_instance->getImpl(), enType, u16Width, u16Height, buf->getImpl(),
                         cached);
 }
 

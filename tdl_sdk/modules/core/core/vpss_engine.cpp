@@ -21,7 +21,7 @@ int VpssEngine::init() {
     LOGE("CVI_SYS_Init failed!\n");
     return s32Ret;
   }
-#ifndef CV186X
+#ifndef __CV186X__
   if (CVI_SYS_GetVPSSMode() == VPSS_MODE_DUAL) {
     // FIXME: Currently hardcoded due to no define in mmf.
     m_available_max_chn = VPSS_MAX_CHN_NUM - 1;

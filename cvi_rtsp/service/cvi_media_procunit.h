@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <cvi_type.h>
+#include <linux/cvi_type.h>
 
 typedef int (*media_malloc_func)(void **dst, void *src);
 typedef int (*media_relase_func)(void **src);

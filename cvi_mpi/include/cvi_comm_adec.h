@@ -35,6 +35,10 @@ typedef struct _ADEC_ATTR_LPCM_S {
 	CVI_U32 resv;            /*reserve item*/
 } ADEC_ATTR_LPCM_S;
 
+typedef struct _ADEC_ATTR_SBC_S {
+	CVI_BOOL dec;
+} ADEC_ATTR_SBC_S;
+
 typedef enum _ADEC_MODE_E {
 	ADEC_MODE_PACK = 0, /*Pack method decoding*/
 	/*require input is valid dec pack(a		*/

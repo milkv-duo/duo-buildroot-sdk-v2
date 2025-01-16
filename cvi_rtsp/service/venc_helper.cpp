@@ -168,7 +168,6 @@ int init_venc(SERVICE_CTX_ENTITY *ent)
         return -1;
     }
 
-#if MW_VER == 2
     if (((SERVICE_CTX *)ent->ctx)->sbm.enable) {
         commonInputCfg pCic;
         SAMPLE_COMM_VENC_InitCommonInputCfg(&pCic);
@@ -196,9 +195,7 @@ int init_venc(SERVICE_CTX_ENTITY *ent)
             SAMPLE_COMM_VPSS_Bind_VENC(pIc->vpssGrp, pIc->vpssChn, ent->VencChn);
         }
     } else {
-#else
-    {
-#endif
+
         commonInputCfg pCic;
         SAMPLE_COMM_VENC_InitCommonInputCfg(&pCic);
         SAMPLE_COMM_VENC_SetModParam(&pCic);

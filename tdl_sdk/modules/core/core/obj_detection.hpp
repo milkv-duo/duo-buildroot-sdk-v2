@@ -1,7 +1,7 @@
 #pragma once
 #include <bitset>
+#include "core.hpp"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 #define DEFAULT_MODEL_THRESHOLD 0.5
 #define DEFAULT_MODEL_NMS_THRESHOLD 0.5
 

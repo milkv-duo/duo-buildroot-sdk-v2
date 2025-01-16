@@ -1,0 +1,4 @@
+build
+tmp
+cppcheck_output.txt
+.vscode

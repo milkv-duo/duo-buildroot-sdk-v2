@@ -2,8 +2,8 @@
 
 #include <vector>
 #include "Eigen/Core"
+#include "core.hpp"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 typedef Eigen::Matrix<float, 1, Eigen::Dynamic, Eigen::RowMajor> Vectorf;
 
 namespace cvitdl {

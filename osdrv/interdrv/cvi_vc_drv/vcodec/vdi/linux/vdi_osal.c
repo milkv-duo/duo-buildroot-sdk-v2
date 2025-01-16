@@ -301,7 +301,7 @@ void *osal_ion_alloc(int size)
 	PhysicalAddress u64PhysAddr;
 	void *pVirtAddr;
 
-	if (sys_ion_alloc_nofd((uint64_t *)&u64PhysAddr, (void **)&pVirtAddr,
+	if (sys_ion_alloc_nofd((CVI_U64 *)&u64PhysAddr, (void **)&pVirtAddr,
 			  "vcodec_bistream_ion", size, true) != 0) {
 		CVI_VC_ERR("[VDI] fail to allocate ion memory. size=%d\n",
 			   size);
@@ -318,7 +318,7 @@ void osal_ion_free(void *p)
 
 	CVI_VC_MEM("physaddr=%llx, virtaddr=%p\n",
 		u64PhysAddr, (void *)p);
-	sys_ion_free_nofd((uint64_t)u64PhysAddr);
+	sys_ion_free_nofd((CVI_U64)u64PhysAddr);
 }
 //------------------------------------------------------------------------------
 // math related api

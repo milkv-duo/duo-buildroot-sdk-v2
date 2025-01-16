@@ -16,11 +16,11 @@
 #define MAX_DIR_STR_SIZE (255)
 
 typedef struct _proc_debug_config_t {
-	uint32_t u32DbgMask;
-	uint32_t u32StartFrmIdx;
-	uint32_t u32EndFrmIdx;
+	CVI_U32 u32DbgMask;
+	CVI_U32 u32StartFrmIdx;
+	CVI_U32 u32EndFrmIdx;
 	char cDumpPath[MAX_DIR_STR_SIZE];
-	uint32_t u32NoDataTimeout;
+	CVI_U32 u32NoDataTimeout;
 } proc_debug_config_t;
 
 int venc_proc_init(struct device *dev);

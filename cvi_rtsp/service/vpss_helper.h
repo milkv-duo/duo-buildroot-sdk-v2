@@ -21,6 +21,7 @@ inline void __attribute__((always_inline))
         pstVpssGrpAttr->enPixelFormat = enSrcFormat;
         pstVpssGrpAttr->u32MaxW = srcWidth;
         pstVpssGrpAttr->u32MaxH = srcHeight;
+        pstVpssGrpAttr->u8VpssDev = u8Dev;
     }
 
 /**
@@ -63,7 +64,7 @@ inline void __attribute__((always_inline))
 
 int vpss_init_helper(uint32_t vpssGrpId, uint32_t enSrcWidth, uint32_t enSrcHeight,
         PIXEL_FORMAT_E enSrcFormat, uint32_t enDstWidth, uint32_t enDstHeight,
-        PIXEL_FORMAT_E enDstFormat, uint32_t enabledChannel,
+        PIXEL_FORMAT_E enDstFormat, VPSS_MODE_E mode, uint32_t enabledChannel,
 		bool keepAspectRatio, uint8_t u8Dev, SERVICE_SBM sbm);
 
 int init_vi(SERVICE_CTX *ctx);

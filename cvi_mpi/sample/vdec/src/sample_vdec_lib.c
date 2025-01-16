@@ -39,8 +39,8 @@ typedef enum _ARG_TYPE_ {
 typedef struct _optionExt_ {
 	struct option opt;
 	int type;
-	int64_t min;
-	int64_t max;
+	CVI_S64 min;
+	CVI_S64 max;
 	const char *help;
 } optionExt;
 
@@ -757,9 +757,9 @@ static CVI_S32 checkArg(CVI_S32 entryIdx, SAMPLE_ARG *pArg)
 
 	if (long_option_ext[entryIdx].type == ARG_INT) {
 		pArg->ival = strtoimax(optarg, NULL, 10);
-		if ((int64_t)(pArg->ival) < long_option_ext[entryIdx].min ||
-		    (int64_t)(pArg->ival) > long_option_ext[entryIdx].max) {
-			CVI_VDEC_ERR("%s = %d, min = %"PRId64", max = %"PRId64"\n",
+		if ((CVI_S64)(pArg->ival) < long_option_ext[entryIdx].min ||
+		    (CVI_S64)(pArg->ival) > long_option_ext[entryIdx].max) {
+			CVI_VDEC_ERR("%s = %d, min = %lld, max = %lld\n",
 					long_option_ext[entryIdx].opt.name,
 					pArg->ival,
 					long_option_ext[entryIdx].min,
@@ -768,9 +768,9 @@ static CVI_S32 checkArg(CVI_S32 entryIdx, SAMPLE_ARG *pArg)
 		}
 	} else if (long_option_ext[entryIdx].type == ARG_UINT) {
 		pArg->uval = strtoumax(optarg, NULL, 10);
-		if ((int64_t)(pArg->uval) < long_option_ext[entryIdx].min ||
-		    (int64_t)(pArg->uval) > long_option_ext[entryIdx].max) {
-			CVI_VDEC_ERR("%s = %u, min = %"PRId64", max = %"PRId64"\n",
+		if ((CVI_S64)(pArg->uval) < long_option_ext[entryIdx].min ||
+		    (CVI_S64)(pArg->uval) > long_option_ext[entryIdx].max) {
+			CVI_VDEC_ERR("%s = %u, min = %lld, max = %lld\n",
 					long_option_ext[entryIdx].opt.name,
 					pArg->uval,
 					long_option_ext[entryIdx].min,

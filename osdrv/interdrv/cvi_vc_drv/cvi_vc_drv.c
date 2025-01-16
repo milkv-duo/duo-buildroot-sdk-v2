@@ -18,10 +18,10 @@ MODULE_DEVICE_TABLE(of, cvi_vc_drv_match_table);
 
 extern wait_queue_head_t tWaitQueue[];
 
-uint32_t MaxVencChnNum = VENC_MAX_CHN_NUM;
+CVI_U32 MaxVencChnNum = VENC_MAX_CHN_NUM;
 module_param(MaxVencChnNum, uint, 0644);
 #ifdef ENABLE_DEC
-uint32_t MaxVdecChnNum = VDEC_MAX_CHN_NUM;
+CVI_U32 MaxVdecChnNum = VDEC_MAX_CHN_NUM;
 module_param(MaxVdecChnNum, uint, 0644);
 #endif
 bool cviRcEn = 1;

@@ -379,13 +379,10 @@ typedef struct _ISP_AF_ZOOM_FOCUS_TAB {
 	CVI_U32 focus_pos_max;
 } ISP_AF_ZOOM_FOCUS_TAB;
 
-typedef enum _AF_CALIB_MODE {
-	AF_CALIB_DISABLE,
-	AF_CALIB_RANGE_OFFSET,
-	AF_CALIB_BACK_LASH,
-	AF_CALIB_ONE_STEP_TIME_COST,
-	AF_CALIB_ZOOM_FOCUS_TABLE,
-} AF_CALIB_MODE;
+typedef enum _AF_MOTOR_TYPE {
+	AF_MOTOR_STEPPER,
+	AF_MOTOR_VCM,
+} AF_MOTOR_TYPE;
 
 #define ZOOM_FOCUS_TAB_SIZE 9
 typedef struct _ISP_AF_LEN_INFO_S {
@@ -402,6 +399,7 @@ typedef struct _ISP_AF_LEN_INFO_S {
 	CVI_U32 zoom_time_cost_one_step;//unit is us
 	CVI_U32 focus_max_step;
 	CVI_U32 zoom_max_step;
+	AF_MOTOR_TYPE motor_type;
 } ISP_AF_LEN_INFO_S;
 
 typedef struct _ISP_AE_EXP_FUNC_S {

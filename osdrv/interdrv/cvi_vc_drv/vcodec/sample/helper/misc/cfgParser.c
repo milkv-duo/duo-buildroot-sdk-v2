@@ -237,23 +237,23 @@ const HevcCfgInfo hevcCfgInfo[MAX_CFG] = {
 
 /*
 #define NUM_GOP_PRESET (5)
-const int32_t GOP_SIZE_PRESET[NUM_GOP_PRESET + 1] = { 0, 1, 1, 1, 2, 2 };
+const CVI_S32 GOP_SIZE_PRESET[NUM_GOP_PRESET + 1] = { 0, 1, 1, 1, 2, 2 };
 
-static const int32_t SVC_T_ENC_GOP_PRESET_1[5] = { 1, 0, 0, 0, 0 };
-static const int32_t SVC_T_ENC_GOP_PRESET_2[5] = { 1, 0, 0, 1, 0 };
-static const int32_t SVC_T_ENC_GOP_PRESET_3[5] = {
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_1[5] = { 1, 0, 0, 0, 0 };
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_2[5] = { 1, 0, 0, 1, 0 };
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_3[5] = {
 	1, 0, 0, 1, 1,
 };
 
-static const int32_t SVC_T_ENC_GOP_PRESET_4[10] = {
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_4[10] = {
 	1, 0, 0, 2, 0, 2, 2, 0, 1, 0
 };
 
-static const int32_t SVC_T_ENC_GOP_PRESET_5[10] = {
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_5[10] = {
 	1, 0, 0, 2, 0, 2, 2, 0, 1, 1
 };
 
-static const int32_t *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
+static const CVI_S32 *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
 	NULL,
 	SVC_T_ENC_GOP_PRESET_1,
 	SVC_T_ENC_GOP_PRESET_2,
@@ -264,17 +264,17 @@ static const int32_t *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
 */
 #endif
 #define NUM_GOP_PRESET (3)
-const int32_t GOP_SIZE_PRESET[NUM_GOP_PRESET + 1] = { 0, 1, 2, 4 };
+const CVI_S32 GOP_SIZE_PRESET[NUM_GOP_PRESET + 1] = { 0, 1, 2, 4 };
 
-static const int32_t SVC_T_ENC_GOP_PRESET_1[5] = { 1, 0, 0, 0, 0 };
-static const int32_t SVC_T_ENC_GOP_PRESET_2[10] = {
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_1[5] = { 1, 0, 0, 0, 0 };
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_2[10] = {
 	1, 2, 0, 2, 0, 2, 0, 0, 1, 0
 };
-static const int32_t SVC_T_ENC_GOP_PRESET_3[20] = { 1, 4, 0, 3, 0, 2, 2,
+static const CVI_S32 SVC_T_ENC_GOP_PRESET_3[20] = { 1, 4, 0, 3, 0, 2, 2,
 						    0, 2, 0, 3, 4, 2, 3,
 						    0, 4, 0, 0, 1, 0 };
 
-static const int32_t *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
+static const CVI_S32 *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
 	NULL,
 	SVC_T_ENC_GOP_PRESET_1,
 	SVC_T_ENC_GOP_PRESET_2,
@@ -284,7 +284,7 @@ static const int32_t *AVC_GOP_PRESET[NUM_GOP_PRESET + 1] = {
 void set_gop_info(ENC_CFG *pEncCfg)
 {
 	int i, j;
-	const int32_t *src_gop = AVC_GOP_PRESET[pEncCfg->GopPreset];
+	const CVI_S32 *src_gop = AVC_GOP_PRESET[pEncCfg->GopPreset];
 
 	pEncCfg->set_dqp_pic_num = GOP_SIZE_PRESET[pEncCfg->GopPreset];
 

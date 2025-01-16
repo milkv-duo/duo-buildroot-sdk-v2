@@ -1,6 +1,6 @@
 #pragma once
+#include "core.hpp"
 #include "core/object/cvtdl_object_types.h"
-#include "core_internel.hpp"
 #include "cvi_comm.h"
 
 namespace cvitdl {

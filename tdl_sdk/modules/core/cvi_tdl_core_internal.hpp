@@ -2,9 +2,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "core.hpp"
 #include "core/cvi_tdl_core.h"
 #include "core/vpss_engine.hpp"
-#include "core_internel.hpp"
 
 #include "deepsort/cvi_deepsort.hpp"
 #include "fall_detection/fall_det_monitor.hpp"
