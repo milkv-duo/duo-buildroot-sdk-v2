@@ -199,6 +199,7 @@ function build_info()
   if [ "${STORAGE_TYPE}" == "sd" ]; then
     print_info "Target Image Config: ${MILKV_IMAGE_CONFIG}"
   fi
+  print_info "Build tdl-sdk: ${TPU_REL}"
 }
 
 get_available_board
