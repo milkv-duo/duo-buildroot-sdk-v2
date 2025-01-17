@@ -1,6 +1,6 @@
 #ifndef _IVE_EXPERIMENTAL_H
 #define _IVE_EXPERIMENTAL_H
-#include "cvi_ive.h"
+#include "ive.h"
 
 #ifdef __cplusplus
 extern "C" {

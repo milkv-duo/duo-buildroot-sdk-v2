@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+
 enum IVETLType { DATA, KERNEL, TABLE };
 
 class IveCore {
@@ -21,8 +22,6 @@ class IveCore {
  protected:
   cvk_tl_t *allocTLMem(cvk_context_t *cvk_ctx, cvk_tl_shape_t tl_shape, cvk_fmt_t fmt, int eu_align,
                        IVETLType type = IVETLType::DATA);
-  virtual void GetSliceUnitProperty(const uint32_t length, const uint32_t slice,
-                                    const int kernel_sz, const int default_stride, sliceUnit *unit);
   virtual int sliceSetup(SliceRes &slice_res, SliceRes *tg_in_res, SliceRes *tg_out_res);
   virtual int runSetup(CVI_RT_HANDLE rt_handle, cvk_context_t *cvk_ctx,
                        const std::vector<cvk_tg_shape_t> &tg_in_slices,

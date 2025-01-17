@@ -1,7 +1,7 @@
 #include "bmkernel/bm_kernel.h"
 
 #include "bmkernel/bm1880v2/1880v2_fp_convert.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>

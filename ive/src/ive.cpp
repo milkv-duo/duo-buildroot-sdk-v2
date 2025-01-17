@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <memory>
+// using namespace tpuive;
 /**
  * @brief String array of IVE_IMAGE_S enType.
  *
@@ -48,8 +49,8 @@ static CviImg *ExtractYuvPlane(IVE_IMAGE_S *src, int plane) {
   }
   cvk_fmt_t fmt = CVK_FMT_U8;
   std::vector<uint32_t> heights;
-  uint32_t new_height = src->u32Height;
-  uint32_t new_width = src->u32Width;
+  uint32_t new_height = src->u16Height;
+  uint32_t new_width = src->u16Width;
   if (plane > 0) {
     new_height = new_height / 2;
     new_width = new_width / 2;
@@ -134,13 +135,13 @@ CVI_S32 CVI_IVE_CreateMemInfo(IVE_HANDLE pIveHandle, IVE_MEM_INFO_S *pstMemInfo,
 }
 
 CVI_S32 CVI_IVE_CreateImage2(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMAGE_TYPE_E enType,
-                             uint32_t u32Width, uint32_t u32Height, IVE_IMAGE_S *pstBuffer) {
-  if (u32Width == 0 || u32Height == 0) {
+                             uint32_t u16Width, uint32_t u16Height, IVE_IMAGE_S *pstBuffer) {
+  if (u16Width == 0 || u16Height == 0) {
     LOGE("Image width or height cannot be 0.\n");
     pstImg->tpu_block = NULL;
     pstImg->enType = enType;
-    pstImg->u32Width = 0;
-    pstImg->u32Height = 0;
+    pstImg->u16Width = 0;
+    pstImg->u16Height = 0;
     pstImg->u16Reserved = 0;
     for (size_t i = 0; i < 3; i++) {
       pstImg->pu8VirAddr[i] = NULL;
@@ -158,108 +159,108 @@ CVI_S32 CVI_IVE_CreateImage2(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMA
   switch (enType) {
     case IVE_IMAGE_TYPE_S8C1: {
       img_type = CVI_GRAY;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt = CVK_FMT_I8;
     } break;
     case IVE_IMAGE_TYPE_U8C1: {
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       img_type = CVI_GRAY;
     } break;
     case IVE_IMAGE_TYPE_YUV420SP: {
       img_type = CVI_YUV420SP;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.push_back(stride);
       strides.push_back(stride);
-      heights.push_back(u32Height);
-      heights.push_back(u32Height >> 1);
+      heights.push_back(u16Height);
+      heights.push_back(u16Height >> 1);
     } break;
     case IVE_IMAGE_TYPE_YUV420P: {
       img_type = CVI_YUV420P;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.push_back(stride);
-      const uint32_t stride2 = WidthAlign(u32Width >> 1, DEFAULT_ALIGN);
+      const uint32_t stride2 = WidthAlign(u16Width >> 1, DEFAULT_ALIGN);
       strides.push_back(stride2);
       strides.push_back(stride2);
-      heights.push_back(u32Height);
-      heights.push_back(u32Height >> 1);
-      heights.push_back(u32Height >> 1);
+      heights.push_back(u16Height);
+      heights.push_back(u16Height >> 1);
+      heights.push_back(u16Height >> 1);
     } break;
     case IVE_IMAGE_TYPE_YUV422P: {
       img_type = CVI_YUV422P;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
-      const uint32_t stride2 = WidthAlign(u32Width >> 1, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
+      const uint32_t stride2 = WidthAlign(u16Width >> 1, DEFAULT_ALIGN);
       strides.push_back(stride);
       strides.push_back(stride2);
       strides.push_back(stride2);
-      heights.resize(3, u32Height);
+      heights.resize(3, u16Height);
     } break;
     case IVE_IMAGE_TYPE_U8C3_PACKAGE: {
       img_type = CVI_RGB_PACKED;
-      const uint32_t stride = WidthAlign(u32Width * 3, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width * 3, DEFAULT_ALIGN);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
     } break;
     case IVE_IMAGE_TYPE_S8C3_PACKAGE: {
       img_type = CVI_RGB_PACKED;
-      const uint32_t stride = WidthAlign(u32Width * 3, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width * 3, DEFAULT_ALIGN);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt = CVK_FMT_I8;
     } break;
     case IVE_IMAGE_TYPE_U8C3_PLANAR: {
       img_type = CVI_RGB_PLANAR;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.resize(3, stride);
-      heights.resize(3, u32Height);
+      heights.resize(3, u16Height);
     } break;
     case IVE_IMAGE_TYPE_S8C3_PLANAR: {
       img_type = CVI_RGB_PLANAR;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN);
       strides.resize(3, stride);
-      heights.resize(3, u32Height);
+      heights.resize(3, u16Height);
       fmt = CVK_FMT_I8;
     } break;
     case IVE_IMAGE_TYPE_BF16C1: {
       img_type = CVI_SINGLE;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN) * sizeof(int16_t);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN) * sizeof(int16_t);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt_size = 2;
       fmt = CVK_FMT_BF16;
     } break;
     case IVE_IMAGE_TYPE_U16C1: {
       img_type = CVI_SINGLE;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN) * sizeof(uint16_t);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN) * sizeof(uint16_t);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt_size = 2;
       fmt = CVK_FMT_U16;
     } break;
     case IVE_IMAGE_TYPE_S16C1: {
       img_type = CVI_SINGLE;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN) * sizeof(uint16_t);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN) * sizeof(uint16_t);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt_size = 2;
       fmt = CVK_FMT_I16;
     } break;
     case IVE_IMAGE_TYPE_U32C1: {
       img_type = CVI_SINGLE;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN) * sizeof(uint32_t);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN) * sizeof(uint32_t);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt_size = 4;
       fmt = CVK_FMT_U32;
     } break;
     case IVE_IMAGE_TYPE_FP32C1: {
       img_type = CVI_SINGLE;
-      const uint32_t stride = WidthAlign(u32Width, DEFAULT_ALIGN) * sizeof(float);
+      const uint32_t stride = WidthAlign(u16Width, DEFAULT_ALIGN) * sizeof(float);
       strides.push_back(stride);
-      heights.push_back(u32Height);
+      heights.push_back(u16Height);
       fmt_size = 4;
       fmt = CVK_FMT_F32;
     } break;
@@ -275,7 +276,7 @@ CVI_S32 CVI_IVE_CreateImage2(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMA
 
   CviImg *buffer_ptr =
       pstBuffer == NULL ? nullptr : reinterpret_cast<CviImg *>(pstBuffer->tpu_block);
-  auto *cpp_img = new CviImg(handle_ctx->rt_handle, u32Height, u32Width, strides, heights, img_type,
+  auto *cpp_img = new CviImg(handle_ctx->rt_handle, u16Height, u16Width, strides, heights, img_type,
                              fmt, buffer_ptr);
   if (!cpp_img->IsInit()) {
     LOGE("Failed to init IVE_IMAGE_S.\n");
@@ -284,8 +285,8 @@ CVI_S32 CVI_IVE_CreateImage2(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMA
 
   pstImg->tpu_block = reinterpret_cast<CVI_IMG *>(cpp_img);
   pstImg->enType = enType;
-  pstImg->u32Width = cpp_img->GetImgWidth();
-  pstImg->u32Height = cpp_img->GetImgHeight();
+  pstImg->u16Width = cpp_img->GetImgWidth();
+  pstImg->u16Height = cpp_img->GetImgHeight();
   pstImg->u16Reserved = fmt_size;
 
   size_t i_limit = cpp_img->GetImgChannel();
@@ -304,8 +305,8 @@ CVI_S32 CVI_IVE_CreateImage2(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMA
 }
 
 CVI_S32 CVI_IVE_CreateImage(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, IVE_IMAGE_TYPE_E enType,
-                            CVI_U32 u32Width, CVI_U32 u32Height) {
-  return CVI_IVE_CreateImage2(pIveHandle, pstImg, enType, u32Width, u32Height, NULL);
+                            CVI_U32 u16Width, CVI_U32 u16Height) {
+  return CVI_IVE_CreateImage2(pIveHandle, pstImg, enType, u16Width, u16Height, NULL);
 }
 
 CVI_S32 CVI_IVE_ImageInit(IVE_IMAGE_S *pstSrc) {
@@ -318,50 +319,50 @@ CVI_S32 CVI_IVE_ImageInit(IVE_IMAGE_S *pstSrc) {
   std::vector<uint32_t> heights;
   switch (pstSrc->enType) {
     case IVE_IMAGE_TYPE_U8C1: {
-      heights.push_back(pstSrc->u32Height);
+      heights.push_back(pstSrc->u16Height);
     } break;
     case IVE_IMAGE_TYPE_S8C1: {
-      heights.push_back(pstSrc->u32Height);
+      heights.push_back(pstSrc->u16Height);
       fmt = CVK_FMT_I8;
     } break;
     case IVE_IMAGE_TYPE_YUV420SP: {
       c = 2;
       img_type = CVIIMGTYPE::CVI_YUV420SP;
-      heights.push_back(pstSrc->u32Height);
-      heights.push_back(pstSrc->u32Height >> 1);
+      heights.push_back(pstSrc->u16Height);
+      heights.push_back(pstSrc->u16Height >> 1);
     } break;
     case IVE_IMAGE_TYPE_YUV420P: {
       c = 3;
       img_type = CVIIMGTYPE::CVI_YUV420P;
-      heights.push_back(pstSrc->u32Height);
-      heights.push_back(pstSrc->u32Height >> 1);
-      heights.push_back(pstSrc->u32Height >> 1);
+      heights.push_back(pstSrc->u16Height);
+      heights.push_back(pstSrc->u16Height >> 1);
+      heights.push_back(pstSrc->u16Height >> 1);
     } break;
     case IVE_IMAGE_TYPE_YUV422P: {
       c = 3;
       img_type = CVIIMGTYPE::CVI_YUV422P;
-      heights.resize(3, pstSrc->u32Height);
+      heights.resize(3, pstSrc->u16Height);
     } break;
     case IVE_IMAGE_TYPE_U8C3_PACKAGE: {
       c = 1;
       img_type = CVIIMGTYPE::CVI_RGB_PACKED;
-      heights.push_back(pstSrc->u32Height);
+      heights.push_back(pstSrc->u16Height);
     } break;
     case IVE_IMAGE_TYPE_S8C3_PACKAGE: {
       c = 1;
       img_type = CVIIMGTYPE::CVI_RGB_PACKED;
-      heights.push_back(pstSrc->u32Height);
+      heights.push_back(pstSrc->u16Height);
       fmt = CVK_FMT_I8;
     } break;
     case IVE_IMAGE_TYPE_U8C3_PLANAR: {
       c = 3;
       img_type = CVIIMGTYPE::CVI_RGB_PLANAR;
-      heights.resize(c, pstSrc->u32Height);
+      heights.resize(c, pstSrc->u16Height);
     } break;
     case IVE_IMAGE_TYPE_S8C3_PLANAR: {
       c = 3;
       img_type = CVIIMGTYPE::CVI_RGB_PLANAR;
-      heights.resize(c, pstSrc->u32Height);
+      heights.resize(c, pstSrc->u16Height);
       fmt = CVK_FMT_I8;
     } break;
     default: {
@@ -374,7 +375,7 @@ CVI_S32 CVI_IVE_ImageInit(IVE_IMAGE_S *pstSrc) {
     strides.push_back(pstSrc->u16Stride[i]);
     u32_length.push_back(pstSrc->u16Stride[i] * heights[i]);
   }
-  auto *cpp_img = new CviImg(pstSrc->u32Height, pstSrc->u32Width, strides, heights, u32_length,
+  auto *cpp_img = new CviImg(pstSrc->u16Height, pstSrc->u16Width, strides, heights, u32_length,
                              pstSrc->pu8VirAddr[0], pstSrc->u64PhyAddr[0], img_type, fmt);
   if (!cpp_img->IsInit()) {
     LOGE("Failed to init IVE_IMAGE_S.\n");
@@ -420,8 +421,8 @@ CVI_S32 CVI_IVE_SubImage(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST
   pstDst->tpu_block = reinterpret_cast<CVI_IMG *>(cpp_img);
 
   pstDst->enType = pstSrc->enType;
-  pstDst->u32Width = cpp_img->m_tg.shape.w;
-  pstDst->u32Height = cpp_img->m_tg.shape.h;
+  pstDst->u16Width = cpp_img->m_tg.shape.w;
+  pstDst->u16Height = cpp_img->m_tg.shape.h;
   pstDst->u16Reserved = pstSrc->u16Reserved;
 
   size_t num_plane = cpp_img->GetImgCOffsets().size() - 1;
@@ -474,8 +475,8 @@ CVI_S32 CVI_IVE_Image2VideoFrameInfo(IVE_IMAGE_S *pstIISrc, VIDEO_FRAME_INFO_S *
     } break;
   }
   auto *src_img = reinterpret_cast<CviImg *>(pstIISrc->tpu_block);
-  pstVFDst->u32Width = pstIISrc->u32Width;
-  pstVFDst->u32Height = pstIISrc->u32Height;
+  pstVFDst->u32Width = pstIISrc->u16Width;
+  pstVFDst->u32Height = pstIISrc->u16Height;
   for (size_t i = 0; i < src_img->GetImgHeights().size(); i++) {
     pstVFDst->u32Stride[i] = pstIISrc->u16Stride[i];
     pstVFDst->u64PhyAddr[i] = pstIISrc->u64PhyAddr[i];
@@ -570,8 +571,8 @@ CVI_S32 CVI_IVE_VideoFrameInfo2Image(VIDEO_FRAME_INFO_S *pstVFISrc, IVE_IMAGE_S 
   }
 
   pstIIDst->tpu_block = reinterpret_cast<CVI_IMG *>(cpp_img);
-  pstIIDst->u32Width = cpp_img->GetImgWidth();
-  pstIIDst->u32Height = cpp_img->GetImgHeight();
+  pstIIDst->u16Width = cpp_img->GetImgWidth();
+  pstIIDst->u16Height = cpp_img->GetImgHeight();
   pstIIDst->u16Reserved = getFmtSize(fmt);
 
   size_t i_limit = cpp_img->GetImgChannel();
@@ -666,7 +667,7 @@ IVE_IMAGE_S CVI_IVE_ReadImage(IVE_HANDLE pIveHandle, const char *filename,
 }
 #if 1
 CVI_S32 CVI_IVE_ReadRawImage(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, const char *filename,
-                             IVE_IMAGE_TYPE_E enType, CVI_U16 u32Width, CVI_U16 u32Height) {
+                             IVE_IMAGE_TYPE_E enType, CVI_U16 u16Width, CVI_U16 u16Height) {
   float desiredNChannels = -1;
 
   switch (enType) {
@@ -692,7 +693,7 @@ CVI_S32 CVI_IVE_ReadRawImage(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, const c
   }
 
   if (desiredNChannels > 0) {
-    int buf_size = (int)((float)u32Width * (float)u32Height * (float)desiredNChannels);
+    int buf_size = (int)((float)u16Width * (float)u16Height * (float)desiredNChannels);
     char buffer[buf_size];
     FILE *fp;
 
@@ -705,45 +706,45 @@ CVI_S32 CVI_IVE_ReadRawImage(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, const c
     }
     fclose(fp);
 
-    CVI_IVE_ReadImageArray(pIveHandle, pstImg, buffer, enType, u32Width, u32Height);
+    CVI_IVE_ReadImageArray(pIveHandle, pstImg, buffer, enType, u16Width, u16Height);
     return CVI_SUCCESS;
   }
   return CVI_FAILURE;
 }
 
 CVI_S32 CVI_IVE_ReadImageArray(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, char *pBuffer,
-                               IVE_IMAGE_TYPE_E enType, CVI_U16 u32Width, CVI_U16 u32Height) {
+                               IVE_IMAGE_TYPE_E enType, CVI_U16 u16Width, CVI_U16 u16Height) {
   char *ptr = NULL;
 
   memset(pstImg, 0, sizeof(IVE_IMAGE_S));
 
-  CVI_IVE_CreateImage(pIveHandle, pstImg, enType, u32Width, u32Height);
+  CVI_IVE_CreateImage(pIveHandle, pstImg, enType, u16Width, u16Height);
 
   if (enType == IVE_IMAGE_TYPE_U8C3_PLANAR) {
     ptr = pBuffer;
-    for (size_t j = 0; j < (size_t)u32Height; j++) {
+    for (size_t j = 0; j < (size_t)u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[0] + (j * pstImg->u16Stride[0])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
-    for (size_t j = 0; j < (size_t)pstImg->u32Height; j++) {
+    for (size_t j = 0; j < (size_t)pstImg->u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[1] + (j * pstImg->u16Stride[1])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
-    for (size_t j = 0; j < (size_t)pstImg->u32Height; j++) {
+    for (size_t j = 0; j < (size_t)pstImg->u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[2] + (j * pstImg->u16Stride[2])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
   } else if (enType == IVE_IMAGE_TYPE_U8C3_PACKAGE) {
     // yyy... uuu... vvv... to yyy... uuu... vvv...
     ptr = pBuffer;
-    for (size_t i = 0; i < (size_t)u32Height; i++) {
-      uint32_t stb_stride = i * u32Width * 3;
+    for (size_t i = 0; i < (size_t)u16Height; i++) {
+      uint32_t stb_stride = i * u16Width * 3;
       uint32_t image_stride = (i * pstImg->u16Stride[0]);
 
-      for (size_t j = 0; j < (size_t)u32Width; j++) {
+      for (size_t j = 0; j < (size_t)u16Width; j++) {
         uint32_t buf_idx = stb_stride + (j * 3);
         uint32_t img_idx = image_stride + (j * 3);
         ((char *)(uintptr_t)pstImg->pu8VirAddr[0])[img_idx] = ptr[buf_idx];
@@ -753,41 +754,41 @@ CVI_S32 CVI_IVE_ReadImageArray(IVE_HANDLE pIveHandle, IVE_IMAGE_S *pstImg, char 
     }
   } else if (enType == IVE_IMAGE_TYPE_YUV420SP) {
     ptr = pBuffer;
-    for (size_t j = 0; j < (size_t)u32Height; j++) {
+    for (size_t j = 0; j < (size_t)u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[0] + (j * pstImg->u16Stride[0])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
-    for (size_t j = 0; j < (size_t)pstImg->u32Height / 2; j++) {
+    for (size_t j = 0; j < (size_t)pstImg->u16Height / 2; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[1] + (j * pstImg->u16Stride[1])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
   } else if (enType == IVE_IMAGE_TYPE_YUV422SP) {
     ptr = pBuffer;
-    for (size_t j = 0; j < (size_t)u32Height; j++) {
+    for (size_t j = 0; j < (size_t)u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[0] + (j * pstImg->u16Stride[0])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
-    for (size_t j = 0; j < (size_t)pstImg->u32Height; j++) {
+    for (size_t j = 0; j < (size_t)pstImg->u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[1] + (j * pstImg->u16Stride[1])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
   } else if (enType == IVE_IMAGE_TYPE_U16C1 || enType == IVE_IMAGE_TYPE_S16C1) {
     ptr = pBuffer;
-    for (size_t j = 0; j < (size_t)u32Height; j++) {
+    for (size_t j = 0; j < (size_t)u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[0] + (j * pstImg->u16Stride[0])), ptr,
-             u32Width * (sizeof(uint16_t)));
-      ptr += u32Width * (sizeof(uint16_t));
+             u16Width * (sizeof(uint16_t)));
+      ptr += u16Width * (sizeof(uint16_t));
     }
   } else {
     ptr = pBuffer;
-    for (size_t j = 0; j < (size_t)u32Height; j++) {
+    for (size_t j = 0; j < (size_t)u16Height; j++) {
       memcpy((char *)(uintptr_t)(pstImg->pu8VirAddr[0] + (j * pstImg->u16Stride[0])), ptr,
-             u32Width);
-      ptr += u32Width;
+             u16Width);
+      ptr += u16Width;
     }
   }
 
@@ -807,8 +808,8 @@ CVI_S32 CVI_IVE_WriteImage(IVE_HANDLE pIveHandle, const char *filename, IVE_IMAG
     case IVE_IMAGE_TYPE_U8C3_PLANAR: {
       desiredNChannels = STBI_rgb;
       stride = 1;
-      arr = new uint8_t[pstImg->u16Stride[0] * pstImg->u32Height * desiredNChannels];
-      size_t image_total = pstImg->u16Stride[0] * pstImg->u32Height;
+      arr = new uint8_t[pstImg->u16Stride[0] * pstImg->u16Height * desiredNChannels];
+      size_t image_total = pstImg->u16Stride[0] * pstImg->u16Height;
       for (size_t i = 0; i < image_total; i++) {
         size_t stb_idx = i * 3;
         arr[stb_idx] = pstImg->pu8VirAddr[0][i];
@@ -829,7 +830,7 @@ CVI_S32 CVI_IVE_WriteImage(IVE_HANDLE pIveHandle, const char *filename, IVE_IMAG
       break;
   }
   CVI_IVE_BufRequest(pIveHandle, pstImg);
-  stbi_write_png(filename, pstImg->u32Width, pstImg->u32Height, desiredNChannels, arr,
+  stbi_write_png(filename, pstImg->u16Width, pstImg->u16Height, desiredNChannels, arr,
                  pstImg->u16Stride[0] * stride);
   if (remove_buffer) {
     delete[] arr;
@@ -886,7 +887,7 @@ CVI_S32 CVI_IVE_DMA(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
 #ifdef USE_CPU_COPY
     CVI_IVE_BufRequest(pIveHandle, pstSrc);
     CVI_IVE_BufRequest(pIveHandle, pstDst);
-    uint size = pstSrc->u16Stride[0] * pstSrc->u32Height;
+    uint size = pstSrc->u16Stride[0] * pstSrc->u16Height;
     memcpy(pstDst->pu8VirAddr[0], pstSrc->pu8VirAddr[0], size);
     CVI_IVE_BufFlush(pIveHandle, pstSrc);
     CVI_IVE_BufFlush(pIveHandle, pstDst);
@@ -1212,8 +1213,8 @@ static void ViewAsYuv420(IVE_IMAGE_S *src) {
   int w = src->u16Stride[0];
   int w1 = src->u16Stride[1];
   int w2 = src->u16Stride[1];
-  int h = src->u32Height;
-  int h2 = src->u32Height / 2;
+  int h = src->u16Height;
+  int h2 = src->u16Height / 2;
 
   memcpy(src->pu8VirAddr[2], src->pu8VirAddr[0] + w * h + w1 * h2, w2 * h2);
   memcpy(src->pu8VirAddr[1], src->pu8VirAddr[0] + w * h, w1 * h2);
@@ -1227,22 +1228,22 @@ static CviImg *ViewAsU8C1(IVE_IMAGE_S *src) {
   CviImg *orig_cpp = reinterpret_cast<CviImg *>(src->tpu_block);
 
   if (src->enType == IVE_IMAGE_TYPE_YUV420P) {
-    int halfh = src->u32Height / 2;
+    int halfh = src->u16Height / 2;
     int u_plane_size = src->u16Stride[1] * halfh;
     int v_plane_size = src->u16Stride[2] * halfh;
     int added_h = (u_plane_size + v_plane_size) / src->u16Stride[0];
     LOGD("ViewAsU8C1 stride0:%d,%d,%d,addedh:%d\n", (int)src->u16Stride[0], (int)src->u16Stride[1],
          (int)src->u16Stride[2], added_h);
-    new_height = src->u32Height + added_h;
+    new_height = src->u16Height + added_h;
 
     if (orig_cpp->IsSubImg()) {
       std::copy(src->pu8VirAddr[1], src->pu8VirAddr[1] + u_plane_size,
-                src->pu8VirAddr[0] + src->u16Stride[0] * src->u32Height);
+                src->pu8VirAddr[0] + src->u16Stride[0] * src->u16Height);
       std::copy(src->pu8VirAddr[2], src->pu8VirAddr[2] + v_plane_size,
-                src->pu8VirAddr[0] + src->u16Stride[0] * src->u32Height + u_plane_size);
+                src->pu8VirAddr[0] + src->u16Stride[0] * src->u16Height + u_plane_size);
     }
   } else if (src->enType == IVE_IMAGE_TYPE_U8C3_PLANAR) {
-    new_height = src->u32Height * 3;
+    new_height = src->u16Height * 3;
   } else {
     LOGE("Only support IVE_IMAGE_TYPE_YUV420P or IVE_IMAGE_TYPE_U8C3_PLANAR.\n");
     return nullptr;
@@ -1259,7 +1260,7 @@ static CviImg *ViewAsU8C1(IVE_IMAGE_S *src) {
     u32_length.push_back(src->u16Stride[0] * new_height);
   }
 
-  auto *cpp_img = new CviImg(new_height, src->u32Width, strides, heights, u32_length,
+  auto *cpp_img = new CviImg(new_height, src->u16Width, strides, heights, u32_length,
                              src->pu8VirAddr[0], src->u64PhyAddr[0], img_type, fmt);
   if (!cpp_img->IsInit()) {
     LOGE("Failed to init IVE_IMAGE_S.\n");
@@ -1677,16 +1678,16 @@ CVI_S32 CVI_IVE_BLOCK(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IM
   }
 
   CVI_U32 u32CellSize = pstBlkCtrl->u32CellSize;
-  if (pstDst->u32Width != (pstSrc->u32Width / u32CellSize) ||
-      (pstSrc->u32Width % u32CellSize != 0)) {
-    LOGE("Dst block width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Width,
-         pstDst->u32Width, u32CellSize);
+  if (pstDst->u16Width != (pstSrc->u16Width / u32CellSize) ||
+      (pstSrc->u16Width % u32CellSize != 0)) {
+    LOGE("Dst block width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Width,
+         pstDst->u16Width, u32CellSize);
     return CVI_FAILURE;
   }
-  if (pstDst->u32Height != (pstSrc->u32Height / u32CellSize) ||
-      (pstSrc->u32Height % u32CellSize != 0)) {
-    LOGE("Dst block height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Height,
-         pstDst->u32Height, u32CellSize);
+  if (pstDst->u16Height != (pstSrc->u16Height / u32CellSize) ||
+      (pstSrc->u16Height % u32CellSize != 0)) {
+    LOGE("Dst block height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Height,
+         pstDst->u16Height, u32CellSize);
     return CVI_FAILURE;
   }
 
@@ -1728,16 +1729,16 @@ CVI_S32 CVI_IVE_DOWNSAMPLE_420P(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
   }
 
   CVI_U32 u32CellSize = pstdsCtrl->u8KnerlSize;
-  if (pstDst->u32Width != (pstSrc->u32Width / u32CellSize) ||
-      (pstSrc->u32Width % u32CellSize != 0)) {
-    LOGE("Dst downsample width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Width,
-         pstDst->u32Width, u32CellSize);
+  if (pstDst->u16Width != (pstSrc->u16Width / u32CellSize) ||
+      (pstSrc->u16Width % u32CellSize != 0)) {
+    LOGE("Dst downsample width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Width,
+         pstDst->u16Width, u32CellSize);
     return CVI_FAILURE;
   }
-  if (pstDst->u32Height != (pstSrc->u32Height / u32CellSize) ||
-      (pstSrc->u32Height % u32CellSize != 0)) {
-    LOGE("Dst downsample height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Height,
-         pstDst->u32Height, u32CellSize);
+  if (pstDst->u16Height != (pstSrc->u16Height / u32CellSize) ||
+      (pstSrc->u16Height % u32CellSize != 0)) {
+    LOGE("Dst downsample height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Height,
+         pstDst->u16Height, u32CellSize);
     return CVI_FAILURE;
   }
 
@@ -1779,16 +1780,16 @@ CVI_S32 CVI_IVE_DOWNSAMPLE(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_D
     return CVI_FAILURE;
   }
   CVI_U32 u32CellSize = pstdsCtrl->u8KnerlSize;
-  if (pstDst->u32Width != (pstSrc->u32Width / u32CellSize) ||
-      (pstSrc->u32Width % u32CellSize != 0)) {
-    LOGE("Dst downsample width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Width,
-         pstDst->u32Width, u32CellSize);
+  if (pstDst->u16Width != (pstSrc->u16Width / u32CellSize) ||
+      (pstSrc->u16Width % u32CellSize != 0)) {
+    LOGE("Dst downsample width not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Width,
+         pstDst->u16Width, u32CellSize);
     return CVI_FAILURE;
   }
-  if (pstDst->u32Height != (pstSrc->u32Height / u32CellSize) ||
-      (pstSrc->u32Height % u32CellSize != 0)) {
-    LOGE("Dst downsample height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u32Height,
-         pstDst->u32Height, u32CellSize);
+  if (pstDst->u16Height != (pstSrc->u16Height / u32CellSize) ||
+      (pstSrc->u16Height % u32CellSize != 0)) {
+    LOGE("Dst downsample height not match! Src: %u, Dst: %u. Cell size :%u\n", pstSrc->u16Height,
+         pstDst->u16Height, u32CellSize);
     return CVI_FAILURE;
   }
   IVE_HANDLE_CTX *handle_ctx = reinterpret_cast<IVE_HANDLE_CTX *>(pIveHandle);
@@ -1933,7 +1934,7 @@ inline bool get_hog_feature_info(uint16_t width, uint16_t height, uint16_t u32Ce
   return true;
 }
 
-CVI_S32 CVI_IVE_GET_HOG_SIZE(CVI_U32 u32Width, CVI_U32 u32Height, CVI_U8 u8BinSize,
+CVI_S32 CVI_IVE_GET_HOG_SIZE(CVI_U32 u16Width, CVI_U32 u16Height, CVI_U8 u8BinSize,
                              CVI_U16 u16CellSize, CVI_U16 u16BlkSizeInCell, CVI_U16 u16BlkStepX,
                              CVI_U16 u16BlkStepY, CVI_U32 *u32HogSize) {
   if (u16BlkStepX == 0) {
@@ -1945,7 +1946,7 @@ CVI_S32 CVI_IVE_GET_HOG_SIZE(CVI_U32 u32Width, CVI_U32 u32Height, CVI_U8 u8BinSi
     return CVI_FAILURE;
   }
   uint32_t height_cell = 0, width_cell = 0, height_block = 0, width_block = 0;
-  if (!get_hog_feature_info(u32Width, u32Height, u16CellSize, u16BlkSizeInCell, &width_cell,
+  if (!get_hog_feature_info(u16Width, u16Height, u16CellSize, u16BlkSizeInCell, &width_cell,
                             &height_cell, &width_block, &height_block)) {
     LOGE("Block size exceed cell block.\n");
     return CVI_FAILURE;
@@ -1965,12 +1966,12 @@ CVI_S32 CVI_IVE_HOG(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
 #ifndef CV180X
   ScopedTrace t(__PRETTY_FUNCTION__);
   // No need to check here. Will check later.
-  if (pstDstAng->u32Width % pstHogCtrl->u32CellSize != 0) {
-    LOGE("Width %u is not divisible by %u.\n", pstDstAng->u32Width, pstHogCtrl->u32CellSize);
+  if (pstDstAng->u16Width % pstHogCtrl->u32CellSize != 0) {
+    LOGE("Width %u is not divisible by %u.\n", pstDstAng->u16Width, pstHogCtrl->u32CellSize);
     return CVI_FAILURE;
   }
-  if (pstDstAng->u32Height % pstHogCtrl->u32CellSize != 0) {
-    LOGE("Height %u is not divisible by %u.\n", pstDstAng->u32Height, pstHogCtrl->u32CellSize);
+  if (pstDstAng->u16Height % pstHogCtrl->u32CellSize != 0) {
+    LOGE("Height %u is not divisible by %u.\n", pstDstAng->u16Height, pstHogCtrl->u32CellSize);
     return CVI_FAILURE;
   }
   if (pstHogCtrl->u16BlkStepX == 0) {
@@ -1982,7 +1983,7 @@ CVI_S32 CVI_IVE_HOG(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
     return CVI_FAILURE;
   }
   uint32_t height_cell = 0, width_cell = 0, height_block = 0, width_block = 0;
-  if (!get_hog_feature_info(pstDstAng->u32Width, pstDstAng->u32Height, pstHogCtrl->u32CellSize,
+  if (!get_hog_feature_info(pstDstAng->u16Width, pstDstAng->u16Height, pstHogCtrl->u32CellSize,
                             pstHogCtrl->u16BlkSizeInCell, &width_cell, &height_cell, &width_block,
                             &height_block)) {
     LOGE("Block size exceed cell block.\n");
@@ -2026,12 +2027,12 @@ CVI_S32 CVI_IVE_HOG(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
   float *cell_histogram = new float[cell_hist_length];
   memset(cell_histogram, 0, cell_hist_length * sizeof(float));
   // Do Add & DIV while creating histogram. Slow.
-  auto &&u32Height_i = (uint32_t)(pstDstAng->u32Height - 1);
-  auto &&u32Width_j = (uint32_t)(pstDstAng->u32Width - 1);
-  for (uint32_t i = 1; i < u32Height_i; i++) {
+  auto &&u16Height_i = (uint32_t)(pstDstAng->u16Height - 1);
+  auto &&u16Width_j = (uint32_t)(pstDstAng->u16Width - 1);
+  for (uint32_t i = 1; i < u16Height_i; i++) {
     uint32_t &&row_skip = pstDstAng->u16Stride[0] * i;
     uint32_t &&cell_row_skip = (i / pstHogCtrl->u32CellSize) * width_cell;
-    for (uint32_t j = 1; j < u32Width_j; j++) {
+    for (uint32_t j = 1; j < u16Width_j; j++) {
       uint32_t &&cell_index = (uint32_t)(cell_row_skip + (uint32_t)(j / pstHogCtrl->u32CellSize)) *
                               pstHogCtrl->u8BinSize;
       uint32_t degree = std::abs(convert_bf16_fp32(ang_ptr[j + row_skip]));
@@ -2203,12 +2204,12 @@ CVI_S32 CVI_IVE_Map(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_MEM_INFO
 
   if (pstMap->u32ByteSize == 512) {
     IVE_IMAGE_S table_index, lookup_index;
-    CVI_IVE_CreateImage(pIveHandle, &table_index, IVE_IMAGE_TYPE_U8C1, pstSrc->u32Width,
-                        pstSrc->u32Height);
-    CVI_IVE_CreateImage(pIveHandle, &lookup_index, IVE_IMAGE_TYPE_U8C1, pstSrc->u32Width,
-                        pstSrc->u32Height);
+    CVI_IVE_CreateImage(pIveHandle, &table_index, IVE_IMAGE_TYPE_U8C1, pstSrc->u16Width,
+                        pstSrc->u16Height);
+    CVI_IVE_CreateImage(pIveHandle, &lookup_index, IVE_IMAGE_TYPE_U8C1, pstSrc->u16Width,
+                        pstSrc->u16Height);
     neonU16SeperateU8((uint16_t *)pstSrc->pu8VirAddr[0], table_index.pu8VirAddr[0],
-                      lookup_index.pu8VirAddr[0], (pstSrc->u16Stride[0] / 2) * pstSrc->u32Height);
+                      lookup_index.pu8VirAddr[0], (pstSrc->u16Stride[0] / 2) * pstSrc->u16Height);
 
     CVI_IVE_BufFlush(pIveHandle, &table_index);
     CVI_IVE_BufFlush(pIveHandle, &lookup_index);
@@ -2328,10 +2329,10 @@ CVI_S32 CVI_IVE_NormGrad(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST
     }
 
     IVE_IMAGE_S dstH_BF16, dstV_BF16;
-    CVI_IVE_CreateImage(pIveHandle, &dstH_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u32Width,
-                        pstSrc->u32Height);
-    CVI_IVE_CreateImage(pIveHandle, &dstV_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u32Width,
-                        pstSrc->u32Height);
+    CVI_IVE_CreateImage(pIveHandle, &dstH_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u16Width,
+                        pstSrc->u16Height);
+    CVI_IVE_CreateImage(pIveHandle, &dstV_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u16Width,
+                        pstSrc->u16Height);
     CviImg *cpp_dstv = reinterpret_cast<CviImg *>(dstV_BF16.tpu_block);
     CviImg *cpp_dsth = reinterpret_cast<CviImg *>(dstH_BF16.tpu_block);
     outputs.emplace_back(cpp_dstv);
@@ -2360,8 +2361,8 @@ CVI_S32 CVI_IVE_NormGrad(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST
     IVE_IMAGE_S dst_BF16;
     if (pstDstH->enType == IVE_IMAGE_TYPE_U16C1 ||
         pstNormGradCtrl->enITCType == IVE_ITC_NORMALIZE) {
-      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u32Width,
-                          pstSrc->u32Height);
+      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u16Width,
+                          pstSrc->u16Height);
       CviImg *cpp_dsth = reinterpret_cast<CviImg *>(dst_BF16.tpu_block);
       outputs.emplace_back(cpp_dsth);
       do_free = true;
@@ -2390,8 +2391,8 @@ CVI_S32 CVI_IVE_NormGrad(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST
     IVE_IMAGE_S dst_BF16;
     if (pstDstV->enType == IVE_IMAGE_TYPE_U16C1 ||
         pstNormGradCtrl->enITCType == IVE_ITC_NORMALIZE) {
-      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u32Width,
-                          pstSrc->u32Height);
+      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u16Width,
+                          pstSrc->u16Height);
       CviImg *cpp_dstv = reinterpret_cast<CviImg *>(dst_BF16.tpu_block);
       outputs.emplace_back(cpp_dstv);
       do_free = true;
@@ -2420,8 +2421,8 @@ CVI_S32 CVI_IVE_NormGrad(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST
     IVE_IMAGE_S dst_BF16;
     if (pstDstHV->enType == IVE_IMAGE_TYPE_U16C1 ||
         pstNormGradCtrl->enITCType == IVE_ITC_NORMALIZE) {
-      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u32Width,
-                          pstSrc->u32Height);
+      CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSrc->u16Width,
+                          pstSrc->u16Height);
       CviImg *cpp_dsthv = reinterpret_cast<CviImg *>(dst_BF16.tpu_block);
       outputs.emplace_back(cpp_dsthv);
       do_free = true;
@@ -2487,8 +2488,8 @@ CVI_S32 CVI_IVE_Average(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, float *a
 
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
   uint64_t accumulate = 0;
-  neonU8Accumulate(pstSrc->pu8VirAddr[0], pstSrc->u16Stride[0] * pstSrc->u32Height, &accumulate);
-  *average = (float)accumulate / (pstSrc->u32Width * pstSrc->u32Height);
+  neonU8Accumulate(pstSrc->pu8VirAddr[0], pstSrc->u16Stride[0] * pstSrc->u16Height, &accumulate);
+  *average = (float)accumulate / (pstSrc->u16Width * pstSrc->u16Height);
 #endif
   return CVI_SUCCESS;
 }
@@ -2505,8 +2506,8 @@ CVI_S32 CVI_IVE_OrdStatFilter(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
 
   const uint32_t kz = 3;
   const uint32_t pad_sz = kz - 1;
-  if ((pstDst->u32Width + pad_sz != pstSrc->u32Width) ||
-      (pstDst->u32Height + pad_sz != pstSrc->u32Height)) {
+  if ((pstDst->u16Width + pad_sz != pstSrc->u16Width) ||
+      (pstDst->u16Height + pad_sz != pstSrc->u16Height)) {
     LOGE("Error, pstDst (width, height) should be pstSrc (width - %u, height - %u).\n", pad_sz,
          pad_sz);
     return CVI_FAILURE;
@@ -2553,7 +2554,7 @@ CVI_S32 CVI_IVE_SAD(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc1, IVE_SRC_IMA
                     IVE_DST_IMAGE_S *pstSad, IVE_DST_IMAGE_S *pstThr, IVE_SAD_CTRL_S *pstSadCtrl,
                     bool bInstant) {
   ScopedTrace t(__PRETTY_FUNCTION__);
-  if (pstSrc1->u32Width != pstSrc2->u32Width || pstSrc1->u32Height != pstSrc2->u32Height) {
+  if (pstSrc1->u16Width != pstSrc2->u16Width || pstSrc1->u16Height != pstSrc2->u16Height) {
     LOGE("Two input size must be the same!\n");
     return CVI_FAILURE;
   }
@@ -2587,13 +2588,13 @@ CVI_S32 CVI_IVE_SAD(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc1, IVE_SRC_IMA
       return CVI_FAILURE;
       break;
   }
-  if (pstSad->u32Width != pstSrc1->u32Width) {
-    LOGE("Dst width not match with src! Src: %u, dst: %u.\n", pstSrc1->u32Width, pstSad->u32Width);
+  if (pstSad->u16Width != pstSrc1->u16Width) {
+    LOGE("Dst width not match with src! Src: %u, dst: %u.\n", pstSrc1->u16Width, pstSad->u16Width);
     return CVI_FAILURE;
   }
-  if (pstSad->u32Height != pstSrc1->u32Height) {
-    LOGE("Dst height not match with src! Src: %u, dst: %u.\n", pstSrc1->u32Height,
-         pstSad->u32Height);
+  if (pstSad->u16Height != pstSrc1->u16Height) {
+    LOGE("Dst height not match with src! Src: %u, dst: %u.\n", pstSrc1->u16Height,
+         pstSad->u16Height);
     return CVI_FAILURE;
   }
   int ret = CVI_SUCCESS;
@@ -2615,14 +2616,14 @@ CVI_S32 CVI_IVE_SAD(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc1, IVE_SRC_IMA
   std::vector<CviImg *> outputs;
   IVE_IMAGE_S dst_BF16;
   if (!is_output_u8) {
-    ret = CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSad->u32Width,
-                              pstSad->u32Height);
+    ret = CVI_IVE_CreateImage(pIveHandle, &dst_BF16, IVE_IMAGE_TYPE_BF16C1, pstSad->u16Width,
+                              pstSad->u16Height);
     cpp_dst = reinterpret_cast<CviImg *>(dst_BF16.tpu_block);
   } else {
     cpp_dst = reinterpret_cast<CviImg *>(pstSad->tpu_block);
   }
   if (do_threshold) {
-    if (pstSad->u32Width != pstThr->u32Width || pstSad->u32Height != pstThr->u32Height) {
+    if (pstSad->u16Width != pstThr->u16Width || pstSad->u16Height != pstThr->u16Height) {
       LOGE("Threshold output size must be the same as SAD output!\n");
       return CVI_FAILURE;
     }
@@ -2931,7 +2932,7 @@ CVI_S32 CVI_IVE_CC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE
   if (!IsValidImageType(pstDst, STRFY(pstDst), IVE_IMAGE_TYPE_U8C1)) {
     return CVI_FAILURE;
   }
-  if (pstSrc->u32Width != pstDst->u32Width || pstSrc->u32Height != pstDst->u32Height) {
+  if (pstSrc->u16Width != pstDst->u16Width || pstSrc->u16Height != pstDst->u16Height) {
     LOGE("Src and dst size are not the same.\n");
     return CVI_FAILURE;
   }
@@ -2939,9 +2940,9 @@ CVI_S32 CVI_IVE_CC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE
   CVI_IVE_BufRequest(pIveHandle, pstDst);
   uint8_t *srcPtr = pstSrc->pu8VirAddr[0];
   uint8_t *dstPtr = pstDst->pu8VirAddr[0];
-  int32_t width = pstSrc->u32Width;
+  int32_t width = pstSrc->u16Width;
   int32_t stride = pstSrc->u16Stride[0];
-  int32_t height = pstSrc->u32Height;
+  int32_t height = pstSrc->u16Height;
   uint32_t count = 0;
 
   struct coord {
@@ -3156,10 +3157,10 @@ CVI_S32 CVI_IVE_Integ(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_ME
 
   uint32_t *ptr = (uint32_t *)pstDst->pu8VirAddr;
   int channels = 1;
-  int dst_stride = channels * (pstSrc->u32Width + 1);
+  int dst_stride = channels * (pstSrc->u16Width + 1);
 
-  GetGrayIntegralImage((uint8_t *)pstSrc->pu8VirAddr[0], ptr, (int)pstSrc->u32Width,
-                       (int)pstSrc->u32Height, (int)pstSrc->u16Stride[0], dst_stride);
+  GetGrayIntegralImage((uint8_t *)pstSrc->pu8VirAddr[0], ptr, (int)pstSrc->u16Width,
+                       (int)pstSrc->u16Height, (int)pstSrc->u16Stride[0], dst_stride);
 
   CVI_IVE_BufFlush(pIveHandle, pstSrc);
   return CVI_SUCCESS;
@@ -3172,7 +3173,7 @@ CVI_S32 CVI_IVE_Hist(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_MEM
     return CVI_FAILURE;
   }
 
-  cal_hist((int)pstSrc->u32Width, (int)pstSrc->u32Height, (uint8_t *)pstSrc->pu8VirAddr[0],
+  cal_hist((int)pstSrc->u16Width, (int)pstSrc->u16Height, (uint8_t *)pstSrc->pu8VirAddr[0],
            (int)pstSrc->u16Stride[0], (uint32_t *)pstDst->pu8VirAddr, 256);
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
   return CVI_SUCCESS;
@@ -3187,7 +3188,7 @@ CVI_S32 CVI_IVE_EqualizeHist(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
   }
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
 
-  histogramEqualisation((int)pstSrc->u32Width, (int)pstSrc->u32Height,
+  histogramEqualisation((int)pstSrc->u16Width, (int)pstSrc->u16Height,
                         (uint8_t *)pstSrc->pu8VirAddr[0], (int)pstSrc->u16Stride[0],
                         (uint8_t *)pstDst->pu8VirAddr[0], (int)pstDst->u16Stride[0]);
 
@@ -3308,7 +3309,7 @@ CVI_S32 CVI_IVE_NCC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc1, IVE_SRC_IMA
   float *ptr = (float *)pstDst->pu8VirAddr;
   float rt =
       cal_norm_cc((uint8_t *)pstSrc1->pu8VirAddr[0], (uint8_t *)pstSrc2->pu8VirAddr[0],
-                  (int)pstSrc1->u32Width, (int)pstSrc1->u32Height, (int)pstSrc1->u16Stride[0]);
+                  (int)pstSrc1->u16Width, (int)pstSrc1->u16Height, (int)pstSrc1->u16Stride[0]);
   ptr[0] = rt;
   if (bInstant) {
     CVI_IVE_BufFlush(pIveHandle, pstSrc1);
@@ -3342,7 +3343,7 @@ CVI_S32 CVI_IVE_16BitTo8Bit(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
   CVI_IVE_BufRequest(pIveHandle, pstDst);
 
-  int wxh = ((int)pstSrc->u16Stride[0] / 2 * (int)pstSrc->u32Height);
+  int wxh = ((int)pstSrc->u16Stride[0] / 2 * (int)pstSrc->u16Height);
   uint16_8bit((uint16_t *)pstSrc->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0], wxh);
 
   CVI_IVE_BufFlush(pIveHandle, pstSrc);
@@ -3482,7 +3483,7 @@ CVI_S32 CVI_IVE_LBP(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
 
   lbp_process(&self, (uint8_t *)pstDst->pu8VirAddr[0], (uint8_t *)pstSrc->pu8VirAddr[0],
-              (uint32_t)pstSrc->u16Stride[0], (uint32_t)pstSrc->u32Width, (int)pstSrc->u32Height);
+              (uint32_t)pstSrc->u16Stride[0], (uint32_t)pstSrc->u16Width, (int)pstSrc->u16Height);
 
   CVI_IVE_BufFlush(pIveHandle, pstSrc);
 
@@ -3505,9 +3506,9 @@ CVI_S32 CVI_IVE_Resize(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_I
   CVI_IVE_BufRequest(pIveHandle, pstSrc);
 
   avir::CImageResizer<> ImageResizer(8);
-  ImageResizer.resizeImage((uint8_t *)pstSrc->pu8VirAddr[0], (int)pstSrc->u32Width,
-                           (int)pstSrc->u32Height, 0, (uint8_t *)pstDst->pu8VirAddr[0],
-                           (int)pstDst->u32Width, (int)pstDst->u32Height, 1, 0);
+  ImageResizer.resizeImage((uint8_t *)pstSrc->pu8VirAddr[0], (int)pstSrc->u16Width,
+                           (int)pstSrc->u16Height, 0, (uint8_t *)pstDst->pu8VirAddr[0],
+                           (int)pstDst->u16Width, (int)pstDst->u16Height, 1, 0);
 
   CVI_IVE_BufFlush(pIveHandle, pstSrc);
 
@@ -3607,21 +3608,21 @@ CVI_S32 CVI_IVE_CSC(IVE_HANDLE *pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMA
 	//srcQuant = V4L2_QUANTIZATION_DEFAULT;
 
 #if 0
-	set_fmt_ex(srcd->fd, pstSrc->u32Width, pstSrc->u32Height, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE
+	set_fmt_ex(srcd->fd, pstSrc->u16Width, pstSrc->u16Height, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE
 		, srcfmt, srcCSC, srcQuant);
-	set_fmt_ex(dstd->fd, pstDst->u32Width, pstDst->u32Height, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE
+	set_fmt_ex(dstd->fd, pstDst->u16Width, pstDst->u16Height, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE
 		, dstfmt, dstCSC, dstQuant);
 
 	for (CVI_U8 i = 0; i < 3; ++i) {
 		buf.phy_addr[i] = pstSrc->u64PhyAddr[i];
-		buf.length[i] = pstSrc->u16Stride[i] * pstSrc->u32Height;
+		buf.length[i] = pstSrc->u16Stride[i] * pstSrc->u16Height;
 		if (pstSrc->enType == IVE_IMAGE_TYPE_YUV420P && i > 0)
 			buf.length[i] >>= 1;
 	}
 	qbuf(srcd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, &buf);
 	for (CVI_U8 i = 0; i < 3; ++i) {
 		buf.phy_addr[i] = pstDst->u64PhyAddr[i];
-		buf.length[i] = pstDst->u16Stride[i] * pstDst->u32Height;
+		buf.length[i] = pstDst->u16Stride[i] * pstDst->u16Height;
 		if (pstDst->enType == IVE_IMAGE_TYPE_YUV420P && i > 0)
 			buf.length[i] >>= 1;
 	}
@@ -3751,7 +3752,7 @@ CVI_S32 CVI_IVE_CSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
   switch (ctrl->enMode) {
     case IVE_CSC_MODE_PIC_RGB2HSV:
       rgbToHsv((uint8_t *)pstSrc->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0],
-               (int)pstSrc->u32Width, (int)pstSrc->u32Height, 3);
+               (int)pstSrc->u16Width, (int)pstSrc->u16Height, 3);
       break;
 
     case IVE_CSC_MODE_PIC_RGB2GRAY:
@@ -3759,7 +3760,7 @@ CVI_S32 CVI_IVE_CSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
       // strideDst = pstDst->u16Stride[0];
       // printf("strideSrc: %d, strideDat: %d\n", strideSrc, strideDst);
       rgbToGray((uint8_t *)pstSrc->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0], strideSrc,
-                (int)pstSrc->u32Width, (int)pstSrc->u32Height);
+                (int)pstSrc->u16Width, (int)pstSrc->u16Height);
       break;
 
     default:
@@ -3767,7 +3768,7 @@ CVI_S32 CVI_IVE_CSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAG
       // strideDst = pstDst->u16Stride[0];
       // printf("strideSrc: %d, strideDat: %d\n", strideSrc, strideDst);
       rgbToGray((uint8_t *)pstSrc->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0], strideSrc,
-                (int)pstSrc->u32Width, (int)pstSrc->u32Height);
+                (int)pstSrc->u16Width, (int)pstSrc->u16Height);
 
       break;
   }
@@ -3791,9 +3792,9 @@ CVI_S32 CVI_IVE_FilterAndCSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
   iveFltCtrl.u32Norm = 273;
   CVI_IVE_Filter(pIveHandle, pstSrc, pstBuf, &iveFltCtrl, 0);
 
-  memcpy(pstBuf->pu8VirAddr[0], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u32Height);
-  memcpy(pstBuf->pu8VirAddr[1], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u32Height);
-  memcpy(pstBuf->pu8VirAddr[2], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u32Height);
+  memcpy(pstBuf->pu8VirAddr[0], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u16Height);
+  memcpy(pstBuf->pu8VirAddr[1], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u16Height);
+  memcpy(pstBuf->pu8VirAddr[2], pstSrc->pu8VirAddr[0], pstBuf->u16Stride[0] * pstBuf->u16Height);
 
   CVI_IVE_BufRequest(pIveHandle, pstBuf);
   int strideSrc;  //, strideDst;
@@ -3801,7 +3802,7 @@ CVI_S32 CVI_IVE_FilterAndCSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
   switch (ctrl->enMode) {
     case IVE_CSC_MODE_PIC_RGB2HSV:
       rgbToHsv((uint8_t *)pstBuf->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0],
-               (int)pstBuf->u32Width, (int)pstBuf->u32Height, 3);
+               (int)pstBuf->u16Width, (int)pstBuf->u16Height, 3);
       break;
 
     case IVE_CSC_MODE_PIC_RGB2GRAY:
@@ -3809,7 +3810,7 @@ CVI_S32 CVI_IVE_FilterAndCSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
       // strideDst = pstDst->u16Stride[0];
       // printf("strideSrc: %d, strideDat: %d\n", strideSrc, strideDst);
       rgbToGray((uint8_t *)pstBuf->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0], strideSrc,
-                (int)pstBuf->u32Width, (int)pstBuf->u32Height);
+                (int)pstBuf->u16Width, (int)pstBuf->u16Height);
       break;
 
     default:
@@ -3817,7 +3818,7 @@ CVI_S32 CVI_IVE_FilterAndCSC(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc,
       // strideDst = pstDst->u16Stride[0];
       // printf("strideSrc: %d, strideDat: %d\n", strideSrc, strideDst);
       rgbToGray((uint8_t *)pstBuf->pu8VirAddr[0], (uint8_t *)pstDst->pu8VirAddr[0], strideSrc,
-                (int)pstBuf->u32Width, (int)pstBuf->u32Height);
+                (int)pstBuf->u16Width, (int)pstBuf->u16Height);
 
       break;
   }
@@ -3934,8 +3935,8 @@ CVI_S32 VideoFrameYInfo2Image(VIDEO_FRAME_INFO_S *pstVFISrc, IVE_IMAGE_S *pstIID
   }
 
   pstIIDst->tpu_block = reinterpret_cast<CVI_IMG *>(cpp_img);
-  pstIIDst->u32Width = cpp_img->GetImgWidth();
-  pstIIDst->u32Height = cpp_img->GetImgHeight();
+  pstIIDst->u16Width = cpp_img->GetImgWidth();
+  pstIIDst->u16Height = cpp_img->GetImgHeight();
   pstIIDst->u16Reserved = getFmtSize(fmt);
 
   size_t i_limit = cpp_img->GetImgChannel();

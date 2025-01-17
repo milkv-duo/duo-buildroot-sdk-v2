@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
 
   // Fetch image information. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   IVE_DST_IMAGE_S dst;
   CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_U8C1, width, height);
@@ -39,15 +39,15 @@ int main(int argc, char **argv) {
   ret |= CVI_IVE_DMA(handle, &src, &dst2, &iveDmaCtrl, 0);
 
   // Sub-image does not copy image, it just set a new ROI. DO NOT delete the original image.
-  const CVI_U16 x1 = src.u32Width / 10;
-  const CVI_U16 y1 = src.u32Height / 10;
-  const CVI_U16 x2 = src.u32Width - x1;
-  const CVI_U16 y2 = src.u32Height - y1;
+  const CVI_U16 x1 = src.u16Width / 10;
+  const CVI_U16 y1 = src.u16Height / 10;
+  const CVI_U16 x2 = src.u16Width - x1;
+  const CVI_U16 y2 = src.u16Height - y1;
   IVE_DST_IMAGE_S src_crop;
   memset(&src_crop, 0, sizeof(IVE_DST_IMAGE_S));
   CVI_IVE_SubImage(handle, &src, &src_crop, x1, y1, x2, y2);
   IVE_DST_IMAGE_S dst3;
-  CVI_IVE_CreateImage(handle, &dst3, IVE_IMAGE_TYPE_U8C1, src_crop.u32Width, src_crop.u32Height);
+  CVI_IVE_CreateImage(handle, &dst3, IVE_IMAGE_TYPE_U8C1, src_crop.u16Width, src_crop.u16Height);
 
   // Direct copy the sub-image to a new image buffer.
   printf("Run TPU Sub Direct Copy.\n");

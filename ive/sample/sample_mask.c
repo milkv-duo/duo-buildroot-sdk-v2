@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,9 +17,9 @@ int main(int argc, char **argv) {
   // Read image from file. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C3_PLANAR);
   int nChannels = 1;  // IVE_IMAGE_TYPE_U8C1 = 1 channel
-  int width = src1.u32Width;
+  int width = src1.u16Width;
   int strideWidth = src1.u16Stride[0];
-  int height = src1.u32Height;
+  int height = src1.u16Height;
 
   // Create second image to add with src1.
   IVE_SRC_IMAGE_S src2;

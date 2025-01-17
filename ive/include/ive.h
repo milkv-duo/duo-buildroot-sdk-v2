@@ -1,7 +1,11 @@
 #ifndef _IVE_H
 #define _IVE_H
 #include "cvi_comm_ive.h"
+#ifdef CV180X
 #include "linux/cvi_comm_video.h"
+#else
+#include "cvi_comm_video.h"
+#endif
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif
@@ -14,6 +18,8 @@ inline CVI_U16 CVI_CalcStride(CVI_U16 width, CVI_U16 align) {
   return stride;
 }
 
+// using namespace tpuive
+// namespace tpuive {
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -323,7 +329,6 @@ CVI_S32 CVI_IVE_BLOCK(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IM
  */
 CVI_S32 CVI_IVE_DOWNSAMPLE(IVE_HANDLE pIveHandle, IVE_SRC_IMAGE_S *pstSrc, IVE_DST_IMAGE_S *pstDst,
                            IVE_DOWNSAMPLE_CTRL_S *pstdsCtrl, bool bInstant);
-
 /**
  * @brief Dilate a gray scale image.
  *
@@ -757,5 +762,5 @@ CVI_S32 CVI_IVE_Blend_Pixel_Y(IVE_HANDLE pIveHandle, VIDEO_FRAME_INFO_S *pstSrc1
 #ifdef __cplusplus
 }
 #endif
-
+// } // namespace tpuive
 #endif  // End of _IVE_H

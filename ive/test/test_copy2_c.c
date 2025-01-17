@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,8 +24,8 @@ int main(int argc, char **argv) {
   IVE_DST_IMAGE_S src, dst;
   CVI_IVE_CreateImage(handle, &src, IVE_IMAGE_TYPE_YUV420P, width, height);
   CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_YUV420P, width, height);
-  uint32_t lumaSize = src.u16Stride[0] * src.u32Height;
-  uint32_t chromaSize = src.u16Stride[1] * src.u32Height / 2;
+  uint32_t lumaSize = src.u16Stride[0] * src.u16Height;
+  uint32_t chromaSize = src.u16Stride[1] * src.u16Height / 2;
   for (uint32_t i = 0; i < 3; i++) {
     uint32_t length = i == 0 ? lumaSize : chromaSize;
     for (uint32_t j = 0; j < length; j++) {

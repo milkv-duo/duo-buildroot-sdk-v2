@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
 
   IVE_IMAGE_S srcL = CVI_IVE_ReadImage(handle, "tsukuba_l.png", IVE_IMAGE_TYPE_U8C1);
   IVE_IMAGE_S srcR = CVI_IVE_ReadImage(handle, "tsukuba_r.png", IVE_IMAGE_TYPE_U8C1);
-  int width = srcL.u32Width;
-  int height = srcL.u32Height;
+  int width = srcL.u16Width;
+  int height = srcL.u16Height;
 
   IVE_SAD_CTRL_S iveSadCtrl;
   iveSadCtrl.enMode = IVE_SAD_MODE_MB_4X4;

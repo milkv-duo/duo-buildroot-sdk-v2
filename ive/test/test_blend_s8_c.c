@@ -1,5 +1,5 @@
 // #include "cvi_sys.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name1, img_type);
   IVE_IMAGE_S src2 = CVI_IVE_ReadImage(handle, file_name2, img_type);
 
-  int width = src1.u32Width;
-  int height = src1.u32Height;
+  int width = src1.u16Width;
+  int height = src1.u16Height;
   int strideWidth = src1.u16Stride[0];
 
   int num_channel = 3;
@@ -120,7 +120,7 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src1, IVE_SRC_IMAGE_S *src2,
     CVI_S8 *src2_ptr = (CVI_S8 *)src2->pu8VirAddr[c];
     CVI_U8 *alpha_ptr = aplha->pu8VirAddr[c];
     CVI_S8 *dst_ptr = (CVI_S8 *)dst->pu8VirAddr[c];
-    for (size_t i = 0; i < src1->u32Width * src1->u32Height; i++) {
+    for (size_t i = 0; i < src1->u16Width * src1->u16Height; i++) {
       CVI_S16 mul1 = src1_ptr[i] * alpha_ptr[i];
 
       CVI_S16 mul2 = src2_ptr[i] * (255 - alpha_ptr[i]);

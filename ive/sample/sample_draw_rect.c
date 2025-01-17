@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 #include "ive_draw.h"
 
 #include <stdio.h>

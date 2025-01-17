@@ -1,6 +1,10 @@
 #ifndef _CVI_COMM_IVE_H_
 #define _CVI_COMM_IVE_H_
+#ifdef CV180X
 #include "linux/cvi_type.h"
+#else
+#include "cvi_type.h"
+#endif
 
 #define CVI_IVE2_LENGTH_ALIGN 1
 
@@ -44,11 +48,11 @@ typedef struct IVE_DATA {
   CVI_U32 u32PhyAddr;
   CVI_U8 *pu8VirAddr;
 
-  CVI_U32 u32Stride;
-  CVI_U32 u32Width;
-  CVI_U32 u32Height;
+  CVI_U16 u16Stride;
+  CVI_U16 u16Width;
+  CVI_U16 u16Height;
 
-  CVI_U32 u32Reserved;
+  CVI_U16 u16Reserved;
   CVI_IMG_S *tpu_block;
 } IVE_DATA_S;
 
@@ -96,8 +100,8 @@ typedef struct IVE_IMAGE {
   CVI_U8 *pu8VirAddr[3];
 
   CVI_U16 u16Stride[3];
-  CVI_U32 u32Width;
-  CVI_U32 u32Height;
+  CVI_U16 u16Width;
+  CVI_U16 u16Height;
 
   CVI_U16 u16Reserved;
   CVI_IMG_S *tpu_block;

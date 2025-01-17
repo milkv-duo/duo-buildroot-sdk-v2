@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
   mSrc.u16Stride[0] = CVI_CalcStride(src1.u16Stride[0], DEFAULT_ALIGN);
   mSrc.u16Stride[1] = 0;  // If not use, fill 0 is recommended.
   mSrc.u16Stride[2] = 0;  // If not use, fill 0 is recommended.
-  mSrc.u32Width = CVI_CalcStride(src1.u32Width, CVI_IVE2_LENGTH_ALIGN);
-  mSrc.u32Height = CVI_CalcStride(src1.u32Height, CVI_IVE2_LENGTH_ALIGN);
+  mSrc.u16Width = CVI_CalcStride(src1.u16Width, CVI_IVE2_LENGTH_ALIGN);
+  mSrc.u16Height = CVI_CalcStride(src1.u16Height, CVI_IVE2_LENGTH_ALIGN);
   mSrc.enType = IVE_IMAGE_TYPE_U8C1;
   mSrc.u64PhyAddr[0] = src1.u64PhyAddr[0];
   mSrc.u64PhyAddr[1] = 0;  // If not use, fill 0 is recommended.
@@ -34,9 +34,9 @@ int main(int argc, char **argv) {
 
   // Create second image to add with src1.
   int nChannels = 1;  // IVE_IMAGE_TYPE_U8C1 = 1 channel
-  int width = src1.u32Width;
+  int width = src1.u16Width;
   int strideWidth = src1.u16Stride[0];
-  int height = src1.u32Height;
+  int height = src1.u16Height;
   IVE_SRC_IMAGE_S src2;
   CVI_IVE_CreateImage(handle, &src2, IVE_IMAGE_TYPE_U8C1, width, height);
   CVI_U32 imgSize = nChannels * strideWidth * height;

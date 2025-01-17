@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
   printf("Image size is %d X %d, channel %d\n", width, height, nChannels);
 
   IVE_DST_IMAGE_S dst;
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
   gettimeofday(&t0, NULL);
   CVI_U8 *ptr1 = src.pu8VirAddr[0];
   CVI_U8 *ptr2 = dst_cpu.pu8VirAddr[0];
-  for (size_t i = 0; i < nChannels * src.u32Width * src.u32Height; i++) {
+  for (size_t i = 0; i < nChannels * src.u16Width * src.u16Height; i++) {
     ptr2[i] = ptr1[i] >= iveThreshCtrl.u8LowThr ? iveThreshCtrl.u8MaxVal : iveThreshCtrl.u8MinVal;
   }
   gettimeofday(&t1, NULL);
@@ -93,7 +93,7 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src1, int thresh, IVE_DST_IMAGE
   CVI_U8 *src1_ptr = src1->pu8VirAddr[0];
   // CVI_U8 *src2_ptr = src2->pu8VirAddr[0];
   CVI_U8 *dst_ptr = dst->pu8VirAddr[0];
-  for (size_t i = 0; i < channels * src1->u32Width * src1->u32Height; i++) {
+  for (size_t i = 0; i < channels * src1->u16Width * src1->u16Height; i++) {
     int res = src1_ptr[i];
     if (res < thresh)
       res = 0;

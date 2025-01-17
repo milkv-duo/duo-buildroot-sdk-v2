@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-#include "cvi_ive.h"
+#include "ive.h"
 
 #define TEST_W 1920
 #define TEST_H 1080
@@ -44,8 +44,8 @@ void convert_image_to_bf16(IVE_IMAGE_S *u8c1, IVE_IMAGE_S *bf16) {
   uint32_t stride_u8c1 = u8c1->u16Stride[0];
   CVI_U16 *bf16_data = (CVI_U16 *)bf16->pu8VirAddr[0];
   CVI_U8 *u8c1_data = u8c1->pu8VirAddr[0];
-  for (int j = 0; j < u8c1->u32Height; j++) {
-    for (int i = 0; i < u8c1->u32Width; i++) {
+  for (int j = 0; j < u8c1->u16Height; j++) {
+    for (int i = 0; i < u8c1->u16Width; i++) {
       float value = (float)u8c1_data[i + j * stride_u8c1];
       if ((i * j) % 2 == 0) {
         value *= -1.0;
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
   IVE_HANDLE handle = CVI_IVE_CreateHandle();
 
   IVE_IMAGE_S src_u8c1 = CVI_IVE_ReadImage(handle, file_name1, IVE_IMAGE_TYPE_U8C1);
-  int width = src_u8c1.u32Width;
-  int height = src_u8c1.u32Height;
+  int width = src_u8c1.u16Width;
+  int height = src_u8c1.u16Height;
 
   IVE_IMAGE_S src, dst;
   CVI_IVE_CreateImage(handle, &src, IVE_IMAGE_TYPE_BF16C1, width, height);

@@ -1,5 +1,5 @@
 #include "bmkernel/bm_kernel.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
   // Fetch image information. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C1);
   // int nChannels = 1;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   // These are image buffers for HOG.
   // dstH, dstV are the gradient results of the src image.
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   // CVI_IVE_GET_HOG_SIZE is a helper function that returns the histogram size in byte with given
   // HOG setup.
   CVI_U32 dstHistByteSize = 0;
-  CVI_IVE_GET_HOG_SIZE(dstAng.u32Width, dstAng.u32Height, binNum, cellSize, blkSizeInCell, blkStepX,
+  CVI_IVE_GET_HOG_SIZE(dstAng.u16Width, dstAng.u16Height, binNum, cellSize, blkSizeInCell, blkStepX,
                        blkStepY, &dstHistByteSize);
   CVI_IVE_CreateMemInfo(handle, &dstHist, dstHistByteSize);
 

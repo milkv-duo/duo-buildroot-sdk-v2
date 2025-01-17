@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
   IVE_SRC_IMAGE_S src;
   CVI_IVE_CreateImage(handle, &src, IVE_IMAGE_TYPE_BF16C1, TEST_W, TEST_H);
-  CVI_U32 srcLength = (CVI_U32)src.u16Stride[0] * src.u32Height;
+  CVI_U32 srcLength = (CVI_U32)src.u16Stride[0] * src.u16Height;
   for (CVI_U32 i = 0; i < srcLength; i++) {
     float val = (rand() % 100 + 1) / 100.f + 0.5f;
     ((CVI_U16 *)src.pu8VirAddr[0])[i] = convert_fp32_bf16(val);
@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
   gettimeofday(&t0, NULL);
   CVI_U16 *data = (CVI_U16 *)src.pu8VirAddr[0];
   double cpu_sum = 1.f;
-  for (CVI_U32 i = 0; i < src.u32Height; i++) {
-    for (CVI_U32 j = 0; j < src.u32Width; j++) {
+  for (CVI_U32 i = 0; i < src.u16Height; i++) {
+    for (CVI_U32 j = 0; j < src.u16Width; j++) {
       cpu_sum *= convert_bf16_fp32(data[j + i * src.u16Stride[0]]);
     }
   }
@@ -89,8 +89,8 @@ int cpu_ref(IVE_SRC_IMAGE_S *src, double sum) {
   double cpu_sum = 1.f;
   int ret = CVI_SUCCESS;
   CVI_U16 *data = (CVI_U16 *)src->pu8VirAddr[0];
-  for (CVI_U32 i = 0; i < src->u32Height; i++) {
-    for (CVI_U32 j = 0; j < src->u32Width; j++) {
+  for (CVI_U32 i = 0; i < src->u16Height; i++) {
+    for (CVI_U32 j = 0; j < src->u16Width; j++) {
       cpu_sum *= convert_bf16_fp32(data[j + i * src->u16Stride[0]]);
     }
   }

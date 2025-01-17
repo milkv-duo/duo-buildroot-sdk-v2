@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,15 +27,15 @@ int main(int argc, char** argv) {
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C3_PLANAR);
   int nChannels = 3;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
   printf("Image size source is %d X %d, channel %d\n", width, height, nChannels);
 
   IVE_DST_IMAGE_S dst;
-  int width_dst = src.u32Width;
-  int height_dst = src.u32Height;
+  int width_dst = src.u16Width;
+  int height_dst = src.u16Height;
   CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_U8C1, width_dst, height_dst);
-  // printf("Image size destination is %d X %d, channel %d\n", dst.u32Width, dst.u32Height,
+  // printf("Image size destination is %d X %d, channel %d\n", dst.u16Width, dst.u16Height,
   // nChannels);
 
   printf("Run CPU CSC.\n");

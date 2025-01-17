@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -28,9 +28,9 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src1.u32Width;
+  int width = src1.u16Width;
   int stride = src1.u16Stride[0];
-  int height = src1.u32Height;
+  int height = src1.u16Height;
   IVE_SRC_IMAGE_S src2;
   CVI_IVE_CreateImage(handle, &src2, IVE_IMAGE_TYPE_U8C1, width, height);
   memset(src2.pu8VirAddr[0], 255, nChannels * stride * height);

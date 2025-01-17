@@ -11,8 +11,8 @@
 #define SCALAR_C_ALIGN 0x1
 #endif
 
-void IveCore::GetSliceUnitProperty(const uint32_t length, const uint32_t slice, const int kernel_sz,
-                                   const int default_stride, sliceUnit *unit) {
+inline void GetSliceUnitProperty(const uint32_t length, const uint32_t slice, const int kernel_sz,
+                                 const int default_stride, sliceUnit *unit) {
   unit->slice = slice > length ? length : slice;
   unit->slice = default_stride * (int)(unit->slice / default_stride);
   unit->skip = unit->slice - kernel_sz + default_stride;

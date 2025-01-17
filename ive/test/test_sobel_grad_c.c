@@ -1,7 +1,7 @@
 #include "bmkernel/bm_kernel.h"
 
 #include "bmkernel/bm1880v2/1880v2_fp_convert.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   IVE_DST_IMAGE_S dstH, dstV;
   CVI_IVE_CreateImage(handle, &dstV, IVE_IMAGE_TYPE_BF16C1, width, height);
@@ -148,8 +148,8 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
   float sqrt_epsilon = 2;
   float ang_abs_limit = 1;
   printf("Check Mag Abs:\n");
-  for (size_t i = 0; i < channels * src->u32Height; i++) {
-    for (size_t j = 0; j < src->u32Width; j++) {
+  for (size_t i = 0; i < channels * src->u16Height; i++) {
+    for (size_t j = 0; j < src->u16Width; j++) {
       size_t idx = j + i * src->u16Stride[0];
       float dstH_f = convert_bf16_fp32(dstH_ptr[idx]);
       float dstV_f = convert_bf16_fp32(dstV_ptr[idx]);
@@ -164,8 +164,8 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
     }
   }
   printf("Check Mag Sqrt:\n");
-  for (size_t i = 0; i < channels * src->u32Height; i++) {
-    for (size_t j = 0; j < src->u32Width; j++) {
+  for (size_t i = 0; i < channels * src->u16Height; i++) {
+    for (size_t j = 0; j < src->u16Width; j++) {
       size_t idx = j + i * src->u16Stride[0];
       float dstH_f = convert_bf16_fp32(dstH_ptr[idx]);
       float dstV_f = convert_bf16_fp32(dstV_ptr[idx]);
@@ -181,8 +181,8 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
   }
 
   printf("Check Ang:\n");
-  for (size_t i = 0; i < channels * src->u32Height; i++) {
-    for (size_t j = 0; j < src->u32Width; j++) {
+  for (size_t i = 0; i < channels * src->u16Height; i++) {
+    for (size_t j = 0; j < src->u16Width; j++) {
       size_t idx = j + i * src->u16Stride[0];
       float dstH_f = convert_bf16_fp32(dstH_ptr[idx]);
       float dstV_f = convert_bf16_fp32(dstV_ptr[idx]);

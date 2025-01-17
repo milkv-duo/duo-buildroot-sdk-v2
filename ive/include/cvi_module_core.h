@@ -5,7 +5,6 @@
  * @brief An ive handle
  */
 typedef void *ive_handle_t;
-
 typedef struct {
   float x1;
   float y1;
@@ -13,16 +12,13 @@ typedef struct {
   float y2;
   float score;
 } ive_bbox;
-
 typedef struct {
   ive_bbox bbox;
 } ive_bbox_t;
-
 typedef struct {
   uint32_t size;
   ive_bbox_t *info;
 } ive_bbox_t_info_t;
-
 /**
  * @brief Set background frame for motion detection.
  *
@@ -32,7 +28,6 @@ typedef struct {
  * @return int Return CVI_SUCCESS on success.
  */
 int CVI_IVE_Set_MotionDetection_Background(ive_handle_t handle, VIDEO_FRAME_INFO_S *frame);
-
 /**
  * @brief Do Motion Detection with background subtraction method.
  *

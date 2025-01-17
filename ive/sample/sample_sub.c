@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -21,19 +21,19 @@
 void print_image(IVE_IMAGE_S *src1, IVE_IMAGE_S *src2, IVE_IMAGE_S *result, int num_pixels) {
   int visiable_start_index_x;
   int visiable_start_index_y;
-  if (num_pixels > src1->u32Width || num_pixels > src1->u32Height) {
-    num_pixels = MIN(src1->u32Width, src1->u32Height);
+  if (num_pixels > src1->u16Width || num_pixels > src1->u16Height) {
+    num_pixels = MIN(src1->u16Width, src1->u16Height);
     visiable_start_index_x = visiable_start_index_y = 0;
   } else {
-    visiable_start_index_x = src1->u32Width / 2;
-    if ((visiable_start_index_x + num_pixels) > src1->u32Width) {
+    visiable_start_index_x = src1->u16Width / 2;
+    if ((visiable_start_index_x + num_pixels) > src1->u16Width) {
       visiable_start_index_x = 0;
     } else {
       visiable_start_index_x = visiable_start_index_x - num_pixels;
     }
 
-    visiable_start_index_y = src1->u32Height / 2;
-    if ((visiable_start_index_y + num_pixels) > src1->u32Height) {
+    visiable_start_index_y = src1->u16Height / 2;
+    if ((visiable_start_index_y + num_pixels) > src1->u16Height) {
       visiable_start_index_y = 0;
     } else {
       visiable_start_index_y = visiable_start_index_y - num_pixels;
@@ -85,7 +85,7 @@ typedef struct {
 void AbsThreshSrcGenerator(IVE_IMAGE_S *src1, IVE_IMAGE_S *src2) {
   int nChannels = 1;
   int strideWidth = src1->u16Stride[0];
-  int height = src1->u32Height;
+  int height = src1->u16Height;
   CVI_U32 imgSize = nChannels * strideWidth * height;
   for (CVI_U32 i = 0; i < imgSize; i++) {
     if ((i % 2) == 0) {  // set same value with src1 when i is even.
@@ -100,7 +100,7 @@ void AbsThreshSrcGenerator(IVE_IMAGE_S *src1, IVE_IMAGE_S *src2) {
 void NormalSrcGenerator(IVE_IMAGE_S *src1, IVE_IMAGE_S *src2) {
   int nChannels = 1;
   int strideWidth = src1->u16Stride[0];
-  int height = src1->u32Height;
+  int height = src1->u16Height;
   CVI_U32 imgSize = nChannels * strideWidth * height;
   for (CVI_U32 i = 0; i < imgSize; i++) {
     src2->pu8VirAddr[0][i] = rand() % 256;
@@ -108,8 +108,8 @@ void NormalSrcGenerator(IVE_IMAGE_S *src1, IVE_IMAGE_S *src2) {
 }
 
 int RunSub(IVE_HANDLE handle, IVE_IMAGE_S *src1, int visible_pixel, FuncParam param) {
-  int height = src1->u32Height;
-  int width = src1->u32Width;
+  int height = src1->u16Height;
+  int width = src1->u16Width;
 
   // Create second image to sub with src1.
   IVE_SRC_IMAGE_S src2;
@@ -173,8 +173,8 @@ int main(int argc, char **argv) {
   // IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C1);
   IVE_IMAGE_S src1;
 
-  src1.u32Width = input_w;
-  src1.u32Height = input_h;
+  src1.u16Width = input_w;
+  src1.u16Height = input_h;
   CVI_IVE_ReadRawImage(handle, &src1, (char *)filename, IVE_IMAGE_TYPE_U8C1, input_w, input_h);
 
   srand(time(NULL));

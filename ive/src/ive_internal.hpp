@@ -1,7 +1,7 @@
 #pragma once
 #include "version.hpp"
 
-#include "cvi_ive.h"
+#include "ive.h"
 #include "ive_experimental.h"
 
 #include "tracer/tracer.h"
