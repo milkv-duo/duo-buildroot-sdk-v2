@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
 
   // Read image from file. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   // Create threshold output result image.
   IVE_DST_IMAGE_S dst_thresh;

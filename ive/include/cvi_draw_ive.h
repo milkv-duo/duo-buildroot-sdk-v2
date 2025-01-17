@@ -1,6 +1,10 @@
 #ifndef _CVI_DRAW_IVE_H_
 #define _CVI_DRAW_IVE_H_
+#ifdef CV180X
 #include "linux/cvi_type.h"
+#else
+#include "cvi_type.h"
+#endif
 
 /**
  * @brief IVE point structure.

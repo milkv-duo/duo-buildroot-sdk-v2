@@ -1,7 +1,7 @@
 #include "bmkernel/bm_kernel.h"
 
 #include "bmkernel/bm1880v2/1880v2_fp_convert.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   IVE_DST_IMAGE_S dstH, dstV;
   CVI_IVE_CreateImage(handle, &dstV, IVE_IMAGE_TYPE_BF16C1, width, height);
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
   IVE_DST_MEM_INFO_S dstHist;
   CVI_U32 dstHistByteSize = 0;
-  CVI_IVE_GET_HOG_SIZE(dstAng.u32Width, dstAng.u32Height, BIN_NUM, CELL_SIZE, BLOCK_SIZE, STEP_X,
+  CVI_IVE_GET_HOG_SIZE(dstAng.u16Width, dstAng.u16Height, BIN_NUM, CELL_SIZE, BLOCK_SIZE, STEP_X,
                        STEP_Y, &dstHistByteSize);
   CVI_IVE_CreateMemInfo(handle, &dstHist, dstHistByteSize);
 
@@ -141,8 +141,8 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
   float sqrt_epsilon = 1;
   float ang_abs_limit = 1;
   printf("Check Sobel result:\n");
-  for (size_t i = 1; i < src->u32Height - 1; i++) {
-    for (size_t j = 1; j < src->u32Width - 1; j++) {
+  for (size_t i = 1; i < src->u16Height - 1; i++) {
+    for (size_t j = 1; j < src->u16Width - 1; j++) {
       size_t offset = i * src->u16Stride[0] + j;
       size_t offset_t = (i - 1) * src->u16Stride[0] + j;
       size_t offset_b = (i + 1) * src->u16Stride[0] + j;
@@ -178,7 +178,7 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
     }
   }
   printf("Check Mag:\n");
-  for (size_t i = 0; i < channels * src->u32Width * src->u32Height; i++) {
+  for (size_t i = 0; i < channels * src->u16Width * src->u16Height; i++) {
     float dstH_f = convert_bf16_fp32(dstH_ptr[i]);
     float dstV_f = convert_bf16_fp32(dstV_ptr[i]);
     float dstMag_f = convert_bf16_fp32(dstMag_ptr[i]);
@@ -191,7 +191,7 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src, IVE_DST_IMAGE_S *dstH, IVE
     }
   }
   printf("Check Ang:\n");
-  for (size_t i = 0; i < channels * src->u32Width * src->u32Height; i++) {
+  for (size_t i = 0; i < channels * src->u16Width * src->u16Height; i++) {
     float dstH_f = convert_bf16_fp32(dstH_ptr[i]);
     float dstV_f = convert_bf16_fp32(dstV_ptr[i]);
     float dstAng_f = convert_bf16_fp32(dstAng_ptr[i]);

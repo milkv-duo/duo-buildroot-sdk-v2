@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,19 +47,19 @@ void print_table(IVE_DST_MEM_INFO_S *dstTbl, uint32_t tblByteSize) {
 void print_image(IVE_IMAGE_S *src1, IVE_IMAGE_S *result, int num_pixels) {
   int visiable_start_index_x;
   int visiable_start_index_y;
-  if (num_pixels > src1->u32Width || num_pixels > src1->u32Height) {
-    num_pixels = MIN(src1->u32Width, src1->u32Height);
+  if (num_pixels > src1->u16Width || num_pixels > src1->u16Height) {
+    num_pixels = MIN(src1->u16Width, src1->u16Height);
     visiable_start_index_x = visiable_start_index_y = 0;
   } else {
-    visiable_start_index_x = src1->u32Width / 2;
-    if ((visiable_start_index_x + num_pixels) > src1->u32Width) {
+    visiable_start_index_x = src1->u16Width / 2;
+    if ((visiable_start_index_x + num_pixels) > src1->u16Width) {
       visiable_start_index_x = 0;
     } else {
       visiable_start_index_x = visiable_start_index_x - num_pixels;
     }
 
-    visiable_start_index_y = src1->u32Height / 2;
-    if ((visiable_start_index_y + num_pixels) > src1->u32Height) {
+    visiable_start_index_y = src1->u16Height / 2;
+    if ((visiable_start_index_y + num_pixels) > src1->u16Height) {
       visiable_start_index_y = 0;
     } else {
       visiable_start_index_y = visiable_start_index_y - num_pixels;

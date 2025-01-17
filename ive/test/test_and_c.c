@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +29,9 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src1.u32Width;
+  int width = src1.u16Width;
   int stride = src1.u16Stride[0];
-  int height = src1.u32Height;
+  int height = src1.u16Height;
 
   IVE_SRC_IMAGE_S src2;
   CVI_IVE_CreateImage(handle, &src2, IVE_IMAGE_TYPE_U8C1, width, height);
@@ -129,7 +129,7 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src1, IVE_SRC_IMAGE_S *src2,
   CVI_U8 *src1_ptr = src1->pu8VirAddr[0];
   CVI_U8 *src2_ptr = src2->pu8VirAddr[0];
   CVI_U8 *dst_ptr = dst->pu8VirAddr[0];
-  for (size_t i = 0; i < channels * src1->u32Width * src1->u32Height; i++) {
+  for (size_t i = 0; i < channels * src1->u16Width * src1->u16Height; i++) {
     int res = src1_ptr[i] & src2_ptr[i];
     if (res != dst_ptr[i]) {
       printf("[%zu] %d & %d = TPU %d, CPU %d\n", i, src1_ptr[i], src2_ptr[i], dst_ptr[i],

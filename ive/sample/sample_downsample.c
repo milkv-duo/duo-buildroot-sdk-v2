@@ -1,14 +1,13 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #define CELL_SZ 4
 
 void YUV420pToRGB(IVE_IMAGE_S *yuv420, IVE_IMAGE_S *rgb) {
-  for (int i = 0; i < yuv420->u32Height; i++) {
-    for (int j = 0; j < yuv420->u32Width; j++) {
+  for (int i = 0; i < yuv420->u16Height; i++) {
+    for (int j = 0; j < yuv420->u16Width; j++) {
       float Y = yuv420->pu8VirAddr[0][i * yuv420->u16Stride[0] + j];
       float U = yuv420->pu8VirAddr[1][(i / 2) * yuv420->u16Stride[1] + j / 2];
       float V = yuv420->pu8VirAddr[2][(i / 2) * yuv420->u16Stride[2] + j / 2];
@@ -45,7 +44,7 @@ void YUV420pToRGB(IVE_IMAGE_S *yuv420, IVE_IMAGE_S *rgb) {
 
 void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   for (uint32_t c = 0; c < 3; c++) {
-    int height = c < 1 ? yuv420->u32Height : yuv420->u32Height / 2;
+    int height = c < 1 ? yuv420->u16Height : yuv420->u16Height / 2;
     memset(yuv420->pu8VirAddr[c], 0, yuv420->u16Stride[c] * height);
   }
 
@@ -53,8 +52,8 @@ void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   CVI_U8 *pU = yuv420->pu8VirAddr[1];
   CVI_U8 *pV = yuv420->pu8VirAddr[2];
 
-  for (int h = 0; h < rgb->u32Height; h++) {
-    for (int w = 0; w < rgb->u32Width; w++) {
+  for (int h = 0; h < rgb->u16Height; h++) {
+    for (int w = 0; w < rgb->u16Width; w++) {
       int r = rgb->pu8VirAddr[0][w + h * rgb->u16Stride[0]];
       int g = rgb->pu8VirAddr[1][w + h * rgb->u16Stride[1]];
       int b = rgb->pu8VirAddr[2][w + h * rgb->u16Stride[2]];
@@ -101,8 +100,8 @@ int main(int argc, char **argv) {
   printf("BM Kernel init.\n");
 
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C3_PLANAR);
-  int width = src1.u32Width;
-  int height = src1.u32Height;
+  int width = src1.u16Width;
+  int height = src1.u16Height;
 
   printf("Convert image from RGB to YUV420P\n");
   IVE_IMAGE_S src1_yuv;
@@ -122,7 +121,7 @@ int main(int argc, char **argv) {
 
   // for debug src yuv
   writeYUV420P(handle, "down_img_src.yuv", width, height, &src1_yuv);
-  printf("src1_yuv: w:%d, h:%d, t:%d, s:[%d,%d,%d]\n", src1_yuv.u32Width, src1_yuv.u32Height,
+  printf("src1_yuv: w:%d, h:%d, t:%d, s:[%d,%d,%d]\n", src1_yuv.u16Width, src1_yuv.u16Height,
          src1_yuv.enType, src1_yuv.u16Stride[0], src1_yuv.u16Stride[1], src1_yuv.u16Stride[2]);
 
   IVE_DOWNSAMPLE_CTRL_S ive_ds_Ctrl;
@@ -158,7 +157,7 @@ int main(int argc, char **argv) {
     CVI_SYS_FreeI(handle, &dst_sub);
   }
 
-  printf("dst_yuv:w:%d, h:%d, t:%d, s:[%d,%d,%d]\n", dst_yuv.u32Width, dst_yuv.u32Height,
+  printf("dst_yuv:w:%d, h:%d, t:%d, s:[%d,%d,%d]\n", dst_yuv.u16Width, dst_yuv.u16Height,
          dst_yuv.enType, dst_yuv.u16Stride[0], dst_yuv.u16Stride[1], dst_yuv.u16Stride[2]);
   // for debug src yuv
   writeYUV420P(handle, "down_img_dst.yuv", res_w, res_h, &dst_yuv);

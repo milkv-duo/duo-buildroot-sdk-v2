@@ -1,7 +1,7 @@
 #include "bmkernel/bm_kernel.h"
 
 #include "bmkernel/bm1880v2/1880v2_fp_convert.h"
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
 
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   IVE_DST_IMAGE_S dst;
   CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_U8C1, width, height);

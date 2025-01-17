@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +18,8 @@ int main(int argc, char** argv) {
   // Read image from file. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S srcL = CVI_IVE_ReadImage(handle, filename1, IVE_IMAGE_TYPE_U8C1);
   IVE_IMAGE_S srcR = CVI_IVE_ReadImage(handle, filename2, IVE_IMAGE_TYPE_U8C1);
-  int width = srcL.u32Width;
-  int height = srcL.u32Height;
+  int width = srcL.u16Width;
+  int height = srcL.u16Height;
 
   // SAD can output a U16C1 image, but thresholded image only supports U8C1.
   IVE_DST_IMAGE_S dst, dst_u8, dst_thresh;

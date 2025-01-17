@@ -58,13 +58,39 @@ set(DRAWSRC ${CMAKE_CURRENT_SOURCE_DIR}/ive_draw.cpp
 
 add_library(cvi_ive_tpu SHARED ${SRC} ${DRAWSRC})
 target_link_libraries(cvi_ive_tpu ${MLIR_LIBS})
-
 add_library(cvi_ive_tpu-static STATIC ${SRC} ${DRAWSRC})
-SET_TARGET_PROPERTIES(cvi_ive_tpu-static PROPERTIES OUTPUT_NAME "cvi_ive_tpu")
+
+set(EX_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/core.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu_ive.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel_generator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/table_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu_data.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu/tpu_alpha_blend.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu/tpu_alpha_blend_pixel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu/tpu_convert_scale_abs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tpu/tpu_blend_pixel_ab.cpp
+)
+add_library(cvi_ive_tpu_ex SHARED ${EX_SRC})
+target_link_libraries(cvi_ive_tpu_ex ${MLIR_LIBS})
+add_library(cvi_ive_tpu_ex-static STATIC ${EX_SRC}) ###########
+SET_TARGET_PROPERTIES(cvi_ive_tpu_ex-static PROPERTIES OUTPUT_NAME "cvi_ive_tpu_ex") #############
+
+SET_TARGET_PROPERTIES(cvi_ive_tpu_ex-static PROPERTIES SUFFIX ".a")  #############
+
 
 install(TARGETS cvi_ive_tpu DESTINATION lib)
 install(TARGETS cvi_ive_tpu-static DESTINATION lib)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/cvi_comm_ive.h DESTINATION include)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/cvi_draw_ive.h DESTINATION include)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/cvi_ive.h DESTINATION include)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/ive.h DESTINATION include)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/ive_draw.h DESTINATION include)
+
+
+install(TARGETS cvi_ive_tpu_ex DESTINATION ex_lib)
+install(TARGETS cvi_ive_tpu_ex-static DESTINATION ex_lib)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/cvi_tpu_ive.h DESTINATION ex_include)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/cvi_comm_ive.h DESTINATION ex_include)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/ive_180x/cvi_comm_ive.h DESTINATION include/ive)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../include/ive_180x/ive.h DESTINATION include/ive)

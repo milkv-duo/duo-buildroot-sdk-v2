@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,8 +17,8 @@ int main(int argc, char **argv) {
 
   // Fetch image information. CVI_IVE_ReadImage will do the flush for you.
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C1);
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   // CVI_IVE_OrdStatFilter finds the min/ max of an image using a 3x3 mask.
   // Thus the output will slightly decrease by 2.

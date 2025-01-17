@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
   // Fetch image information. CVI_IVE_ReadImage will do the flush for you.
   printf("read src image\n");
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, filename, IVE_IMAGE_TYPE_U8C3_PLANAR);
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   struct timeval t0, t1;
 

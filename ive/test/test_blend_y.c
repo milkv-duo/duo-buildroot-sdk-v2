@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@ int cpu_ref(int width, int height, int stride, uint8_t *src_img1, uint8_t *src_i
 
 void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   for (uint32_t c = 0; c < 3; c++) {
-    uint16_t height = c < 1 ? yuv420->u32Height : yuv420->u32Height / 2;
+    uint16_t height = c < 1 ? yuv420->u16Height : yuv420->u16Height / 2;
     memset(yuv420->pu8VirAddr[c], 0, yuv420->u16Stride[c] * height);
   }
 
@@ -18,8 +18,8 @@ void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   CVI_U8 *pU = yuv420->pu8VirAddr[1];
   CVI_U8 *pV = yuv420->pu8VirAddr[2];
 
-  for (uint16_t h = 0; h < rgb->u32Height; h++) {
-    for (uint16_t w = 0; w < rgb->u32Width; w++) {
+  for (uint16_t h = 0; h < rgb->u16Height; h++) {
+    for (uint16_t w = 0; w < rgb->u16Width; w++) {
       int r = rgb->pu8VirAddr[0][w + h * rgb->u16Stride[0]];
       int g = rgb->pu8VirAddr[1][w + h * rgb->u16Stride[1]];
       int b = rgb->pu8VirAddr[2][w + h * rgb->u16Stride[2]];
@@ -34,8 +34,8 @@ void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
 }
 
 void YUV420pToRGB(IVE_IMAGE_S *yuv420, IVE_IMAGE_S *rgb) {
-  for (int i = 0; i < yuv420->u32Height; i++) {
-    for (int j = 0; j < yuv420->u32Width; j++) {
+  for (int i = 0; i < yuv420->u16Height; i++) {
+    for (int j = 0; j < yuv420->u16Width; j++) {
       float Y = yuv420->pu8VirAddr[0][i * yuv420->u16Stride[0] + j];
       float U = yuv420->pu8VirAddr[1][(i / 2) * yuv420->u16Stride[1] + j / 2];
       float V = yuv420->pu8VirAddr[2][(i / 2) * yuv420->u16Stride[2] + j / 2];
@@ -87,8 +87,8 @@ int main(int argc, char **argv) {
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name1, IVE_IMAGE_TYPE_U8C3_PLANAR);
   IVE_IMAGE_S src2 = CVI_IVE_ReadImage(handle, file_name2, IVE_IMAGE_TYPE_U8C3_PLANAR);
 
-  int width = src1.u32Width;
-  int height = src1.u32Height;
+  int width = src1.u16Width;
+  int height = src1.u16Height;
 
   printf("Convert image from RGB to YUV420P\n");
   IVE_IMAGE_S src1_yuv;

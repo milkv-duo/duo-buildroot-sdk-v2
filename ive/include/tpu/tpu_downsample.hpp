@@ -1,6 +1,5 @@
 #pragma once
 #include "core.hpp"
-
 class IveTPUDownSample : public IveCore {
  public:
   void setScaleNum(const float scale_num);

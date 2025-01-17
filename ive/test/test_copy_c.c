@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,8 +30,8 @@ int main(int argc, char **argv) {
   // Fetch image information
   IVE_IMAGE_S src = CVI_IVE_ReadImage(handle, file_name, IVE_IMAGE_TYPE_U8C1);
   int nChannels = 1;
-  int width = src.u32Width;
-  int height = src.u32Height;
+  int width = src.u16Width;
+  int height = src.u16Height;
 
   IVE_DST_IMAGE_S dst;
   CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_U8C1, width, height);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
   IVE_DST_IMAGE_S src_crop;
   CVI_IVE_SubImage(handle, &src, &src_crop, 100, 100, 1380, 820);
   IVE_DST_IMAGE_S dst3;
-  CVI_IVE_CreateImage(handle, &dst3, IVE_IMAGE_TYPE_U8C1, src_crop.u32Width, src_crop.u32Height);
+  CVI_IVE_CreateImage(handle, &dst3, IVE_IMAGE_TYPE_U8C1, src_crop.u16Width, src_crop.u16Height);
 
   printf("Run TPU Sub Direct Copy.\n");
   iveDmaCtrl.enMode = IVE_DMA_MODE_DIRECT_COPY;
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 int cpu_ref(const int channels, const int x_sz, const int y_sz, IVE_SRC_IMAGE_S *src,
             IVE_DST_IMAGE_S *dst_copy, IVE_DST_IMAGE_S *dst_interval) {
   int ret = CVI_SUCCESS;
-  for (size_t i = 0; i < channels * src->u32Width * src->u32Height; i++) {
+  for (size_t i = 0; i < channels * src->u16Width * src->u16Height; i++) {
     if (src->pu8VirAddr[0][i] != dst_copy->pu8VirAddr[0][i]) {
       printf("[%zu] original %d copied %d", i, src->pu8VirAddr[0][i], dst_copy->pu8VirAddr[0][i]);
       ret = CVI_FAILURE;
@@ -128,12 +128,12 @@ int cpu_ref(const int channels, const int x_sz, const int y_sz, IVE_SRC_IMAGE_S 
   }
   for (size_t k = 0; k < channels; k++) {
     for (size_t i = 0; i < 6; i++) {
-      for (size_t j = 0; j < dst_interval->u32Width; j++) {
+      for (size_t j = 0; j < dst_interval->u16Width; j++) {
         char src_val = src->pu8VirAddr[0][(j / x_sz) + (i / y_sz) * src->u16Stride[0] +
-                                          k * src->u16Stride[0] * src->u32Height];
+                                          k * src->u16Stride[0] * src->u16Height];
         char dst_val =
             dst_interval->pu8VirAddr[0][j + i * dst_interval->u16Stride[0] +
-                                        k * dst_interval->u16Stride[0] * dst_interval->u32Height];
+                                        k * dst_interval->u16Stride[0] * dst_interval->u16Height];
         if (i % y_sz != 0 || j % x_sz != 0) {
           src_val = 0;
         }

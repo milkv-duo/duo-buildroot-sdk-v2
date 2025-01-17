@@ -1,4 +1,4 @@
-#include "cvi_ive.h"
+#include "ive.h"
 // #include "cvi_sys.h"
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ void printBits(size_t const size, void const *const ptr) {
 }
 void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   for (uint32_t c = 0; c < 3; c++) {
-    uint16_t height = c < 1 ? yuv420->u32Height : yuv420->u32Height / 2;
+    uint16_t height = c < 1 ? yuv420->u16Height : yuv420->u16Height / 2;
     memset(yuv420->pu8VirAddr[c], 0, yuv420->u16Stride[c] * height);
   }
 
@@ -32,8 +32,8 @@ void RGBToYUV420(IVE_IMAGE_S *rgb, IVE_IMAGE_S *yuv420) {
   CVI_U8 *pU = yuv420->pu8VirAddr[1];
   CVI_U8 *pV = yuv420->pu8VirAddr[2];
 
-  for (uint16_t h = 0; h < rgb->u32Height; h++) {
-    for (uint16_t w = 0; w < rgb->u32Width; w++) {
+  for (uint16_t h = 0; h < rgb->u16Height; h++) {
+    for (uint16_t w = 0; w < rgb->u16Width; w++) {
       int r = rgb->pu8VirAddr[0][w + h * rgb->u16Stride[0]];
       int g = rgb->pu8VirAddr[1][w + h * rgb->u16Stride[1]];
       int b = rgb->pu8VirAddr[2][w + h * rgb->u16Stride[2]];
@@ -95,8 +95,8 @@ int main(int argc, char **argv) {
   IVE_IMAGE_S src1 = CVI_IVE_ReadImage(handle, file_name1, IVE_IMAGE_TYPE_U8C3_PLANAR);
   IVE_IMAGE_S src2 = CVI_IVE_ReadImage(handle, file_name2, IVE_IMAGE_TYPE_U8C3_PLANAR);
 
-  int width = src1.u32Width;
-  int height = src1.u32Height;
+  int width = src1.u16Width;
+  int height = src1.u16Height;
   IVE_IMAGE_S src1_yuv;
   CVI_IVE_CreateImage(handle, &src1_yuv, IVE_IMAGE_TYPE_YUV420P, width, height);
   RGBToYUV420(&src1, &src1_yuv);
@@ -171,8 +171,8 @@ int cpu_ref(const int channels, IVE_SRC_IMAGE_S *src_img1, IVE_SRC_IMAGE_S *src_
     CVI_U8 *alpha_ptr1 = alpha_img1->pu8VirAddr[c];
     CVI_U8 *alpha_ptr2 = alpha_img2->pu8VirAddr[c];
     CVI_U8 *dst_ptr = dst_img->pu8VirAddr[c];
-    int plane_width = src_img1->u32Width;    // c < 1 ? width : width / 2;
-    int plane_height = src_img1->u32Height;  // c < 1 ? height : height / 2;
+    int plane_width = src_img1->u16Width;    // c < 1 ? width : width / 2;
+    int plane_height = src_img1->u16Height;  // c < 1 ? height : height / 2;
     if (src_img1->enType == IVE_IMAGE_TYPE_YUV420P) {
       plane_width = c < 1 ? plane_width : plane_width / 2;
       plane_height = c < 1 ? plane_height : plane_height / 2;
