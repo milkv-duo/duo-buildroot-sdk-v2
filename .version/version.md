@@ -23,6 +23,6 @@
 | cnpy                       | cnpy                                | https://github.com/sophgo/cnpy.git                       | tpu           | 2f56f4c      |
 | flatbuffers                | flatbuffers                         | https://github.com/sophgo/flatbuffers.git                | master        | 6da1cf7      |
 | buildroot-2021.05          | buildroot-2021.05                   | https://github.com/sophgo/buildroot-2021.05.git          | sg200x-dev    | 5b7acd1b     |
-| ive                        | ive                                 | https://github.com/sophgo/ive.git                        | master        | 269c9d0      |
+| ive                        | ive                                 | https://github.com/sophgo/ive.git                        | sg200x-dev    | 64b1e5f      |
 | cvi_rtsp                   | cvi_rtsp                            | https://github.com/sophgo/cvi_rtsp.git                   | sg200x-dev    | ff71340      |
 | tdl_sdk                    | tdl_sdk                             | https://github.com/sophgo/tdl_sdk.git                    | master        | e7b67ec8     |
