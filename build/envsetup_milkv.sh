@@ -345,14 +345,8 @@ function build_sdk()
   test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
   popd
 
-  # copy so
-  cp -a "$SDK_INSTALL_PATH"/lib/*.so* "$SYSTEM_OUT_DIR"/lib/
-  # copy sample_xxx
-  if [[ "$1" = ai ]]; then
-    mkdir -p "$SYSTEM_OUT_DIR"/usr/bin/"$1"
-    cp -a "$SDK_INSTALL_PATH"/bin/sample_* "$SYSTEM_OUT_DIR"/usr/bin/"$1"
-    cp -a "${SDK_INSTALL_PATH}/sample/3rd/rtsp/lib/libcvi_rtsp.so" "$SYSTEM_OUT_DIR"/lib/
-  fi
+  # Copy additional files
+  #cp -a "${SDK_INSTALL_PATH}"/lib/*.so* "$SYSTEM_OUT_DIR"/lib/
 }
 
 function clean_sdk()
@@ -399,6 +393,10 @@ function build_tdl_sdk()
   ./build_tdl_sdk.sh all
   test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
   popd
+
+  cp -rfv "${TOP_DIR}"/tdl_sdk/install/lib/libcvi_tdl.so "${SYSTEM_OUT_DIR}"/lib/
+  #mkdir -p "${SYSTEM_OUT_DIR}"/usr/bin/"$1"
+  #cp -a "${SDK_INSTALL_PATH}"/bin/sample_* "${SYSTEM_OUT_DIR}"/usr/bin/"$1"
 }
 
 function clean_tdl_sdk()
@@ -617,7 +615,7 @@ function build_all()
       build_ivs_sdk || return $?
       build_tdl_sdk || return $?
     fi
-    build_pqtool_server || return $?
+    #build_pqtool_server || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?
