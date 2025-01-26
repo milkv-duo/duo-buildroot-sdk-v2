@@ -592,8 +592,19 @@ endif
 	${Q}mkdir -p $(BR_OVERLAY_DIR)
 	${Q}cp -arf $(BR_ROOTFS_DIR)/* $(BR_OVERLAY_DIR)
 
-br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_DIR)/output/$(BR_BOARD)
-br-rootfs-pack:
+BR_TARGET_OUTPUT_DIR=$(BR_DIR)/output/$(BR_BOARD)
+
+$(BR_DIR)/output/$(BR_BOARD)/.config:
+	$(call print_target)
+	${Q}$(MAKE) -C $(BR_DIR) $(BR_DEFCONFIG) BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH) TARGET_OUTPUT_DIR=$(BR_TARGET_OUTPUT_DIR)
+
+br-menuconfig: $(BR_DIR)/output/$(BR_BOARD)/.config
+	${Q}$(MAKE) -C $(BR_DIR) menuconfig BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH) TARGET_OUTPUT_DIR=$(BR_TARGET_OUTPUT_DIR)
+	${Q}$(MAKE) -C $(BR_DIR) savedefconfig BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH) TARGET_OUTPUT_DIR=$(BR_TARGET_OUTPUT_DIR)
+
+
+br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_TARGET_OUTPUT_DIR)
+br-rootfs-pack: 
 	$(call print_target)
 	${Q}$(MAKE) -C $(BR_DIR) $(BR_DEFCONFIG) BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH)
 	${Q}$(BR_DIR)/utils/brmake -j${NPROC} -C $(BR_DIR)
