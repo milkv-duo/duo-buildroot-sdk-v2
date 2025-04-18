@@ -41,11 +41,25 @@
 };
 
 &spi3 {
-	status = "okay";
+    status = "okay";
+    /delete-node/ spidev@0;
 
-	spidev@0 {
-		status = "okay";
-	};
+    ili9341: ili9341@0 {
+        compatible = "ilitek,ili9341";
+        reg = <0>;
+        status = "okay";
+        spi-cpol;
+        spi-cpha;
+        rotate = <180>;
+        fps = <60>;
+        buswidth = <8>;
+        spi-max-frequency = <40000000>;
+        debug = <0x0>;
+	bgr;
+        dc = <&porta 18 GPIO_ACTIVE_HIGH>;
+        reset = <&porta 28 GPIO_ACTIVE_LOW>;
+	led = <&porta 19 GPIO_ACTIVE_HIGH>;
+    };
 };
 
 &dac {
