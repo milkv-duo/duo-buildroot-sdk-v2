@@ -42,6 +42,8 @@
 
 &spi3 {
     status = "okay";
+    num-cs = <2>;
+
     /delete-node/ spidev@0;
 
     ili9341: ili9341@0 {
@@ -55,11 +57,35 @@
         buswidth = <8>;
         spi-max-frequency = <40000000>;
         debug = <0x0>;
-	bgr;
+        bgr;
         dc = <&porta 18 GPIO_ACTIVE_HIGH>;
         reset = <&porta 28 GPIO_ACTIVE_LOW>;
-	led = <&porta 19 GPIO_ACTIVE_HIGH>;
+        led = <&porta 19 GPIO_ACTIVE_HIGH>;
     };
+
+	xpt2046: xpt2046@1 {
+		compatible = "xptek,xpt2046";
+		reg = <1>;
+		status = "okay";
+		spi-max-frequency = <1500000>;
+		cs-gpios = <&portb 19 GPIO_ACTIVE_LOW>;         // CS pin
+		pendown-gpio = <&porta 20 GPIO_ACTIVE_LOW>;      // IRQ (touch detect)
+		interrupt-parent = <&porta>;
+		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;        // Use GPIO20 as interrupt
+		xptek,x-min = /bits/ 16 <0x0>;
+		xptek,x-max = /bits/ 16 <0x0fff>;
+		xptek,y-min = /bits/ 16 <0x0>;
+		xptek,y-max = /bits/ 16 <0x0fff>;
+
+		xptek,x-plate-ohms = /bits/ 16 <180>;
+		xptek,pressure-max = /bits/ 16 <255>;
+
+		xptek,debounce-max = /bits/ 16 <30>;
+		xptek,debounce-tol = /bits/ 16 <10>;
+		xptek,debounce-rep = /bits/ 16 <1>;
+
+		wakeup-source;
+	};
 };
 
 &dac {

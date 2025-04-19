@@ -1,0 +1,1397 @@
+/* SPDX-License-Identifier: GPL-2.0-only
+/*
+ * XPT2046 based touchscreen and sensor driver
+ *
+ * Using code from: ads7846.c
+ * Modified by: Rider 
+ */
+ 
+ #include <linux/types.h>
+ #include <linux/hwmon.h>
+ #include <linux/err.h>
+ #include <linux/sched.h>
+ #include <linux/delay.h>
+ #include <linux/input.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/pm.h>
+ #include <linux/of.h>
+ #include <linux/of_gpio.h>
+ #include <linux/of_device.h>
+ #include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/module.h>
+ #include <asm/irq.h>
+ #include <asm/unaligned.h>
+#include "xpt2046_ts.h"
+
+/*
+ * IRQ handling needs a workaround because of a shortcoming in handling
+ * edge triggered IRQs on some platforms like the OMAP1/2. These
+ * platforms don't handle the ARM lazy IRQ disabling properly, thus we
+ * have to maintain our own SW IRQ disabled status. This should be
+ * removed as soon as the affected platform's IRQ handling is fixed.
+ *
+ * app note sbaa036 talks in more detail about accurate sampling...
+ * that ought to help in situations like LCDs inducing noise (which
+ * can also be helped by using synch signals) and more generally.
+ * This driver tries to utilize the measures described in the app
+ * note. The strength of filtering can be set in the board-* specific
+ * files.
+ */
+
+ #define TS_POLL_DELAY	1	/* ms delay before the first sample */
+ #define TS_POLL_PERIOD	5	/* ms delay between samples */
+ 
+ /* this driver doesn't aim at the peak continuous sample rate */
+ #define	SAMPLE_BITS	(8 /*cmd*/ + 16 /*sample*/ + 2 /* before, after */)
+ 
+ struct ts_event {
+	 /*
+	  * For portability, we can't read 12 bit values using SPI (which
+	  * would make the controller deliver them as native byte order u16
+	  * with msbs zeroed).  Instead, we read them as two 8-bit values,
+	  * *** WHICH NEED BYTESWAPPING *** and range adjustment.
+	  */
+	 u16	x;
+	 u16	y;
+	 u16	z1, z2;
+	 bool	ignore;
+	 u8	x_buf[3];
+	 u8	y_buf[3];
+ };
+ 
+ /*
+  * We allocate this separately to avoid cache line sharing issues when
+  * driver is used with DMA-based SPI controllers (like atmel_spi) on
+  * systems where main memory is not DMA-coherent (most non-x86 boards).
+  */
+ struct xpt2046_packet {
+	 u8			read_x, read_y, read_z1, read_z2, pwrdown;
+	 u16			dummy;		/* for the pwrdown read */
+	 struct ts_event		tc;
+ };
+ 
+ struct xpt2046 {
+	 struct input_dev	*input;
+	 char			phys[32];
+	 char			name[32];
+ 
+	 struct spi_device	*spi;
+	 struct regulator	*reg;
+ 
+ #if IS_ENABLED(CONFIG_HWMON)
+	 struct device		*hwmon;
+ #endif
+ 
+	 u16			model;
+	 u16			vref_mv;
+	 u16			vref_delay_usecs;
+	 u16			x_plate_ohms;
+	 u16			pressure_max;
+ 
+	 bool			swap_xy;
+	 bool			use_internal;
+ 
+	 struct xpt2046_packet	*packet;
+ 
+	 struct spi_transfer	xfer[18];
+	 struct spi_message	msg[5];
+	 int			msg_count;
+	 wait_queue_head_t	wait;
+ 
+	 bool			pendown;
+ 
+	 int			read_cnt;
+	 int			read_rep;
+	 int			last_read;
+ 
+	 u16			debounce_max;
+	 u16			debounce_tol;
+	 u16			debounce_rep;
+ 
+	 u16			penirq_recheck_delay_usecs;
+ 
+	 struct touchscreen_properties core_prop;
+ 
+	 struct mutex		lock;
+	 bool			stopped;	/* P: lock */
+	 bool			disabled;	/* P: lock */
+	 bool			suspended;	/* P: lock */
+ 
+	 int			(*filter)(void *data, int data_idx, int *val);
+	 void			*filter_data;
+	 void			(*filter_cleanup)(void *data);
+	 int			(*get_pendown_state)(void);
+	 int			gpio_pendown;
+ 
+	 void			(*wait_for_sync)(void);
+ };
+ 
+ /* leave chip selected when we're done, for quicker re-select? */
+ #if	0
+ #define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
+ #else
+ #define	CS_CHANGE(xfer)	((xfer).cs_change = 0)
+ #endif
+ 
+ /*--------------------------------------------------------------------------*/
+ 
+ /* The XPT2046 has touchscreen and other sensors.
+  */
+ #define	XPT_START		(1 << 7)
+ #define	XPT_A2A1A0_d_y		(1 << 4)	/* differential */
+ #define	XPT_A2A1A0_d_z1		(3 << 4)	/* differential */
+ #define	XPT_A2A1A0_d_z2		(4 << 4)	/* differential */
+ #define	XPT_A2A1A0_d_x		(5 << 4)	/* differential */
+ #define	XPT_A2A1A0_temp0	(0 << 4)	/* non-differential */
+ #define	XPT_A2A1A0_vbatt	(2 << 4)	/* non-differential */
+ #define	XPT_A2A1A0_vaux		(6 << 4)	/* non-differential */
+ #define	XPT_A2A1A0_temp1	(7 << 4)	/* non-differential */
+ #define	XPT_8_BIT		(1 << 3)
+ #define	XPT_12_BIT		(0 << 3)
+ #define	XPT_SER			(1 << 2)	/* non-differential */
+ #define	XPT_DFR			(0 << 2)	/* differential */
+ #define	XPT_PD10_PDOWN		(0 << 0)	/* low power mode + penirq */
+ #define	XPT_PD10_ADC_ON		(1 << 0)	/* ADC on */
+ #define	XPT_PD10_REF_ON		(2 << 0)	/* vREF on + penirq */
+ #define	XPT_PD10_ALL_ON		(3 << 0)	/* ADC + vREF on */
+ 
+ #define	MAX_12BIT	((1<<12)-1)
+ 
+ /* leave ADC powered up (disables penirq) between differential samples */
+ #define	READ_12BIT_DFR(x, adc, vref) (XPT_START | XPT_A2A1A0_d_ ## x \
+	 | XPT_12_BIT | XPT_DFR | \
+	 (adc ? XPT_PD10_ADC_ON : 0) | (vref ? XPT_PD10_REF_ON : 0))
+ 
+ #define	READ_Y(vref)	(READ_12BIT_DFR(y,  1, vref))
+ #define	READ_Z1(vref)	(READ_12BIT_DFR(z1, 1, vref))
+ #define	READ_Z2(vref)	(READ_12BIT_DFR(z2, 1, vref))
+ 
+ #define	READ_X(vref)	(READ_12BIT_DFR(x,  1, vref))
+ #define	PWRDOWN		(READ_12BIT_DFR(y,  0, 0))	/* LAST */
+ 
+ /* single-ended samples need to first power up reference voltage;
+  * we leave both ADC and VREF powered
+  */
+ #define	READ_12BIT_SER(x) (XPT_START | XPT_A2A1A0_ ## x \
+	 | XPT_12_BIT | XPT_SER)
+ 
+ #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
+ #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+ 
+ static int get_pendown_state(struct xpt2046 *ts)
+ {
+	 if (ts->get_pendown_state)
+		 return ts->get_pendown_state();
+ 
+	 return !gpio_get_value(ts->gpio_pendown);
+ }
+ 
+ static void xpt2046_report_pen_up(struct xpt2046 *ts)
+ {
+	 struct input_dev *input = ts->input;
+ 
+	 input_report_key(input, BTN_TOUCH, 0);
+	 input_report_abs(input, ABS_PRESSURE, 0);
+	 input_sync(input);
+ 
+	 ts->pendown = false;
+	 dev_vdbg(&ts->spi->dev, "UP\n");
+ }
+ 
+ /* Must be called with ts->lock held */
+ static void xpt2046_stop(struct xpt2046 *ts)
+ {
+	 if (!ts->disabled && !ts->suspended) {
+		 /* Signal IRQ thread to stop polling and disable the handler. */
+		 ts->stopped = true;
+		 mb();
+		 wake_up(&ts->wait);
+		 disable_irq(ts->spi->irq);
+	 }
+ }
+ 
+ /* Must be called with ts->lock held */
+ static void xpt2046_restart(struct xpt2046 *ts)
+ {
+	 if (!ts->disabled && !ts->suspended) {
+		 /* Check if pen was released since last stop */
+		 if (ts->pendown && !get_pendown_state(ts))
+			 xpt2046_report_pen_up(ts);
+ 
+		 /* Tell IRQ thread that it may poll the device. */
+		 ts->stopped = false;
+		 mb();
+		 enable_irq(ts->spi->irq);
+	 }
+ }
+ 
+ /* Must be called with ts->lock held */
+ static void __xpt2046_disable(struct xpt2046 *ts)
+ {
+	 xpt2046_stop(ts);
+	 regulator_disable(ts->reg);
+ 
+	 /*
+	  * We know the chip's in low power mode since we always
+	  * leave it that way after every request
+	  */
+ }
+ 
+ /* Must be called with ts->lock held */
+ static void __xpt2046_enable(struct xpt2046 *ts)
+ {
+	 int error;
+ 
+	 error = regulator_enable(ts->reg);
+	 if (error != 0)
+		 dev_err(&ts->spi->dev, "Failed to enable supply: %d\n", error);
+ 
+	 xpt2046_restart(ts);
+ }
+ 
+ static void xpt2046_disable(struct xpt2046 *ts)
+ {
+	 mutex_lock(&ts->lock);
+ 
+	 if (!ts->disabled) {
+ 
+		 if  (!ts->suspended)
+			 __xpt2046_disable(ts);
+ 
+		 ts->disabled = true;
+	 }
+ 
+	 mutex_unlock(&ts->lock);
+ }
+ 
+ static void xpt2046_enable(struct xpt2046 *ts)
+ {
+	 mutex_lock(&ts->lock);
+ 
+	 if (ts->disabled) {
+ 
+		 ts->disabled = false;
+ 
+		 if (!ts->suspended)
+			 __xpt2046_enable(ts);
+	 }
+ 
+	 mutex_unlock(&ts->lock);
+ }
+ 
+ /*--------------------------------------------------------------------------*/
+ 
+ /*
+  * Non-touchscreen sensors only use single-ended conversions.
+  * xpt2046 lets that pin be unconnected, to use internal vREF.
+  */
+ 
+ struct ser_req {
+	 u8			ref_on;
+	 u8			command;
+	 u8			ref_off;
+	 u16			scratch;
+	 struct spi_message	msg;
+	 struct spi_transfer	xfer[6];
+	 /*
+	  * DMA (thus cache coherency maintenance) requires the
+	  * transfer buffers to live in their own cache lines.
+	  */
+	 __be16 sample ____cacheline_aligned;
+ };
+ 
+ static int xpt2046_read12_ser(struct device *dev, unsigned command)
+ {
+	 struct spi_device *spi = to_spi_device(dev);
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+	 struct ser_req *req;
+	 int status;
+ 
+	 req = kzalloc(sizeof *req, GFP_KERNEL);
+	 if (!req)
+		 return -ENOMEM;
+ 
+	 spi_message_init(&req->msg);
+ 
+	 /* maybe turn on internal vREF, and let it settle */
+	 if (ts->use_internal) {
+		 req->ref_on = REF_ON;
+		 req->xfer[0].tx_buf = &req->ref_on;
+		 req->xfer[0].len = 1;
+		 spi_message_add_tail(&req->xfer[0], &req->msg);
+ 
+		 req->xfer[1].rx_buf = &req->scratch;
+		 req->xfer[1].len = 2;
+ 
+		 /* for 1uF, settle for 800 usec; no cap, 100 usec.  */
+		 req->xfer[1].delay.value = ts->vref_delay_usecs;
+		 req->xfer[1].delay.unit = SPI_DELAY_UNIT_USECS;
+		 spi_message_add_tail(&req->xfer[1], &req->msg);
+ 
+		 /* Enable reference voltage */
+		 command |= XPT_PD10_REF_ON;
+	 }
+ 
+	 /* Enable ADC in every case */
+	 command |= XPT_PD10_ADC_ON;
+ 
+	 /* take sample */
+	 req->command = (u8) command;
+	 req->xfer[2].tx_buf = &req->command;
+	 req->xfer[2].len = 1;
+	 spi_message_add_tail(&req->xfer[2], &req->msg);
+ 
+	 req->xfer[3].rx_buf = &req->sample;
+	 req->xfer[3].len = 2;
+	 spi_message_add_tail(&req->xfer[3], &req->msg);
+ 
+	 /* REVISIT:  take a few more samples, and compare ... */
+ 
+	 /* converter in low power mode & enable PENIRQ */
+	 req->ref_off = PWRDOWN;
+	 req->xfer[4].tx_buf = &req->ref_off;
+	 req->xfer[4].len = 1;
+	 spi_message_add_tail(&req->xfer[4], &req->msg);
+ 
+	 req->xfer[5].rx_buf = &req->scratch;
+	 req->xfer[5].len = 2;
+	 CS_CHANGE(req->xfer[5]);
+	 spi_message_add_tail(&req->xfer[5], &req->msg);
+ 
+	 mutex_lock(&ts->lock);
+	 xpt2046_stop(ts);
+	 status = spi_sync(spi, &req->msg);
+	 xpt2046_restart(ts);
+	 mutex_unlock(&ts->lock);
+ 
+	 if (status == 0) {
+		 /* on-wire is a must-ignore bit, a BE12 value, then padding */
+		 status = be16_to_cpu(req->sample);
+		 status = status >> 3;
+		 status &= 0x0fff;
+	 }
+ 
+	 kfree(req);
+	 return status;
+ }
+ 
+ #if IS_ENABLED(CONFIG_HWMON)
+ 
+ #define SHOW(name, var, adjust) static ssize_t \
+ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+	 struct xpt2046 *ts = dev_get_drvdata(dev); \
+	 ssize_t v = xpt2046_read12_ser(&ts->spi->dev, \
+			 READ_12BIT_SER(var)); \
+	 if (v < 0) \
+		 return v; \
+	 return sprintf(buf, "%u\n", adjust(ts, v)); \
+ } \
+ static DEVICE_ATTR(name, S_IRUGO, name ## _show, NULL);
+ 
+ 
+ /* Sysfs conventions report temperatures in millidegrees Celsius.
+  * xpt2046 could use the low-accuracy two-sample scheme, but can't do the high
+  * accuracy scheme without calibration data.  For now we won't try either;
+  * userspace sees raw sensor values, and must scale/calibrate appropriately.
+  */
+ static inline unsigned null_adjust(struct xpt2046 *ts, ssize_t v)
+ {
+	 return v;
+ }
+ 
+ SHOW(temp0, temp0, null_adjust)		/* temp1_input */
+ SHOW(temp1, temp1, null_adjust)		/* temp2_input */
+ 
+ 
+ /* sysfs conventions report voltages in millivolts.  We can convert voltages
+  * if we know vREF.  userspace may need to scale vAUX to match the board's
+  * external resistors; we assume that vBATT only uses the internal ones.
+  */
+ static inline unsigned vaux_adjust(struct xpt2046 *ts, ssize_t v)
+ {
+	 unsigned retval = v;
+ 
+	 /* external resistors may scale vAUX into 0..vREF */
+	 retval *= ts->vref_mv;
+	 retval = retval >> 12;
+ 
+	 return retval;
+ }
+ 
+ static inline unsigned vbatt_adjust(struct xpt2046 *ts, ssize_t v)
+ {
+	 unsigned retval = vaux_adjust(ts, v);
+ 
+	 /* xpt2046 has a resistor ladder to scale this signal down */
+	 if (ts->model == 2046)
+		 retval *= 4;
+ 
+	 return retval;
+ }
+ 
+ SHOW(in0_input, vaux, vaux_adjust)
+ SHOW(in1_input, vbatt, vbatt_adjust)
+ 
+ static umode_t xpt2046_is_visible(struct kobject *kobj, struct attribute *attr,
+				   int index)
+ {
+	 struct device *dev = container_of(kobj, struct device, kobj);
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+ 
+	 return attr->mode;
+ }
+ 
+ static struct attribute *xpt2046_attributes[] = {
+	 &dev_attr_temp0.attr,		/* 0 */
+	 &dev_attr_temp1.attr,		/* 1 */
+	 &dev_attr_in0_input.attr,	/* 2 */
+	 &dev_attr_in1_input.attr,	/* 3 */
+	 NULL,
+ };
+ 
+ static const struct attribute_group xpt2046_attr_group = {
+	 .attrs = xpt2046_attributes,
+	 .is_visible = xpt2046_is_visible,
+ };
+ __ATTRIBUTE_GROUPS(xpt2046_attr);
+ 
+ static int xpt204x_hwmon_register(struct spi_device *spi, struct xpt2046 *ts)
+ {
+	 /* hwmon sensors need a reference voltage */
+	 switch (ts->model) {
+	 case 2046:
+		 if (!ts->vref_mv) {
+			 dev_dbg(&spi->dev, "assuming 2.5V internal vREF\n");
+			 ts->vref_mv = 2500;
+			 ts->use_internal = true;
+		 }
+		 break;
+	 }
+ 
+	 ts->hwmon = hwmon_device_register_with_groups(&spi->dev, spi->modalias,
+							   ts, xpt2046_attr_groups);
+ 
+	 return PTR_ERR_OR_ZERO(ts->hwmon);
+ }
+ 
+ static void xpt204x_hwmon_unregister(struct spi_device *spi,
+					  struct xpt2046 *ts)
+ {
+	 if (ts->hwmon)
+		 hwmon_device_unregister(ts->hwmon);
+ }
+ 
+ #else
+ static inline int xpt204x_hwmon_register(struct spi_device *spi,
+					  struct xpt2046 *ts)
+ {
+	 return 0;
+ }
+ 
+ static inline void xpt204x_hwmon_unregister(struct spi_device *spi,
+						 struct xpt2046 *ts)
+ {
+ }
+ #endif
+ 
+ static ssize_t xpt2046_pen_down_show(struct device *dev,
+					  struct device_attribute *attr, char *buf)
+ {
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+ 
+	 return sprintf(buf, "%u\n", ts->pendown);
+ }
+ 
+ static DEVICE_ATTR(pen_down, S_IRUGO, xpt2046_pen_down_show, NULL);
+ 
+ static ssize_t xpt2046_disable_show(struct device *dev,
+					  struct device_attribute *attr, char *buf)
+ {
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+ 
+	 return sprintf(buf, "%u\n", ts->disabled);
+ }
+ 
+ static ssize_t xpt2046_disable_store(struct device *dev,
+					  struct device_attribute *attr,
+					  const char *buf, size_t count)
+ {
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+	 unsigned int i;
+	 int err;
+ 
+	 err = kstrtouint(buf, 10, &i);
+	 if (err)
+		 return err;
+ 
+	 if (i)
+		 xpt2046_disable(ts);
+	 else
+		 xpt2046_enable(ts);
+ 
+	 return count;
+ }
+ 
+ static DEVICE_ATTR(disable, 0664, xpt2046_disable_show, xpt2046_disable_store);
+ 
+ static struct attribute *xpt204x_attributes[] = {
+	 &dev_attr_pen_down.attr,
+	 &dev_attr_disable.attr,
+	 NULL,
+ };
+ 
+ static const struct attribute_group xpt204x_attr_group = {
+	 .attrs = xpt204x_attributes,
+ };
+ 
+ /*--------------------------------------------------------------------------*/
+ 
+ static void null_wait_for_sync(void)
+ {
+ }
+ 
+ static int xpt2046_debounce_filter(void *xpt, int data_idx, int *val)
+ {
+	 struct xpt2046 *ts = xpt;
+ 
+	 if (!ts->read_cnt || (abs(ts->last_read - *val) > ts->debounce_tol)) {
+		 /* Start over collecting consistent readings. */
+		 ts->read_rep = 0;
+		 /*
+		  * Repeat it, if this was the first read or the read
+		  * wasn't consistent enough.
+		  */
+		 if (ts->read_cnt < ts->debounce_max) {
+			 ts->last_read = *val;
+			 ts->read_cnt++;
+			 return XPT2046_FILTER_REPEAT;
+		 } else {
+			 /*
+			  * Maximum number of debouncing reached and still
+			  * not enough number of consistent readings. Abort
+			  * the whole sample, repeat it in the next sampling
+			  * period.
+			  */
+			 ts->read_cnt = 0;
+			 return XPT2046_FILTER_IGNORE;
+		 }
+	 } else {
+		 if (++ts->read_rep > ts->debounce_rep) {
+			 /*
+			  * Got a good reading for this coordinate,
+			  * go for the next one.
+			  */
+			 ts->read_cnt = 0;
+			 ts->read_rep = 0;
+			 return XPT2046_FILTER_OK;
+		 } else {
+			 /* Read more values that are consistent. */
+			 ts->read_cnt++;
+			 return XPT2046_FILTER_REPEAT;
+		 }
+	 }
+ }
+ 
+ static int xpt2046_no_filter(void *xpt, int data_idx, int *val)
+ {
+	 return XPT2046_FILTER_OK;
+ }
+ 
+ static int xpt2046_get_value(struct xpt2046 *ts, struct spi_message *m)
+ {
+	 int value;
+	 struct spi_transfer *t =
+		 list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
+	/*
+	* adjust:  on-wire is a must-ignore bit, a BE12 value, then
+	* padding; built from two 8 bit values written msb-first.
+	*/
+	 value = be16_to_cpup((__be16 *)t->rx_buf);
+ 
+	 /* enforce ADC output is 12 bits width */
+	 return (value >> 3) & 0xfff;
+ }
+ 
+ static void xpt2046_update_value(struct spi_message *m, int val)
+ {
+	 struct spi_transfer *t =
+		 list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
+ 
+	 *(u16 *)t->rx_buf = val;
+ }
+ 
+ static void xpt2046_read_state(struct xpt2046 *ts)
+ {
+	 struct xpt2046_packet *packet = ts->packet;
+	 struct spi_message *m;
+	 int msg_idx = 0;
+	 int val;
+	 int action;
+	 int error;
+ 
+	 while (msg_idx < ts->msg_count) {
+ 
+		 ts->wait_for_sync();
+ 
+		 m = &ts->msg[msg_idx];
+		 error = spi_sync(ts->spi, m);
+		 if (error) {
+			 dev_err(&ts->spi->dev, "spi_sync --> %d\n", error);
+			 packet->tc.ignore = true;
+			 return;
+		 }
+ 
+		 /*
+		  * Last message is power down request, no need to convert
+		  * or filter the value.
+		  */
+		 if (msg_idx < ts->msg_count - 1) {
+ 
+			 val = xpt2046_get_value(ts, m);
+ 
+			 action = ts->filter(ts->filter_data, msg_idx, &val);
+			 switch (action) {
+			 case XPT2046_FILTER_REPEAT:
+				 continue;
+ 
+			 case XPT2046_FILTER_IGNORE:
+				 packet->tc.ignore = true;
+				 msg_idx = ts->msg_count - 1;
+				 continue;
+ 
+			 case XPT2046_FILTER_OK:
+				 xpt2046_update_value(m, val);
+				 packet->tc.ignore = false;
+				 msg_idx++;
+				 break;
+ 
+			 default:
+				 BUG();
+			 }
+		 } else {
+			 msg_idx++;
+		 }
+	 }
+ }
+ 
+ static void xpt2046_report_state(struct xpt2046 *ts)
+ {
+	 struct xpt2046_packet *packet = ts->packet;
+	 unsigned int Rt;
+	 u16 x, y, z1, z2;
+ 
+	 /*
+	  * xpt2046_get_value() does in-place conversion (including byte swap)
+	  * from on-the-wire format as part of debouncing to get stable
+	  * readings.
+	  */
+
+	 x = packet->tc.x;
+	 y = packet->tc.y;
+	 z1 = packet->tc.z1;
+	 z2 = packet->tc.z2;
+ 
+	 /* range filtering */
+	 if (x == MAX_12BIT)
+		 x = 0;
+ 
+	 if (likely(x && z1)) {
+		 /* compute touch pressure resistance using equation #2 */
+		 Rt = z2;
+		 Rt -= z1;
+		 Rt *= ts->x_plate_ohms;
+		 Rt = DIV_ROUND_CLOSEST(Rt, 16);
+		 Rt *= x;
+		 Rt /= z1;
+		 Rt = DIV_ROUND_CLOSEST(Rt, 256);
+	 } else {
+		 Rt = 0;
+	 }
+ 
+	 /*
+	  * Sample found inconsistent by debouncing or pressure is beyond
+	  * the maximum. Don't report it to user space, repeat at least
+	  * once more the measurement
+	  */
+	 if (packet->tc.ignore || Rt > ts->pressure_max) {
+		 dev_vdbg(&ts->spi->dev, "ignored %d pressure %d\n",
+			  packet->tc.ignore, Rt);
+		 return;
+	 }
+ 
+	 /*
+	  * Maybe check the pendown state before reporting. This discards
+	  * false readings when the pen is lifted.
+	  */
+	 if (ts->penirq_recheck_delay_usecs) {
+		 udelay(ts->penirq_recheck_delay_usecs);
+		 if (!get_pendown_state(ts))
+			 Rt = 0;
+	 }
+ 
+	 /*
+	  * NOTE: We can't rely on the pressure to determine the pen down
+	  * state, even this controller has a pressure sensor. The pressure
+	  * value can fluctuate for quite a while after lifting the pen and
+	  * in some cases may not even settle at the expected value.
+	  *
+	  * The only safe way to check for the pen up condition is in the
+	  * timer by reading the pen signal state (it's a GPIO _and_ IRQ).
+	  */
+	 if (Rt) {
+		 struct input_dev *input = ts->input;
+ 
+		 if (!ts->pendown) {
+			 input_report_key(input, BTN_TOUCH, 1);
+			 ts->pendown = true;
+			 dev_vdbg(&ts->spi->dev, "DOWN\n");
+		 }
+ 
+		 touchscreen_report_pos(input, &ts->core_prop, x, y, false);
+		 input_report_abs(input, ABS_PRESSURE, ts->pressure_max - Rt);
+ 
+		 input_sync(input);
+		 dev_vdbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, Rt);
+	 }
+ }
+ 
+ static irqreturn_t xpt2046_hard_irq(int irq, void *handle)
+ {
+	 struct xpt2046 *ts = handle;
+ 
+	 return get_pendown_state(ts) ? IRQ_WAKE_THREAD : IRQ_HANDLED;
+ }
+ 
+ 
+ static irqreturn_t xpt2046_irq(int irq, void *handle)
+ {
+	 struct xpt2046 *ts = handle;
+ 
+	 /* Start with a small delay before checking pendown state */
+	 msleep(TS_POLL_DELAY);
+ 
+	 while (!ts->stopped && get_pendown_state(ts)) {
+ 
+		 /* pen is down, continue with the measurement */
+		 xpt2046_read_state(ts);
+ 
+		 if (!ts->stopped)
+			 xpt2046_report_state(ts);
+ 
+		 wait_event_timeout(ts->wait, ts->stopped,
+					msecs_to_jiffies(TS_POLL_PERIOD));
+	 }
+ 
+	 if (ts->pendown && !ts->stopped)
+		 xpt2046_report_pen_up(ts);
+ 
+	 return IRQ_HANDLED;
+ }
+ 
+ static int __maybe_unused xpt2046_suspend(struct device *dev)
+ {
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+ 
+	 mutex_lock(&ts->lock);
+ 
+	 if (!ts->suspended) {
+ 
+		 if (!ts->disabled)
+			 __xpt2046_disable(ts);
+ 
+		 if (device_may_wakeup(&ts->spi->dev))
+			 enable_irq_wake(ts->spi->irq);
+ 
+		 ts->suspended = true;
+	 }
+ 
+	 mutex_unlock(&ts->lock);
+ 
+	 return 0;
+ }
+ 
+ static int __maybe_unused xpt2046_resume(struct device *dev)
+ {
+	 struct xpt2046 *ts = dev_get_drvdata(dev);
+ 
+	 mutex_lock(&ts->lock);
+ 
+	 if (ts->suspended) {
+ 
+		 ts->suspended = false;
+ 
+		 if (device_may_wakeup(&ts->spi->dev))
+			 disable_irq_wake(ts->spi->irq);
+ 
+		 if (!ts->disabled)
+			 __xpt2046_enable(ts);
+	 }
+ 
+	 mutex_unlock(&ts->lock);
+ 
+	 return 0;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(xpt2046_pm, xpt2046_suspend, xpt2046_resume);
+ 
+ static int xpt2046_setup_pendown(struct spi_device *spi,
+				  struct xpt2046 *ts,
+				  const struct xpt2046_platform_data *pdata)
+ {
+	 int err;
+ 
+	 /*
+	  * REVISIT when the irq can be triggered active-low, or if for some
+	  * reason the touchscreen isn't hooked up, we don't need to access
+	  * the pendown state.
+	  */
+ 
+	 if (pdata->get_pendown_state) {
+		 ts->get_pendown_state = pdata->get_pendown_state;
+	 } else if (gpio_is_valid(pdata->gpio_pendown)) {
+ 
+		 err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
+						"xpt2046_pendown");
+		 if (err) {
+			 dev_err(&spi->dev,
+				 "failed to request/setup pendown GPIO%d: %d\n",
+				 pdata->gpio_pendown, err);
+			 return err;
+		 }
+ 
+		 ts->gpio_pendown = pdata->gpio_pendown;
+ 
+		 if (pdata->gpio_pendown_debounce)
+			 gpio_set_debounce(pdata->gpio_pendown,
+					   pdata->gpio_pendown_debounce);
+	 } else {
+		 dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
+		 return -EINVAL;
+	 }
+ 
+	 return 0;
+ }
+ 
+ /*
+  * Set up the transfers to read touchscreen state; this assumes we
+  * use formula #2 for pressure, not #3.
+  */
+ static void xpt2046_setup_spi_msg(struct xpt2046 *ts,
+				   const struct xpt2046_platform_data *pdata)
+ {
+	 struct spi_message *m = &ts->msg[0];
+	 struct spi_transfer *x = ts->xfer;
+	 struct xpt2046_packet *packet = ts->packet;
+	 int vref = pdata->keep_vref_on;
+ 
+	 ts->msg_count = 1;
+	 spi_message_init(m);
+	 m->context = ts;
+
+	 /* y- still on; turn on only y+ (and ADC) */
+	 packet->read_y = READ_Y(vref);
+	 x->tx_buf = &packet->read_y;
+	 x->len = 1;
+	 spi_message_add_tail(x, m);
+
+	 x++;
+	 x->rx_buf = &packet->tc.y;
+	 x->len = 2;
+	 spi_message_add_tail(x, m);
+ 
+	 /*
+	  * The first sample after switching drivers can be low quality;
+	  * optionally discard it, using a second one after the signals
+	  * have had enough time to stabilize.
+	  */
+	 if (pdata->settle_delay_usecs) {
+		 x->delay.value = pdata->settle_delay_usecs;
+		 x->delay.unit = SPI_DELAY_UNIT_USECS;
+ 
+		 x++;
+		 x->tx_buf = &packet->read_y;
+		 x->len = 1;
+		 spi_message_add_tail(x, m);
+ 
+		 x++;
+		 x->rx_buf = &packet->tc.y;
+		 x->len = 2;
+		 spi_message_add_tail(x, m);
+	 }
+ 
+	 ts->msg_count++;
+	 m++;
+	 spi_message_init(m);
+	 m->context = ts;
+
+	 /* turn y- off, x+ on, then leave in lowpower */
+	 x++;
+	 packet->read_x = READ_X(vref);
+	 x->tx_buf = &packet->read_x;
+	 x->len = 1;
+	 spi_message_add_tail(x, m);
+
+	 x++;
+	 x->rx_buf = &packet->tc.x;
+	 x->len = 2;
+	 spi_message_add_tail(x, m);
+	 
+ 
+	 /* ... maybe discard first sample ... */
+	 if (pdata->settle_delay_usecs) {
+		 x->delay.value = pdata->settle_delay_usecs;
+		 x->delay.unit = SPI_DELAY_UNIT_USECS;
+ 
+		 x++;
+		 x->tx_buf = &packet->read_x;
+		 x->len = 1;
+		 spi_message_add_tail(x, m);
+ 
+		 x++;
+		 x->rx_buf = &packet->tc.x;
+		 x->len = 2;
+		 spi_message_add_tail(x, m);
+	 }
+ 
+	 /* turn y+ off, x- on; we'll use formula #2 */
+	 if (ts->model == 2046) {
+		 ts->msg_count++;
+		 m++;
+		 spi_message_init(m);
+		 m->context = ts;
+ 
+		 x++;
+		 packet->read_z1 = READ_Z1(vref);
+		 x->tx_buf = &packet->read_z1;
+		 x->len = 1;
+		 spi_message_add_tail(x, m);
+ 
+		 x++;
+		 x->rx_buf = &packet->tc.z1;
+		 x->len = 2;
+		 spi_message_add_tail(x, m);
+ 
+		 /* ... maybe discard first sample ... */
+		 if (pdata->settle_delay_usecs) {
+			 x->delay.value = pdata->settle_delay_usecs;
+			 x->delay.unit = SPI_DELAY_UNIT_USECS;
+ 
+			 x++;
+			 x->tx_buf = &packet->read_z1;
+			 x->len = 1;
+			 spi_message_add_tail(x, m);
+ 
+			 x++;
+			 x->rx_buf = &packet->tc.z1;
+			 x->len = 2;
+			 spi_message_add_tail(x, m);
+		 }
+ 
+		 ts->msg_count++;
+		 m++;
+		 spi_message_init(m);
+		 m->context = ts;
+ 
+		 x++;
+		 packet->read_z2 = READ_Z2(vref);
+		 x->tx_buf = &packet->read_z2;
+		 x->len = 1;
+		 spi_message_add_tail(x, m);
+ 
+		 x++;
+		 x->rx_buf = &packet->tc.z2;
+		 x->len = 2;
+		 spi_message_add_tail(x, m);
+ 
+		 /* ... maybe discard first sample ... */
+		 if (pdata->settle_delay_usecs) {
+			 x->delay.value = pdata->settle_delay_usecs;
+			 x->delay.unit = SPI_DELAY_UNIT_USECS;
+ 
+			 x++;
+			 x->tx_buf = &packet->read_z2;
+			 x->len = 1;
+			 spi_message_add_tail(x, m);
+ 
+			 x++;
+			 x->rx_buf = &packet->tc.z2;
+			 x->len = 2;
+			 spi_message_add_tail(x, m);
+		 }
+	 }
+ 
+	 /* power down */
+	 ts->msg_count++;
+	 m++;
+	 spi_message_init(m);
+	 m->context = ts;
+ 
+	 x++;
+	 packet->pwrdown = PWRDOWN;
+	 x->tx_buf = &packet->pwrdown;
+	 x->len = 1;
+	 spi_message_add_tail(x, m);
+
+	 x++;
+	 x->rx_buf = &packet->dummy;
+	 x->len = 2;
+ 
+	 CS_CHANGE(*x);
+	 spi_message_add_tail(x, m);
+ }
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id xpt2046_dt_ids[] = {
+	 { .compatible = "xptek,xpt2046",	.data = (void *) 2046 },
+	 { }
+ };
+ MODULE_DEVICE_TABLE(of, xpt2046_dt_ids);
+ 
+ static const struct xpt2046_platform_data *xpt2046_probe_dt(struct device *dev)
+ {
+	 struct xpt2046_platform_data *pdata;
+	 struct device_node *node = dev->of_node;
+	 const struct of_device_id *match;
+	 u32 value;
+ 
+	 if (!node) {
+		 dev_err(dev, "Device does not have associated DT data\n");
+		 return ERR_PTR(-EINVAL);
+	 }
+ 
+	 match = of_match_device(xpt2046_dt_ids, dev);
+	 if (!match) {
+		 dev_err(dev, "Unknown device model\n");
+		 return ERR_PTR(-EINVAL);
+	 }
+ 
+	 pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+	 if (!pdata)
+		 return ERR_PTR(-ENOMEM);
+ 
+	 pdata->model = (unsigned long)match->data;
+ 
+	 of_property_read_u16(node, "ti,vref-delay-usecs",
+				  &pdata->vref_delay_usecs);
+	 of_property_read_u16(node, "ti,vref-mv", &pdata->vref_mv);
+	 pdata->keep_vref_on = of_property_read_bool(node, "ti,keep-vref-on");
+ 
+	 pdata->swap_xy = of_property_read_bool(node, "ti,swap-xy");
+ 
+	 of_property_read_u16(node, "ti,settle-delay-usec",
+				  &pdata->settle_delay_usecs);
+	 of_property_read_u16(node, "ti,penirq-recheck-delay-usecs",
+				  &pdata->penirq_recheck_delay_usecs);
+ 
+	 of_property_read_u16(node, "ti,x-plate-ohms", &pdata->x_plate_ohms);
+	 of_property_read_u16(node, "ti,y-plate-ohms", &pdata->y_plate_ohms);
+ 
+	 of_property_read_u16(node, "ti,x-min", &pdata->x_min);
+	 of_property_read_u16(node, "ti,y-min", &pdata->y_min);
+	 of_property_read_u16(node, "ti,x-max", &pdata->x_max);
+	 of_property_read_u16(node, "ti,y-max", &pdata->y_max);
+ 
+	 /*
+	  * touchscreen-max-pressure gets parsed during
+	  * touchscreen_parse_properties()
+	  */
+	 of_property_read_u16(node, "ti,pressure-min", &pdata->pressure_min);
+	 if (!of_property_read_u32(node, "touchscreen-min-pressure", &value))
+		 pdata->pressure_min = (u16) value;
+	 of_property_read_u16(node, "ti,pressure-max", &pdata->pressure_max);
+ 
+	 of_property_read_u16(node, "ti,debounce-max", &pdata->debounce_max);
+	 if (!of_property_read_u32(node, "touchscreen-average-samples", &value))
+		 pdata->debounce_max = (u16) value;
+	 of_property_read_u16(node, "ti,debounce-tol", &pdata->debounce_tol);
+	 of_property_read_u16(node, "ti,debounce-rep", &pdata->debounce_rep);
+ 
+	 of_property_read_u32(node, "ti,pendown-gpio-debounce",
+				  &pdata->gpio_pendown_debounce);
+ 
+	 pdata->wakeup = of_property_read_bool(node, "wakeup-source") ||
+			 of_property_read_bool(node, "linux,wakeup");
+ 
+	 pdata->gpio_pendown = of_get_named_gpio(dev->of_node, "pendown-gpio", 0);
+ 
+	 return pdata;
+ }
+ #else
+ static const struct xpt2046_platform_data *xpt2046_probe_dt(struct device *dev)
+ {
+	 dev_err(dev, "no platform data defined\n");
+	 return ERR_PTR(-EINVAL);
+ }
+ #endif
+ 
+ static int xpt2046_probe(struct spi_device *spi)
+ {
+	 const struct xpt2046_platform_data *pdata;
+	 struct xpt2046 *ts;
+	 struct xpt2046_packet *packet;
+	 struct input_dev *input_dev;
+	 unsigned long irq_flags;
+	 int err;
+ 
+	 if (!spi->irq) {
+		 dev_dbg(&spi->dev, "no IRQ?\n");
+		 return -EINVAL;
+	 }
+ 
+	 /* don't exceed max specified sample rate */
+	 if (spi->max_speed_hz > (125000 * SAMPLE_BITS)) {
+		 dev_err(&spi->dev, "f(sample) %d KHz?\n",
+				 (spi->max_speed_hz/SAMPLE_BITS)/1000);
+		 return -EINVAL;
+	 }
+ 
+	 /*
+	  * We'd set TX word size 8 bits and RX word size to 13 bits ... except
+	  * that even if the hardware can do that, the SPI controller driver
+	  * may not.  So we stick to very-portable 8 bit words, both RX and TX.
+	  */
+	 spi->bits_per_word = 8;
+	 spi->mode = SPI_MODE_0;
+	 err = spi_setup(spi);
+	 if (err < 0)
+		 return err;
+ 
+	 ts = kzalloc(sizeof(struct xpt2046), GFP_KERNEL);
+	 packet = kzalloc(sizeof(struct xpt2046_packet), GFP_KERNEL);
+	 input_dev = input_allocate_device();
+	 if (!ts || !packet || !input_dev) {
+		 err = -ENOMEM;
+		 goto err_free_mem;
+	 }
+ 
+	 spi_set_drvdata(spi, ts);
+ 
+	 ts->packet = packet;
+	 ts->spi = spi;
+	 ts->input = input_dev;
+ 
+	 mutex_init(&ts->lock);
+	 init_waitqueue_head(&ts->wait);
+ 
+	 pdata = dev_get_platdata(&spi->dev);
+	 if (!pdata) {
+		 pdata = xpt2046_probe_dt(&spi->dev);
+		 if (IS_ERR(pdata)) {
+			 err = PTR_ERR(pdata);
+			 goto err_free_mem;
+		 }
+	 }
+ 
+	 ts->model = pdata->model ? : 2046;
+	 ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+	 ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+	 ts->vref_mv = pdata->vref_mv;
+ 
+	 if (pdata->filter != NULL) {
+		 if (pdata->filter_init != NULL) {
+			 err = pdata->filter_init(pdata, &ts->filter_data);
+			 if (err < 0)
+				 goto err_free_mem;
+		 }
+		 ts->filter = pdata->filter;
+		 ts->filter_cleanup = pdata->filter_cleanup;
+	 } else if (pdata->debounce_max) {
+		 ts->debounce_max = pdata->debounce_max;
+		 if (ts->debounce_max < 2)
+			 ts->debounce_max = 2;
+		 ts->debounce_tol = pdata->debounce_tol;
+		 ts->debounce_rep = pdata->debounce_rep;
+		 ts->filter = xpt2046_debounce_filter;
+		 ts->filter_data = ts;
+	 } else {
+		 ts->filter = xpt2046_no_filter;
+	 }
+ 
+	 err = xpt2046_setup_pendown(spi, ts, pdata);
+	 if (err)
+		 goto err_cleanup_filter;
+ 
+	 if (pdata->penirq_recheck_delay_usecs)
+		 ts->penirq_recheck_delay_usecs =
+				 pdata->penirq_recheck_delay_usecs;
+ 
+	 ts->wait_for_sync = pdata->wait_for_sync ? : null_wait_for_sync;
+ 
+	 snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&spi->dev));
+	 snprintf(ts->name, sizeof(ts->name), "XPT%d Touchscreen", ts->model);
+ 
+	 input_dev->name = ts->name;
+	 input_dev->phys = ts->phys;
+	 input_dev->dev.parent = &spi->dev;
+ 
+	 input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+	 input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+	 input_set_abs_params(input_dev, ABS_X,
+			 pdata->x_min ? : 0,
+			 pdata->x_max ? : MAX_12BIT,
+			 0, 0);
+	 input_set_abs_params(input_dev, ABS_Y,
+			 pdata->y_min ? : 0,
+			 pdata->y_max ? : MAX_12BIT,
+			 0, 0);
+	 input_set_abs_params(input_dev, ABS_PRESSURE,
+			 pdata->pressure_min, pdata->pressure_max, 0, 0);
+ 
+	 /*
+	  * Parse common framework properties. Must be done here to ensure the
+	  * correct behaviour in case of using the legacy vendor bindings. The
+	  * general binding value overrides the vendor specific one.
+	  */
+	 touchscreen_parse_properties(ts->input, false, &ts->core_prop);
+	 ts->pressure_max = input_abs_get_max(input_dev, ABS_PRESSURE) ? : ~0;
+ 
+	 /*
+	  * Check if legacy ti,swap-xy binding is used instead of
+	  * touchscreen-swapped-x-y
+	  */
+	 if (!ts->core_prop.swap_x_y && pdata->swap_xy) {
+		 swap(input_dev->absinfo[ABS_X], input_dev->absinfo[ABS_Y]);
+		 ts->core_prop.swap_x_y = true;
+	 }
+ 
+	 xpt2046_setup_spi_msg(ts, pdata);
+ 
+	 ts->reg = regulator_get(&spi->dev, "vcc");
+	 if (IS_ERR(ts->reg)) {
+		 err = PTR_ERR(ts->reg);
+		 dev_err(&spi->dev, "unable to get regulator: %d\n", err);
+		 goto err_free_gpio;
+	 }
+ 
+	 err = regulator_enable(ts->reg);
+	 if (err) {
+		 dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
+		 goto err_put_regulator;
+	 }
+ 
+	 irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+	 irq_flags |= IRQF_ONESHOT;
+ 
+	 err = request_threaded_irq(spi->irq, xpt2046_hard_irq, xpt2046_irq,
+					irq_flags, spi->dev.driver->name, ts);
+	 if (err && !pdata->irq_flags) {
+		 dev_info(&spi->dev,
+			 "trying pin change workaround on irq %d\n", spi->irq);
+		 irq_flags |= IRQF_TRIGGER_RISING;
+		 err = request_threaded_irq(spi->irq,
+				   xpt2046_hard_irq, xpt2046_irq,
+				   irq_flags, spi->dev.driver->name, ts);
+	 }
+ 
+	 if (err) {
+		 dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+		 goto err_disable_regulator;
+	 }
+ 
+	 err = xpt204x_hwmon_register(spi, ts);
+	 if (err)
+		 goto err_free_irq;
+ 
+	 dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
+ 
+	 /*
+	  * Take a first sample, leaving nPENIRQ active and vREF off; avoid
+	  * the touchscreen, in case it's not connected.
+	  */
+
+	 (void) xpt2046_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
+ 
+	 err = sysfs_create_group(&spi->dev.kobj, &xpt204x_attr_group);
+	 if (err)
+		 goto err_remove_hwmon;
+ 
+	 err = input_register_device(input_dev);
+	 if (err)
+		 goto err_remove_attr_group;
+ 
+	 device_init_wakeup(&spi->dev, pdata->wakeup);
+ 
+	 /*
+	  * If device does not carry platform data we must have allocated it
+	  * when parsing DT data.
+	  */
+	 if (!dev_get_platdata(&spi->dev))
+		 devm_kfree(&spi->dev, (void *)pdata);
+ 
+	 return 0;
+ 
+  err_remove_attr_group:
+	 sysfs_remove_group(&spi->dev.kobj, &xpt204x_attr_group);
+  err_remove_hwmon:
+	 xpt204x_hwmon_unregister(spi, ts);
+  err_free_irq:
+	 free_irq(spi->irq, ts);
+  err_disable_regulator:
+	 regulator_disable(ts->reg);
+  err_put_regulator:
+	 regulator_put(ts->reg);
+  err_free_gpio:
+	 if (!ts->get_pendown_state)
+		 gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+	 if (ts->filter_cleanup)
+		 ts->filter_cleanup(ts->filter_data);
+  err_free_mem:
+	 input_free_device(input_dev);
+	 kfree(packet);
+	 kfree(ts);
+	 return err;
+ }
+ 
+ static int xpt2046_remove(struct spi_device *spi)
+ {
+	 struct xpt2046 *ts = spi_get_drvdata(spi);
+ 
+	 sysfs_remove_group(&spi->dev.kobj, &xpt204x_attr_group);
+ 
+	 xpt2046_disable(ts);
+	 free_irq(ts->spi->irq, ts);
+ 
+	 input_unregister_device(ts->input);
+ 
+	 xpt204x_hwmon_unregister(spi, ts);
+ 
+	 regulator_put(ts->reg);
+ 
+	 if (!ts->get_pendown_state) {
+		 /*
+		  * If we are not using specialized pendown method we must
+		  * have been relying on gpio we set up ourselves.
+		  */
+		 gpio_free(ts->gpio_pendown);
+	 }
+ 
+	 if (ts->filter_cleanup)
+		 ts->filter_cleanup(ts->filter_data);
+ 
+	 kfree(ts->packet);
+	 kfree(ts);
+ 
+	 dev_dbg(&spi->dev, "unregistered touchscreen\n");
+ 
+	 return 0;
+ }
+ 
+ static struct spi_driver xpt2046_driver = {
+	 .driver = {
+		 .name	= "xpt2046",
+		 .pm	= &xpt2046_pm,
+		 .of_match_table = of_match_ptr(xpt2046_dt_ids),
+	 },
+	 .probe		= xpt2046_probe,
+	 .remove		= xpt2046_remove,
+ };
+
+MODULE_DESCRIPTION("XPT2046 TouchScreen Driver");
+MODULE_LICENSE("GPL");
+MODULE_ALIAS("spi:xpt2046");

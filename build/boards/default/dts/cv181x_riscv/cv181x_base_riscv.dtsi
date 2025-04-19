@@ -216,6 +216,7 @@
 			interrupt-controller;
 			interrupts = <60 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-parent = <&plic0>;
+			#interrupt-cells = <2>;
 		};
 	};
 
