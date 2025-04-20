@@ -1392,6 +1392,8 @@
 	 .remove		= xpt2046_remove,
  };
 
-MODULE_DESCRIPTION("XPT2046 TouchScreen Driver");
-MODULE_LICENSE("GPL");
-MODULE_ALIAS("spi:xpt2046");
+ module_spi_driver(xpt2046_driver);
+
+ MODULE_DESCRIPTION("XPT2046 TouchScreen Driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("spi:xpt2046");
