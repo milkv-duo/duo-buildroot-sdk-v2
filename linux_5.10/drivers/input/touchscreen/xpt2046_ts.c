@@ -1076,42 +1076,42 @@
  
 	 pdata->model = (unsigned long)match->data;
  
-	 of_property_read_u16(node, "ti,vref-delay-usecs",
+	 of_property_read_u16(node, "xptek,vref-delay-usecs",
 				  &pdata->vref_delay_usecs);
-	 of_property_read_u16(node, "ti,vref-mv", &pdata->vref_mv);
-	 pdata->keep_vref_on = of_property_read_bool(node, "ti,keep-vref-on");
+	 of_property_read_u16(node, "xptek,vref-mv", &pdata->vref_mv);
+	 pdata->keep_vref_on = of_property_read_bool(node, "xptek,keep-vref-on");
  
-	 pdata->swap_xy = of_property_read_bool(node, "ti,swap-xy");
+	 pdata->swap_xy = of_property_read_bool(node, "xptek,swap-xy");
  
-	 of_property_read_u16(node, "ti,settle-delay-usec",
+	 of_property_read_u16(node, "xptek,settle-delay-usec",
 				  &pdata->settle_delay_usecs);
-	 of_property_read_u16(node, "ti,penirq-recheck-delay-usecs",
+	 of_property_read_u16(node, "xptek,penirq-recheck-delay-usecs",
 				  &pdata->penirq_recheck_delay_usecs);
  
-	 of_property_read_u16(node, "ti,x-plate-ohms", &pdata->x_plate_ohms);
-	 of_property_read_u16(node, "ti,y-plate-ohms", &pdata->y_plate_ohms);
+	 of_property_read_u16(node, "xptek,x-plate-ohms", &pdata->x_plate_ohms);
+	 of_property_read_u16(node, "xptek,y-plate-ohms", &pdata->y_plate_ohms);
  
-	 of_property_read_u16(node, "ti,x-min", &pdata->x_min);
-	 of_property_read_u16(node, "ti,y-min", &pdata->y_min);
-	 of_property_read_u16(node, "ti,x-max", &pdata->x_max);
-	 of_property_read_u16(node, "ti,y-max", &pdata->y_max);
+	 of_property_read_u16(node, "xptek,x-min", &pdata->x_min);
+	 of_property_read_u16(node, "xptek,y-min", &pdata->y_min);
+	 of_property_read_u16(node, "xptek,x-max", &pdata->x_max);
+	 of_property_read_u16(node, "xptek,y-max", &pdata->y_max);
  
 	 /*
 	  * touchscreen-max-pressure gets parsed during
 	  * touchscreen_parse_properties()
 	  */
-	 of_property_read_u16(node, "ti,pressure-min", &pdata->pressure_min);
+	 of_property_read_u16(node, "xptek,pressure-min", &pdata->pressure_min);
 	 if (!of_property_read_u32(node, "touchscreen-min-pressure", &value))
 		 pdata->pressure_min = (u16) value;
-	 of_property_read_u16(node, "ti,pressure-max", &pdata->pressure_max);
+	 of_property_read_u16(node, "xptek,pressure-max", &pdata->pressure_max);
  
-	 of_property_read_u16(node, "ti,debounce-max", &pdata->debounce_max);
+	 of_property_read_u16(node, "xptek,debounce-max", &pdata->debounce_max);
 	 if (!of_property_read_u32(node, "touchscreen-average-samples", &value))
 		 pdata->debounce_max = (u16) value;
-	 of_property_read_u16(node, "ti,debounce-tol", &pdata->debounce_tol);
-	 of_property_read_u16(node, "ti,debounce-rep", &pdata->debounce_rep);
+	 of_property_read_u16(node, "xptek,debounce-tol", &pdata->debounce_tol);
+	 of_property_read_u16(node, "xptek,debounce-rep", &pdata->debounce_rep);
  
-	 of_property_read_u32(node, "ti,pendown-gpio-debounce",
+	 of_property_read_u32(node, "xptek,pendown-gpio-debounce",
 				  &pdata->gpio_pendown_debounce);
  
 	 pdata->wakeup = of_property_read_bool(node, "wakeup-source") ||
