@@ -311,14 +311,19 @@
 	 struct ser_req *req;
 	 int status;
  
-	 req = kzalloc(sizeof *req, GFP_KERNEL);
-	 if (!req)
+	 dev_info(&spi->dev, "Starting xpt2046_read12_ser, command: 0x%02x\n", command);
+ 
+	 req = kzalloc(sizeof(*req), GFP_KERNEL);
+	 if (!req) {
+		 dev_err(&spi->dev, "Memory allocation for ser_req failed\n");
 		 return -ENOMEM;
+	 }
  
 	 spi_message_init(&req->msg);
  
-	 /* maybe turn on internal vREF, and let it settle */
 	 if (ts->use_internal) {
+		 dev_info(&spi->dev, "Using internal VREF\n");
+ 
 		 req->ref_on = REF_ON;
 		 req->xfer[0].tx_buf = &req->ref_on;
 		 req->xfer[0].len = 1;
@@ -326,20 +331,17 @@
  
 		 req->xfer[1].rx_buf = &req->scratch;
 		 req->xfer[1].len = 2;
- 
-		 /* for 1uF, settle for 800 usec; no cap, 100 usec.  */
 		 req->xfer[1].delay.value = ts->vref_delay_usecs;
 		 req->xfer[1].delay.unit = SPI_DELAY_UNIT_USECS;
 		 spi_message_add_tail(&req->xfer[1], &req->msg);
  
-		 /* Enable reference voltage */
 		 command |= XPT_PD10_REF_ON;
+		 dev_info(&spi->dev, "Ref ON command included\n");
 	 }
  
-	 /* Enable ADC in every case */
 	 command |= XPT_PD10_ADC_ON;
+	 dev_info(&spi->dev, "Final command sent to ADC: 0x%02x\n", command);
  
-	 /* take sample */
 	 req->command = (u8) command;
 	 req->xfer[2].tx_buf = &req->command;
 	 req->xfer[2].len = 1;
@@ -349,9 +351,6 @@
 	 req->xfer[3].len = 2;
 	 spi_message_add_tail(&req->xfer[3], &req->msg);
  
-	 /* REVISIT:  take a few more samples, and compare ... */
- 
-	 /* converter in low power mode & enable PENIRQ */
 	 req->ref_off = PWRDOWN;
 	 req->xfer[4].tx_buf = &req->ref_off;
 	 req->xfer[4].len = 1;
@@ -369,10 +368,13 @@
 	 mutex_unlock(&ts->lock);
  
 	 if (status == 0) {
-		 /* on-wire is a must-ignore bit, a BE12 value, then padding */
+		 dev_info(&spi->dev, "SPI transfer successful, raw sample: 0x%04x\n", be16_to_cpu(req->sample));
 		 status = be16_to_cpu(req->sample);
 		 status = status >> 3;
 		 status &= 0x0fff;
+		 dev_info(&spi->dev, "Processed 12-bit value: %d\n", status);
+	 } else {
+		 dev_err(&spi->dev, "SPI transfer failed with status: %d\n", status);
 	 }
  
 	 kfree(req);

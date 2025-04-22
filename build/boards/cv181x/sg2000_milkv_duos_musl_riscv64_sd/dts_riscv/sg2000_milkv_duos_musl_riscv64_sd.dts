@@ -68,21 +68,25 @@
 		compatible = "xptek,xpt2046";
 		reg = <1>;
 		status = "okay";
-		spi-max-frequency = <1000000>;
-		pendown-gpio = <&porta 20 GPIO_ACTIVE_LOW>;      // IRQ (touch detect)
+		spi-max-frequency = <1500000>;
+		
 		interrupt-parent = <&porta>;
 		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;        // Use GPIO20 as interrupt
-		xptek,keep-vref-on = <1>;
-		xptek,x-min = /bits/ 16 <200>;
-		xptek,x-max = /bits/ 16 <3900>;
-		xptek,y-min = /bits/ 16 <200>;
-		xptek,y-max = /bits/ 16 <3900>;
-		xptek,x-plate-ohms = /bits/ 16 <60>;
+		pendown-gpio = <&porta 20 GPIO_ACTIVE_LOW>;      // IRQ (touch detect)			
+
+		xptek,x-min = /bits/ 16 <0x0>;
+		xptek,x-max = /bits/ 16 <0x0fff>;
+		xptek,y-min = /bits/ 16 <0x0>;
+		xptek,y-max = /bits/ 16 <0x0fff>;
+
+		xptek,x-plate-ohms = /bits/ 16 <180>;
 		xptek,pressure-max = /bits/ 16 <255>;
-		xptek,swap-xy = <1>;
+
+		xptek,debounce-max = /bits/ 16 <30>;
+		xptek,debounce-tol = /bits/ 16 <10>;
+		xptek,debounce-rep = /bits/ 16 <1>;
 
 		wakeup-source;
-		xptek,irq-active-low;
 	};
 };
 
