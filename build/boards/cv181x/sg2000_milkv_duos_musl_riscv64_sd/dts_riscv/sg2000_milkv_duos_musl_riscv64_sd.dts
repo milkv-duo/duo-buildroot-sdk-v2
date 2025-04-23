@@ -68,7 +68,7 @@
 		compatible = "xptek,xpt2046";
 		reg = <1>;
 		status = "okay";
-		spi-max-frequency = <1500000>;
+		spi-max-frequency = <2000000>;
 		
 		interrupt-parent = <&porta>;
 		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;        // Use GPIO20 as interrupt
@@ -78,14 +78,6 @@
 		xptek,x-max = /bits/ 16 <0x0fff>;
 		xptek,y-min = /bits/ 16 <0x0>;
 		xptek,y-max = /bits/ 16 <0x0fff>;
-
-		xptek,x-plate-ohms = /bits/ 16 <180>;
-		xptek,pressure-max = /bits/ 16 <255>;
-
-		xptek,debounce-max = /bits/ 16 <30>;
-		xptek,debounce-tol = /bits/ 16 <10>;
-		xptek,debounce-rep = /bits/ 16 <1>;
-
 		wakeup-source;
 	};
 };
