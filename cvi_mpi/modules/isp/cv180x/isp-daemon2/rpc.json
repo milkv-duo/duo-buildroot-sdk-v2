@@ -7,6 +7,16 @@
 				"SET": "CVI_SetTopInfo"
 			},
 			{
+				"STRUCT": "TEAISP_BNR_ATTR_S",
+				"GET": "CVI_TEAISP_BNR_GetAttr",
+				"SET": "CVI_TEAISP_BNR_SetAttr"
+			},
+			{
+				"STRUCT": "TEAISP_BNR_NP_S",
+				"GET": "CVI_TEAISP_BNR_GetNoiseProfileAttr",
+				"SET": "CVI_TEAISP_BNR_SetNoiseProfileAttr"
+			},
+			{
 				"STRUCT": "TEAISP_PQ_ATTR_S",
 				"GET": "CVI_TEAISP_PQ_GetAttr",
 				"SET": "CVI_TEAISP_PQ_SetAttr"
@@ -15,6 +25,16 @@
 				"STRUCT": "ISP_BLACK_LEVEL_ATTR_S",
 				"GET": "CVI_ISP_GetBlackLevelAttr",
 				"SET": "CVI_ISP_SetBlackLevelAttr"
+			},
+			{
+				"STRUCT": "ISP_LBLC_ATTR_S",
+				"GET": "CVI_ISP_GetLblcAttr",
+				"SET": "CVI_ISP_SetLblcAttr"
+			},
+			{
+				"STRUCT": "ISP_LBLC_LUT_ATTR_S",
+				"GET": "CVI_ISP_GetLblcLutAttr",
+				"SET": "CVI_ISP_SetLblcLutAttr"
 			},
 			{
 				"STRUCT": "ISP_RADIAL_SHADING_ATTR_S",
@@ -340,6 +360,11 @@
 				"STRUCT": "ISP_WB_INFO_S",
 				"GET": "CVI_ISP_QueryWBInfo",
 				"SET": ""
+			},
+			{
+				"STRUCT": "ISP_FOCUS_ATTR_S",
+				"GET": "CVI_ISP_GetAFAttr",
+				"SET": "CVI_ISP_SetAFAttr"
 			},
 			{
 				"STRUCT": "VI_LDC_ATTR_S",

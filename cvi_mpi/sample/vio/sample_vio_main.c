@@ -36,6 +36,7 @@ void SAMPLE_VIO_Usage(char *sPrgNm)
 	printf("\t 2)VI (Offline, Rotation) - VPSS(Offline,Keep Aspect Ratio) - VO.\n");
 	printf("\t 3)VI (Offline) - VPSS(Offline, Rotation) - VO.\n");
 	printf("\t 4)VI (Two devs) - VPSS - VO.\n");
+	printf("\t 5)VI (Offline) - VPSS(Offline,Stitch) - VO.\n");
 }
 
 int main(int argc, char *argv[])
@@ -76,6 +77,10 @@ int main(int argc, char *argv[])
 
 	case 4:
 		s32Ret = SAMPLE_VIO_TWO_DEV_VO();
+		break;
+
+	case 5:
+		s32Ret = SAMPLE_VIO_VpssStitch();
 		break;
 	default:
 		SAMPLE_PRT("the index %d is invaild!\n", s32Index);

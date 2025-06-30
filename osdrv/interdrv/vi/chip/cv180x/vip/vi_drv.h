@@ -375,6 +375,8 @@ struct _isp_cfg {
 	uint32_t		drop_frm_cnt;
 	uint32_t		isp_reset_frm;
 	uint32_t		first_frm_cnt;
+	uint32_t		raw_ai_isp_frm_cnt;
+	uint64_t		rgbmap_addr[ISP_BE_CHN_MAX];
 
 	struct vi_rect		crop;
 	struct vi_rect		crop_se;
@@ -400,6 +402,8 @@ struct _isp_cfg {
 	uint32_t		is_hdr_on		: 1;
 	uint32_t		is_hdr_detail_en	: 1;
 	uint32_t		is_fbc_on		: 1;
+	uint32_t		is_ai_isp		: 1;
+	uint32_t		is_rgbmap_ai_isp	: 1;
 	uint32_t		is_rgbir_sensor		: 1;
 	uint32_t		is_offline_scaler	: 1;
 	uint32_t		is_stagger_vsync	: 1;
@@ -462,10 +466,10 @@ struct isp_ctx {
 	uint32_t		is_slice_buf_on     : 1;
 	uint32_t		is_rgbmap_sbm_on    : 1;
 	uint32_t		is_synthetic_hdr_on : 1;
-	uint32_t		is_post_trig_first	: 1;
-	uint32_t		is_pre_trig_first	: 1;
-	uint32_t		suspend_resume_en	: 1;
-	uint32_t		tuning_update_en	: 1;
+	uint32_t		is_post_trig_first  : 1;
+	uint32_t		is_pre_trig_first   : 1;
+	uint32_t		suspend_resume_en   : 1;
+	uint32_t		tuning_update_en    : 1;
 };
 
 struct vi_fbc_cfg {
@@ -735,11 +739,16 @@ void vi_tuning_clut_update(
 int vi_tuning_get_clut_tbl_idx(enum cvi_isp_raw raw_num, int tun_idx);
 int vi_tuning_sw_init(void);
 int vi_tuning_buf_setup(struct isp_ctx *ctx);
-int vi_tuning_backup_setup(void);
-void vi_tuning_resume(struct isp_ctx *ctx, enum cvi_isp_raw raw_max);
 void vi_tuning_buf_release(struct isp_ctx *ctx);
 void *vi_get_tuning_buf_addr(u32 *size);
 void vi_tuning_buf_clear(struct isp_ctx *ctx);
+void vi_tuning_mempool_destroy(struct isp_ctx *ctx);
+void vi_tuning_mempool_clear(struct isp_ctx *ctx);
+void vi_tuning_mempool_alloc(enum cvi_isp_raw raw_num,
+	struct cvi_vip_isp_post_cfg **post_cfg,
+	struct cvi_vip_isp_be_cfg **be_cfg,
+	struct cvi_vip_isp_fe_cfg **fe_cfg);
+void vi_tuning_mempool_init(struct isp_ctx *ctx);
 
 /*******************************************************************************
  *	Tuning modules update

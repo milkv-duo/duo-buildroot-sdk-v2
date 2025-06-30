@@ -215,6 +215,7 @@ class MarcoDict():
         self.marcoDict.update({"ISP_RLSC_COLOR_TEMPERATURE_SIZE":"7"})
         self.marcoDict.update({"ISP_MLSC_COLOR_TEMPERATURE_SIZE":"7"})
         self.marcoDict.update({"CVI_ISP_LSC_GRID_POINTS":"1369"})
+        self.marcoDict.update({"ISP_LBLC_GRID_POINTS":"64"})
         self.marcoDict.update({"ISP_CHANNEL_MAX_NUM":"3"})
         self.marcoDict.update({"MAX_HIST_BINS":"256"})
         self.marcoDict.update({"AWB_ZONE_NUM":"1024"})

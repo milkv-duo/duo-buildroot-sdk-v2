@@ -22,6 +22,7 @@ enum E_VI_TH {
 	E_VI_TH_ERR_HANDLER,
 	E_VI_TH_EVENT_HANDLER,
 	E_VI_TH_VBLANK_HANDLER,
+	E_VI_TH_RUN_TPU,
 	E_VI_TH_MAX
 };
 
@@ -91,6 +92,12 @@ struct cvi_vi_dev {
 	atomic_t			isp_streamoff;
 	atomic_t			isp_streamon;
 	atomic_t			ol_sc_frm_done;
+	atomic_t			ai_isp_type;
+	atomic_t			bnr_run_tpu[ISP_PRERAW_VIRT_MAX];
+	atomic_t			ai_isp_int_flag[ISP_PRERAW_VIRT_MAX];
+	struct mutex			ai_isp_lock;
+	struct completion		tpu_done[ISP_PRERAW_VIRT_MAX];
+	wait_queue_head_t		ai_isp_wait_q[ISP_PRERAW_VIRT_MAX];
 	struct vi_thread_attr		vi_th[E_VI_TH_MAX];
 };
 

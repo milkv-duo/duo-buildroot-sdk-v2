@@ -1,0 +1,63 @@
+project_name: osdrv
+commit_id: 1c5810c246c6ffa5ed840e0cf710b32b405e9612 osdrv: weekly rls 2025.04.01
+
+project_name: cviruntime
+commit_id: ef8044988c2b4a5d491125d13e6f048b5f8a1389 Merge pull request #2 from wwwuxy/wuxy
+
+project_name: cvi_rtsp
+commit_id: 4de13db83cb579343d2b9be19fad35bd0689ee15 cvi_rtsp: weekly rls 2025.03.14
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4309f2a649fc7cfe7160389d52a81c469dbdd7bc [feat] cvibuilder opensource for cv18xx soc.
+
+project_name: cvikernel
+commit_id: 0b37e46607be203bf9d4d29995f6fa4bbab69435 Merge pull request #1 from wwwuxy/wuxy
+
+project_name: opensbi
+commit_id: 631feca478a27b9f1a6a462287a2b6109eb56285 opensbi: weekly rls 2025.02.27
+
+project_name: cvi_alios_open
+commit_id: 897dac581a123de7baa98e41faceb01ce5744f3b cvi_alios: weekly rls 2025.04.01
+
+project_name: build
+commit_id: 1399949636de247cd0d996bd686a4899ea850e02 build: weekly rls 2025.03.14
+
+project_name: host-tools
+commit_id: b1c3b20de7ccdeaafafa9d5e1fd57c3fb4c79748 host-tools: upload gcc11.3.1
+
+project_name: oss
+commit_id: 48f06b542f2639fe21237830c852fa5080efa176 add eigen,nlohmannjson,googletest,stb tarball used in tdl_sdk.
+
+project_name: cnpy
+commit_id: 2f56f4c23ea840f9d15c43801368cf4a089efa84 [feat] cnpy opensource for cv18xx soc.
+
+project_name: isp_tuning
+commit_id: 9c6308073d170b005d82cbcfbdc4571a0d738904 isp_tuning: weekly rls 2025.02.27
+
+project_name: ive
+commit_id: 64e85ee92c1c424fc3bff75bd78729149a304b0b ive: weekly rls 2025.02.27
+
+project_name: fsbl
+commit_id: 91644896bd45f3918b99c9ed1c6bcaa847eb44a8 fsbl: weekly rls 2025.04.01
+
+project_name: cvimath
+commit_id: ce8705f49da5e5f59c2ddb3253ef88323a0cd9c4 [feat] cvimath opensource for cv18xx soc.
+
+project_name: u-boot-2021.10
+commit_id: 7eeeed161e668aad7628170a3db0c9c982e68e07 u-boot-2021.10: weekly rls 2025.03.14
+
+project_name: ramdisk
+commit_id: d281672fb293cedcaa6b1255bea297cd2f2230e4 ramdisk: weekly rls 2025.02.27
+
+project_name: tdl_sdk
+commit_id: ab8d6ac123b2982f830123867df64245e5f59fe2 tdl_sdk: weekly rls 2025.04.01
+
+project_name: linux_5.10
+commit_id: b4694639c2c155a99fb12782f95b50c48e18355e linux_5.10: weekly rls 2025.04.01
+
+project_name: cvi_mpi
+commit_id: c571a31b7b1dc09ed3118c8b40ff75f1e78b7d8c cvi_mpi: weekly rls 2025.04.01
+

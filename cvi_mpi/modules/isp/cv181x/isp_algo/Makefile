@@ -7,6 +7,8 @@ endif
 #
 SDIR = $(CURDIR)/src
 SRCS_C += $(SDIR)/dpcm_api.c
+SRCS_C += $(SDIR)/isp_algo_teaisp_bnr.c
+SRCS_C += $(SDIR)/isp_algo_lblc.c
 SRCS_C += $(SDIR)/isp_algo_blc.c
 SRCS_C += $(SDIR)/isp_algo_bnr.c
 SRCS_C += $(SDIR)/isp_algo_ca.c

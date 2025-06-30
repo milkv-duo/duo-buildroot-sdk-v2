@@ -819,6 +819,11 @@ CVI_S32 SAMPLE_COMM_VI_StartIsp(SAMPLE_VI_INFO_S *pstViInfo)
 				CVI_TRACE_LOG(CVI_DBG_ERR, "ISP Init failed with %#x!\n", s32Ret);
 				return s32Ret;
 			}
+
+			if (pstViInfo->stPipeInfo.u32TEAISPMode > TEAISP_OFF_MODE &&
+				pstViInfo->stPipeInfo.u32TEAISPMode < TEAISP_MODE_BUTT) {
+				CVI_TEAISP_SetMode(ViPipe, pstViInfo->stPipeInfo.u32TEAISPMode);
+			}
 		}
 	}
 	return CVI_SUCCESS;

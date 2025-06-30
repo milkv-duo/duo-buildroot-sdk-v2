@@ -476,6 +476,24 @@ static CVI_S32 isp_tnr_ctrl_preprocess(VI_PIPE ViPipe, ISP_ALGO_RESULT_S *algoRe
 	runtime->tnr_param_in.rgbmap_w_bit = runtime->tnr_attr.MtDetectUnit;
 	runtime->tnr_param_in.rgbmap_h_bit = runtime->tnr_attr.MtDetectUnit;
 
+	ISP_CTX_S *pstIspCtx = NULL;
+
+	ISP_GET_CTX(ViPipe, pstIspCtx);
+
+	//for ai motion
+	if (pstIspCtx->enModelType == TEAISP_MODEL_MOTION) {
+		runtime->tnr_noise_model_attr.BNoiseLevel0 = 0;
+		runtime->tnr_noise_model_attr.GNoiseLevel0 = 0;
+		runtime->tnr_noise_model_attr.RNoiseLevel0 = 0;
+
+		for (CVI_U32 i = 0 ; i < 4 ; i++) {
+			runtime->tnr_luma_motion_attr.L2mIn0[i] = 4095;
+			runtime->tnr_luma_motion_attr.L2mOut0[i] = 16;
+			runtime->tnr_param_in.L2mIn0[i] = runtime->tnr_luma_motion_attr.L2mIn0[i];
+			runtime->tnr_param_in.L2mOut0[i] = runtime->tnr_luma_motion_attr.L2mOut0[i];
+		}
+	}
+
 	runtime->tnr_param_in.noiseLowLv[0][0] = runtime->tnr_noise_model_attr.BNoiseLevel0;
 	runtime->tnr_param_in.noiseLowLv[0][1] = runtime->tnr_noise_model_attr.GNoiseLevel0;
 	runtime->tnr_param_in.noiseLowLv[0][2] = runtime->tnr_noise_model_attr.RNoiseLevel0;
@@ -522,7 +540,7 @@ static CVI_S32 isp_tnr_ctrl_process(VI_PIPE ViPipe)
 
 static CVI_S32 isp_tnr_ctrl_postprocess(VI_PIPE ViPipe)
 {
-	// ISP_CTX_S *pstIspCtx = NULL;
+	ISP_CTX_S *pstIspCtx = NULL;
 	CVI_S32 ret = CVI_SUCCESS;
 	struct isp_tnr_ctrl_runtime *runtime = _get_tnr_ctrl_runtime(ViPipe);
 
@@ -540,6 +558,7 @@ static CVI_S32 isp_tnr_ctrl_postprocess(VI_PIPE ViPipe)
 	const ISP_TNR_GHOST_ATTR_S *tnr_ghost_attr = NULL;
 	const ISP_TNR_MT_PRT_ATTR_S *tnr_mt_prt_attr = NULL;
 
+	ISP_GET_CTX(ViPipe, pstIspCtx);
 	isp_tnr_ctrl_get_tnr_attr(ViPipe, &tnr_attr);
 	isp_tnr_ctrl_get_tnr_ghost_attr(ViPipe, &tnr_ghost_attr);
 	isp_tnr_ctrl_get_tnr_mt_prt_attr(ViPipe, &tnr_mt_prt_attr);
@@ -810,6 +829,33 @@ static CVI_S32 isp_tnr_ctrl_postprocess(VI_PIPE ViPipe)
 		cfg_7->REG_128.bits.MMAP_LSC_COMP_GAIN_LUT_16 = runtime->tnr_param_out.MtLscCompGain[16];
 
 		isp_tnr_ctrl_postprocess_compatible(ViPipe);
+	}
+
+	//for ai motion
+	if (pstIspCtx->enModelType == TEAISP_MODEL_MOTION) {
+		struct cvi_isp_tnr_tun_2_cfg *cfg_2 = &(tnr_cfg->tnr_2_cfg);
+		struct cvi_isp_tnr_tun_3_cfg *cfg_3 = &(tnr_cfg->tnr_3_cfg);
+
+		tnr_cfg->coef_r = 0;
+		tnr_cfg->coef_g = 0;
+		tnr_cfg->coef_b = 1023;
+
+		cfg_2->REG_80.bits.MMAP_0_NS_LUMA_TH0_R = 4095;
+		cfg_2->REG_80.bits.MMAP_0_NS_LUMA_TH0_G = 4095;
+		cfg_2->REG_84.bits.MMAP_0_NS_LUMA_TH0_B = 4095;
+
+		cfg_2->REG_70.bits.MMAP_0_GAIN_RATIO_R = TNR_BASE_1X_GAIN;
+		cfg_2->REG_70.bits.MMAP_0_GAIN_RATIO_G = TNR_BASE_1X_GAIN;
+		cfg_2->REG_74.bits.MMAP_0_GAIN_RATIO_B = TNR_BASE_1X_GAIN;
+
+		cfg_3->REG_A0.bits.MMAP_1_GAIN_RATIO_R = TNR_BASE_1X_GAIN;
+		cfg_3->REG_A0.bits.MMAP_1_GAIN_RATIO_G = TNR_BASE_1X_GAIN;
+		cfg_3->REG_A4.bits.MMAP_1_GAIN_RATIO_B = TNR_BASE_1X_GAIN;
+
+	} else {
+		tnr_cfg->coef_r = 306;
+		tnr_cfg->coef_g = 601;
+		tnr_cfg->coef_b = 117;
 	}
 
 	runtime->postprocess_updated = CVI_FALSE;

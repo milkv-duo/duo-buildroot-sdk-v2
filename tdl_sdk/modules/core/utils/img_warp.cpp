@@ -203,7 +203,7 @@ static const void *initInterTab2D(int method, bool fixpt) {
     }
 #endif
     inittab[method] = true;
-    delete _tab;
+    delete[] _tab;
   }
   return fixpt ? (const void *)itab : (const void *)tab;
 }
@@ -402,6 +402,8 @@ void remap_bilinear(const uchar *p_src_img, int src_width, int src_height, int s
       // bufxy, bufa, ctab, borderType, borderValue);
     }
   }
+
+  delete[] pbufa;
 }
 
 // L5507

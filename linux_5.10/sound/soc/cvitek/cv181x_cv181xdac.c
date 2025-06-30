@@ -20,6 +20,7 @@
 #include <linux/uaccess.h>
 #include "../codecs/cv181xadac.h"
 #include <linux/version.h>
+#include "cv1835_i2s_subsys.h"
 
 bool proc_ao_not_allocted = true;
 
@@ -86,21 +87,14 @@ static int cv181x_dac_proc_show(struct seq_file *m, void *v)
 
 	void __iomem *i2s3;
 	void __iomem *dac;
-	void __iomem *audio_pll;
 	void __iomem *sdma_pll;
 	u32 audio_freq;
 	u32 val1, val2, val3;
 
 	i2s3 = ioremap(0x04130000, 0x100);
 	dac = ioremap(0x0300A000, 0x100);
-	audio_pll = ioremap(0x3002854, 0x10);
 	sdma_pll = ioremap(0x3002004, 0x10);
-	if (readl(audio_pll) == 0x179EDCFA)//406.4256MHz
-		audio_freq = 22579200;
-	else if (readl(audio_pll) == 0x249f0000) {
-		audio_freq = 16384000;
-	} else
-		audio_freq = 24576000;
+	audio_freq = cv1835_get_mclk(3);
 
 	seq_puts(m, "\n------------- CVI AO ATTRIBUTE -------------\n");
 	seq_puts(m, "AoDev    Workmode    SampleRate    BitWidth\n");
@@ -137,7 +131,6 @@ static int cv181x_dac_proc_show(struct seq_file *m, void *v)
 
 	iounmap(i2s3);
 	iounmap(dac);
-	iounmap(audio_pll);
 	iounmap(sdma_pll);
 	return 0;
 }

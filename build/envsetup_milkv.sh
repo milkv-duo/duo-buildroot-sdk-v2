@@ -1,4 +1,12 @@
 #!/bin/bash
+
+MILKV_BOARD_ARRAY=
+MILKV_BOARD_ARRAY_LEN=
+
+MILKV_BOARD=
+MILKV_BOARD_CONFIG=
+MILKV_IMAGE_CONFIG=
+
 function _build_default_env()
 {
   # Please keep these default value!!!
@@ -394,9 +402,17 @@ function build_tdl_sdk()
   test "$?" -ne 0 && print_notice "${FUNCNAME[0]}() failed !!" && popd && return 1
   popd
 
-  cp -rfv "${TOP_DIR}"/tdl_sdk/install/lib/libcvi_tdl.so "${SYSTEM_OUT_DIR}"/lib/
-  #mkdir -p "${SYSTEM_OUT_DIR}"/usr/bin/"$1"
-  #cp -a "${SDK_INSTALL_PATH}"/bin/sample_* "${SYSTEM_OUT_DIR}"/usr/bin/"$1"
+  if [[ -d "${TPU_SDK_INSTALL_PATH}/bin" ]]; then
+    mkdir -p "${SYSTEM_OUT_DIR}"/usr/bin/tpu
+    cp -a "${TPU_SDK_INSTALL_PATH}"/bin/* "${SYSTEM_OUT_DIR}"/usr/bin/tpu/
+  fi
+
+  if [[ -d "${TDL_SDK_PATH}/install/bin" ]]; then
+    mkdir -p "${SYSTEM_OUT_DIR}"/usr/bin/ai
+    cp -a "${TDL_SDK_PATH}"/install/bin/sample_* "${SYSTEM_OUT_DIR}"/usr/bin/ai/
+  fi
+
+  cp -a "${TDL_SDK_PATH}"/install/lib/libcvi_tdl.so "${SYSTEM_OUT_DIR}"/lib/
 }
 
 function clean_tdl_sdk()
@@ -608,9 +624,9 @@ function build_all()
     build_osdrv || return $?
     build_3rd_party || return $?
     build_middleware || return $?
+    build_cvi_rtsp || return $?
+    build_tpu_sdk || return $?
     if [ "$TPU_REL" = 1 ]; then
-      build_cvi_rtsp || return $?
-      build_tpu_sdk || return $?
       build_ive_sdk || return $?
       build_ivs_sdk || return $?
       build_tdl_sdk || return $?
@@ -884,6 +900,7 @@ function cvi_setup_env()
   export SYSTEM_OUT_DIR
   export CROSS_COMPILE_PATH
   # buildroot config
+
   if [ -z "${MV_BOARD// }" ]; then
     print_error "No MV_BOARD specified!"
     return 1
@@ -904,7 +921,7 @@ function cvi_setup_env()
     return 1
   fi
 
-  export BR_DIR="$TOP_DIR"/buildroot-2024.02
+  export BR_DIR="$TOP_DIR"/buildroot
   export BR_BOARD=${MV_BOARD}
   export BR_OVERLAY_DIR=${BR_DIR}/board/${MV_VENDOR}/${MV_BOARD}/overlay
   export BR_DEFCONFIG=${BR_BOARD}_defconfig
@@ -954,6 +971,124 @@ function print_usage()
   printf "  -------------------------------------------------------------------------------------------------------\n"
 }
 
+
+function get_available_board()
+{
+  if [ -z "${TOP_DIR// }" ]; then
+    print_error "TOP_DIR not specified!"
+    return 1
+  fi
+
+  MILKV_BOARD_ARRAY=( $(find "${TOP_DIR}/device" -mindepth 1 -maxdepth 1 -type d -not -name 'generic' -print ! -name "." | awk -F/ '{ print $NF }' | sort -t '-' -k2,2) )
+  #echo ${MILKV_BOARD_ARRAY[@]}
+
+  MILKV_BOARD_ARRAY_LEN=${#MILKV_BOARD_ARRAY[@]}
+  if [ $MILKV_BOARD_ARRAY_LEN -eq 0 ]; then
+    echo "No available config"
+    return 1
+  fi
+
+  #echo ${MILKV_BOARD_ARRAY[@]} | xargs -n 1 | sed "=" | sed "N;s/\n/. /"
+}
+
+function choose_board()
+{
+  echo "Select a target to build:"
+
+  echo ${MILKV_BOARD_ARRAY[@]} | xargs -n 1 | sed "=" | sed "N;s/\n/. /"
+
+  local index
+  read -p "Which would you like: " index
+
+  if [[ -z $index ]]; then
+    echo "Nothing selected."
+    return 1
+  fi
+
+  if [[ -n $index && $index =~ ^[0-9]+$ && $index -ge 1 && $index -le $MILKV_BOARD_ARRAY_LEN ]]; then
+    MILKV_BOARD="${MILKV_BOARD_ARRAY[$((index - 1))]}"
+    #echo "index: $index, Board: $MILKV_BOARD"
+  else
+    print_error "Invalid input!"
+    return 1
+  fi
+}
+
+function check_board()
+{
+  local board_name="target"
+  local board_target="${TOP_DIR}/device/${board_name}"
+
+  if [ $# -ge 1 ]; then
+    local force_target="${1}"
+    local force_path="${TOP_DIR}/device/${force_target}"
+    #echo "force_path: $force_path"
+    if [ -d "${force_path}" ]; then
+      ln -sfn "${TOP_DIR}/device/${force_target}" "${board_target}" || return $?
+    else
+      print_error "${force_path} not found!"
+      return 1
+    fi
+  fi
+
+  if [ ! -e "$board_target" ] || [ "$ARGS" == "lunch" ]; then
+    get_available_board || return $?
+    choose_board || return $?
+    ln -sfn "${TOP_DIR}/device/${MILKV_BOARD}" "${board_target}" || return $?
+  elif [ -L "$board_target" ] && [ -e "$board_target" ]; then
+    MILKV_BOARD=$(basename "$(readlink "$board_target")")
+    #echo "The link points to: $MILKV_BOARD"
+  else
+    echo "$board_target is invalid!"
+    return 1
+  fi
+
+  # MV_BOARD, MV_VENDOR, MV_BOARD_LINK
+  MILKV_BOARD_CONFIG=${board_target}/boardconfig.sh
+  if [ ! -f ${MILKV_BOARD_CONFIG} ]; then
+    print_error "${MILKV_BOARD_CONFIG} not found!"
+    return 1
+  fi
+  source ${MILKV_BOARD_CONFIG}
+
+  defconfig ${MV_BOARD_LINK} > /dev/null 2>&1 || return $?
+
+  if [ "${STORAGE_TYPE}" == "sd" ]; then
+    MILKV_IMAGE_CONFIG=${board_target}/genimage.cfg
+
+    if [ ! -f ${MILKV_IMAGE_CONFIG} ]; then
+      print_error "${MILKV_IMAGE_CONFIG} not found!"
+      return 1
+    fi
+  fi
+}
+
+function build_info()
+{
+  export MILKV_BOARD_ARRAY=${MILKV_BOARD_ARRAY}
+  export MILKV_BOARD=${MILKV_BOARD}
+  export MILKV_BOARD_CONFIG=${MILKV_BOARD_CONFIG}
+
+  print_info "Target Board: ${MILKV_BOARD}"
+  print_info "Target Board Storage: ${STORAGE_TYPE}"
+  print_info "Target Board Config: ${MILKV_BOARD_CONFIG}"
+  print_info "Target Board Type: ${BR_BOARD_TYPE}"
+
+  if [ "${STORAGE_TYPE}" == "sd" ]; then
+    export MILKV_IMAGE_CONFIG=${MILKV_IMAGE_CONFIG}
+    print_info "Target Image Config: ${MILKV_IMAGE_CONFIG}"
+  fi
+
+  print_info "Build tdl-sdk: ${TPU_REL}"
+
+  if [ -z "${OUTPUT_DIR// }" ]; then
+    print_error "OUTPUT_DIR is not assigned, please check!"
+    return 1
+  else
+    print_info "Output dir: ${OUTPUT_DIR}"
+  fi
+}
+
 TOP_DIR=$(gettop)
 BUILD_PATH="$TOP_DIR/build"
 export TOP_DIR BUILD_PATH
@@ -971,4 +1106,19 @@ if [ -f "${TOP_DIR}/build/credential.sh" ]; then
   source "$TOP_DIR/build/credential.sh"
 fi
 
-print_usage
+#print_usage
+
+ARGS=$1
+
+if [ "$ARGS" == "list" ]; then
+  get_available_board || return $?
+elif [ "$ARGS" == "lunch" ]; then
+  check_board || return $?
+  build_info || return $?
+elif [ $# -ge 1 ]; then
+  check_board "$ARGS" || return $?
+  build_info || return $?
+else
+  check_board || return $?
+  build_info || return $?
+fi

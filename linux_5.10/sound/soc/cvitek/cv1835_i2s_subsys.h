@@ -55,6 +55,7 @@ struct cvi_i2s_subsys_dev {
 	struct device *dev;
 	u32 master_id;
 	u32 master_base;
+	u32 src_clk_freq[4];
 #ifdef CONFIG_PM_SLEEP
 	struct subsys_reg_context *reg_ctx;
 #endif
@@ -69,6 +70,7 @@ void i2s_master_clk_switch_on(bool on);
 void i2s_set_master_clk(u32 clk_ctrl1);
 void i2s_set_master_frame_setting(u32 frame_format);
 void cv1835_set_mclk(u32 freq);
+u32 cv1835_get_mclk(u32 id);
 void cv182x_reset_dac(void);
 void cv182x_reset_adc(void);
 void cv182xa_reset_dac(void);

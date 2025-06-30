@@ -1,0 +1,69 @@
+project_name: osdrv
+commit_id: d619297a351551c5bc6c9cde7229ded5596d1d6d [fix](osdrv/tpu):Add freezable to tpu thread and adjust clk position [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cviruntime
+commit_id: 957fb304e73fdeb8630f16ffca5f5aeab1eeb6b6 updatae regression script for cv181x
+
+project_name: cvi_rtsp
+commit_id: 537bd29f234b7c3df3559eb8e517f074b082cad7 [feat](build): optimize rtsp build.
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: 2bc540089ac7a0c069954619ba5fff97c78766cf modify CHIP_ARCH (mars->cv181x)
+
+project_name: opensbi
+commit_id: e8de217a75a7bd169729f8bee691a5e3e67d579e [fix](serial): Round UART8250 baud rate divisor to nearest integer
+
+project_name: cvi_alios
+commit_id: a485fb98b6d256e94d6311f0637174897d762e59 [feat](jpege) Use ion_alloc instead of calloc when buffer is full
+
+project_name: build
+commit_id: 0a2c5025b94c7d69da13a2c5d93b540ab8f7a746 increase memory space of yoc.bin firmware in settings of partition_fastboot_spinor.xml
+
+project_name: oss
+commit_id: 4bd702a8e6abd0db22cd5451311398c04138d2eb [feat](3rd):add support for arm_musl [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv184x [side effects]:NA [Affected *.ko/*.so/*.a] :NA add support for arm_musl
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 857d7d004514532c53e68d445d29dfda1ee75391 [fix](isp):update gc4653 bin
+
+project_name: tracer
+commit_id: ca2cef2a7684d382bccc1c6ef43c569cc3e2ec97 [scripts] Add scripts
+
+project_name: ive
+commit_id: 8a8d6a48c74d8d39f0a32f50a79df16cced67387 [feat] adapt to cvi_defines.h
+
+project_name: fsbl
+commit_id: 13b81500299454b02e2e18a8c4b96fce8fc076e0 [fix](usb): get status use fifo [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: c825ab83378cec97911e30a03c7bdee036cfcc92 [fix](spinand):fix spinand clear interrupt reg error [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv184x [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: ramdisk
+commit_id: 3051c67786b1f6b7a3af1b1e2b4ffd24e0c10d25 [fix](ubi tools): update mtd tools [description ]:update mtd tools(with ubi tools) [root   cause]:NA [JIRA      ID]:NA [chip project]:CV181X [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: tdl_sdk
+commit_id: 9965973a136b35cdfa7298bc64d072ae3be8cfae Supports face recognition based on half-body images & fix face capture memory leak
+
+project_name: linux_5.10
+commit_id: 891c0d40eab92a9ba7e38c73bea0efbc3dcbc796 Merge "[fix](pinctrl): make pinctrl resume all register when suspend/resume [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA" into v4.2.0
+
+project_name: isp
+commit_id: d3384b347dd3b81fa4879900827cbf2e47e898a7 [feat](af): isp add af feature.
+
+project_name: mediapipe
+commit_id: 30ad166d1d5d742b30d67f78cdd7aa273b6002e5 [fix](jpeg):super frame jpeg
+
+project_name: cvi_mpi
+commit_id: c72c37708355e3a28ee5a782cff8b2ac94b30d76 [feat](jpege) use input buffer as output buffer when bufferfull, user level
+

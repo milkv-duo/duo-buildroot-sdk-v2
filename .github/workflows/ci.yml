@@ -68,8 +68,8 @@ jobs:
 
       - name: Download packages
         run: |
-          wget https://github.com/milkv-duo/duo-buildroot-sdk-v2/releases/download/dl/dl.tar.gz
-          tar xf dl.tar.gz -C buildroot-2024.02/
+          wget https://github.com/milkv-duo/duo-buildroot-sdk-v2/releases/download/dl/dl.tar
+          tar xf dl.tar -C buildroot/
 
       - name: Build ${{ matrix.model }}-${{ matrix.toolchains }}-${{ matrix.flash }}
         run: |

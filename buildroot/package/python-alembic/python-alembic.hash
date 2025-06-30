@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/alembic/json
+md5  5fd5fe35fe820d03c0594cb3edd16829  alembic-1.14.1.tar.gz
+sha256  496e888245a53adf1498fcab31713a469c65836f8de76e01399aa1c3e90dd213  alembic-1.14.1.tar.gz
+# Locally computed sha256 checksums
+sha256  35ea9c3419b261faf1be448c4f47d9255281bf6b36b5ffea55052227d4ba54de  LICENSE

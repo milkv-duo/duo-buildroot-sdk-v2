@@ -45,6 +45,52 @@
 				}
 			},
 			{
+				"ID": "TEAISP.bnr",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"TEAISP_BNR_ATTR_S",
+						"TEAISP_BNR_NP_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "TEAISP.bnr attr",
+							"MEMBER": [
+								"TEAISP_BNR_ATTR_S.enable",
+								"TEAISP_BNR_ATTR_S.enOpType",
+								"TEAISP_BNR_ATTR_S.UpdateInterval"
+							]
+						},
+						{
+							"TITLE": "TEAISP.bnr attr",
+							"MEMBER": [
+								"TEAISP_BNR_ATTR_S.stManual.FilterMotionStr2D",
+								"TEAISP_BNR_ATTR_S.stManual.FilterStaticStr2D",
+								"TEAISP_BNR_ATTR_S.stManual.FilterStr3D",
+								"TEAISP_BNR_ATTR_S.stManual.FilterStr2D",
+								"TEAISP_BNR_ATTR_S.stManual.NoiseLevel",
+								"TEAISP_BNR_ATTR_S.stManual.NoiseHiLevel",
+								"TEAISP_BNR_ATTR_S.stAuto.FilterMotionStr2D",
+								"TEAISP_BNR_ATTR_S.stAuto.FilterStaticStr2D",
+								"TEAISP_BNR_ATTR_S.stAuto.FilterStr3D",
+								"TEAISP_BNR_ATTR_S.stAuto.FilterStr2D",
+								"TEAISP_BNR_ATTR_S.stAuto.NoiseLevel",
+								"TEAISP_BNR_ATTR_S.stAuto.NoiseHiLevel"
+							]
+						},
+						{
+							"TITLE": "TEAISP.bnr Noise Profile",
+							"MEMBER": [
+								"TEAISP_BNR_NP_S.CalibrationCoef"
+							]
+						}
+					]
+				}
+			},
+			{
 				"ID": "TEAISP.pq",
 				"READY": true,
 				"TYPE": "REG_API_MPI",
@@ -251,6 +297,77 @@
 								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].RGain",
 								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].GGain",
 								"ISP_MESH_SHADING_GAIN_LUT_ATTR_S.LscGainLut[6].BGain"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "LBLC",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_LBLC_ATTR_S",
+						"ISP_LBLC_LUT_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "LBLC",
+							"MEMBER": [
+								"ISP_LBLC_ATTR_S.enable",
+								"ISP_LBLC_ATTR_S.enOpType",
+								"ISP_LBLC_ATTR_S.UpdateInterval",
+								"ISP_LBLC_ATTR_S.stManual.strength",
+								"ISP_LBLC_ATTR_S.stAuto.strength"
+							]
+						},
+						{
+							"TITLE": "LBLC Lut Attr",
+							"MEMBER": [
+								"ISP_LBLC_LUT_ATTR_S.size",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[0].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[0].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[0].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[0].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[0].lblcOffsetB",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[1].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[1].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[1].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[1].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[1].lblcOffsetB",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[2].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[2].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[2].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[2].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[2].lblcOffsetB"
+							]
+						},
+						{
+							"TITLE": "LBLC Lut Attr",
+							"MEMBER": [
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[3].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[3].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[3].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[3].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[3].lblcOffsetB",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[4].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[4].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[4].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[4].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[4].lblcOffsetB",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[5].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[5].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[5].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[5].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[5].lblcOffsetB",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[6].iso",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[6].lblcOffsetR",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[6].lblcOffsetGr",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[6].lblcOffsetGb",
+								"ISP_LBLC_LUT_ATTR_S.lblcLut[6].lblcOffsetB"
 							]
 						}
 					]
@@ -1918,6 +2035,55 @@
 								"ISP_EXP_INFO_S.u8LEFrameAvgLuma",
 								"ISP_EXP_INFO_S.u8SEFrameAvgLuma",
 								"ISP_EXP_INFO_S.fLightValue"
+							]
+						}
+					]
+				}
+			},
+			{
+				"ID": "AF Attr",
+				"READY": true,
+				"TYPE": "REG_API_MPI",
+				"CONTENTS": {
+					"CONTENT": [
+						"ISP_FOCUS_ATTR_S"
+					]
+				},
+				"LAYOUTS": {
+					"LAYOUT": [
+						{
+							"TITLE": "Focus Attr",
+							"MEMBER": [
+								"ISP_FOCUS_ATTR_S.bEnable",
+								"ISP_FOCUS_ATTR_S.enOpType",
+								"ISP_FOCUS_ATTR_S.u8RunInterval",
+								"ISP_FOCUS_ATTR_S.bRealTimeFocus",
+								"ISP_FOCUS_ATTR_S.bChasingFocus",
+								"ISP_FOCUS_ATTR_S.bReFocus",
+								"ISP_FOCUS_ATTR_S.bMixHlc",
+								"ISP_FOCUS_ATTR_S.u8DebugMode",
+								"ISP_FOCUS_ATTR_S.u8RtFocusStableFrm",
+								"ISP_FOCUS_ATTR_S.u16RtMaxDiffFvRatio",
+								"ISP_FOCUS_ATTR_S.u16MaxDiffFvRatio",
+								"ISP_FOCUS_ATTR_S.u16MaxDiffLumaRatio",
+								"ISP_FOCUS_ATTR_S.u16DetectDiffRatio",
+								"ISP_FOCUS_ATTR_S.u16SearchDiffRatio",
+								"ISP_FOCUS_ATTR_S.u16LocalDiffRatio",
+								"ISP_FOCUS_ATTR_S.u8InitStep",
+								"ISP_FOCUS_ATTR_S.u8FindStep",
+								"ISP_FOCUS_ATTR_S.u8LocateStep",
+								"ISP_FOCUS_ATTR_S.enInitDir",
+								"ISP_FOCUS_ATTR_S.u16MaxRotateCnt",
+								"ISP_FOCUS_ATTR_S.enChasingFocusMode"
+							]
+						},
+						{
+							"TITLE": "Manual Attr",
+							"MEMBER": [
+								"ISP_FOCUS_ATTR_S.stManual.enFocusOpType",
+								"ISP_FOCUS_ATTR_S.stManual.enFocusDir",
+								"ISP_FOCUS_ATTR_S.stManual.u16FocusStep",
+								"ISP_FOCUS_ATTR_S.stManual.u16FocusPos"
 							]
 						}
 					]

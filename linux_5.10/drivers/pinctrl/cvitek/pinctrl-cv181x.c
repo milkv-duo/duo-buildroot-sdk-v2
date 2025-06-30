@@ -22,7 +22,7 @@ static int cvi_pinctrl_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	pinctrl->saved_regs =
-		devm_kzalloc(&pdev->dev, CVITEK_PINMUX_REG_LAST, GFP_KERNEL);
+		devm_kzalloc(&pdev->dev, PINMUX_RANGE, GFP_KERNEL);
 	if (!pinctrl->saved_regs)
 		return -ENOMEM;
 
@@ -39,9 +39,9 @@ static int cvi_pinctrl_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, pinctrl);
 
-	dev_info(&pdev->dev, "%s(): reg=%p,%zu CVITEK_PINMUX_REG_LAST=0x%x\n",
+	dev_info(&pdev->dev, "%s(): reg=%p,%zu PINMUX_RANGE=0x%x\n",
 		 __func__, pinctrl->regs, pinctrl->regs_size,
-		 CVITEK_PINMUX_REG_LAST);
+		 PINMUX_RANGE);
 
 	return 0;
 }
@@ -60,8 +60,9 @@ static int cvitek_pinctrl_suspend(struct device *dev)
 
 	dev_info(&pdev->dev, "%s()\n", __func__);
 
+	memset(pinctrl->saved_regs, 0, PINMUX_RANGE);
 	memcpy_fromio(pinctrl->saved_regs, pinctrl->regs,
-		      CVITEK_PINMUX_REG_LAST);
+		      PINMUX_RANGE);
 
 	return 0;
 }
@@ -73,7 +74,7 @@ static int cvitek_pinctrl_resume(struct device *dev)
 
 	dev_info(&pdev->dev, "%s()\n", __func__);
 
-	memcpy_toio(pinctrl->regs, pinctrl->saved_regs, CVITEK_PINMUX_REG_LAST);
+	memcpy_toio(pinctrl->regs, pinctrl->saved_regs, PINMUX_RANGE);
 
 	return 0;
 }

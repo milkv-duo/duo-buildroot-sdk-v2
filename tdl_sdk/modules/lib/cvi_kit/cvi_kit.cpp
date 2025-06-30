@@ -237,8 +237,9 @@ CVI_S32 CVI_TDL_ShowDetectionBox(cvtdl_object_t *obj_meta, const char *image_pat
       float confidence = obj_meta->info[i].bbox.score;
       cv::rectangle(image, cv::Point(int(x1), int(y1)), cv::Point(int(x2), int(y2)), cv::Scalar(255, 0, 0), 2);
 
-      std::string label = "Class: " + std::to_string(class_id) + " Confidence: " + std::to_string(confidence).substr(0, 4);
-      cv::putText(image, label, cv::Point(int(x1), int(y1) - 10), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 0), 2);   
+      char label[256];
+      snprintf(label, sizeof(label), "Class:%d Confidence:%.2f", class_id, confidence);
+      cv::putText(image, label, cv::Point(int(x1), int(y1) - 10), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 0), 1);   
   }
 
   cv::imwrite(save_path, image);

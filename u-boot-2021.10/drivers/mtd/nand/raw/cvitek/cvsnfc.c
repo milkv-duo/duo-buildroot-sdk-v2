@@ -132,7 +132,8 @@ static void cvsnfc_send_cmd_pageprog(struct cvsnfc_host *host)
 		return;
 	}
 
-	host->set_system_clock(spi->write, ENABLE);
+	if (host->set_system_clock)
+		host->set_system_clock(spi->write, ENABLE);
 
 	val = CVSNFC_INT_CLR_ALL;
 	cvsfc_write(host, CVSNFC_INT_CLR, val);
@@ -245,7 +246,8 @@ static void cvsnfc_send_cmd_readstart(struct cvsnfc_host *host)
 		return;
 	}
 
-	host->set_system_clock(spi->read, ENABLE);
+	if (host->set_system_clock)
+		host->set_system_clock(spi->read, ENABLE);
 
 	val = CVSNFC_INT_CLR_ALL;
 	cvsfc_write(host, CVSNFC_INT_CLR, val);

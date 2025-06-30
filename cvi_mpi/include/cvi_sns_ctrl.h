@@ -118,6 +118,7 @@ typedef struct _ISP_SNS_OBJ_S {		/* Sensor callback object struct */
 
 extern ISP_SNS_OBJ_S stSnsBG0808_Obj;
 extern ISP_SNS_OBJ_S stSnsBF2253L_Obj;
+extern ISP_SNS_OBJ_S stSnsCV2002_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_1L_Obj;
 extern ISP_SNS_OBJ_S stSnsCV2003_1L_SLAVE_Obj;
@@ -125,8 +126,10 @@ extern ISP_SNS_OBJ_S stSnsCV2003_1L_SLAVE1_Obj;
 extern ISP_SNS_OBJ_S stSnsCV4001_Obj;
 extern ISP_SNS_OBJ_S stSnsCV4002_Obj;
 extern ISP_SNS_OBJ_S stSnsGc02m1b_Obj;
+extern ISP_SNS_OBJ_S stSnsGc0308_Obj;
 extern ISP_SNS_OBJ_S stSnsGc0312_Obj;
 extern ISP_SNS_OBJ_S stSnsGc0329_Obj;
+extern ISP_SNS_OBJ_S stSnsGc05a2_Obj;
 extern ISP_SNS_OBJ_S stSnsGc1054_Obj;
 extern ISP_SNS_OBJ_S stSnsGc1084_Obj;
 extern ISP_SNS_OBJ_S stSnsGc1084_Slave_Obj;

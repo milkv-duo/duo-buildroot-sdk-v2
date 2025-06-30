@@ -155,6 +155,7 @@ typedef enum _PIC_SIZE_E {
 	PIC_2304x1296,
 	PIC_2048x1536,
 	PIC_2560x1600,
+	PIC_2560x1920,
 	PIC_2560x1944,
 	PIC_2592x1520,
 	PIC_2592x1536,
@@ -246,6 +247,7 @@ typedef struct _SAMPLE_DEV_INFO_S {
 typedef struct _SAMPLE_PIPE_INFO_S {
 	VI_PIPE aPipe[WDR_MAX_PIPE_NUM];
 	VI_VPSS_MODE_E enMastPipeMode;
+	CVI_U32 u32TEAISPMode;
 	bool bMultiPipe;
 	bool bVcNumCfged;
 	bool bIspBypass;

@@ -28,6 +28,12 @@ enum cvi_isp_buf_status {
 	EXTERNAL_BUFFER,
 };
 
+enum cvi_isp_buf_src {
+	PRE_FE,
+	PRE_BE,
+	TPU_OUT,
+};
+
 struct isp_buffer {
 	enum cvi_isp_raw  raw_num;
 	enum cvi_isp_chn_num chn_num;
@@ -37,9 +43,11 @@ struct isp_buffer {
 	struct isp_grid_s_info rgbmap_i;
 	struct isp_grid_s_info lmap_i;
 	struct list_head  list;
+	enum cvi_isp_buf_src src;
 	uint32_t          byr_size;
 	uint32_t          frm_num;
 	uint32_t          ir_idx;
+	u64               rgbmap_addr;
 	uint32_t          is_yuv_frm : 1;
 	uint32_t          is_ext : 1;
 };

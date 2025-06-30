@@ -84,7 +84,9 @@ static CVI_S32 setNoiseProfile(VI_PIPE ViPipe);
 static CVI_S32 setDisDefault(VI_PIPE ViPipe);
 static void setVCDefault(VI_PIPE ViPipe);
 static void setCscDefault(VI_PIPE ViPipe);
+static CVI_VOID setTEAISPBnr(VI_PIPE ViPipe);
 static CVI_VOID setTEAISPPQ(VI_PIPE ViPipe);
+static void setLblcDefault(VI_PIPE ViPipe);
 
 static CVI_S32 setIspIqParamDefault(VI_PIPE ViPipe, CVI_U32 wdrEn);
 static CVI_VOID setDemosaicDemoire(VI_PIPE ViPipe);
@@ -134,6 +136,7 @@ static CVI_S32 setIspIqParamDefault(VI_PIPE ViPipe, CVI_U32 wdrEn)
 #else
 	// setBlcDefault(ViPipe);
 	//setRlscDefault(ViPipe);
+	setTEAISPBnr(ViPipe);
 	setTEAISPPQ(ViPipe);
 	setGammaDefault(ViPipe, wdrEn);
 	setAutoGammaDefault(ViPipe);
@@ -147,6 +150,7 @@ static CVI_S32 setIspIqParamDefault(VI_PIPE ViPipe, CVI_U32 wdrEn)
 	setDpcDefault(ViPipe);
 	setCrossTalkDefault(ViPipe);
 	setMlscDefault(ViPipe);
+	setLblcDefault(ViPipe);
 	setFsWdrDefault(ViPipe, wdrEn);
 	setDrcDefault(ViPipe, wdrEn);
 	setExposureAttrDefault(ViPipe);
@@ -171,6 +175,130 @@ static CVI_S32 setIspIqParamDefault(VI_PIPE ViPipe, CVI_U32 wdrEn)
 	setCscDefault(ViPipe);
 #endif
 	return 0;
+}
+
+static CVI_VOID setTEAISPBnr(VI_PIPE ViPipe)
+{
+	ISP_LOG_DEBUG("(%d)\n", ViPipe);
+
+	TEAISP_BNR_ATTR_S attr = {0};
+
+	INIT_V(attr, enable, 0)
+	INIT_V(attr, enOpType, 0);
+	INIT_V(attr, UpdateInterval, 1);
+
+	INIT_A(attr, FilterMotionStr2D, 230,
+	230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230);
+
+	INIT_A(attr, FilterStaticStr2D, 100,
+	100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+
+	INIT_A(attr, FilterStr3D, 230,
+	230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230);
+
+	INIT_A(attr, FilterStr2D, 230,
+	230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230, 230);
+
+	INIT_A(attr, NoiseLevel, 1024,
+	1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024);
+
+	INIT_A(attr, NoiseHiLevel, 1024,
+	1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024);
+
+	CVI_TEAISP_BNR_SetAttr(ViPipe, &attr);
+
+	TEAISP_BNR_NP_S np = {.CalibrationCoef = {
+		// slope
+		{	//iso  100
+			0.0009614415322580645,
+			//iso  200
+			0.0009614415322580645,
+			//iso  400
+			0.0009614415322580645,
+			//iso  800
+			0.0009614415322580645,
+			//iso  1600
+			0.0009614415322580645,
+			//iso  3200
+			0.0009614415322580645,
+			//iso  6400
+			0.0016557459677419355,
+			//iso  12800
+			0.002795969773299748,
+			//iso  25600
+			0.005105686965274282,
+			//iso  51200
+			0.010253577705247301,
+			//iso  102400
+			0.02464098073555166,
+			//iso  204800
+			0.02464098073555166,
+			//iso  409600
+			0.02464098073555166,
+			//iso  819200
+			0.02464098073555166,
+			//iso  1638400
+			0.02464098073555166,
+			//iso  3276800
+			0.02464098073555166,
+		},
+		// intercept
+		{	//iso  100
+			//4.003804630593132e-06,
+			////iso  200
+			//4.003804630593132e-06,
+			////iso  400
+			//4.003804630593132e-06,
+			////iso  800
+			//4.003804630593132e-06,
+			////iso  1600
+			//4.003804630593132e-06,
+			////iso  3200
+			//4.003804630593132e-06,
+			////iso  6400
+			//1.1687502032388138e-05,
+			////iso  12800
+			//2.0229809211402902e-05,
+			////iso  25600
+			//8.935471100654506e-05,
+			//iso 100
+			0.000004003804630593132,
+			//iso  200
+			0.000004003804630593132,
+			//iso  400
+			0.000004003804630593132,
+			//iso  800
+			0.000004003804630593132,
+			//iso  1600
+			0.000004003804630593132,
+			//iso  3200
+			0.000004003804630593132,
+			//iso  6400
+			0.000011687502032388138,
+			//iso  12800
+			0.000020229809211402902,
+			//iso  25600
+			0.00008935471100654506,
+			//iso  51200
+			0.00033863540937762793,
+			//iso  102400
+			0.0013171275754789572,
+			//iso  204800
+			0.0013171275754789572,
+			//iso  409600
+			0.0013171275754789572,
+			//iso  819200
+			0.0013171275754789572,
+			//iso  1638400
+			0.0013171275754789572,
+			//iso  3276800
+			0.0013171275754789572,
+		},
+
+	} };
+
+
+	CVI_TEAISP_BNR_SetNoiseProfileAttr(ViPipe, &np);
 }
 
 static CVI_VOID setTEAISPPQ(VI_PIPE ViPipe)
@@ -1979,6 +2107,61 @@ static CVI_VOID setMeshShadingGainLut(VI_PIPE ViPipe)
 
 	isp_mlsc_ctrl_set_mlsc_lut_attr(ViPipe, pattr);
 	free(pattr);
+}
+
+static CVI_VOID setLblcAttr(VI_PIPE ViPipe)
+{
+	ISP_LOG_DEBUG("(%d)\n", ViPipe);
+
+	ISP_LBLC_ATTR_S attr = {0};
+
+	INIT_V(attr, enable, 0);
+	INIT_V(attr, enOpType, 0);
+	INIT_V(attr, UpdateInterval, 1);
+	INIT_A(attr, strength, 1024,
+		1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024,
+		1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024);
+
+	isp_lblc_ctrl_set_lblc_attr(ViPipe, &attr);
+}
+
+static CVI_VOID setLblcLutAttr(VI_PIPE ViPipe)
+{
+	ISP_LOG_DEBUG("(%d)\n", ViPipe);
+
+	ISP_LBLC_LUT_ATTR_S *pattr = NULL;
+
+	pattr = ISP_CALLOC(1, sizeof(ISP_LBLC_LUT_ATTR_S));
+	if (pattr == NULL) {
+		ISP_LOG_ERR("%s\n", "calloc fail");
+		return;
+	}
+
+	INIT_V(*pattr, size, 1);
+	CVI_U32 isoTbl[ISP_LBLC_ISO_SIZE] = {6400, 12800, 25600, 51200, 102400, 204800, 409600};
+
+	for (CVI_U32 iso = 0; iso < ISP_LBLC_ISO_SIZE; iso++) {
+
+		pattr->lblcLut[iso].iso = isoTbl[iso];
+
+		for (CVI_U32 point = 0; point < ISP_LBLC_GRID_POINTS; point++) {
+			pattr->lblcLut[iso].lblcOffsetR[point] = 0;
+			pattr->lblcLut[iso].lblcOffsetR[point] = 0;
+			pattr->lblcLut[iso].lblcOffsetR[point] = 0;
+			pattr->lblcLut[iso].lblcOffsetR[point] = 0;
+		}
+	}
+
+	isp_lblc_ctrl_set_lblc_lut_attr(ViPipe, pattr);
+	free(pattr);
+}
+
+static CVI_VOID setLblcDefault(VI_PIPE ViPipe)
+{
+	ISP_LOG_DEBUG("(%d)\n", ViPipe);
+
+	setLblcAttr(ViPipe);
+	setLblcLutAttr(ViPipe);
 }
 
 CVI_VOID setFsWdrDefault(VI_PIPE ViPipe, CVI_U32 wdrEn)

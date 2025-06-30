@@ -16,7 +16,8 @@
 
 uint32_t __weak spl_nand_get_uboot_raw_page(void)
 {
-	return CONFIG_SYS_NAND_U_BOOT_OFFS;
+	// return CONFIG_SYS_NAND_U_BOOT_OFFS;
+	return 0;
 }
 
 #if defined(CONFIG_SPL_NAND_RAW_ONLY)
@@ -130,6 +131,7 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 		 * CONFIG_CMD_SPL_WRITE_SIZE therefore may overwrite
 		 * following sections like BSS
 		 */
+#if 0
 		nand_spl_load_image(CONFIG_CMD_SPL_NAND_OFS,
 			CONFIG_CMD_SPL_WRITE_SIZE,
 			(void *)CONFIG_SYS_TEXT_BASE);
@@ -162,6 +164,11 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 				"configuration.\n");
 			puts("Trying to start u-boot now...\n");
 		}
+#endif
+
+		err = spl_nand_load_element(spl_image, SPL_BOOT_PART_OFFSET, header);
+
+		return err;
 	}
 #endif
 #ifdef CONFIG_NAND_ENV_DST

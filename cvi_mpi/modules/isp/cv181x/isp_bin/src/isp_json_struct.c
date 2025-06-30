@@ -661,6 +661,174 @@ void ISP_BLACK_LEVEL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_BLACK_LEV
 }
 
 // -----------------------------------------------------------------------------
+// ISP structure - LBLC
+// -----------------------------------------------------------------------------
+static void ISP_LBLC_MANUAL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_LBLC_MANUAL_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_U16, strength);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+static void ISP_LBLC_AUTO_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_LBLC_AUTO_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON_A(r_w_flag, CVI_U16, strength, ISP_AUTO_ISO_STRENGTH_NUM);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+void ISP_LBLC_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_LBLC_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_BOOL, enable);
+	JSON(r_w_flag, ISP_OP_TYPE_E, enOpType);
+	JSON(r_w_flag, CVI_U8, UpdateInterval);
+	JSON(r_w_flag, ISP_LBLC_MANUAL_ATTR_S, stManual);
+	JSON(r_w_flag, ISP_LBLC_AUTO_ATTR_S, stAuto);
+
+	JSON_END(r_w_flag);
+}
+
+static int ISP_LBLC_LUT_ATTR_S_GET_MAX_SIZE(void)
+{
+	int gain_lut_size = 0, attr_size = 0;
+
+	gain_lut_size += GET_OBJECT_STRING_SIZE("iso", 7);
+	gain_lut_size += GET_ARRAY_STRING_SIZE("lblcOffsetR", ISP_LBLC_GRID_POINTS, 4);
+	gain_lut_size += GET_ARRAY_STRING_SIZE("lblcOffsetGr", ISP_LBLC_GRID_POINTS, 4);
+	gain_lut_size += GET_ARRAY_STRING_SIZE("lblcOffsetGb", ISP_LBLC_GRID_POINTS, 4);
+	gain_lut_size += GET_ARRAY_STRING_SIZE("lblcOffsetB", ISP_LBLC_GRID_POINTS, 4);
+
+	attr_size += GET_OBJECT_STRING_SIZE("size", 2);
+	attr_size += GET_ARRAY_STRING_SIZE("lblcLut", ISP_LBLC_ISO_SIZE, gain_lut_size);
+
+	return attr_size;
+}
+
+void ISP_LBLC_LUT_S_WRITE_JSON(ISP_LBLC_LUT_S *plutAttr, char *json_str)
+{
+	char tmpstr[64] = {0};
+
+	JSON_EX_START(json_str);
+	snprintf(tmpstr, sizeof(tmpstr), "%c%s%c: %d, ", '"', "iso", '"', plutAttr->iso);
+	strcat(json_str, tmpstr);
+	PARSE_INT_ARRAY_TO_JSON_STR("lblcOffsetR", plutAttr->lblcOffsetR, ISP_LBLC_GRID_POINTS, json_str);
+	strcat(json_str, ", ");
+	PARSE_INT_ARRAY_TO_JSON_STR("lblcOffsetGr", plutAttr->lblcOffsetGr, ISP_LBLC_GRID_POINTS, json_str);
+	strcat(json_str, ", ");
+	PARSE_INT_ARRAY_TO_JSON_STR("lblcOffsetGb", plutAttr->lblcOffsetGb, ISP_LBLC_GRID_POINTS, json_str);
+	strcat(json_str, ", ");
+	PARSE_INT_ARRAY_TO_JSON_STR("lblcOffsetB", plutAttr->lblcOffsetB, ISP_LBLC_GRID_POINTS, json_str);
+	JSON_EX_END(json_str);
+}
+
+int ISP_LBLC_LUT_ATTR_S_WRITE_JSON(ISP_LBLC_LUT_ATTR_S *pAttr, char *json_str)
+{
+	char tmpstr[64] = {0};
+
+	JSON_EX_START(json_str);
+	snprintf(tmpstr, sizeof(tmpstr), "%c%s%c: %d, ", '"', "size", '"', pAttr->size);
+	strcat(json_str, tmpstr);
+
+	snprintf(tmpstr, sizeof(tmpstr), "%c%s%c: [ ", '"', "lblcLut", '"');
+	strcat(json_str, tmpstr);
+
+	ISP_LBLC_LUT_S_WRITE_JSON(&pAttr->lblcLut[0], json_str);
+	for (int i = 1; i < ISP_LBLC_ISO_SIZE; i++) {
+		strcat(json_str, ", ");
+		ISP_LBLC_LUT_S_WRITE_JSON(&pAttr->lblcLut[i], json_str);
+	}
+	strcat(json_str, " ]");
+	JSON_EX_END(json_str);
+
+	return strlen(json_str);
+}
+
+char *ISP_LBLC_LUT_S_READ_JSON(ISP_LBLC_LUT_S *pAttr, char *json_str)
+{
+	char *tmpStr = json_str;
+	char *valPos = NULL;
+
+	PARSE_JSON_STR_TO_INT_VALUE(iso, json_str, pAttr);
+	PARSE_JSON_STR_TO_INT_ARRAY(lblcOffsetR, tmpStr, pAttr, ISP_LBLC_GRID_POINTS);
+	PARSE_JSON_STR_TO_INT_ARRAY(lblcOffsetGr, tmpStr, pAttr, ISP_LBLC_GRID_POINTS);
+	PARSE_JSON_STR_TO_INT_ARRAY(lblcOffsetGb, tmpStr, pAttr, ISP_LBLC_GRID_POINTS);
+	PARSE_JSON_STR_TO_INT_ARRAY(lblcOffsetB, tmpStr, pAttr, ISP_LBLC_GRID_POINTS);
+
+	return tmpStr;
+}
+
+void ISP_LBLC_LUT_ATTR_S_READ_JSON(ISP_LBLC_LUT_ATTR_S *pAttr, const char *json_str)
+{
+	char *tmpStr = (char *)json_str;
+
+	PARSE_JSON_STR_TO_INT_VALUE(size, tmpStr, pAttr);
+	tmpStr = strstr(tmpStr, "lblcLut");
+
+	if (tmpStr) {
+		for (int i = 0; i < ISP_LBLC_ISO_SIZE; i++) {
+			tmpStr = strstr(tmpStr, "{");
+			tmpStr = ISP_LBLC_LUT_S_READ_JSON(&pAttr->lblcLut[i], tmpStr);
+			tmpStr = strstr(tmpStr, "}");
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+static void ISP_LBLC_LUT_S_JSON(int r_w_flag, JSON *j, char *key, ISP_LBLC_LUT_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_U32, iso);
+	JSON_A(r_w_flag, CVI_U16, lblcOffsetR, ISP_LBLC_GRID_POINTS);
+	JSON_A(r_w_flag, CVI_U16, lblcOffsetGr, ISP_LBLC_GRID_POINTS);
+	JSON_A(r_w_flag, CVI_U16, lblcOffsetGb, ISP_LBLC_GRID_POINTS);
+	JSON_A(r_w_flag, CVI_U16, lblcOffsetB, ISP_LBLC_GRID_POINTS);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+void ISP_LBLC_LUT_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_LBLC_LUT_ATTR_S *data)
+{
+	if (r_w_flag == R_FLAG) {
+		JSON_START(r_w_flag);
+
+		if (cvi_json_object_is_type(obj, cvi_json_type_string)) {
+			const char *json_str = cvi_json_object_get_string(obj);
+
+			ISP_LBLC_LUT_ATTR_S_READ_JSON(data, json_str);
+		} else {
+			JSON(r_w_flag, CVI_U8, size);
+			JSON_A(r_w_flag, ISP_LBLC_LUT_S, lblcLut, ISP_LBLC_ISO_SIZE);
+		}
+		JSON_END(r_w_flag);
+	} else {
+		int max_size = ISP_LBLC_LUT_ATTR_S_GET_MAX_SIZE();
+		char *json_str = (char *)malloc(max_size);
+
+		if (json_str == NULL) {
+			CVI_TRACE_JSON(LOG_WARNING, "%s\n", "Allocate memory fail");
+			return;
+		}
+
+		memset(json_str, 0, max_size);
+		int json_len = ISP_LBLC_LUT_ATTR_S_WRITE_JSON(data, json_str);
+		JSON *json_obj = cvi_json_object_new_string_len(json_str, json_len);
+
+		cvi_json_object_object_add(j, key, json_obj);
+		free(json_str);
+	}
+}
+
+// -----------------------------------------------------------------------------
 // ISP structure - DP
 // -----------------------------------------------------------------------------
 static void ISP_DP_DYNAMIC_MANUAL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_DP_DYNAMIC_MANUAL_ATTR_S *data)
@@ -2980,6 +3148,62 @@ void ISP_YCONTRAST_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_YCONTRAST_A
 }
 
 // -----------------------------------------------------------------------------
+// ISP structure - TEAISP BNR
+// -----------------------------------------------------------------------------
+static void TEAISP_BNR_MANUAL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, TEAISP_BNR_MANUAL_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_U8, FilterMotionStr2D);
+	JSON(r_w_flag, CVI_U8, FilterStaticStr2D);
+	JSON(r_w_flag, CVI_U8, FilterStr3D);
+	JSON(r_w_flag, CVI_U8, FilterStr2D);
+	JSON(r_w_flag, CVI_U16, NoiseLevel);
+	JSON(r_w_flag, CVI_U16, NoiseHiLevel);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+static void TEAISP_BNR_AUTO_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, TEAISP_BNR_AUTO_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON_A(r_w_flag, CVI_U8, FilterMotionStr2D, ISP_AUTO_ISO_STRENGTH_NUM);
+	JSON_A(r_w_flag, CVI_U8, FilterStaticStr2D, ISP_AUTO_ISO_STRENGTH_NUM);
+	JSON_A(r_w_flag, CVI_U8, FilterStr3D, ISP_AUTO_ISO_STRENGTH_NUM);
+	JSON_A(r_w_flag, CVI_U8, FilterStr2D, ISP_AUTO_ISO_STRENGTH_NUM);
+	JSON_A(r_w_flag, CVI_U16, NoiseLevel, ISP_AUTO_ISO_STRENGTH_NUM);
+	JSON_A(r_w_flag, CVI_U16, NoiseHiLevel, ISP_AUTO_ISO_STRENGTH_NUM);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+void TEAISP_BNR_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, TEAISP_BNR_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_BOOL, enable);
+	JSON(r_w_flag, ISP_OP_TYPE_E, enOpType);
+	JSON(r_w_flag, CVI_U8, UpdateInterval);
+	JSON(r_w_flag, TEAISP_BNR_MANUAL_ATTR_S, stManual);
+	JSON(r_w_flag, TEAISP_BNR_AUTO_ATTR_S, stAuto);
+
+	JSON_END(r_w_flag);
+}
+
+void TEAISP_BNR_NP_S_JSON(int r_w_flag, JSON *j, char *key, TEAISP_BNR_NP_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON_A(r_w_flag, CVI_FLOAT, CalibrationCoef,
+		NOISE_PROFILE_ISO_NUM * NOISE_PROFILE_LEVEL_NUM);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
 // ISP structure - TEAISP PQ
 // -----------------------------------------------------------------------------
 static void TEAISP_PQ_MANUAL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, TEAISP_PQ_MANUAL_ATTR_S *data)
@@ -3066,6 +3290,8 @@ void ISP_PARAMETER_BUFFER_JSON(int r_w_flag, JSON *j, char *key_word, ISP_Parame
 
 		// Pre-RAW
 		JSON(r_w_flag, ISP_BLACK_LEVEL_ATTR_S, blc);
+		JSON(r_w_flag, ISP_LBLC_ATTR_S, lblc);
+		JSON(r_w_flag, ISP_LBLC_LUT_ATTR_S, lblcLut);
 		JSON(r_w_flag, ISP_DP_DYNAMIC_ATTR_S, dpc_dynamic);
 		JSON(r_w_flag, ISP_DP_STATIC_ATTR_S, dpc_static);
 		JSON(r_w_flag, ISP_DP_CALIB_ATTR_S, DPCalib);
@@ -3126,6 +3352,10 @@ void ISP_PARAMETER_BUFFER_JSON(int r_w_flag, JSON *j, char *key_word, ISP_Parame
 		JSON(r_w_flag, ISP_CA_ATTR_S, ca);
 		JSON(r_w_flag, ISP_CA2_ATTR_S, ca2);
 		JSON(r_w_flag, ISP_YCONTRAST_ATTR_S, ycontrast);
+
+		// TEAISP
+		JSON(r_w_flag, TEAISP_BNR_ATTR_S, teaisp_bnr);
+		JSON(r_w_flag, TEAISP_BNR_NP_S, teaisp_bnr_np);
 
 		// Other
 		JSON(r_w_flag, ISP_CMOS_NOISE_CALIBRATION_S, np);
@@ -3861,6 +4091,125 @@ static void ISP_FOCUS_STATISTICS_CFG_S_JSON(int r_w_flag, JSON *j, char *key, IS
 }
 
 // -----------------------------------------------------------------------------
+static void AF_MANUAL_TYPE_JSON(int r_w_flag, JSON *j, char *key, AF_MANUAL_TYPE *value)
+{
+	JSON *obj = 0;
+
+	if (r_w_flag == R_FLAG) {
+		if (cvi_json_object_object_get_ex2(j, key, &obj)) {
+			int temp;
+
+			temp = cvi_json_object_get_int(obj);
+			JSON_CHECK_RANGE(key, &temp, OP_TYPE_ZOOM, OP_TYPE_AF_BUTT);
+			*value = temp;
+		} else {
+			JSON_PRINT_ERR_NOT_EXIST(key);
+		}
+	} else {
+		obj = cvi_json_object_new_int(*value);
+		if (cvi_json_object_is_type(j, cvi_json_type_array)) {
+			cvi_json_object_array_add(j, obj);
+		} else {
+			cvi_json_object_object_add(j, key, obj);
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+static void AF_DIRECTION_JSON(int r_w_flag, JSON *j, char *key, AF_DIRECTION *value)
+{
+	JSON *obj = 0;
+
+	if (r_w_flag == R_FLAG) {
+		if (cvi_json_object_object_get_ex2(j, key, &obj)) {
+			int temp;
+
+			temp = cvi_json_object_get_int(obj);
+			JSON_CHECK_RANGE(key, &temp, AF_DIR_NEAR, AF_DIR_FAR);
+			*value = temp;
+		} else {
+			JSON_PRINT_ERR_NOT_EXIST(key);
+		}
+	} else {
+		obj = cvi_json_object_new_int(*value);
+		if (cvi_json_object_is_type(j, cvi_json_type_array)) {
+			cvi_json_object_array_add(j, obj);
+		} else {
+			cvi_json_object_object_add(j, key, obj);
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+static void AF_CHASINGFOCUS_MODE_JSON(int r_w_flag, JSON *j, char *key, AF_CHASINGFOCUS_MODE *value)
+{
+	JSON *obj = 0;
+
+	if (r_w_flag == R_FLAG) {
+		if (cvi_json_object_object_get_ex2(j, key, &obj)) {
+			int temp;
+
+			temp = cvi_json_object_get_int(obj);
+			JSON_CHECK_RANGE(key, &temp, AF_CHASINGFOCUS_FAST_MODE, AF_CHASINGFOCUS_NORMAL_MODE);
+			*value = temp;
+		} else {
+			JSON_PRINT_ERR_NOT_EXIST(key);
+		}
+	} else {
+		obj = cvi_json_object_new_int(*value);
+		if (cvi_json_object_is_type(j, cvi_json_type_array)) {
+			cvi_json_object_array_add(j, obj);
+		} else {
+			cvi_json_object_object_add(j, key, obj);
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+static void ISP_FOCUS_MANUAL_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_FOCUS_MANUAL_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, AF_MANUAL_TYPE, enFocusOpType);
+	JSON(r_w_flag, AF_DIRECTION, enFocusDir);
+	JSON(r_w_flag, CVI_U16, u16FocusStep);
+	JSON(r_w_flag, CVI_U16, u16FocusPos);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
+void ISP_FOCUS_ATTR_S_JSON(int r_w_flag, JSON *j, char *key, ISP_FOCUS_ATTR_S *data)
+{
+	JSON_START(r_w_flag);
+
+	JSON(r_w_flag, CVI_BOOL, bEnable);
+	JSON(r_w_flag, CVI_U8, u8DebugMode);
+	JSON(r_w_flag, ISP_OP_TYPE_E, enOpType);
+	JSON(r_w_flag, CVI_U8, u8RunInterval);
+	JSON(r_w_flag, CVI_BOOL, bRealTimeFocus);
+	JSON(r_w_flag, CVI_BOOL, bChasingFocus);
+	JSON(r_w_flag, CVI_BOOL, bReFocus);
+	JSON(r_w_flag, CVI_BOOL, bMixHlc);
+	JSON(r_w_flag, CVI_U8, u8RtFocusStableFrm);
+	JSON(r_w_flag, CVI_U16, u16RtMaxDiffFvRatio);
+	JSON(r_w_flag, CVI_U16, u16MaxDiffFvRatio);
+	JSON(r_w_flag, CVI_U16, u16MaxDiffLumaRatio);
+	JSON(r_w_flag, CVI_U16, u16DetectDiffRatio);
+	JSON(r_w_flag, CVI_U16, u16SearchDiffRatio);
+	JSON(r_w_flag, CVI_U16, u16LocalDiffRatio);
+	JSON(r_w_flag, CVI_U8, u8InitStep);
+	JSON(r_w_flag, CVI_U8, u8FindStep);
+	JSON(r_w_flag, CVI_U8, u8LocateStep);
+	JSON(r_w_flag, CVI_U16, u16MaxRotateCnt);
+	JSON(r_w_flag, AF_DIRECTION, enInitDir);
+	JSON(r_w_flag, AF_CHASINGFOCUS_MODE, enChasingFocusMode);
+	JSON(r_w_flag, ISP_FOCUS_MANUAL_ATTR_S, stManual);
+
+	JSON_END(r_w_flag);
+}
+
+// -----------------------------------------------------------------------------
 // 3A structure
 // -----------------------------------------------------------------------------
 static void ISP_STATISTICS_CTRL_U_JSON(int r_w_flag, JSON *j, char *key, ISP_STATISTICS_CTRL_U *data)
@@ -3921,6 +4270,8 @@ void ISP_3A_PARAMETER_BUFFER_JSON(int r_w_flag, JSON *j, char *key_word, ISP_3A_
 		JSON(r_w_flag, ISP_AWB_Calibration_Gain_S, WBCalib);
 		JSON(r_w_flag, ISP_AWB_Calibration_Gain_S_EX, WBCalibEx);
 		JSON(r_w_flag, ISP_STATISTICS_CFG_S, StatCfg);
+		// AF
+		JSON(r_w_flag, ISP_FOCUS_ATTR_S, FocusAttr);
 		break;
 	default:
 			break;

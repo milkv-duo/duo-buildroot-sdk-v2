@@ -17,7 +17,7 @@
     <project name="cvi_alios_open" path="cvi_alios"/>
     <project name="cvi_rtsp" path="cvi_rtsp"/>
     <project name="ive" path="ive"/>
-    <project name="tdl_sdk" path="tdl_sdk" revision="master"/>
+    <project name="tdl_sdk" path="tdl_sdk" revision="v1"/>
     <project name="cvibuilder" path="cvibuilder" revision="master"/>
     <project name="cvikernel" path="cvikernel" revision="master"/>
     <project name="cviruntime" path="cviruntime" revision="master"/>

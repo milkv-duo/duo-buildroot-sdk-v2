@@ -1,0 +1,121 @@
+name: duo-release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: "write"
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [duo, duo256m, duos]
+        toolchains: [glibc-arm64, musl-riscv64]
+        flash: [sd, emmc]
+        exclude:
+          - model: duo
+            toolchains: glibc-arm64
+          - model: duo
+            toolchains: musl-riscv64
+            flash: emmc
+          - model: duo256m
+            flash: emmc
+
+    steps:
+      - name: Update Apt Cache
+        run: sudo apt update
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Checkout Host Tools
+        uses: actions/checkout@v4
+        with:
+          repository: 'milkv-duo/host-tools'
+          path: 'host-tools'
+
+      - name: Download Packages
+        run: |
+          wget https://github.com/milkv-duo/duo-buildroot-sdk-v2/releases/download/dl/dl.tar
+          tar xf dl.tar -C buildroot/
+
+      - name: Set Environment
+        run: |
+          echo "REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "BOARD=milkv-${{ matrix.model }}-${{ matrix.toolchains }}-${{ matrix.flash }}" >> $GITHUB_ENV
+          tag=$(git tag --points-at HEAD)
+          if [ -z "$tag" ]; then
+            echo "TAG=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+          else
+            echo "TAG=$(git tag --points-at HEAD | tail -n 1)" >> $GITHUB_ENV
+          fi
+
+      - name: Check Environment
+        run: |
+          echo "env.REF: ${{ env.REF }}"
+          echo "env.BOARD: ${{ env.BOARD }}"
+          echo "evn.TAG: ${{ env.TAG }}"
+
+      - name: Run Docker Container
+        run: |
+          docker run --privileged -itd --name duodocker -v $(pwd):/home/work milkvtech/milkv-duo:latest /bin/bash
+
+      - name: Build ${{ env.BOARD }}
+        run: |
+          docker exec duodocker /bin/bash -c "cd /home/work && export FORCE_UNSAFE_CONFIGURE=1 && ./build.sh ${{ env.BOARD }}"
+
+      - name: Compress ${{ env.BOARD }}
+        run: |
+          ls -lh out
+          mkdir release
+          for file in out/*; do
+            if [[ $file == *".zip" ]]; then
+              cp "$file" "release/${{ env.BOARD }}_${{ env.TAG }}.zip"
+            elif [[ $file == *".img" ]]; then
+              cp "$file" "release/${{ env.BOARD }}_${{ env.TAG }}.img"
+              zip -jrm "release/${{ env.BOARD }}_${{ env.TAG }}.img.zip" "release/${{ env.BOARD }}_${{ env.TAG }}.img"
+            fi
+          done
+          ls -lh release
+
+      - name: Upload Images
+        uses: ncipollo/release-action@main
+        if: success()
+        with:
+          tag: "${{ env.TAG }}"
+          artifacts: "${{ github.workspace }}/release/*"
+          allowUpdates: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ### Change log ${{ env.TAG }}
+            - ...
+            ### Known Issues
+            - ...
+            ### Official Documentation
+            [https://milkv.io/docs/duo/overview](https://milkv.io/docs/duo/overview)
+          draft: false
+          prerelease: false

@@ -86,6 +86,7 @@ static int default_ctx(SERVICE_CTX *ctx)
     pthread_mutex_init(&ctx->teaisppq_mutex, NULL);
     pthread_cond_init(&ctx->teaisppq_cond, NULL);
     ctx->teaisppq_turn_pipe = 0;
+    ctx->max_use_tpu_num = 1;  // default use 1 tpu for ai motion in mars platform
     for (int i=0; i<SERVICE_CTX_ENTITY_MAX_NUM; i++) {
         SERVICE_CTX_ENTITY *ent = &ctx->entity[i];
         snprintf(ent->rtspURL, sizeof(ent->rtspURL), "%s", "stream");
@@ -434,6 +435,11 @@ static int init(SERVICE_CTX *ctx, const nlohmann::json &params)
         return -1;
     }
 
+    if (0 > init_teaisp_bnr(ctx)) {
+        std::cout << "init teaisp bnr fail" << std::endl;
+        return -1;
+    }
+
     return 0;
 }
 
@@ -442,6 +448,8 @@ static void deinit(SERVICE_CTX *ctx)
     isp_info_osd_stop(ctx);
 
     deinit_ai(ctx);
+
+    deinit_teaisp_bnr(ctx);
 
     deinit_teaisppq(ctx);
 

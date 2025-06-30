@@ -1,0 +1,75 @@
+project_name: osdrv
+commit_id: f4c84eb24283cc526e3fb5550d8df6540c2a8654 osdrv: weekly rls 2025.03.29
+
+project_name: cviruntime
+commit_id: 3f4938648950a7f3bf9a19c320ca9fae7c52de20 [feat] cviruntime opensource for cv18xx soc.
+
+project_name: buildroot-2021.05
+commit_id: 5b7acd1bf99574b818f9ec1f61232c69f6150202 (master):Support Xuantie toolchains, and modify the defconfigs.
+
+project_name: freertos
+commit_id: eb9faf5fe6e63968bc47cb15eca87616445db8f3 freertos: weekly rls 2024.06.6
+
+project_name: Lab-Project-FreeRTOS-POSIX
+commit_id: 5042bfd07b1a176d25e24424c4751a497e3bf83a sg200x C906/CA53 cpu boot up.
+
+project_name: FreeRTOS-Kernel
+commit_id: d52c1b6e6193e0ab08950120068a3f8fe6beab1c sg200x C906/CA53 cpu boot up.
+
+project_name: cvi_rtsp
+commit_id: cc7cea5995c30dadcbff37a0d3ae7dd63c1d6642 cvi_rtsp: weekly rls 2025.03.14
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4309f2a649fc7cfe7160389d52a81c469dbdd7bc [feat] cvibuilder opensource for cv18xx soc.
+
+project_name: cvikernel
+commit_id: 9f1f57a19c3c281a931dfc71b318494487193d56 [feat] cvikernel opensource for cv18xx soc.
+
+project_name: opensbi
+commit_id: 6766e9cc96df51cde91540f9a15f291bf843b682 opensbi: weekly rls 2025.01.24
+
+project_name: build
+commit_id: d2103ae3d507a1a1bb809542acc1c866d5a446ae build: weekly rls 2025.03.29
+
+project_name: host-tools
+commit_id: b1c3b20de7ccdeaafafa9d5e1fd57c3fb4c79748 host-tools: upload gcc11.3.1
+
+project_name: oss
+commit_id: 48f06b542f2639fe21237830c852fa5080efa176 add eigen,nlohmannjson,googletest,stb tarball used in tdl_sdk.
+
+project_name: cnpy
+commit_id: 2f56f4c23ea840f9d15c43801368cf4a089efa84 [feat] cnpy opensource for cv18xx soc.
+
+project_name: isp_tuning
+commit_id: f7b23013ad67d902fa8ad03eb6d6f68c96717d0b isp_tuning: weekly rls 2025.03.14
+
+project_name: ive
+commit_id: d39861011a8da11c68470af4155d7e121c8df32e ive: weekly rls 2025.01.17
+
+project_name: fsbl
+commit_id: 7ed3e3ee8bdd4d94178482313149295d110c21d9 fsbl: weekly rls 2025.03.14
+
+project_name: cvimath
+commit_id: ce8705f49da5e5f59c2ddb3253ef88323a0cd9c4 [feat] cvimath opensource for cv18xx soc.
+
+project_name: u-boot-2021.10
+commit_id: d675a690c88fd47b84f1699431a70a47f95968a7 u-boot-2021.10: weekly rls 2025.03.14
+
+project_name: ramdisk
+commit_id: e69a5131493ce66284372ca0f4e0057180f61bbc ramdisk: weekly rls 2025.02.27
+
+project_name: tdl_sdk
+commit_id: e8730f4e10716370adb64d275849f8bdac1bd1fa tdl_sdk: weekly rls 2025.03.29
+
+project_name: linux_5.10
+commit_id: 124e2fba22c1dfaea3cdf859b79baf54048e6898 linux_5.10: weekly rls 2025.03.29
+
+project_name: SensorSupportList
+commit_id: 12474b350af892f2b174963f01ce99460d0aa475 SensorSupportList: weekly rls 2025.03.14
+
+project_name: cvi_mpi
+commit_id: 4b7caa768e09bbca755e05e928ecf4a89948a81b cvi_mpi: weekly rls 2025.03.30
+

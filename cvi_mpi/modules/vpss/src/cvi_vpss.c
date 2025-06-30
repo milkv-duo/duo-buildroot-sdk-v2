@@ -11,12 +11,16 @@
 #include <unistd.h>
 #include <sys/prctl.h>
 #include <sys/mman.h>
+#include <time.h>
+#include <signal.h>
 
 #include "cvi_buffer.h"
 #include "cvi_sys_base.h"
 #include "cvi_vpss.h"
 #include "cvi_sys.h"
 #include "cvi_gdc.h"
+#include "cvi_vo.h"
+#include "cvi_vb.h"
 #include "gdc_mesh.h"
 #include "cvi_bin.h"
 #include "vpss_bin.h"
@@ -72,6 +76,22 @@ CVI_VOID set_loadbin_state(CVI_BOOL done)
 {
 	g_bLoadBinDone = done;
 }
+
+struct cvi_stitch_ctx {
+	CVI_BOOL bUse;
+	CVI_BOOL bStart;
+	CVI_U8 DropFrame;
+	VPSS_GRP VpssGrp;
+	VB_POOL VbPool;
+	CVI_STITCH_ATTR_S stStitchAttr;
+	pthread_t thread;
+	pthread_mutex_t lock;
+	timer_t timer;
+	pthread_mutex_t timer_lock;
+	CVI_BOOL bExpired;
+};
+
+static struct cvi_stitch_ctx s_StitchCtx[VPSS_MAX_GRP_NUM];
 
 /**************************************************************************
  *   Job related APIs.
@@ -173,6 +193,445 @@ CVI_S32 CVI_VPSS_Resume(void)
 
 	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "-\n");
 	return CVI_SUCCESS;
+}
+
+static CVI_S32 set_window_attr(VPSS_GRP VpssGrp, RECT_S *pstDstRect,
+			VIDEO_FRAME_INFO_S *cur_frame, CVI_BOOL bFilled)
+{
+	CVI_S32 s32Ret;
+	VPSS_GRP_ATTR_S stGrpAttr;
+	VPSS_CHN_ATTR_S stChnAttr;
+
+	s32Ret = CVI_VPSS_GetGrpAttr(VpssGrp, &stGrpAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_GetGrpAttr failed\n");
+		return s32Ret;
+	}
+	stGrpAttr.u32MaxW = cur_frame->stVFrame.u32Width;
+	stGrpAttr.u32MaxH = cur_frame->stVFrame.u32Height;
+	stGrpAttr.enPixelFormat = cur_frame->stVFrame.enPixelFormat;
+	s32Ret = CVI_VPSS_SetGrpAttr(VpssGrp, &stGrpAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SetGrpAttr failed\n");
+		return s32Ret;
+	}
+
+	s32Ret = CVI_VPSS_GetChnAttr(VpssGrp, 0, &stChnAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_GetChnAttr failed\n");
+		return s32Ret;
+	}
+
+	//clean doneq buffers
+	if (bFilled) {
+		stChnAttr.u32Depth = 0;
+		s32Ret = CVI_VPSS_SetChnAttr(VpssGrp, 0, &stChnAttr);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SetChnAttr failed\n");
+			return s32Ret;
+		}
+	}
+
+	stChnAttr.u32Depth = 1;
+	stChnAttr.stAspectRatio.enMode	= ASPECT_RATIO_MANUAL;
+	stChnAttr.stAspectRatio.stVideoRect.s32X	= pstDstRect->s32X;
+	stChnAttr.stAspectRatio.stVideoRect.s32Y	= pstDstRect->s32Y;
+	stChnAttr.stAspectRatio.stVideoRect.u32Width  = pstDstRect->u32Width;
+	stChnAttr.stAspectRatio.stVideoRect.u32Height = pstDstRect->u32Height;
+
+	if (bFilled) {
+		// fill bg color is the there this is the first window
+		stChnAttr.stAspectRatio.bEnableBgColor = CVI_TRUE;
+		stChnAttr.stAspectRatio.u32BgColor = 0x0;
+	} else{
+		stChnAttr.stAspectRatio.bEnableBgColor = CVI_FALSE;
+		stChnAttr.stAspectRatio.u32BgColor = 0x0;
+	}
+
+	s32Ret = CVI_VPSS_SetChnAttr(VpssGrp, 0, &stChnAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SetChnAttr failed\n");
+		return s32Ret;
+	}
+	return CVI_SUCCESS;
+}
+
+static CVI_S32 update_src_frame(CVI_STITCH_ATTR_S *pstStitchAttr, CVI_BOOL isFirst,
+		VIDEO_FRAME_INFO_S *pstFrameSrc)
+{
+	CVI_S32 i, s32Ret = CVI_SUCCESS;
+	CVI_STITCH_CHN_S *pstStitchChn;
+	VIDEO_FRAME_INFO_S stFrame;
+
+	for (i = 0; i < pstStitchAttr->u8ChnNum; i++) {
+		pstStitchChn = &pstStitchAttr->astStitchChn[i];
+
+		//skip
+		if (pstStitchChn->stStitchSrc.VpssGrp == -1)
+			continue;
+		//get source frame
+		s32Ret = CVI_VPSS_GetChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+			pstStitchChn->stStitchSrc.VpssChn, &stFrame, isFirst ? 3000 : 0);
+		if (s32Ret == CVI_SUCCESS) {
+			if (!isFirst)
+				CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+					pstStitchChn->stStitchSrc.VpssChn, &pstFrameSrc[i]);
+			memcpy(&pstFrameSrc[i], &stFrame, sizeof(stFrame));
+		} else if (isFirst) {
+			break;
+		}
+	}
+
+	if (isFirst && s32Ret) {
+		for (--i; i >= 0; --i) {
+			pstStitchChn = &pstStitchAttr->astStitchChn[i];
+
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &pstFrameSrc[i]);
+		}
+	}
+
+	return isFirst ? s32Ret : CVI_SUCCESS;
+}
+
+static CVI_VOID release_src_frame(CVI_STITCH_ATTR_S *pstStitchAttr,
+		VIDEO_FRAME_INFO_S *pstFrameSrc)
+{
+	CVI_S32 i;
+	CVI_STITCH_CHN_S *pstStitchChn;
+
+	for (i = 0; i < pstStitchAttr->u8ChnNum; i++) {
+		pstStitchChn = &pstStitchAttr->astStitchChn[i];
+
+		//skip
+		if (pstStitchChn->stStitchSrc.VpssGrp == -1)
+			continue;
+		CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+			pstStitchChn->stStitchSrc.VpssChn, &pstFrameSrc[i]);
+	}
+}
+
+static CVI_S32 stitch_proc_frc(struct cvi_stitch_ctx *pStitchCtx,
+		VIDEO_FRAME_INFO_S *pstFrameSrc)
+{
+	CVI_S32 i, s32Ret;
+	CVI_STITCH_ATTR_S *pstStitchAttr = &pStitchCtx->stStitchAttr;
+	CVI_STITCH_CHN_S *pstStitchChn;
+	VPSS_GRP VpssGrp = pStitchCtx->VpssGrp;
+	CVI_BOOL bFilled = CVI_TRUE;
+	VIDEO_FRAME_INFO_S stFrame_out;
+
+	pthread_mutex_lock(&pStitchCtx->lock);
+	for (i = 0; i < pstStitchAttr->u8ChnNum; i++) {
+		pstStitchChn = &pstStitchAttr->astStitchChn[i];
+
+		//skip
+		if (pstStitchChn->stStitchSrc.VpssGrp == -1)
+			continue;
+
+		if (pStitchCtx->DropFrame > 0) {
+			pStitchCtx->DropFrame--;
+			pthread_mutex_unlock(&pStitchCtx->lock);
+			return CVI_SUCCESS;
+		}
+#if (!defined(CONFIG_SUPPORT_VO) || (CONFIG_SUPPORT_VO))
+		//not stitch
+		if ((pstStitchAttr->u8ChnNum == 1) &&
+			(pstFrameSrc[i].stVFrame.u32Width == pstStitchAttr->stOutSize.u32Width) &&
+			(pstFrameSrc[i].stVFrame.u32Height == pstStitchAttr->stOutSize.u32Height)) {
+			CVI_VO_SendFrame(0, pstStitchAttr->VoChn, &pstFrameSrc[i], 1000);
+			pthread_mutex_unlock(&pStitchCtx->lock);
+			return CVI_SUCCESS;
+		}
+#endif
+		if (!bFilled) {
+			s32Ret = CVI_VPSS_SendChnFrame(VpssGrp, 0, &stFrame_out, 1000);
+			if (s32Ret != CVI_SUCCESS) {
+				CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SendChnFrame failed\n");
+				CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+				break;
+			}
+			CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+		}
+
+		s32Ret = set_window_attr(VpssGrp, &pstStitchChn->stDstRect, &pstFrameSrc[i], bFilled);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "set_window_attr failed\n");
+			break;
+		}
+
+		s32Ret = CVI_VPSS_SendFrame(VpssGrp, &pstFrameSrc[i], 1000);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SendFrame failed\n");
+			break;
+		}
+
+		s32Ret = CVI_VPSS_GetChnFrame(VpssGrp, 0, &stFrame_out, 1000);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "i(%d) Grp(%d) Chn(0) GetChnFrame failed\n", i, VpssGrp);
+			break;
+		}
+
+		bFilled = CVI_FALSE;
+	}
+
+#if (!defined(CONFIG_SUPPORT_VO) || (CONFIG_SUPPORT_VO))
+	if (!bFilled) {
+		if (s32Ret == CVI_SUCCESS)
+			CVI_VO_SendFrame(0, pstStitchAttr->VoChn, &stFrame_out, 1000);
+		CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+	}
+#endif
+
+	pthread_mutex_unlock(&pStitchCtx->lock);
+	return s32Ret;
+}
+
+static void wake_up_stitch(union sigval sv) {
+	struct cvi_stitch_ctx *ctx = sv.sival_ptr;
+
+	pthread_mutex_lock(&ctx->timer_lock);
+	ctx->bExpired = true;
+	pthread_mutex_unlock(&ctx->timer_lock);
+}
+
+static int init_stitch_timer(struct cvi_stitch_ctx *ctx) {
+	struct sigevent sev = {
+		.sigev_notify = SIGEV_THREAD,
+		.sigev_notify_function = wake_up_stitch,
+		.sigev_value.sival_ptr = ctx,
+		.sigev_notify_attributes = NULL
+    };
+
+	if (timer_create(CLOCK_MONOTONIC, &sev, &ctx->timer) == -1) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "timer_create");
+		return -1;
+	}
+	return 0;
+}
+
+static int start_stitch_timer(struct cvi_stitch_ctx *ctx) {
+	int interval_ms = 1000 / ctx->stStitchAttr.s32OutFps;
+	struct itimerspec its = {
+		.it_value = {
+			.tv_sec = interval_ms / 1000,
+			.tv_nsec = (interval_ms % 1000) * 1000000
+		},
+		.it_interval = {  // 周期性定时
+			.tv_sec = interval_ms / 1000,
+			.tv_nsec = (interval_ms % 1000) * 1000000
+		}
+	};
+
+	if (timer_settime(ctx->timer, 0, &its, NULL) == -1) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "timer_settime");
+		return -1;
+	}
+
+	return 0;
+}
+
+static void stop_stitch_timer(struct cvi_stitch_ctx *ctx) {
+	struct itimerspec its = {{0, 0}, {0, 0}};
+	timer_settime(ctx->timer, 0, &its, NULL);
+}
+
+static void *vpss_stitch_handler_frc(void *arg) {
+	struct cvi_stitch_ctx *ctx = arg;
+	CVI_BOOL isFirst = CVI_TRUE;
+	CVI_VOID *buf;
+	VIDEO_FRAME_INFO_S *pstFrameSrc;
+
+	buf = malloc(sizeof(VIDEO_FRAME_INFO_S) * CVI_STITCH_CHN_MAX_NUM);
+	if (buf == NULL) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "malloc failed.\n");
+		return NULL;
+	}
+	pstFrameSrc = (VIDEO_FRAME_INFO_S *)buf;
+
+	pthread_mutex_init(&ctx->timer_lock, NULL);
+	ctx->bExpired = false;
+
+	if (init_stitch_timer(ctx) != 0) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "Timer init failed");
+		goto cleanup;
+	}
+
+	if (start_stitch_timer(ctx) != 0) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "Timer start failed");
+		goto cleanup_timer;
+	}
+
+	while (ctx->bStart) {
+		pthread_mutex_lock(&ctx->timer_lock);
+		while (!ctx->bExpired && ctx->bStart) {
+			pthread_mutex_unlock(&ctx->timer_lock);
+			usleep(1000);
+			pthread_mutex_lock(&ctx->timer_lock);
+		}
+
+		ctx->bExpired = false;
+		pthread_mutex_unlock(&ctx->timer_lock);
+
+		if (!ctx->bStart)
+			break;
+
+		if (update_src_frame(&ctx->stStitchAttr, isFirst, pstFrameSrc))
+			continue;
+
+		isFirst = CVI_FALSE;
+		stitch_proc_frc(ctx, pstFrameSrc);
+	}
+
+	if (!isFirst)
+		release_src_frame(&ctx->stStitchAttr, pstFrameSrc);
+
+cleanup_timer:
+	stop_stitch_timer(ctx);
+	timer_delete(ctx->timer);
+cleanup:
+	pthread_mutex_destroy(&ctx->timer_lock);
+	free(buf);
+
+	return NULL;
+}
+
+static CVI_S32 stitch_proc(struct cvi_stitch_ctx *pStitchCtx)
+{
+	CVI_S32 i, s32Ret;
+	CVI_STITCH_ATTR_S stStitchAttr;
+	CVI_STITCH_ATTR_S *pstStitchAttr = &stStitchAttr;
+	CVI_STITCH_CHN_S *pstStitchChn;
+	VPSS_GRP VpssGrp = pStitchCtx->VpssGrp;
+	CVI_BOOL bFilled = CVI_TRUE;
+	VIDEO_FRAME_INFO_S stFrame_src = {0}, stFrame_out  = {0};
+	static VPSS_CHN_ATTR_S CurChnAttr[CVI_STITCH_CHN_MAX_NUM] = {0}, PreChnAttr[CVI_STITCH_CHN_MAX_NUM] = {0};
+	static uint8_t frame_drop[CVI_STITCH_CHN_MAX_NUM] = {0};
+
+	pthread_mutex_lock(&pStitchCtx->lock);
+	memcpy(pstStitchAttr, &pStitchCtx->stStitchAttr, sizeof(stStitchAttr));
+
+	for (i = 0; i < pstStitchAttr->u8ChnNum; i++) {
+		pstStitchChn = &pstStitchAttr->astStitchChn[i];
+
+		//skip
+		if (pstStitchChn->stStitchSrc.VpssGrp == -1)
+			continue;
+		//get source frame
+		s32Ret = CVI_VPSS_GetChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+			pstStitchChn->stStitchSrc.VpssChn, &stFrame_src, 1000);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) GetChnFrame failed\n",
+				pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn);
+			break;
+		}
+
+		if (pStitchCtx->DropFrame > 0) {
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+			pStitchCtx->DropFrame--;
+			pthread_mutex_unlock(&pStitchCtx->lock);
+			return CVI_SUCCESS;
+		}
+
+		s32Ret = CVI_VPSS_GetChnAttr(pstStitchChn->stStitchSrc.VpssGrp,
+			pstStitchChn->stStitchSrc.VpssChn, &CurChnAttr[i]);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) GetChnAttr failed\n",
+				pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn);
+			break;
+		}
+		if ((CurChnAttr[i].u32Width != PreChnAttr[i].u32Width) ||
+				(CurChnAttr[i].u32Height != PreChnAttr[i].u32Height)) {
+			PreChnAttr[i] = CurChnAttr[i];
+			if (!bFilled) {
+				bFilled = CVI_TRUE;
+				CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+			}
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+			frame_drop[i]++;
+			if (frame_drop[i] > 1) {
+				frame_drop[i] = 0;
+				PreChnAttr[i] = CurChnAttr[i];
+			}
+			continue;
+		}
+
+#if (!defined(CONFIG_SUPPORT_VO) || (CONFIG_SUPPORT_VO))
+		//not stitch
+		if ((pstStitchAttr->u8ChnNum == 1) &&
+			(stFrame_src.stVFrame.u32Width == pstStitchAttr->stOutSize.u32Width) &&
+			(stFrame_src.stVFrame.u32Height == pstStitchAttr->stOutSize.u32Height)) {
+			CVI_VO_SendFrame(0, pstStitchAttr->VoChn, &stFrame_src, 1000);
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+			pthread_mutex_unlock(&pStitchCtx->lock);
+			return CVI_SUCCESS;
+		}
+#endif
+
+		if (!bFilled) {
+			s32Ret = CVI_VPSS_SendChnFrame(VpssGrp, 0, &stFrame_out, 1000);
+			if (s32Ret != CVI_SUCCESS) {
+				CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SendChnFrame failed\n");
+				CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+					pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+				CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+				break;
+			}
+			CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+		}
+		s32Ret = set_window_attr(VpssGrp, &pstStitchChn->stDstRect, &stFrame_src, bFilled);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "set_window_attr failed\n");
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+			break;
+		}
+		s32Ret = CVI_VPSS_SendFrame(VpssGrp, &stFrame_src, 1000);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VPSS_SendFrame failed\n");
+			CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+				pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+			break;
+		}
+		CVI_VPSS_ReleaseChnFrame(pstStitchChn->stStitchSrc.VpssGrp,
+			pstStitchChn->stStitchSrc.VpssChn, &stFrame_src);
+
+		s32Ret = CVI_VPSS_GetChnFrame(VpssGrp, 0, &stFrame_out, 1000);
+		if (s32Ret != CVI_SUCCESS) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "i(%d) Grp(%d) Chn(0) GetChnFrame failed\n", i, VpssGrp);
+			break;
+		}
+
+		bFilled = CVI_FALSE;
+	}
+
+#if (!defined(CONFIG_SUPPORT_VO) || (CONFIG_SUPPORT_VO))
+	if (!bFilled) {
+		if (s32Ret == CVI_SUCCESS)
+			CVI_VO_SendFrame(0, pstStitchAttr->VoChn, &stFrame_out, 1000);
+		CVI_VPSS_ReleaseChnFrame(VpssGrp, 0, &stFrame_out);
+	}
+#endif
+
+	pthread_mutex_unlock(&pStitchCtx->lock);
+	return s32Ret;
+}
+
+static void *vpss_stitch_handler(void *arg)
+{
+	struct cvi_stitch_ctx *pStitchCtx = (struct cvi_stitch_ctx *)arg;
+
+	while (pStitchCtx->bStart) {
+		stitch_proc(pStitchCtx);
+		usleep(10000);
+	}
+
+	return NULL;
 }
 /**************************************************************************
  *   Public APIs.
@@ -1564,3 +2023,213 @@ CVI_U32 CVI_VPSS_GetWrapBufferSize(CVI_U32 u32Width, CVI_U32 u32Height, PIXEL_FO
 	return u32BufSize;
 }
 #endif
+
+CVI_S32 CVI_VPSS_CreateStitch(VPSS_GRP VpssGrp, const CVI_STITCH_ATTR_S *pstStitchAttr)
+{
+	CVI_S32 s32Ret;
+	VPSS_GRP_ATTR_S stGrpAttr;
+	VPSS_CHN_ATTR_S stChnAttr;
+
+	if (!pstStitchAttr) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "NULL pointer\n");
+		return CVI_FAILURE;
+	}
+
+	if (s_StitchCtx[VpssGrp].bUse)
+		return CVI_SUCCESS;
+	if (!pstStitchAttr->s32OutFps) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "s32OutFps cannot be 0\n");
+		return CVI_FAILURE;
+	}
+	memset(&s_StitchCtx[VpssGrp], 0, sizeof(struct cvi_stitch_ctx));
+
+	stGrpAttr.u32MaxW = pstStitchAttr->stOutSize.u32Width; //invalid
+	stGrpAttr.u32MaxH = pstStitchAttr->stOutSize.u32Height; //invalid
+	stGrpAttr.enPixelFormat = pstStitchAttr->enOutPixelFormat; //invalid
+	stGrpAttr.stFrameRate.s32SrcFrameRate = -1;
+	stGrpAttr.stFrameRate.s32DstFrameRate = -1;
+	stGrpAttr.u8VpssDev = 0;
+	s32Ret = CVI_VPSS_CreateGrp(VpssGrp, &stGrpAttr);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	stChnAttr.u32Width = pstStitchAttr->stOutSize.u32Width;
+	stChnAttr.u32Height = pstStitchAttr->stOutSize.u32Height;
+	stChnAttr.enVideoFormat = VIDEO_FORMAT_LINEAR;
+	stChnAttr.enPixelFormat = pstStitchAttr->enOutPixelFormat;
+	stChnAttr.stFrameRate.s32SrcFrameRate = -1;
+	stChnAttr.stFrameRate.s32DstFrameRate = -1;
+	stChnAttr.bMirror = CVI_FALSE;
+	stChnAttr.bFlip = CVI_FALSE;
+	stChnAttr.u32Depth = 1;
+	stChnAttr.stAspectRatio.enMode = ASPECT_RATIO_NONE;
+	stChnAttr.stNormalize.bEnable = CVI_FALSE;
+	s32Ret = CVI_VPSS_SetChnAttr(VpssGrp, 0, &stChnAttr);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	s32Ret = CVI_VPSS_EnableChn(VpssGrp, 0);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	s32Ret = CVI_VPSS_StartGrp(VpssGrp);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	if (pstStitchAttr->hVbPool == VB_INVALID_POOLID) {
+		VB_POOL_CONFIG_S stVbPoolCfg;
+		VB_POOL chnVbPool;
+		CVI_U32 u32BlkSize = 0;
+
+		u32BlkSize = COMMON_GetPicBufferSize(stChnAttr.u32Width, stChnAttr.u32Height, stChnAttr.enPixelFormat,
+			DATA_BITWIDTH_8, COMPRESS_MODE_NONE, DEFAULT_ALIGN);
+
+		memset(&stVbPoolCfg, 0, sizeof(VB_POOL_CONFIG_S));
+		stVbPoolCfg.u32BlkSize	= u32BlkSize;
+		stVbPoolCfg.u32BlkCnt	= 1;
+		stVbPoolCfg.enRemapMode = VB_REMAP_MODE_CACHED;
+		chnVbPool = CVI_VB_CreatePool(&stVbPoolCfg);
+		if (chnVbPool == VB_INVALID_POOLID) {
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "CVI_VB_CreatePool failed.\n");
+		} else {
+			CVI_VPSS_AttachVbPool(VpssGrp, 0, chnVbPool);
+			s_StitchCtx[VpssGrp].VbPool = chnVbPool;
+		}
+	} else {
+		CVI_VPSS_AttachVbPool(VpssGrp, 0, pstStitchAttr->hVbPool);
+	}
+
+	pthread_mutex_init(&s_StitchCtx[VpssGrp].lock, NULL);
+	s_StitchCtx[VpssGrp].stStitchAttr = *pstStitchAttr;
+	s_StitchCtx[VpssGrp].VpssGrp = VpssGrp;
+	s_StitchCtx[VpssGrp].bUse = CVI_TRUE;
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 CVI_VPSS_DestroyStitch(VPSS_GRP VpssGrp)
+{
+	CVI_S32 s32Ret;
+
+	if (!s_StitchCtx[VpssGrp].bUse)
+		return CVI_SUCCESS;
+
+	s32Ret = CVI_VPSS_DisableChn(VpssGrp, 0);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	s32Ret = CVI_VPSS_StopGrp(VpssGrp);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	s32Ret = CVI_VPSS_DestroyGrp(VpssGrp);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	if (s_StitchCtx[VpssGrp].stStitchAttr.hVbPool == VB_INVALID_POOLID) {
+		CVI_VB_DestroyPool(s_StitchCtx[VpssGrp].VbPool);
+	}
+
+	pthread_mutex_destroy(&s_StitchCtx[VpssGrp].lock);
+	s_StitchCtx[VpssGrp].bUse = CVI_FALSE;
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 CVI_VPSS_SetStitchAttr(VPSS_GRP VpssGrp, const CVI_STITCH_ATTR_S *pstStitchAttr)
+{
+	if (!pstStitchAttr) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "NULL pointer\n");
+		return CVI_FAILURE;
+	}
+
+	if (!s_StitchCtx[VpssGrp].bUse) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss(%d), The stitch not created\n", VpssGrp);
+		return CVI_FAILURE;
+	}
+	if (!pstStitchAttr->s32OutFps) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "s32OutFps cannot be 0\n");
+		return CVI_FAILURE;
+	}
+
+	pthread_mutex_lock(&s_StitchCtx[VpssGrp].lock);
+	s_StitchCtx[VpssGrp].stStitchAttr = *pstStitchAttr;
+	pthread_mutex_unlock(&s_StitchCtx[VpssGrp].lock);
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 CVI_VPSS_GetStitchAttr(VPSS_GRP VpssGrp, CVI_STITCH_ATTR_S *pstStitchAttr)
+{
+	if (!pstStitchAttr) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "NULL pointer\n");
+		return CVI_FAILURE;
+	}
+
+	if (!s_StitchCtx[VpssGrp].bUse) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss(%d), The stitch not created\n", VpssGrp);
+		return CVI_FAILURE;
+	}
+	*pstStitchAttr = s_StitchCtx[VpssGrp].stStitchAttr;
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 CVI_VPSS_StartStitch(VPSS_GRP VpssGrp)
+{
+	CVI_S32 s32Ret;
+	struct sched_param tsk;
+	pthread_attr_t attr;
+	struct cvi_stitch_ctx *pStitchCtx;
+
+	if (!s_StitchCtx[VpssGrp].bUse) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss(%d), The stitch not created\n", VpssGrp);
+		return CVI_FAILURE;
+	}
+	pStitchCtx = &s_StitchCtx[VpssGrp];
+	if (pStitchCtx->bStart)
+		return CVI_SUCCESS;
+
+	//drop 2 frame
+	pStitchCtx->DropFrame = 2;
+	pStitchCtx->bStart = CVI_TRUE;
+
+	//set vpss thread attr
+	tsk.sched_priority = 45; //VIP_RT_PRIO;
+	pthread_attr_init(&attr);
+	pthread_attr_setstacksize(&attr, 8192);
+	pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+	pthread_attr_setschedparam(&attr, &tsk);
+	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+
+	s32Ret = pthread_create(&pStitchCtx->thread, &attr,
+		pStitchCtx->stStitchAttr.s32OutFps < 0 ? vpss_stitch_handler : vpss_stitch_handler_frc,
+		(void *)pStitchCtx);
+	if (s32Ret != 0) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "failed to create stitch pthread.\n");
+		pStitchCtx->bStart = CVI_FALSE;
+		return CVI_FAILURE;
+	}
+
+	return CVI_SUCCESS;
+}
+
+CVI_S32 CVI_VPSS_StopStitch(VPSS_GRP VpssGrp)
+{
+	struct cvi_stitch_ctx *pStitchCtx;
+
+	if (!s_StitchCtx[VpssGrp].bUse) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss(%d), The stitch not created\n", VpssGrp);
+		return CVI_FAILURE;
+	}
+	pStitchCtx = &s_StitchCtx[VpssGrp];
+	if (!pStitchCtx->bStart)
+		return CVI_SUCCESS;
+
+	pStitchCtx->bStart = CVI_FALSE;
+
+	pthread_join(pStitchCtx->thread, NULL);
+	pStitchCtx->thread = 0;
+
+	return CVI_SUCCESS;
+}

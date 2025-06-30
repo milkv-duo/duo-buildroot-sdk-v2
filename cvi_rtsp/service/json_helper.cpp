@@ -147,6 +147,21 @@ void set_teaisppq(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
     }
 }
 
+void set_teaisp_bnr(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
+{
+    SET_CTX(params, "enable-teaisp-bnr", ent->enableTEAISPBnr);
+
+    if (ent->enableTEAISPBnr) {
+        printf("set compress mode(none) for teaisp...\n");
+        ent->compress_mode = COMPRESS_MODE_NONE;
+    }
+
+    if (params.contains("teaisp_model_list")) {
+        std::string file = params.at("teaisp_model_list");
+        snprintf(ent->teaisp_model_list, sizeof(ent->teaisp_model_list), "%s", file.c_str());
+    }
+}
+
 void set_rtsp(SERVICE_CTX_ENTITY *ent, const nlohmann::json &params)
 {
     if (params.contains("rtsp-url")) {
@@ -276,6 +291,7 @@ int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
     SET_CTX(params, "dev-num", ctx->rtsp_num);
     SET_CTX(params, "vi-vpss-mode", ctx->vi_vpss_mode);
     SET_CTX(params, "buf1-blk-cnt", ctx->buf1_blk_cnt);
+    SET_CTX(params, "max-use-tpu-num", ctx->max_use_tpu_num);
     SET_CTX_STR(params, "model", ctx->model_path);
     SET_CTX_STR(params, "teaisp-pq-model", ctx->teaisppq_model_path);
     SET_CTX(params, "sbm", ctx->sbm.enable);
@@ -306,6 +322,7 @@ int load_json_config(SERVICE_CTX *ctx, const nlohmann::json &params)
         set_venc(pEntity, video_src_info[i]);
         set_teaisppq(pEntity, video_src_info[i]);
         set_ai(pEntity, video_src_info[i]);
+        set_teaisp_bnr(pEntity, video_src_info[i]);
     }
 
     SET_CTX(params, "replay-mode", ctx->replayMode);

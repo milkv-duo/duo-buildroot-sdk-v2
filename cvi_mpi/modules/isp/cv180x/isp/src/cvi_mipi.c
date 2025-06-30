@@ -175,3 +175,34 @@ CVI_S32 CVI_MIPI_SetSnsMclk(SNS_MCLK_S *mclk)
 	}
 	return s32Ret;
 }
+
+CVI_S32 CVI_MIPI_SensorGpioInit(CVI_S32 devno, void *sns_gpio)
+{
+	CVI_S32 s32Ret = CVI_SUCCESS;
+	CVI_S32 s32Devno = devno;
+	struct snsr_rst_gpio_s *sns_rst_gpio = (struct snsr_rst_gpio_s*)sns_gpio;
+	sns_rst_gpio->devno = devno;
+
+	if (fd_mipi < 0) {
+		s32Ret = mipi_open_dev();
+		if (s32Ret != CVI_SUCCESS)
+			return s32Ret;
+	}
+
+	if (ioctl(fd_mipi, CVI_MIPI_GPIO_INIT, (void *)sns_rst_gpio) < 0)  {
+		ISP_LOG_ERR("CVI_MIPI_SensorGpioInit - %d NG\n", s32Devno);
+		return errno;
+	}
+
+	s32Ret = CVI_MIPI_SetSensorReset(s32Devno, 1);
+	if (s32Ret != CVI_SUCCESS) {
+		ISP_LOG_ERR("CVI_MIPI_SetMipiReset - %d NG\n", s32Devno);
+	}
+
+	s32Ret = CVI_MIPI_SetSensorReset(s32Devno, 0);
+	if (s32Ret != CVI_SUCCESS) {
+		ISP_LOG_ERR("CVI_MIPI_SetMipiReset - %d NG\n", s32Devno);
+	}
+
+	return s32Ret;
+}

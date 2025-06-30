@@ -457,6 +457,12 @@ config SPL_NAND_SIMPLE
 	help
 	  Support for NAND boot using simple NAND drivers that
 	  expose the cmd_ctrl() interface.
+
+config SPL_RISCV
+	bool "Enable RISCV in SPL"
+	depends on RISCV
+	help
+	  This configuration is used to control the RISC-V related processes in SPL.
 endif
 
 config NAND_FLASH_CVSNFC_V3

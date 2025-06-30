@@ -219,6 +219,11 @@ CVI_S32 base_get_chn_buffer(MMF_CHN_S chn, VB_BLK *blk, CVI_S32 timeout_ms)
 		return CVI_SUCCESS;
 	}
 
+	if (timeout_ms == 0) {
+		mutex_unlock(&jobs->dlock);
+		return CVI_FAILURE;
+	}
+
 	s = kmalloc(sizeof(*s), GFP_ATOMIC);
 	if (!s) {
 		mutex_unlock(&jobs->dlock);

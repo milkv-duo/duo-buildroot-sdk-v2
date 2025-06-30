@@ -1,0 +1,69 @@
+project_name: osdrv
+commit_id: 97abca298792a8280485b990ed5eb718935c7840 Merge "[Mars] support ai isp motion" into v4.1.0
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: freertos
+commit_id: 23f97c4cd10952bf29b750a3888ad36a910987da [feat](rgn):Add 1bit mode [description ]:NA [root   cause]:NA [JIRA      ID]:CV180X181X-3539 [chip project]:NA [side effects]:librgn.a,libdriver.a
+
+project_name: cvi_rtsp
+commit_id: a2c52c38587126bb9ecf1e12614ecfbc128bbbbd [fix](cvi_rtsp): modify rls_info.txt
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: 3d536719a07aaca98d441ed5daffdced9e285351 [fix](opensbi): modify rls_info.txt
+
+project_name: build
+commit_id: 6eb13e030df617b71939627ca9306417a2a6851d [fix](build): modify rls_info.txt
+
+project_name: oss
+commit_id: e48097f703337d4c7744ed19909c764aeab0ebbb add 3rd_party used in tdl_sdk.
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 0257493dfa9d1dff603a49c9bd0b0c916a200263 [fix](isp): update PQ parameters [description ]:NA [root   cause]:NA [JIRA      ID]:CV180X181X-3711 [chip project]:ALL [side effects]:NA [Affected *.ko/*.so/*.a]:NA
+
+project_name: ive
+commit_id: 9bf0559b9ce1173b722beaba0ec5da57ff52b35b [fix](ive): modify rls_info.txt
+
+project_name: fsbl
+commit_id: c3be2bfc1eae9be0bee3d51dd65456a0d3bc1145 Merge "[fix]: Disable second OS(rtos) boot during burning." into v4.1.0
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: 48305a6444918d926fb34619d74680e3a4c5f839 [fix](phy): Make eye diagram better to compatile with mtk router [description ]: Make eye diagram better to compatile with mtk router [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: ramdisk
+commit_id: 58118bbb8871427203631be695e6b264e776d5f6 [fix](ramdisk): modify rls_info.txt
+
+project_name: tdl_sdk
+commit_id: 921aaec4194e6b5d07a7ab40f007742a52cb71b4 sample_cap_face support face recognition
+
+project_name: linux_5.10
+commit_id: 5b33d1f79d6f0d7289fd7babfe5609a4ac997ac9 [fix](audio):fix audio sample rate error in proc fs [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA
+
+project_name: isp
+commit_id: 0017e64958dcb7e17b8dc5df93b6290da68a4d56     [fix](scope):modify sensor interface     [description]:modify sensor interface     [root  cause]:NA     [JIRA     ID]:NA     [chip project]:NA     [side effects]:NA     [Affected *.ko/*.so/*.a]:NA
+
+project_name: mediapipe
+commit_id: 36e1a7f5c8c1c3de7799dcd1b958d1b33f3aadf4 [mediapipe]fix sbm overflow
+
+project_name: SensorSupportList
+commit_id: aa11d072e0895b46198d487d1a4ed2cdbe035d9b [fix] correct sc2336p sensor id
+
+project_name: cvi_mpi
+commit_id: c7b7417e4a8bc8f4c5d62e453d968ab61f291d97     [fix](scope):modify sensor interface     [description]:modify sensor interface     [root  cause]:NA     [JIRA     ID]:NA     [chip project]:NA     [side effects]:NA     [Affected *.ko/*.so/*.a]:NA
+

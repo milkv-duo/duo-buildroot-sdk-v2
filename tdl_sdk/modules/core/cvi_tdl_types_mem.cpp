@@ -501,8 +501,15 @@ void CVI_TDL_CopyImage(const cvtdl_image_t *src_image, cvtdl_image_t *dst_image)
   dst_image->pix[0] = (uint8_t *)malloc(image_size);
   memcpy(dst_image->pix[0], src_image->pix[0], image_size);
   // copy full image to dst image
-  dst_image->full_length = src_image->full_length;
-  dst_image->full_img = (uint8_t *)malloc(src_image->full_length);
+
+  if (dst_image->full_length != src_image->full_length) {
+    if (dst_image->full_img != NULL) {
+      free(dst_image->full_img);
+      dst_image->full_img = NULL;
+    }
+    dst_image->full_img = (uint8_t *)malloc(src_image->full_length);
+    dst_image->full_length = src_image->full_length;
+  }
   memcpy(dst_image->full_img, src_image->full_img, src_image->full_length);
   for (int i = 0; i < 3; i++) {
     dst_image->stride[i] = src_image->stride[i];

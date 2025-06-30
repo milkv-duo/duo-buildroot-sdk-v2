@@ -74,6 +74,10 @@ enum VI_IOCTL {
 	VI_IOCTL_GET_RGBMAP_LE_PHY_BUF, /* Get RGB map left physical buffer */
 	VI_IOCTL_GET_RGBMAP_SE_PHY_BUF, /* Get RGB map right physical buffer */
 	VI_SINGEL_FRAME_ENABLE,		/* Singel frame mode*/
+	VI_IOCTL_AI_ISP_CFG,            /* Config AI ISP */
+	VI_IOCTL_AI_ISP_SET_BUF,        /* Set AI ISP buffer */
+	VI_IOCTL_GET_AI_ISP_RAW,        /* Get AI isp raw phy buffer*/
+	VI_IOCTL_PUT_AI_ISP_RAW,        /* Put AI isp raw phy buffer*/
 	VI_IOCTL_MAX,                   /* Maximum value for enumeration */
 };
 
@@ -259,6 +263,51 @@ struct vi_vb_pool_cfg {
 	VI_CHN ViChn;                 /* Channel identifier */
 	__u32 VbPool;                 /* Video buffer pool identifier */
 };
+
+/*
+ * Configure ai isp.
+ */
+
+typedef struct ai_isp_bnr_cfg {
+	__u64 swap_buf_index; // __32 *
+	__u32 swap_buf_count;
+	CVI_BOOL ai_rgbmap;
+} ai_isp_bnr_cfg_t;
+
+/*
+ * Configure ai isp type.
+ */
+
+enum ai_isp_type {
+	AI_ISP_TYPE_BNR,
+	AI_ISP_TYPE_BUTT,
+};
+
+
+/*
+ * Configure ai isp type.
+ */
+
+enum ai_isp_cfg_type {
+	AI_ISP_PIPE_LOAD,
+	AI_ISP_PIPE_UNLOAD,
+	AI_ISP_CFG_INIT,
+	AI_ISP_CFG_DEINIT,
+	AI_ISP_CFG_ENABLE,
+	AI_ISP_CFG_DISABLE,
+};
+
+/*
+ * Configure ai isp.
+ */
+
+typedef struct ai_isp_cfg {
+	__u32 vi_pipe;
+	__u32 ai_isp_cfg_type;
+	__u32 ai_isp_type;
+	__u64 param_addr;
+	__u32 param_size;
+} ai_isp_cfg_t;
 
 #ifdef __cplusplus
 	}

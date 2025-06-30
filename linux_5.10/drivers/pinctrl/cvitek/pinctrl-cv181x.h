@@ -12,9 +12,8 @@
 #include "cv181x_pinlist_swconfig.h"
 #include "cv181x_reg_fmux_gpio.h"
 
-#define CVITEK_PINMUX_REG_LAST (FMUX_GPIO_FUNCSEL_PAD_AUD_AOUTR + 4)
-
 #define PINMUX_BASE 0x03001000
+#define PINMUX_RANGE 0xC8C + 4 // the last pinctl reg of 181x
 #define PINMUX_MASK(PIN_NAME) FMUX_GPIO_FUNCSEL_##PIN_NAME##_MASK
 #define PINMUX_OFFSET(PIN_NAME) FMUX_GPIO_FUNCSEL_##PIN_NAME##_OFFSET
 #define PINMUX_VALUE(PIN_NAME, FUNC_NAME) PIN_NAME##__##FUNC_NAME

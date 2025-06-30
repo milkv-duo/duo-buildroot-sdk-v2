@@ -1,0 +1,26 @@
+From 35b7b083f774c528c7aa4b88cfd7ab1c38798778 Mon Sep 17 00:00:00 2001
+From: carbon <carbon@milkv.io>
+Date: Tue, 20 May 2025 17:26:39 +0800
+Subject: [PATCH] TOP_DIR is reassigned to avoid conflicts
+
+Signed-off-by: carbon <carbon@milkv.io>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 030ca03..c77c804 100644
+--- a/Makefile
++++ b/Makefile
+@@ -21,7 +21,7 @@ PROJECT_TITLE := FreeType
+ # The variable TOP_DIR holds the path to the topmost directory in the project
+ # engine source hierarchy.  If it is not defined, default it to `.'.
+ #
+-TOP_DIR ?= .
++TOP_DIR := .
+ 
+ # The variable OBJ_DIR gives the location where object files and the
+ # FreeType library are built.
+-- 
+2.34.1
+

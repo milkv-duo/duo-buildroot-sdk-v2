@@ -3,6 +3,7 @@
 #include <cvi_tdl.h>
 #include <dlfcn.h>
 #include <sys/stat.h>
+#include "cvi_isp.h"
 
 #define AI_LIB "libcvi_tdl.so"
 
@@ -139,4 +140,89 @@ void deinit_ai(SERVICE_CTX *ctx)
         dlclose(ctx->ai_dl);
         ctx->ai_dl = NULL;
     }
+}
+
+static void load_bnr_model(VI_PIPE ViPipe, char *model_path)
+{
+    FILE *fp = fopen(model_path, "r");
+
+    if (fp == NULL) {
+        printf("open model path failed, %s\n", model_path);
+        return;
+    }
+
+    char line[1024];
+    char *token;
+    char *rest;
+
+    TEAISP_BNR_MODEL_INFO_S stModelInfo;
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+
+        printf("load model, list, %s", line);
+
+        rest = line;
+        token = strtok_r(rest, " ", &rest);
+
+        memset(&stModelInfo, 0, sizeof(TEAISP_BNR_MODEL_INFO_S));
+        snprintf(stModelInfo.path, TEAISP_MODEL_PATH_LEN, "%s", token);
+
+        printf("load model, path, %s\n", token);
+
+        token = strtok_r(rest, " ", &rest);
+
+        int iso = atoi(token);
+
+        stModelInfo.enterISO = iso;
+        stModelInfo.tolerance = iso * 10 / 100;
+
+        printf("load model, iso, %d, %d\n", stModelInfo.enterISO, stModelInfo.tolerance);
+        CVI_TEAISP_BNR_SetModel(ViPipe, &stModelInfo);
+    }
+
+    fclose(fp);
+}
+
+typedef CVI_S32 (*TEAISP_INIT_FUN)(VI_PIPE ViPipe, CVI_S32 maxDev);
+
+int init_teaisp_bnr(SERVICE_CTX *ctx)
+{
+    (void) ctx;
+
+    void *teaisp_dl = NULL;
+    TEAISP_INIT_FUN teaisp_init = NULL;
+
+    for (int i = 0; i < ctx->dev_num; i++) {
+
+        SERVICE_CTX_ENTITY *pEntity = &ctx->entity[i];
+
+        if (!pEntity->enableTEAISPBnr) {
+            continue;
+        }
+
+        if (teaisp_dl == NULL) {
+
+            teaisp_dl = dlopen("libteaisp.so", RTLD_LAZY);
+            if (!teaisp_dl) {
+                std::cout << "dlopen libteaisp.so fail" << std::endl;
+                return -1;
+            }
+
+            dlerror();
+
+            LOAD_SYMBOL(teaisp_dl, "CVI_TEAISP_Init", TEAISP_INIT_FUN, teaisp_init);
+        }
+
+        teaisp_init(i, ctx->max_use_tpu_num);
+        load_bnr_model(i, pEntity->teaisp_model_list);
+    }
+
+    return 0;
+}
+
+int deinit_teaisp_bnr(SERVICE_CTX *ctx)
+{
+    (void) ctx;
+
+    return 0;
 }

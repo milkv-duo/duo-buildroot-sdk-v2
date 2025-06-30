@@ -14,6 +14,14 @@ module: prepare 3rdparty
 prepare:
 	@if [ -f "mpi_prepare.mk" ]; then \
 		make -f mpi_prepare.mk prepare; \
+		sed -i '19i#ifndef __CV181X__\n\t#define __CV181X__\n#endif\n' include/linux/cvi_defines.h; \
+	fi
+	@if [ "$(CHIP_ARCH)" = "CV181X" ]; then \
+		sed -i '19,21c\#ifndef __CV181X__\n\t#define __CV181X__\n#endif' include/linux/cvi_defines.h; \
+	elif [ "$(CHIP_ARCH)" = "CV180X" ]; then \
+		sed -i '19,21c\#ifndef __CV180X__\n\t#define __CV180X__\n#endif' include/linux/cvi_defines.h; \
+	else \
+		echo "Unknown chip architecture $(CHIP_ARCH)"; \
 	fi
 
 3rdparty:

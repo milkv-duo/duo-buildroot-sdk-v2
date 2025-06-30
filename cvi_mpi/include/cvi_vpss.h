@@ -455,6 +455,51 @@ CVI_S32 CVI_VPSS_GetChnBufWrapAttr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn,
 CVI_U32 CVI_VPSS_GetWrapBufferSize(CVI_U32 u32Width, CVI_U32 u32Height, PIXEL_FORMAT_E enPixelFormat,
 	CVI_U32 u32BufLine, CVI_U32 u32BufDepth);
 
+/**
+ * @brief Create vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ * @param pstStitchAttr(In), vpss stitch attr
+ */
+CVI_S32 CVI_VPSS_CreateStitch(VPSS_GRP VpssGrp, const CVI_STITCH_ATTR_S *pstStitchAttr);
+
+/**
+ * @brief Destroy vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ */
+CVI_S32 CVI_VPSS_DestroyStitch(VPSS_GRP VpssGrp);
+
+/**
+ * @brief Set vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ * @param pstStitchAttr(In), vpss stitch attr
+ */
+CVI_S32 CVI_VPSS_SetStitchAttr(VPSS_GRP VpssGrp, const CVI_STITCH_ATTR_S *pstStitchAttr);
+
+/**
+ * @brief Get vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ * @param pstStitchAttr(Out), vpss stitch attr
+ */
+CVI_S32 CVI_VPSS_GetStitchAttr(VPSS_GRP VpssGrp, CVI_STITCH_ATTR_S *pstStitchAttr);
+
+/**
+ * @brief Start vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ */
+CVI_S32 CVI_VPSS_StartStitch(VPSS_GRP VpssGrp);
+
+/**
+ * @brief Stop vpss stitch
+ *
+ * @param VpssGrp(In), group ID.
+ */
+CVI_S32 CVI_VPSS_StopStitch(VPSS_GRP VpssGrp);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

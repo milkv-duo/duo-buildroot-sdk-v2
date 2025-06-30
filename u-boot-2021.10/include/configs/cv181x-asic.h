@@ -144,6 +144,10 @@
 
 #endif /* CONFIG_NAND_SUPPORT */
 
+#ifdef CONFIG_SPL_NAND_SUPPORT
+	#define CONFIG_NAND_FLASH_CVSNFC_SPL
+#endif /* CONFIG_SPL_NAND_SUPPORT */
+
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

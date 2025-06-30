@@ -64,6 +64,8 @@ struct isp_shared_buffer {
 	struct isp_ccm_shared_buffer ccm;
 	struct isp_ynr_shared_buffer ynr;
 	struct isp_mono_shared_buffer mono;
+	struct isp_lblc_shared_buffer lblc;
+	struct teaisp_bnr_shared_buffer teaisp_bnr;
 	struct teaisp_pq_shared_buffer teaisp_pq;
 
 	ISP_CTX_S ispCtx;
@@ -353,6 +355,9 @@ CVI_S32 isp_mgr_buf_get_addr(VI_PIPE ViPipe, ISP_IQ_BLOCK_LIST_E block, CVI_VOID
 	case ISP_IQ_BLOCK_BLC:
 		*addr = (CVI_VOID *) ((CVI_U8 *)runtime->vaddr + offsetof(struct isp_shared_buffer, blc));
 		break;
+	case ISP_IQ_BLOCK_LBLC:
+		*addr = (CVI_VOID *) ((CVI_U8 *)runtime->vaddr + offsetof(struct isp_shared_buffer, lblc));
+		break;
 	case ISP_IQ_BLOCK_CNR:
 		*addr = (CVI_VOID *) ((CVI_U8 *)runtime->vaddr + offsetof(struct isp_shared_buffer, cnr));
 		break;
@@ -394,6 +399,9 @@ CVI_S32 isp_mgr_buf_get_addr(VI_PIPE ViPipe, ISP_IQ_BLOCK_LIST_E block, CVI_VOID
 		break;
 	case ISP_IQ_BLOCK_TEAISP_PQ:
 		*addr = (CVI_VOID *) ((CVI_U8 *)runtime->vaddr + offsetof(struct isp_shared_buffer, teaisp_pq));
+		break;
+	case ISP_IQ_BLOCK_TEAISP_BNR:
+		*addr = (CVI_VOID *) ((CVI_U8 *)runtime->vaddr + offsetof(struct isp_shared_buffer, teaisp_bnr));
 		break;
 	default:
 		ret = CVI_FAILURE;

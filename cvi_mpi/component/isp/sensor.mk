@@ -1,6 +1,7 @@
 ifeq ($(CHIP_ARCH), $(filter $(CHIP_ARCH), CV180X CV181X SG200X))
 sensor-$(CONFIG_SENSOR_BRIGATES_BG0808)      += brigates_bg0808
 sensor-$(CONFIG_SENSOR_CHIPUP_XS9922B)       += chipup_xs9922b
+sensor-$(CONFIG_SENSOR_CVSENS_CV2002)         += cvsens_cv2002
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003)        += cvsens_cv2003
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003_1L)     += cvsens_cv2003_1L
 sensor-$(CONFIG_SENSOR_CVSENS_CV2003_1L_SLAVE)  += cvsens_cv2003_1L_slave
@@ -9,8 +10,10 @@ sensor-$(CONFIG_SENSOR_CVSENS_CV4001)        += cvsens_cv4001
 sensor-$(CONFIG_SENSOR_CVSENS_CV4002)        += cvsens_cv4002
 sensor-$(CONFIG_SENSOR_BYD_BF2253L)          += byd_bf2253l
 sensor-$(CONFIG_SENSOR_GCORE_GC02M1)         += gcore_gc02m1
+sensor-$(CONFIG_SENSOR_GCORE_GC0308)         += gcore_gc0308
 sensor-$(CONFIG_SENSOR_GCORE_GC0312)         += gcore_gc0312
 sensor-$(CONFIG_SENSOR_GCORE_GC0329)         += gcore_gc0329
+sensor-$(CONFIG_SENSOR_GCORE_GC05A2)         += gcore_gc05a2
 sensor-$(CONFIG_SENSOR_GCORE_GC1054)         += gcore_gc1054
 sensor-$(CONFIG_SENSOR_GCORE_GC1084)         += gcore_gc1084
 sensor-$(CONFIG_SENSOR_GCORE_GC1084_SLAVE)   += gcore_gc1084_slave

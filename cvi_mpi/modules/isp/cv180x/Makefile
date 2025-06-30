@@ -1,9 +1,14 @@
+ifeq ($(PARAM_FILE), )
+	PARAM_FILE:=../../../mpi_param.mk
+	include $(PARAM_FILE)
+endif
 .PHONY: clean all clean_all
 .SILENT: clean all cppcheck
 
 ISP_BASE_PATH = $(CURDIR)/..
 ISP_COMMON_DIR = $(ISP_BASE_PATH)/common
 ISP_3A_DIR = $(ISP_BASE_PATH)/algo
+CVIRUNTIME_EXISTS := $(shell test -d "$(MW_PATH)/../cviruntime/include" && echo 1)
 
 all:
 	@cd isp_algo; $(MAKE) all;
@@ -14,6 +19,10 @@ all:
 	@cd isp-daemon2; $(MAKE) -j4; $(MAKE) install;
 	@cd $(ISP_COMMON_DIR)/raw_replay; $(MAKE) all;
 	@cd $(ISP_COMMON_DIR)/raw_dump; $(MAKE) all;
+
+ifeq ($(CVIRUNTIME_EXISTS),1)
+	@cd teaisp; $(MAKE) all;
+endif
 
 ifeq ($(ISP_SRC_RELEASE),1)
 	# Replace makefile
@@ -27,6 +36,7 @@ cppcheck:
 clean:
 	@cd isp-daemon2; $(MAKE) clean;
 	@cd isp; $(MAKE) clean;
+	@cd teaisp; $(MAKE) clean;
 	@cd isp_bin; $(MAKE) clean;
 	@cd $(ISP_3A_DIR); $(MAKE) clean;
 	@cd isp_algo; $(MAKE) clean;
@@ -35,6 +45,7 @@ clean:
 
 clean_all:
 	@make -C  isp clean_all
+	@make -C  teaisp clean_all
 	@make -C  isp_bin  clean_all
 	@make -C  $(ISP_3A_DIR)  clean_all
 	@make -C  isp_algo  clean_all

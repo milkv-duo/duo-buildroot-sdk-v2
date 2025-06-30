@@ -435,10 +435,12 @@ CVI_S32 get_middleware_config(SAMPLE_TDL_MW_CONFIG_S *pstMWConfig) {
   return s32Ret;
 }
 int main(int argc, char *argv[]) {
-  if (argc != 4 && argc != 5 && argc != 6) {
+  if (argc != 4 && argc != 5 && argc != 6 && argc != 8) {
     printf("Usage: %s fdmodel_path ldmodel_path capture_path\n", argv[0]);
     printf("Usage: %s fdmodel_path pedmodel_path ldmodel_path capture_path\n", argv[0]);
     printf("Usage: %s fdmodel_path pedmodel_path ldmodel_path famodel_path capture_path\n",
+           argv[0]);
+    printf("Usage: %s fdmodel_path pedmodel_path ldmodel_path famodel_path frmodel_path gallery_root capture_path\n",
            argv[0]);
     return CVI_FAILURE;
   }
@@ -455,6 +457,10 @@ int main(int argc, char *argv[]) {
   const char *ped_model_path = "NULL";
   const char *ld_model_path = "NULL";
   const char *fa_model_path = "NULL";
+  const char *fr_model_path = "NULL";
+  const char *gallery_root;
+
+  printf("argc:%d\n", argc);
   if (argc == 4) {
     ld_model_path = argv[2];
     sprintf(g_out_dir, "%s", argv[3]);
@@ -469,8 +475,16 @@ int main(int argc, char *argv[]) {
     fa_model_path = argv[4];
 
     sprintf(g_out_dir, "%s", argv[5]);
+  }else if (argc == 8) {
+
+    ped_model_path = argv[2];
+    ld_model_path = argv[3];
+    fa_model_path = argv[4];
+    fr_model_path = argv[5];
+    gallery_root = argv[6];
+
+    sprintf(g_out_dir, "%s", argv[7]);
   }
-  printf("ped_model:%s\n", ped_model_path);
 
   int buffer_size = 20;        // atoi(argv[8]);
   float det_threshold = 0.45;  // atof(argv[9]);
@@ -514,9 +528,14 @@ int main(int argc, char *argv[]) {
   ret |= CVI_TDL_APP_CreateHandle(&app_handle, tdl_handle);
   ret |= CVI_TDL_APP_FaceCapture_Init(app_handle, (uint32_t)buffer_size);
   ret |= CVI_TDL_APP_FaceCapture_QuickSetUp(
-      app_handle, fd_model_id, fr_model_id, fd_model_path, NULL, NULL,
+      app_handle, fd_model_id, fr_model_id, fd_model_path, 
+      (!strcmp(fr_model_path, "NULL")) ? NULL : fr_model_path, NULL,
       (!strcmp(ld_model_path, "NULL")) ? NULL : ld_model_path,
       (!strcmp(fa_model_path, "NULL")) ? NULL : fa_model_path);
+
+  if (strcmp(fr_model_path, "NULL")){
+    app_handle->face_cpt_info->fr_flag = 2;
+  }
   g_use_face_attribute = app_handle->face_cpt_info->fa_flag;
   if (strcmp(ped_model_path, "NULL")) {
     CVI_TDL_SUPPORTED_MODEL_E ped_model_id = CVI_TDL_SUPPORTED_MODEL_MOBILEDETV2_PEDESTRIAN;
@@ -530,7 +549,11 @@ int main(int argc, char *argv[]) {
   }
 
   CVI_TDL_SetModelThreshold(tdl_handle, fd_model_id, det_threshold);
-  CVI_TDL_APP_FaceCapture_SetMode(app_handle, AUTO);
+  if (strcmp(fr_model_path, "NULL")) {
+    CVI_TDL_APP_FaceCapture_SetMode(app_handle, CYCLE);
+  } else {
+    CVI_TDL_APP_FaceCapture_SetMode(app_handle, AUTO);
+  }
 
   face_capture_config_t app_cfg;
   CVI_TDL_APP_FaceCapture_GetDefaultConfig(&app_cfg);
@@ -541,10 +564,23 @@ int main(int argc, char *argv[]) {
   app_cfg.m_capture_num = 1;
   app_cfg.store_feature = true;
   app_cfg.qa_method = 0;
-  app_cfg.img_capture_flag = CAPTRUE;
+  app_cfg.img_capture_flag = 0; // if using face recognition, set to 0
   app_cfg.eye_dist_thresh = 20;
 
   CVI_TDL_APP_FaceCapture_SetConfig(app_handle, &app_cfg);
+
+
+  if (strcmp(fr_model_path, "NULL")) {
+    cvtdl_service_feature_array_t feat_gallery;
+    memset(&feat_gallery, 0, sizeof(feat_gallery));
+    printf("to register face gallery\n");
+    for (int i = 1; i < 10; i++) {
+      char szbinf[128];
+      sprintf(szbinf, "%s/%d.bin_feat.bin", gallery_root, i);
+      register_gallery_feature(tdl_handle, szbinf, &feat_gallery);
+    }
+    ret = CVI_TDL_Service_RegisterFeatureArray(service_handle, feat_gallery, COS_SIMILARITY);
+  }
 
   VIDEO_FRAME_INFO_S stfdFrame;
   memset(&g_face_meta_0, 0, sizeof(cvtdl_face_t));
@@ -597,6 +633,16 @@ int main(int argc, char *argv[]) {
       usleep(1000);
       CVI_VPSS_ReleaseChnFrame(grp_id, tdl_chn, &stfdFrame);
       continue;
+    }
+
+    if (strcmp(fr_model_path, "NULL")){
+
+      for (uint32_t i = 0; i < app_handle->face_cpt_info->size; i++) {
+        if (!app_handle->face_cpt_info->_output[i]) continue;
+        printf("to do face match\n");
+        do_face_match(service_handle, &app_handle->face_cpt_info->data[i].info, 0.4);
+      }
+
     }
 
     {

@@ -743,7 +743,7 @@ static inline void CVSNFC_CLEAR_INT(struct cvsnfc_host *host)
 	unsigned int regval;
 
 	regval = cvsfc_read((host), REG_SPI_NAND_INT);
-	cvsfc_write((host), REG_SPI_NAND_INT, regval);
+	cvsfc_write((host), REG_SPI_NAND_INT_CLR, regval);
 }
 
 void cvsnfc_ctrl_ecc(struct mtd_info *mtd, bool enable);

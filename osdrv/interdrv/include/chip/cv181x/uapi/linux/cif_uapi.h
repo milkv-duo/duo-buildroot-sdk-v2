@@ -379,6 +379,13 @@ struct cif_yuv_swap_s {
 	unsigned int			yc_swap;
 };
 
+/*Sensor reset gpio information*/
+struct snsr_rst_gpio_s {
+	unsigned int		devno;
+	int			snsr_rst_pin;
+	int			snsr_rst_pol;
+};
+
 /* mipi_rx ioctl commands related definition */
 #define CVI_MIPI_IOC_MAGIC		'm'
 
@@ -417,6 +424,8 @@ struct cif_yuv_swap_s {
 						0x28, struct cif_crop_win_s)
 #define CVI_MIPI_SET_YUV_SWAP		_IOW(CVI_MIPI_IOC_MAGIC, \
 						0x29, struct cif_yuv_swap_s)
+#define CVI_MIPI_GPIO_INIT		_IOW(CVI_MIPI_IOC_MAGIC, \
+						0x30, struct snsr_rst_gpio_s)
 /* Unsupport commands */
 #define CVI_MIPI_SET_PHY_CMVMODE	_IOW(CVI_MIPI_IOC_MAGIC, \
 						0x04, unsigned int)

@@ -289,7 +289,9 @@ typedef union _ISP_MODULE_CTRL_U {
 		CVI_U64 bitBypassYee : 1;		/*RW:[29]*/
 		CVI_U64 bitBypassYcontrast : 1;	/*RW:[30]*/
 		CVI_U64 bitBypassMono : 1;		/*RW:[31]*/
-		CVI_U64 bitRsv : 32;			/*H; [32:63] */
+		CVI_U64 bitBypassLblc : 1;		/*RW:[32]*/
+		CVI_U64 bitBypassAiBnr : 1;		/*RW:[33]*/
+		CVI_U64 bitRsv : 30;			/*H; [34:63] */
 	};
 } ISP_MODULE_CTRL_U;
 
@@ -1066,29 +1068,48 @@ typedef enum _AF_STATUS {
 	AF_LOCATE_BEST_POS,
 	AF_FOCUSED,
 	AF_REVERSE_DIRECTION, //for hw limit
-	AF_CHASING_FOCUS,
+	AF_CHASING_FOCUS
 } AF_STATUS;
 
+typedef enum _AF_MANUAL_TYPE {
+	OP_TYPE_ZOOM,
+	OP_TYPE_FOCUS,
+	OP_TYPE_AUTO_FOCUS,
+	OP_TYPE_ZOOM_POS,
+	OP_TYPE_FOCUS_POS,
+	OP_TYPE_AF_BUTT
+} AF_MANUAL_TYPE;
+
+typedef struct _ISP_FOCUS_MANUAL_ATTR_S {
+	AF_MANUAL_TYPE enFocusOpType;
+	AF_DIRECTION enFocusDir;
+	CVI_U16 u16FocusStep; /*RW; Range:[0x0, 0x400]*/
+	CVI_U16 u16FocusPos; /*RW; Range:[0x0, 0x8000]*/
+} ISP_FOCUS_MANUAL_ATTR_S;
+
 typedef struct _ISP_FOCUS_ATTR_S {
+	CVI_BOOL bEnable;
 	CVI_U8 u8DebugMode;
-	AF_CHASINGFOCUS_MODE eChasingFocusMode;
-	CVI_U8 u8AFRunInterval;
-	CVI_BOOL bEnableRealTimeFocus;
-	CVI_BOOL bEnableChasingFocus;
-	CVI_BOOL bEnableReFocus;
-	CVI_BOOL bEnableMixHlc;
-	CVI_U8   u8RtFocusStableFrm;
-	CVI_FLOAT fRtMaxDiffFvRatio;
-	CVI_FLOAT fMaxDiffFvRatio;
-	CVI_FLOAT fMaxDiffLumaRatio;
-	CVI_FLOAT fDetectDiffRatio;
-	CVI_FLOAT fSearchDiffRatio;
-	CVI_FLOAT fLocalDiffRatio;
-	CVI_U8 u8InitStep;
-	CVI_U8 u8FindStep;
-	CVI_U8 u8LocateStep;
-	AF_DIRECTION eInitDir;
-	CVI_U16 u16MaxRotateCnt;
+	ISP_OP_TYPE_E enOpType;
+	CVI_U8 u8RunInterval; /*RW; Range:[0x1, 0x10]*/
+	CVI_BOOL bRealTimeFocus;
+	CVI_BOOL bChasingFocus;
+	CVI_BOOL bReFocus;
+	CVI_BOOL bMixHlc;
+	CVI_U8 u8RtFocusStableFrm; /*RW; Range:[0x1, 0xFF]*/
+	CVI_U16 u16RtMaxDiffFvRatio; /*RW; Range:[0x400, 0x1000]*/
+	CVI_U16 u16MaxDiffFvRatio; /*RW; Range:[0x400, 0x4000]*/
+	CVI_U16 u16MaxDiffLumaRatio; /*RW; Range:[0x400, 0x1000]*/
+	CVI_U16 u16DetectDiffRatio; /*RW; Range:[0x400, 0x1000]*/
+	CVI_U16 u16SearchDiffRatio; /*RW; Range:[0x400, 0x1000]*/
+	CVI_U16 u16LocalDiffRatio; /*RW; Range:[0x400, 0x1000]*/
+	CVI_U8 u8InitStep; /*RW; Range:[0x1, 0xFF]*/
+	CVI_U8 u8FindStep; /*RW; Range:[0x1, 0xFF]*/
+	CVI_U8 u8LocateStep; /*RW; Range:[0x1, 0xFF]*/
+	AF_DIRECTION enInitDir;
+	CVI_U16 u16MaxRotateCnt; /*RW; Range:[0x400, 0x4000]*/
+	AF_CHASINGFOCUS_MODE enChasingFocusMode;
+	ISP_FOCUS_MANUAL_ATTR_S stManual;
 } ISP_FOCUS_ATTR_S;
 
 //-----------------------------------------------------------------------------
@@ -1106,16 +1127,19 @@ typedef struct _ISP_AF_Q_INFO_S {
 	CVI_U32 u32PreFv;       /*R;*/
 	CVI_U32 u32CurFv;       /*R;*/
 	CVI_U32 u32MaxFv;       /*R;*/
-	CVI_U32 u32MinFv;       /*R;*/
-	CVI_U8 u8PreLuma;		/*R;*/
-	CVI_U8 u8CurLuma;		/*R;*/
-	CVI_U32 u32Fv;          /*R;*/
+	CVI_U8 u8PreLuma;       /*R;*/
+	CVI_U8 u8CurLuma;       /*R;*/
 	AF_DIRECTION eZoomDir;  /*R;*/
-	CVI_U16 u16ZoomStep;      /*R;*/
+	CVI_U16 u16ZoomStep;    /*R;*/
 	CVI_U16 u16ZoomPos;     /*R;*/
 	AF_DIRECTION eFocusDir; /*R;*/
-	CVI_U16 u16FocusStep;     /*R;*/
+	CVI_U16 u16FocusStep;   /*R;*/
 	CVI_U16 u16FocusPos;    /*R;*/
+	CVI_U16 u16MaxFvPos;    /*R;*/
+	CVI_U16 u16ZoomMinPos;    /*R;*/
+	CVI_U16 u16ZoomMaxPos;    /*R;*/
+	CVI_U16 u16FocusMinPos;    /*R;*/
+	CVI_U16 u16FocusMaxPos;    /*R;*/
 	ISP_AF_MOTOR_SPEED_E eZoomSpeed;  /*R;*/
 	ISP_AF_MOTOR_SPEED_E eFocusSpeed; /*R;*/
 } ISP_FOCUS_Q_INFO_S;
@@ -1225,6 +1249,43 @@ typedef struct _ISP_BLACK_LEVEL_ATTR_S {
 	ISP_BLACK_LEVEL_MANUAL_ATTR_S stManual;
 	ISP_BLACK_LEVEL_AUTO_ATTR_S stAuto;
 } ISP_BLACK_LEVEL_ATTR_S;
+
+//-----------------------------------------------------------------------------
+//  Local Black Level Correction(LBLC)
+//-----------------------------------------------------------------------------
+#define ISP_LBLC_ISO_SIZE (7)
+#define ISP_LBLC_GRID_COL (8)
+#define ISP_LBLC_GRID_ROW (8)
+#define ISP_LBLC_GRID_POINTS (ISP_LBLC_GRID_COL * ISP_LBLC_GRID_ROW)
+
+typedef struct _ISP_LBLC_LUT_S {
+	CVI_U32 iso; /*RW; Range:[0x64, 0x320000]*/
+	CVI_U16 lblcOffsetR[ISP_LBLC_GRID_POINTS]; /*RW; Range:[0x0, 0xFFF]*/
+	CVI_U16 lblcOffsetGr[ISP_LBLC_GRID_POINTS]; /*RW; Range:[0x0, 0xFFF]*/
+	CVI_U16 lblcOffsetGb[ISP_LBLC_GRID_POINTS]; /*RW; Range:[0x0, 0xFFF]*/
+	CVI_U16 lblcOffsetB[ISP_LBLC_GRID_POINTS]; /*RW; Range:[0x0, 0xFFF]*/
+} ISP_LBLC_LUT_S;
+
+typedef struct _ISP_LBLC_LUT_ATTR_S {
+	CVI_U8 size; /*RW; Range:[0x1, 0x7]*/
+	ISP_LBLC_LUT_S lblcLut[ISP_LBLC_ISO_SIZE];
+} ISP_LBLC_LUT_ATTR_S;
+
+typedef struct _ISP_LBLC_MANUAL_ATTR_S {
+	CVI_U16 strength; /*RW; Range:[0x0, 0xFFF]*/
+} ISP_LBLC_MANUAL_ATTR_S;
+
+typedef struct _ISP_LBLC_AUTO_ATTR_S {
+	CVI_U16 strength[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFFF]*/
+} ISP_LBLC_AUTO_ATTR_S;
+
+typedef struct _ISP_LBLC_ATTR_S {
+	CVI_BOOL enable; /*RW; Range:[0x0, 0x1]*/
+	ISP_OP_TYPE_E enOpType;
+	CVI_U8 UpdateInterval; /*RW; Range:[0x1, 0xFF]*/
+	ISP_LBLC_MANUAL_ATTR_S stManual;
+	ISP_LBLC_AUTO_ATTR_S stAuto;
+} ISP_LBLC_ATTR_S;
 
 //-----------------------------------------------------------------------------
 //  Dead pixel correction(DPC)
@@ -2734,6 +2795,57 @@ typedef struct _ISP_VC_ATTR_S {
 } ISP_VC_ATTR_S;
 
 //-----------------------------------------------------------------------------
+//  TEAISP
+//-----------------------------------------------------------------------------
+typedef enum _TEAISP_MODE_E {
+	TEAISP_OFF_MODE,
+	TEAISP_BEFORE_FE_RAW_MODE,
+	TEAISP_AFTER_FE_RAW_MODE,
+	TEAISP_YUV_MODE,
+	TEAISP_MODE_BUTT
+} TEAISP_MODE_E;
+
+//-----------------------------------------------------------------------------
+//  TEAISP BNR
+//-----------------------------------------------------------------------------
+#define TEAISP_MODEL_PATH_LEN (128)
+typedef struct _TEAISP_BNR_MODEL_INFO_S {
+	char path[TEAISP_MODEL_PATH_LEN];
+	CVI_U32 enterISO;
+	CVI_U32 tolerance;
+} TEAISP_BNR_MODEL_INFO_S;
+
+typedef struct _TEAISP_BNR_MANUAL_ATTR_S {
+	CVI_U8 FilterMotionStr2D; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStaticStr2D; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStr3D; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStr2D; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U16 NoiseLevel; /*RW; Range:[0x0, 0x3FFF]*/
+	CVI_U16 NoiseHiLevel; /*RW; Range:[0x0, 0x3FFF]*/
+} TEAISP_BNR_MANUAL_ATTR_S;
+
+typedef struct _TEAISP_BNR_AUTO_ATTR_S {
+	CVI_U8 FilterMotionStr2D[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStaticStr2D[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStr3D[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U8 FilterStr2D[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFF]*/
+	CVI_U16 NoiseLevel[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0x3FFF]*/
+	CVI_U16 NoiseHiLevel[ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0x3FFF]*/
+} TEAISP_BNR_AUTO_ATTR_S;
+
+typedef struct _TEAISP_BNR_ATTR_S {
+	CVI_BOOL enable; /*RW; Range:[0x0, 0x1]*/
+	ISP_OP_TYPE_E enOpType;
+	CVI_U8 UpdateInterval; /*RW; Range:[0x1, 0xFF]*/
+	TEAISP_BNR_MANUAL_ATTR_S stManual;
+	TEAISP_BNR_AUTO_ATTR_S stAuto;
+} TEAISP_BNR_ATTR_S;
+
+typedef struct _TEAISP_BNR_NP_S {
+	CVI_FLOAT CalibrationCoef[2][ISP_AUTO_ISO_STRENGTH_NUM]; /*RW; Range:[0x0, 0xFF]*/
+} TEAISP_BNR_NP_S;
+
+//-----------------------------------------------------------------------------
 //  TEAISP PQ
 //-----------------------------------------------------------------------------
 #define TEAISP_SCENE_NUM (5)
@@ -2771,6 +2883,21 @@ typedef struct _TEAISP_PQ_ATTR_S {
 	TEAISP_PQ_AUTO_ATTR_S stAuto;
 	TEAISP_PQ_MANUAL_ATTR_S stManual;
 } TEAISP_PQ_ATTR_S;
+
+/*Sensor config information*/
+typedef struct _ISP_SNS_CFG_S {
+	SIZE_S stSnsSize;
+	CVI_FLOAT f32FrameRate;
+	WDR_MODE_E enWDRMode;
+	CVI_BOOL bHwSync;
+	CVI_S32 S32MipiDevno;
+	CVI_U8 u8Mclk;
+	CVI_BOOL bMclkEn;
+	CVI_S16 lane_id[5];
+	CVI_CHAR pn_swap[5];
+	ISP_SNS_COMMBUS_U busInfo;
+	CVI_S32 I2cAddr;
+} ISP_SNS_CFG_S;
 
 #ifdef __cplusplus
 #if __cplusplus

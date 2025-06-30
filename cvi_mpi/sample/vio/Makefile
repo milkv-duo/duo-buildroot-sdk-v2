@@ -35,6 +35,8 @@ DEFS += -DRPC_MULTI_PROCESS
 LIBS += -lnanomsg
 endif
 
+LIBS += -lrt
+
 EXTRA_CFLAGS = $(INCS) $(DEFS)
 EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini
 
@@ -54,7 +56,7 @@ endif
 .PHONY : clean all
 all: $(TARGET)
 
-$(SDIR)/%.o: $(SDIR)/%.c 
+$(SDIR)/%.o: $(SDIR)/%.c
 	@$(CC) $(DEPFLAGS) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
 	@echo [$(notdir $(CC))] $(notdir $@)
 

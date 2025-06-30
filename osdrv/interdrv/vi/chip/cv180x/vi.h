@@ -67,6 +67,8 @@ struct _mempool {
 struct _membuf {
 	uint64_t bayer_le[OFFLINE_RAW_BUF_NUM];
 	uint64_t bayer_se[OFFLINE_RAW_BUF_NUM];
+	uint64_t bayer_tpu_le[OFFLINE_PRE_BE_BUF_NUM];
+	uint64_t bayer_tpu_se[OFFLINE_PRE_BE_BUF_NUM];
 	uint64_t prebe_le[OFFLINE_PRE_BE_BUF_NUM];
 	uint64_t prebe_se[OFFLINE_PRE_BE_BUF_NUM];
 	uint64_t yuv_yuyv[ISP_CHN_MAX][2];//yuv sensor is yuyv format
@@ -74,6 +76,7 @@ struct _membuf {
 	uint64_t manr_rtile;
 	uint64_t rgbmap_le[MAX_RGBMAP_BUF_NUM];
 	uint64_t rgbmap_se[MAX_RGBMAP_BUF_NUM];
+	uint64_t rgbmap_zero;
 	uint64_t lmap_le;
 	uint64_t lmap_se;
 	uint64_t lsc;
@@ -99,6 +102,8 @@ struct _membuf {
 } isp_bufpool[ISP_PRERAW_VIRT_MAX] = {0};
 
 struct isp_queue pre_out_queue[ISP_PRERAW_VIRT_MAX], pre_out_se_queue[ISP_PRERAW_VIRT_MAX],
+	bnr_ai_isp_in_q[ISP_PRERAW_VIRT_MAX][ISP_FE_CHN_MAX],
+	bnr_ai_isp_out_q[ISP_PRERAW_VIRT_MAX][ISP_FE_CHN_MAX],
 	post_in_queue, post_in_se_queue,
 	pre_be_in_q, pre_be_in_se_q[ISP_PRERAW_VIRT_MAX],
 	pre_be_out_q, pre_be_out_se_q;
@@ -117,6 +122,11 @@ struct _isp_snr_cfg_queue {
 	struct list_head list;
 	uint32_t num_rdy;
 } isp_snr_i2c_queue[ISP_PRERAW_VIRT_MAX], isp_crop_queue[ISP_PRERAW_VIRT_MAX];
+
+struct _ai_isp_cfg_info {
+	__u64 ai_bnr_addr_pool[2];
+	__u64 ai_rgbmap;
+} ai_isp_cfg_info[ISP_PRERAW_VIRT_MAX];
 
 struct _isp_raw_num_n {
 	enum cvi_isp_raw raw_num;
@@ -1542,6 +1552,7 @@ static int _vi_vblank_handler_thread(void *arg);
 static int _vi_err_handler_thread(void *arg);
 static int _vi_event_handler_thread(void *arg);
 static void _vi_record_debug_info(struct isp_ctx *ctx);
+static int _vi_run_tpu_thread(void *arg);
 
 #ifdef __cplusplus
 }

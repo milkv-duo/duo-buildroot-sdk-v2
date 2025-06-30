@@ -24,29 +24,29 @@
 
 //CAILB PARAM CONFIG
 #define FOCUS_RANGE    (14000) // 1750
-#define ZOOM_RANGE     (13656) //1707
+#define ZOOM_RANGE     (16065) //1707
 #define FOCUS_OFFSET   (0)
-#define ZOOM_OFFSET    (9656) // 1207
-#define FOCUS_BACKLASH (200) // 25
-#define ZOOM_BACKLASH  (200)
+#define ZOOM_OFFSET    (6356) // 1207
+#define FOCUS_BACKLASH (140) // 25
+#define ZOOM_BACKLASH  (220)
 #define FOCUS_MAX_SPEED     (20)//The fastest speed that won't cause a slide
 #define ZOOM_MAX_SPEED      (20)//The fastest speed that won't cause a slide
-#define FOCUS_ONE_STEP_TIME_COST  (346) //us 2768
-#define ZOOM_ONE_STEP_TIME_COST   (346) //us
+#define FOCUS_ONE_STEP_TIME_COST  (500) //us 2768
+#define ZOOM_ONE_STEP_TIME_COST   (500) //us
 #define FOCUS_MAX_STEP (255)
 #define ZOOM_MAX_STEP  (255)
 #define MOTOR_TYPE (0)
 
 static const struct cvi_zoom_focus_tab zoom_focus_tab[ZOOM_FOCUS_TAB_SIZE] = {
-	{0, 25, 565},
-	{1707, 645, 1081},
-	{3414, 1469, 1785},
-	{5121, 2053, 2681},
-	{6828, 3161, 3651},
-	{8535, 4341, 4967},
-	{10242, 6115, 6659},
-	{11949, 8885, 9531},
-	{ZOOM_RANGE, 11481, 12903}
+	{0, 0, 442},
+	{2008, 454, 1081},
+	{4016, 1030, 1658},
+	{6024, 1734, 2426},
+	{8032, 2630, 3322},
+	{10040, 3718, 4410},
+	{12048, 5126, 5882},
+	{14056, 7110, 8058},
+	{ZOOM_RANGE, 11142, 13690}
 };
 
 //SPI CONFIG

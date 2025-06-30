@@ -55,6 +55,8 @@ static const struct isp_module_ctrl *mod[ISP_IQ_BLOCK_MAX] = {
 #else
 static const struct isp_module_ctrl *mod[ISP_IQ_BLOCK_MAX] = {
 	[ISP_IQ_BLOCK_BLC] = &blc_mod,
+	[ISP_IQ_BLOCK_LBLC] = &lblc_mod,
+	[ISP_IQ_BLOCK_TEAISP_BNR] = &teaisp_bnr_mod,
 	[ISP_IQ_BLOCK_DPC] = &dpc_mod,
 	[ISP_IQ_BLOCK_CROSSTALK] = &crosstalk_mod,
 	[ISP_IQ_BLOCK_WBGAIN] = &wb_mod,

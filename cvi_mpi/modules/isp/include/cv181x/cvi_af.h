@@ -66,7 +66,7 @@ CVI_S32 CVI_AF_Register(VI_PIPE ViPipe, ALG_LIB_S *pstAfLib);
  * return: Function run success or not
  */
 CVI_S32 CVI_AF_UnRegister(VI_PIPE ViPipe, ALG_LIB_S *pstAfLib);
-/* CVI_AF_AutoFocus:
+/* CVI_ISP_AFAutoFocus:
  *    start auto focus
  * [in]
  *    sID: get it by ViPipe
@@ -74,8 +74,8 @@ CVI_S32 CVI_AF_UnRegister(VI_PIPE ViPipe, ALG_LIB_S *pstAfLib);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_AutoFocus(VI_PIPE ViPipe);
-/* CVI_AF_GetFv:
+CVI_S32 CVI_ISP_AFAutoFocus(VI_PIPE ViPipe);
+/* CVI_ISP_AFGetFv:
  *    get the newest frame af fv value
  * [in]
  *    sID: get it by ViPipe
@@ -83,8 +83,8 @@ CVI_S32 CVI_AF_AutoFocus(VI_PIPE ViPipe);
  *    pFv: Focus value
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_GetFv(VI_PIPE ViPipe, CVI_U32 *pFv);
-/* CVI_AF_SetZoomSpeed:
+CVI_S32 CVI_ISP_AFGetFv(VI_PIPE ViPipe, CVI_U32 *pFv);
+/* CVI_ISP_AFSetZoomSpeed:
  *    set Zoom motor rotational speed, generally not set
  * [in]
  *    sID: get it by ViPipe
@@ -93,8 +93,8 @@ CVI_S32 CVI_AF_GetFv(VI_PIPE ViPipe, CVI_U32 *pFv);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetZoomSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
-/* CVI_AF_SetZoom:
+CVI_S32 CVI_ISP_AFSetZoomSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
+/* CVI_ISP_AFSetZoom:
  *    set zoom motor rotational speed, generally not set
  * [in]
  *    sID: get it by ViPipe
@@ -104,8 +104,8 @@ CVI_S32 CVI_AF_SetZoomSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetZoom(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U8 step);
-/* CVI_AF_SetFocusSpeed:
+CVI_S32 CVI_ISP_AFSetZoom(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U16 step);
+/* CVI_ISP_AFSetFocusSpeed:
  *    set focus motor rotational speed
  * [in]
  *    sID: get it by ViPipe
@@ -114,7 +114,7 @@ CVI_S32 CVI_AF_SetZoom(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U8 step);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetFocusSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
+CVI_S32 CVI_ISP_AFSetFocusSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
 /* AF_SetFocus:
  *    set focus motor rotational speed, generally not set
  * [in]
@@ -125,8 +125,8 @@ CVI_S32 CVI_AF_SetFocusSpeed(VI_PIPE ViPipe, ISP_AF_MOTOR_SPEED_E eSpeed);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetFocus(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U8 step);
-/* CVI_AF_SetAttr:
+CVI_S32 CVI_ISP_AFSetFocus(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U16 step);
+/* CVI_ISP_AFSetAttr:
  *    set af algo control param
  * [in]
  *    sID: get it by ViPipe
@@ -135,8 +135,8 @@ CVI_S32 CVI_AF_SetFocus(VI_PIPE ViPipe, CVI_BOOL direct, CVI_U8 step);
  *    void
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_SetAttr(VI_PIPE ViPipe, const ISP_FOCUS_ATTR_S *pstFocusAttr);
-/* CVI_AF_GetAttr:
+CVI_S32 CVI_ISP_SetAFAttr(VI_PIPE ViPipe, const ISP_FOCUS_ATTR_S *pstFocusAttr);
+/* CVI_ISP_GetAttr:
  *    get af algo control param
  * [in]
  *    sID: get it by ViPipe
@@ -144,8 +144,8 @@ CVI_S32 CVI_AF_SetAttr(VI_PIPE ViPipe, const ISP_FOCUS_ATTR_S *pstFocusAttr);
  *	  pstFocusAttr: control param
  * return: Function run success or not
  */
-CVI_S32 CVI_AF_GetAttr(VI_PIPE ViPipe, ISP_FOCUS_ATTR_S *pstFocusAttr);
-/* CVI_ISP_QueryFocusInfo:
+CVI_S32 CVI_ISP_GetAFAttr(VI_PIPE ViPipe, ISP_FOCUS_ATTR_S *pstFocusAttr);
+/* CVI_ISP_AFQueryFocusInfo:
  *    get af algo status info
  * [in]
  *    sID: get it by ViPipe
@@ -153,8 +153,34 @@ CVI_S32 CVI_AF_GetAttr(VI_PIPE ViPipe, ISP_FOCUS_ATTR_S *pstFocusAttr);
  *	  pstFocusQInfo: af status info
  * return: Function run success or not
  */
-CVI_S32 CVI_ISP_QueryFocusInfo(VI_PIPE ViPipe, ISP_FOCUS_Q_INFO_S *pstFocusQInfo);
+CVI_S32 CVI_ISP_AFQueryFocusInfo(VI_PIPE ViPipe, ISP_FOCUS_Q_INFO_S *pstFocusQInfo);
+/* CVI_AF_GetMotorCB:
+ *    get motor control callback func
+ * [in]
+ *    sID: get it by ViPipe
+ * [out]
+ *    void
+ * return: point of motor control callback func
+ */
 ISP_AF_MOTOR_FUNC_S *CVI_AF_GetMotorCB(VI_PIPE ViPipe);
+/* CVI_ISP_SetAFStatisticsConfig:
+ *    set af statistics config
+ * [in]
+ *    sID: get it by ViPipe
+ * [out]
+ *	  pstAfStatCfg: af statistics config info
+ * return: Function run success or not
+ */
+CVI_S32 CVI_ISP_SetAFStatisticsConfig(VI_PIPE ViPipe, const ISP_FOCUS_STATISTICS_CFG_S *pstAfStatCfg);
+/* CVI_ISP_GetAFStatisticsConfig:
+ *    get af statistics config info
+ * [in]
+ *    sID: get it by ViPipe
+ * [out]
+ *	  pstAfStatCfg: af statistics config info
+ * return: Function run success or not
+ */
+CVI_S32 CVI_ISP_GetAFStatisticsConfig(VI_PIPE ViPipe, ISP_FOCUS_STATISTICS_CFG_S *pstAfStatCfg);
 
 #ifdef __cplusplus
 #if __cplusplus

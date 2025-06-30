@@ -24,6 +24,8 @@ typedef struct {
 
 	// Pre-Raw
 	ISP_BLACK_LEVEL_ATTR_S blc;
+	ISP_LBLC_ATTR_S lblc;
+	ISP_LBLC_LUT_ATTR_S lblcLut;
 	ISP_DP_DYNAMIC_ATTR_S dpc_dynamic;
 	ISP_DP_STATIC_ATTR_S dpc_static;
 	ISP_DP_CALIB_ATTR_S DPCalib;
@@ -79,6 +81,8 @@ typedef struct {
 	ISP_YCONTRAST_ATTR_S ycontrast;
 
 	// TEAISP
+	TEAISP_BNR_ATTR_S teaisp_bnr;
+	TEAISP_BNR_NP_S teaisp_bnr_np;
 	TEAISP_PQ_ATTR_S teaisp_pq;
 
 	// other
@@ -102,6 +106,8 @@ typedef struct {
 	ISP_AWB_Calibration_Gain_S WBCalib;
 	ISP_AWB_Calibration_Gain_S_EX WBCalibEx;
 	ISP_STATISTICS_CFG_S StatCfg;
+
+	ISP_FOCUS_ATTR_S FocusAttr;
 } ISP_3A_Parameter_Structures;
 
 #ifdef __cplusplus

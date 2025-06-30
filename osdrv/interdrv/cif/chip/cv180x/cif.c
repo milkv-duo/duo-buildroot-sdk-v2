@@ -2406,6 +2406,30 @@ static inline int cif_bt_fmt_out(struct cvi_cif_dev *dev,
 	return 0;
 }
 
+static int cif_gpio_init(struct platform_device *pdev, struct snsr_rst_gpio_s snsr_gpio)
+{
+	struct cvi_cif_dev *dev;
+	struct cvi_link *link;
+	char sns_rst_gpio_name[64];
+	dev = dev_get_drvdata(&pdev->dev);
+
+	link = &dev->link[snsr_gpio.devno];
+	link->snsr_rst_pin = snsr_gpio.snsr_rst_pin;
+	link->snsr_rst_pol = snsr_gpio.snsr_rst_pol;
+
+	if (link->snsr_rst_pin < 0 || link->snsr_rst_pol < 0)
+		return -1;
+
+	sprintf(sns_rst_gpio_name, "snsr-rst-gpio-%d", link->snsr_rst_pin);
+
+	if (gpio_request(link->snsr_rst_pin, sns_rst_gpio_name))
+		return 0;
+
+	dev_info(&pdev->dev, "rst_pin = %d, pol = %d\n", link->snsr_rst_pin, link->snsr_rst_pol);
+
+	return 0;
+}
+
 static long _cif_ioctl(struct cvi_cif_dev *dev, unsigned int cmd,
 		       unsigned long arg, unsigned int from_user)
 {
@@ -2652,6 +2676,22 @@ static long _cif_ioctl(struct cvi_cif_dev *dev, unsigned int cmd,
 		ctx = &dev->link[swap.devno].cif_ctx;
 
 		return cif_swap_yuv(ctx, swap.uv_swap, swap.yc_swap);
+	}
+	case CVI_MIPI_GPIO_INIT:
+	{
+		struct platform_device *pdev;
+		struct snsr_rst_gpio_s sns_gpio;
+
+		pdev = to_platform_device(_dev);
+
+		if (from_user) {
+			if (copy_from_user(&sns_gpio, (void *)arg, sizeof(sns_gpio))) {
+				dev_err(_dev, "copy_from_user failed.\n");
+				return -ENOMEM;
+			}
+		} else
+			memcpy(&sns_gpio, (void *)arg, sizeof(sns_gpio));
+		return cif_gpio_init(pdev, sns_gpio);
 	}
 	default:
 		return -ENOIOCTLCMD;

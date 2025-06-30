@@ -22,16 +22,21 @@ extern "C" {
 #define UNUSED(x)	(void)(x)
 #endif
 
+#define AF_RATIO_BASE (1024)
 #define AF_SENSOR_NUM (VI_MAX_PIPE_NUM)
 #define AAA_LIMIT(var, min, max) ((var) = ((var) < (min)) ? (min) : (((var) > (max)) ? (max) : (var)))
 #define AAA_ABS(a) ((a) > 0 ? (a) : -(a))
 #define AAA_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define AAA_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define AAA_DIV_0_TO_1(a) ((0 == (a)) ? 1 : (a))
-#define TYPE_BIT (9)
-#define DIRECTION_BIT (8)
+#define AF_RATIO(x, y)	((x > y) ? (x * AF_RATIO_BASE / y) : (y * AF_RATIO_BASE / x))
+#define AF_RATIO_VAL(x) ((CVI_FLOAT)x / AF_RATIO_BASE)
+#define AF_DIFF(x, y)  ((x > y) ? (x - y) : (y - x))
+#define TYPE_BIT (17)
+#define DIRECTION_BIT (16)
+#define FV_BUFF_SIZE (4)
 
-typedef CVI_U16 QDataType;
+typedef CVI_U32 QDataType;
 
 typedef struct QListNode {
 	struct QListNode *_next;
@@ -72,6 +77,10 @@ typedef struct _AF_CTX_S {
 	//common param
 	ISP_EXPOSURE_ATTR_S stExpAttr;
 	ISP_WDR_EXPOSURE_ATTR_S stWdrExpAttr;
+	CVI_BOOL bAeByPassSts;
+	CVI_U8 u8WDRMode;
+	CVI_U8 u8ZoneRow;
+	CVI_U8 u8ZoneCol;
 	AF_POS_FLAG   ePosFlag; //0:not init 1:reset 2:init pos
 	AF_CHASING_FOCUS_FLAG eChasingFocusFlag;
 	CVI_U16 u16ZoomOffsetCnt;
@@ -81,13 +90,31 @@ typedef struct _AF_CTX_S {
 	Queue q;
 	CVI_U16 u16MaxZoomStep; //auto cal by frameRate and interval
 	CVI_U16 u16MaxFocusStep; //auto cal by frameRate and interval
+	CVI_BOOL bManualAutoFocus;
 	//auto focus param
 	ISP_FOCUS_Q_INFO_S *pstFocusQInfo;
 	CVI_BOOL bInitFocusPos;
 	CVI_BOOL bInitZoomPos;
 	CVI_U16 u16FocusRevStep;
 	CVI_U16 u16ZoomRevStep;
+	CVI_S16 s16PreLV;
 	CVI_BOOL bChasingFocus;
+	CVI_BOOL bAFStable;
+	CVI_BOOL bRefocus;
+	CVI_U8 u8RefocusCnt;
+	CVI_U8 u8DirRevertCnt;
+	CVI_U8 u8FvStableCnt;
+	CVI_U8 u8MoveCnt;
+	CVI_U8 u8FvIndex;
+	CVI_U32 u32AvgFv;
+	CVI_U32 u32StableFv;
+	CVI_U32 u32DetMaxFv;
+	CVI_U32 u32FocusMinPos;
+	CVI_U32 u32FocusMaxPos;
+	CVI_U32 u32FvBuffer[FV_BUFF_SIZE];
+	CVI_U32 u32PrelumaRatio[AWB_ZONE_ORIG_COLUMN];
+	CVI_U32 u32StblumaRatio[AWB_ZONE_ORIG_COLUMN];
+
 	//hw param
 	ISP_AF_LEN_INFO_S stLenInfo;
 	//debug param
@@ -247,7 +274,7 @@ CVI_S32 AF_SetZoomSpeed(CVI_U8 sID, ISP_AF_MOTOR_SPEED_E eSpeed);
  *    void
  * return: Function run success or not
  */
-CVI_S32 AF_SetZoom(CVI_U8 sID, AF_DIRECTION eDir, CVI_U8 step);
+CVI_S32 AF_SetZoom(CVI_U8 sID, AF_DIRECTION eDir, CVI_U16 step);
 /* AF_SetFocusSpeed:
  *    set focus motor rotational speed
  * [in]
@@ -268,7 +295,7 @@ CVI_S32 AF_SetFocusSpeed(CVI_U8 sID, ISP_AF_MOTOR_SPEED_E eSpeed);
  *    void
  * return: Function run success or not
  */
-CVI_S32 AF_SetFocus(CVI_U8 sID, AF_DIRECTION eDir, CVI_U8 step);
+CVI_S32 AF_SetFocus(CVI_U8 sID, AF_DIRECTION eDir, CVI_U16 step);
 /* AF_SetZoomAndFocus:
  *    set both zoom motor and focus motor rotational speed
  * [in]
@@ -329,6 +356,10 @@ CVI_S32 AF_SetStatisticsConfig(CVI_U8 sID, const ISP_FOCUS_STATISTICS_CFG_S *pst
  */
 CVI_S32 AF_GetStatisticsConfig(CVI_U8 sID, ISP_FOCUS_STATISTICS_CFG_S *pstAfStatCfg);
 CVI_S32 AF_ENTER_CAILB_FLOW(VI_PIPE ViPipe);
+CVI_S32 AF_SetVcmAttr(VI_PIPE ViPipe, const ISP_AF_VCM_ATTR_S *pstVcmAttr);
+CVI_S32 AF_GetVcmAttr(VI_PIPE ViPipe, ISP_AF_VCM_ATTR_S *pstVcmAttr);
+
+
 #ifdef __cplusplus
 #if __cplusplus
 }

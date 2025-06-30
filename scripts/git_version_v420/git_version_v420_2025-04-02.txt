@@ -1,0 +1,69 @@
+project_name: osdrv
+commit_id: d619297a351551c5bc6c9cde7229ded5596d1d6d [fix](osdrv/tpu):Add freezable to tpu thread and adjust clk position [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cviruntime
+commit_id: 957fb304e73fdeb8630f16ffca5f5aeab1eeb6b6 updatae regression script for cv181x
+
+project_name: cvi_rtsp
+commit_id: 537bd29f234b7c3df3559eb8e517f074b082cad7 [feat](build): optimize rtsp build.
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: 2bc540089ac7a0c069954619ba5fff97c78766cf modify CHIP_ARCH (mars->cv181x)
+
+project_name: opensbi
+commit_id: e8de217a75a7bd169729f8bee691a5e3e67d579e [fix](serial): Round UART8250 baud rate divisor to nearest integer
+
+project_name: cvi_alios
+commit_id: 69ee2283af765f30ba0b07f1a2cc3cd021987129 [fix](jpeg):super frame support esbufqueue
+
+project_name: build
+commit_id: 2b7994a3ae6367b0aa8860ac22a16ade33f8bf27 [fix](dts): Update DTS file search paths
+
+project_name: oss
+commit_id: e48097f703337d4c7744ed19909c764aeab0ebbb add 3rd_party used in tdl_sdk.
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 857d7d004514532c53e68d445d29dfda1ee75391 [fix](isp):update gc4653 bin
+
+project_name: tracer
+commit_id: ca2cef2a7684d382bccc1c6ef43c569cc3e2ec97 [scripts] Add scripts
+
+project_name: ive
+commit_id: 8a8d6a48c74d8d39f0a32f50a79df16cced67387 [feat] adapt to cvi_defines.h
+
+project_name: fsbl
+commit_id: 253ddd11e74194525c7d18002e354044ed1e8832 [fix](uart download): during uart download, the load_user_param_and_logo function was executed incorrectly.
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: 94745eef1571e633857d8fa6a1655eebdc17dd75 Merge "[feat](uart_burn): Add uart-burning." into v4.2.0
+
+project_name: ramdisk
+commit_id: 3051c67786b1f6b7a3af1b1e2b4ffd24e0c10d25 [fix](ubi tools): update mtd tools [description ]:update mtd tools(with ubi tools) [root   cause]:NA [JIRA      ID]:NA [chip project]:CV181X [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: tdl_sdk
+commit_id: 921aaec4194e6b5d07a7ab40f007742a52cb71b4 sample_cap_face support face recognition
+
+project_name: linux_5.10
+commit_id: 27c6e2add4d01d113d808ea536775965cb0e0a24 [fix](audio):fix audio sample rate error in proc fs [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA
+
+project_name: isp
+commit_id: f4b070c4dbb8234436fd29787bd6e53ddb98550b [fix](isp-tooldaemon):fix Segmentation fault caused by memory repeated free
+
+project_name: mediapipe
+commit_id: 30ad166d1d5d742b30d67f78cdd7aa273b6002e5 [fix](jpeg):super frame jpeg
+
+project_name: cvi_mpi
+commit_id: c1f0dda14030664286d3aff302d8d00b854c2550 fix v4.2.0 daily build error.
+

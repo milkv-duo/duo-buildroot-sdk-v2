@@ -608,6 +608,7 @@ static void aicbsp_platform_power_off(void)
 			printk("%s: WLAN_POWER output low failed!\n", __func__);
 		}
 	}
+	gpio_free(cvi_wifi_power_gpio);
 #endif //CONFIG_PLATFORM_CVITEK
 
 	sdio_dbg("%s\n", __func__);

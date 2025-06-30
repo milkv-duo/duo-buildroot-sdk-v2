@@ -37,17 +37,17 @@ then
 fi
 HEADERLIST="$ISP_INCLUDE_PATH/cvi_comm_isp.h"
 HEADERLIST+=" $ISP_INCLUDE_PATH/cvi_comm_3a.h"
-HEADERLIST+=" $OSDRV_INCLUDE_LINUX_PATH/cvi_comm_video.h"
-HEADERLIST+=" $OSDRV_INCLUDE_LINUX_PATH/cvi_comm_vi.h"
-HEADERLIST+=" $OSDRV_INCLUDE_LINUX_PATH/cvi_comm_vpss.h"
+HEADERLIST+=" $MW_INCLUDE_PATH/linux/cvi_comm_video.h"
+HEADERLIST+=" $MW_INCLUDE_PATH/linux/cvi_comm_vi.h"
+HEADERLIST+=" $MW_INCLUDE_PATH/linux/cvi_comm_vpss.h"
 HEADERLIST+=" $MW_INCLUDE_PATH/cvi_comm_sns.h"
 
 if [ $CHIP_ID == "cv181x" ]
 then
-    HEADERLIST+=" $OSDRV_INCLUDE_LINUX_PATH/cvi_cv181x_defines.h"
+    HEADERLIST+=" $MW_INCLUDE_PATH/linux/cvi_cv181x_defines.h"
 elif [ $CHIP_ID == "cv180x" ]
 then
-    HEADERLIST+=" $OSDRV_INCLUDE_LINUX_PATH/cvi_cv180x_defines.h"
+    HEADERLIST+=" $MW_INCLUDE_PATH/linux/cvi_cv180x_defines.h"
 fi
 LEVELJSON=$CHIP_ID/level.json
 LAYOUTJSON=$CHIP_ID/layout.json

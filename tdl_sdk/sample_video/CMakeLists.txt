@@ -156,6 +156,7 @@ if(${CVI_PLATFORM} STREQUAL "SOPHON")
     ${MIDDLEWARE_SDK_ROOT}/lib/libaf.so
     ${MIDDLEWARE_SDK_ROOT}/lib/libcvi_bin.so
     ${MIDDLEWARE_SDK_ROOT}/lib/libisp_algo.so
+    ${MIDDLEWARE_SDK_ROOT}/lib/libhdmitx.so
     ${CVI_RTSP_LIBPATH}
   )
   # set(AUDIO_SAMPLE_LIBS

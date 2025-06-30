@@ -43,11 +43,11 @@ static const char *TypeToStr(feature_type_e type) {
 inline void __attribute__((always_inline))
 FreeFeatureArrayExt(cvtdl_service_feature_array_ext_t *feature_array_ext) {
   if (feature_array_ext->feature_unit_length != nullptr) {
-    delete feature_array_ext->feature_unit_length;
+    delete[] feature_array_ext->feature_unit_length;
     feature_array_ext->feature_unit_length = nullptr;
   }
   if (feature_array_ext->feature_array_buffer != nullptr) {
-    delete feature_array_ext->feature_array_buffer;
+    delete[] feature_array_ext->feature_array_buffer;
     feature_array_ext->feature_array_buffer = nullptr;
   }
 }
@@ -72,15 +72,15 @@ FreeFeatureArrayTpuExt(CVI_RT_HANDLE rt_handle,
     feature_array_ext->slice_num = nullptr;
   }
   if (feature_array_ext->feature_unit_length != nullptr) {
-    delete feature_array_ext->feature_unit_length;
+    delete[] feature_array_ext->feature_unit_length;
     feature_array_ext->feature_unit_length = nullptr;
   }
   if (feature_array_ext->array_buffer_32 != nullptr) {
-    delete feature_array_ext->array_buffer_32;
+    delete[] feature_array_ext->array_buffer_32;
     feature_array_ext->array_buffer_32 = nullptr;
   }
   if (feature_array_ext->array_buffer_f != nullptr) {
-    delete feature_array_ext->array_buffer_f;
+    delete[] feature_array_ext->array_buffer_f;
     feature_array_ext->array_buffer_f = nullptr;
   }
 }
@@ -223,6 +223,7 @@ int FeatureMatching::cosSimilarityRegister(const cvtdl_service_feature_array_t &
     }
     CVI_RT_MemFlush(m_rt_handle, info.rtmem);
   }
+  delete[] unit_length;
 
   return CVI_TDL_SUCCESS;
 }

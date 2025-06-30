@@ -1,0 +1,69 @@
+project_name: osdrv
+commit_id: 2dcb9e609e0c6c581c0e2f929af8d915d5d74b1a [feat](venc) support 120fps
+
+project_name: cviruntime
+commit_id: 9a08fc380364a8f7edb89e36578d7bb565cd396d [fix] fix txt typo. "with CRLF line terminators."
+
+project_name: freertos
+commit_id: c31e376252bed3d8b63e562427384ba4e850d9a5 [fix][rgn]fix rgn nullptr
+
+project_name: cvi_rtsp
+commit_id: 5b30801df42ec50538f424030615b39aecdb5264 [feat](rtsp_isp):add ai bnr for ai_motion [description ]:add ai bnr for ai_motion [root   cause]:NA [JIRA      ID]:NA [chip project]:cv180x/cv181x [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: flatbuffers
+commit_id: 6da1cf79d90eb242e7da5318241d42279a3df3ba [rust] Add use declarations to Rust-generated bindings for imported FB definitions (#5645)
+
+project_name: cvibuilder
+commit_id: 4ec46e8c0e4072d4c05904221fc4d4a9f260a1a5 add tensor size
+
+project_name: cvikernel
+commit_id: ce607f8a3c2661a1abecad9b20a69eb5ae4774fb set lookup_interp_table layer_id
+
+project_name: opensbi
+commit_id: 3d536719a07aaca98d441ed5daffdced9e285351 [fix](opensbi): modify rls_info.txt
+
+project_name: build
+commit_id: e4910ef318216e714fce06ae00cb29c74a485548 [test](scope):cv1811c add spl [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: oss
+commit_id: 4bd702a8e6abd0db22cd5451311398c04138d2eb [feat](3rd):add support for arm_musl [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv184x [side effects]:NA [Affected *.ko/*.so/*.a] :NA add support for arm_musl
+
+project_name: cnpy
+commit_id: 05f09a5309b6ed7884af2d7274135d547ee9d84e v230 aarch64 musl
+
+project_name: isp_tuning
+commit_id: 0257493dfa9d1dff603a49c9bd0b0c916a200263 [fix](isp): update PQ parameters [description ]:NA [root   cause]:NA [JIRA      ID]:CV180X181X-3711 [chip project]:ALL [side effects]:NA [Affected *.ko/*.so/*.a]:NA
+
+project_name: ive
+commit_id: 9bf0559b9ce1173b722beaba0ec5da57ff52b35b [fix](ive): modify rls_info.txt
+
+project_name: fsbl
+commit_id: 552e086a5ec375b0228cb9dc62d4b5e45524989a [fix](usb): get status use fifo [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: cvimath
+commit_id: 4aedd4806ddbb9cfda3ee0f0a2e2b500469e8967 remove fenv.h when useing arm toolchain
+
+project_name: u-boot-2021.10
+commit_id: a611107a4d30c94f07559bf007414b40db1e9c05 Merge "[fix](spinand):fix spinand clear interrupt reg error [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv184x [side effects]:NA [Affected *.ko/*.so/*.a] :NA" into v4.1.0
+
+project_name: ramdisk
+commit_id: 58118bbb8871427203631be695e6b264e776d5f6 [fix](ramdisk): modify rls_info.txt
+
+project_name: tdl_sdk
+commit_id: 9965973a136b35cdfa7298bc64d072ae3be8cfae Supports face recognition based on half-body images & fix face capture memory leak
+
+project_name: linux_5.10
+commit_id: beb0928bc710d0e07de1a837ce4704d37cfaf3ff [fix](pinctrl): make pinctrl resume all register when suspend/resume [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:NA [side effects]:NA [Affected *.ko/*.so/*.a] :NA
+
+project_name: isp
+commit_id: 9e0363f4382eff95d1fb503a04f4a3f7b75f09bd [feat](af): refine AF algo [description ]:NA [root   cause]:NA [JIRA      ID]:NA [chip project]:cv180x/cv181x [side effects]:NA [Affected *.ko/*.so/*.a]:libaf.so & libisp.so
+
+project_name: mediapipe
+commit_id: 36e1a7f5c8c1c3de7799dcd1b958d1b33f3aadf4 [mediapipe]fix sbm overflow
+
+project_name: SensorSupportList
+commit_id: bf88f5e97f7474a654b6885be21dd135a3f09e38 add sensor_list for cv2002 gc0308 and gc05a2
+
+project_name: cvi_mpi
+commit_id: c678bd43c4f6992ce5c093ba191352a5c3c63ff3 fix v410 release build error.
+

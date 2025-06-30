@@ -43,6 +43,9 @@ CVI_S32 _FaceCapture_QuickSetUp(cvitdl_handle_t tdl_handle, face_capture_t *face
     ret |= CVI_TDL_OpenModel(tdl_handle, fr_model_id, fr_model_path);
     if (ret == CVI_SUCCESS) {
       printf("fr model %s open sucessfull\n", fr_model_path);
+    } else {
+      printf("open fr model failed,ret:%d\n", ret);
+      return ret;
     }
   }
 
@@ -50,6 +53,9 @@ CVI_S32 _FaceCapture_QuickSetUp(cvitdl_handle_t tdl_handle, face_capture_t *face
     ret |= CVI_TDL_OpenModel(tdl_handle, CVI_TDL_SUPPORTED_MODEL_FACEATTRIBUTE_CLS, fa_model_path);
     if (ret == CVI_SUCCESS) {
       printf("fa model %s open sucessfull\n", fa_model_path);
+    } else {
+      printf("open fa model failed,ret:%d\n", ret);
+      return ret;
     }
   }
 

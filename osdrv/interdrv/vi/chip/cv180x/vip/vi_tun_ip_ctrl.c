@@ -1,6 +1,5 @@
 #include <linux/slab.h>
 #include <vip/vi_drv.h>
-#include <sys.h>
 
 #define BE_RUNTIME_TUN(_name) \
 	{\
@@ -16,28 +15,6 @@
 		ispblk_##_name##_tun_cfg(ctx, cfg, raw_num);\
 	}
 
-#define BE_RUNTIME_TUN_BACKUP(_name)								\
-	{											\
-		struct cvi_vip_isp_##_name##_config *cfg;					\
-		cfg = &be_tun->_name##_cfg;							\
-		if (cfg->update) {								\
-			struct cvi_vip_isp_##_name##_config *cfg_backup;			\
-			cfg_backup = &be_tun_backup[raw_num]->_name##_cfg;			\
-			memcpy(cfg_backup, cfg, sizeof(struct cvi_vip_isp_##_name##_config));	\
-		}										\
-	}
-
-#define POST_RUNTIME_TUN_BACKUP(_name)								\
-	{											\
-		struct cvi_vip_isp_##_name##_config *cfg;					\
-		cfg = &post_tun->_name##_cfg;							\
-		if (cfg->update) {								\
-			struct cvi_vip_isp_##_name##_config *cfg_backup;			\
-			cfg_backup = &post_tun_backup[raw_num]->_name##_cfg;			\
-			memcpy(cfg_backup, cfg, sizeof(struct cvi_vip_isp_##_name##_config));	\
-		}										\
-	}
-
 /****************************************************************************
  * Global parameters
  ****************************************************************************/
@@ -45,12 +22,7 @@ extern uint8_t g_w_bit[ISP_PRERAW_VIRT_MAX], g_h_bit[ISP_PRERAW_VIRT_MAX];
 extern int tuning_dis[4];
 
 struct isp_tuning_cfg tuning_buf_addr;
-static void *vi_tuning_vir_ptr[ISP_PRERAW_VIRT_MAX];
-static uint64_t vi_tuning_phy_ptr[ISP_PRERAW_VIRT_MAX];
-
-static struct cvi_vip_isp_fe_tun_cfg *fe_tun_backup[ISP_PRERAW_VIRT_MAX] = {NULL, NULL};
-static struct cvi_vip_isp_be_tun_cfg *be_tun_backup[ISP_PRERAW_VIRT_MAX] = {NULL, NULL};
-static struct cvi_vip_isp_post_tun_cfg *post_tun_backup[ISP_PRERAW_VIRT_MAX] = {NULL, NULL};
+struct cvi_vi_tuning_buffer_pool tuning_buf_pool[ISP_PRERAW_VIRT_MAX];
 
 struct vi_clut_idx {
 	u32		clut_tbl_idx[TUNING_NODE_NUM];
@@ -247,47 +219,109 @@ int vi_tuning_sw_init(void)
 	return 0;
 }
 
-int vi_tuning_buf_setup(struct isp_ctx *ctx)
-{
-	u8 i = 0;
-	static u64 fe_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
-	static u64 be_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
-	static u64 post_paddr[ISP_PRERAW_VIRT_MAX] = {0, 0};
-	u32 size = 0;
-
-	size = (VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg)) +
+void vi_tuning_mempool_init(struct isp_ctx *ctx) {
+	u32 total_size =
+		VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg)) +
 		VI_ALIGN(sizeof(struct cvi_vip_isp_be_cfg)) +
-		VI_ALIGN(sizeof(struct cvi_vip_isp_fe_cfg)));
+		VI_ALIGN(sizeof(struct cvi_vip_isp_fe_cfg));
+	int i;
+
+	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
+		if (!ctx->isp_pipe_enable[i] || tuning_buf_pool[i].total_size != 0)
+			continue;
+
+		tuning_buf_pool[i].memory = kzalloc(total_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+		if (!tuning_buf_pool[i].memory) {
+			vi_pr(VI_ERR, "tuning_buf pool alloc ion size(%u) fail\n", total_size);
+		}
+		tuning_buf_pool[i].total_size = total_size;
+		tuning_buf_pool[i].is_allocated = 0;
+	}
+}
+
+void vi_tuning_mempool_alloc(enum cvi_isp_raw raw_num,
+	struct cvi_vip_isp_post_cfg **post_cfg,
+	struct cvi_vip_isp_be_cfg **be_cfg,
+	struct cvi_vip_isp_fe_cfg **fe_cfg)
+{
+	u32 offset_post = 0;
+	u32 offset_be = VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg));
+	u32 offset_fe = offset_be + VI_ALIGN(sizeof(struct cvi_vip_isp_be_cfg));
+
+	if (tuning_buf_pool[raw_num].is_allocated) {
+		vi_pr(VI_ERR, "tuning_buf pool already allocated\n");
+		return;
+	}
+
+	*post_cfg = (struct cvi_vip_isp_post_cfg*)(tuning_buf_pool[raw_num].memory + offset_post);
+	*be_cfg = (struct cvi_vip_isp_be_cfg*)(tuning_buf_pool[raw_num].memory + offset_be);
+	*fe_cfg = (struct cvi_vip_isp_fe_cfg*)(tuning_buf_pool[raw_num].memory + offset_fe);
+
+	tuning_buf_pool[raw_num].is_allocated = 1;
+}
+
+void vi_tuning_mempool_clear(struct isp_ctx *ctx) {
+	int i;
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
 		if (!ctx->isp_pipe_enable[i])
 			continue;
 
-		if (vi_tuning_vir_ptr[i] == NULL) {
-			sys_ion_alloc(&vi_tuning_phy_ptr[i], &vi_tuning_vir_ptr[i], "tuning_buf", size, true);
-			if (vi_tuning_vir_ptr[i] == NULL) {
-				vi_pr(VI_ERR, "tuning_buf ptr[%d] alloc ion size(%u) fail\n", i, size);
-				return -ENOMEM;
-			}
+		if (tuning_buf_pool[i].total_size != 0) {
+			tuning_buf_pool[i].is_allocated = 0;
+			memset(tuning_buf_pool[i].memory, 0, tuning_buf_pool[i].total_size);
+		}
+	}
+}
+
+void vi_tuning_mempool_destroy(struct isp_ctx *ctx) {
+	int i;
+
+	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
+		if (!ctx->isp_pipe_enable[i])
+			continue;
+
+		if (tuning_buf_pool[i].total_size)
+			kfree(tuning_buf_pool[i].memory);
+		else {
+			vi_pr(VI_ERR, "tuning_buf pool[%d] already destroyed\n", i);
+			continue;
+		}
+		tuning_buf_pool[i].memory = NULL;
+		tuning_buf_pool[i].total_size = 0;
+		tuning_buf_pool[i].is_allocated = 0;
+	}
+}
+
+int vi_tuning_buf_setup(struct isp_ctx *ctx)
+{
+	u8 i = 0;
+	static struct cvi_vip_isp_post_cfg *post_cfg[ISP_PRERAW_VIRT_MAX] = {NULL};
+	static struct cvi_vip_isp_be_cfg *be_cfg[ISP_PRERAW_VIRT_MAX] = {NULL};
+	static struct cvi_vip_isp_fe_cfg *fe_cfg[ISP_PRERAW_VIRT_MAX] = {NULL};
+
+	vi_tuning_mempool_init(ctx);
+	// vi_tuning_mempool_clear(ctx);
+
+	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
+		if (!ctx->isp_pipe_enable[i])
+			continue;
+
+		vi_tuning_mempool_alloc(i, &post_cfg[i], &be_cfg[i], &fe_cfg[i]);
+
+		if (tuning_buf_addr.post_addr[i] == 0) {
+			tuning_buf_addr.post_addr[i] = virt_to_phys(post_cfg[i]);
+			tuning_buf_addr.post_vir[i] = post_cfg[i];
 		}
 
-		if (post_paddr[i] == 0) {
-			post_paddr[i] = vi_tuning_phy_ptr[i];
-			tuning_buf_addr.post_addr[i] = post_paddr[i];
-			tuning_buf_addr.post_vir[i] = phys_to_virt(post_paddr[i]);
+		if (tuning_buf_addr.be_addr[i] == 0) {
+			tuning_buf_addr.be_addr[i] = virt_to_phys(be_cfg[i]);
+			tuning_buf_addr.be_vir[i] = be_cfg[i];
 		}
 
-		if (be_paddr[i] == 0) {
-			be_paddr[i] = vi_tuning_phy_ptr[i] + VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg));
-			tuning_buf_addr.be_addr[i] = be_paddr[i];
-			tuning_buf_addr.be_vir[i] = phys_to_virt(be_paddr[i]);
-		}
-
-		if (fe_paddr[i] == 0) {
-			fe_paddr[i] = vi_tuning_phy_ptr[i] + VI_ALIGN(sizeof(struct cvi_vip_isp_post_cfg))
-					+ VI_ALIGN(sizeof(struct cvi_vip_isp_be_cfg));
-			tuning_buf_addr.fe_addr[i] = fe_paddr[i];
-			tuning_buf_addr.fe_vir[i] = phys_to_virt(fe_paddr[i]);
+		if (tuning_buf_addr.fe_addr[i] == 0) {
+			tuning_buf_addr.fe_addr[i] = virt_to_phys(fe_cfg[i]);
+			tuning_buf_addr.fe_vir[i] = fe_cfg[i];
 		}
 
 		vi_pr(VI_INFO, "tuning fe_addr[%d]=0x%llx, be_addr[%d]=0x%llx, post_addr[%d]=0x%llx\n",
@@ -299,86 +333,6 @@ int vi_tuning_buf_setup(struct isp_ctx *ctx)
 	return 0;
 }
 
-int vi_tuning_backup_setup(void)
-{
-	u8 i = 0;
-
-	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
-		if (fe_tun_backup[i] == NULL) {
-			fe_tun_backup[i] = kzalloc(sizeof(struct cvi_vip_isp_fe_tun_cfg), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-			if (fe_tun_backup[i] == NULL) {
-				vi_pr(VI_ERR, "fe_tun_backup[%d] kmalloc size(%zd) fail", i, sizeof(struct cvi_vip_isp_fe_tun_cfg));
-				return -ENOMEM;
-			}
-		}
-
-		if (be_tun_backup[i] == NULL) {
-			be_tun_backup[i] = kzalloc(sizeof(struct cvi_vip_isp_be_tun_cfg), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-			if (be_tun_backup[i] == NULL) {
-				vi_pr(VI_ERR, "be_tun_backup[%d] kmalloc size(%zd) fail", i, sizeof(struct cvi_vip_isp_be_tun_cfg));
-				return -ENOMEM;
-			}
-		}
-
-		if (post_tun_backup[i] == NULL) {
-			post_tun_backup[i] = kzalloc(sizeof(struct cvi_vip_isp_post_tun_cfg), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-			if (post_tun_backup[i] == NULL) {
-				vi_pr(VI_ERR, "post_tun_backup[%d] kmalloc size(%zd) fail", i, sizeof(struct cvi_vip_isp_post_tun_cfg));
-				return -ENOMEM;
-			}
-		}
-	}
-
-	return 0;
-}
-
-
-void vi_tuning_resume(struct isp_ctx *ctx, enum cvi_isp_raw raw_max)
-{
-	u8 i = 0;
-
-	struct cvi_vip_isp_fe_cfg   *fe_cfg;
-	struct cvi_vip_isp_be_cfg   *be_cfg;
-	struct cvi_vip_isp_post_cfg *post_cfg;
-
-	if (!ctx->tuning_update_en) {
-		return;
-	}
-
-	for (i = 0; i < raw_max; i++) {
-		if (!ctx->isp_pipe_enable[i]) {
-			continue;
-		}
-
-		if (fe_tun_backup[i] != NULL) {
-			if (tuning_buf_addr.fe_vir[i] != NULL) {
-				fe_cfg = (struct cvi_vip_isp_fe_cfg *)tuning_buf_addr.fe_vir[i];
-				memcpy(&fe_cfg->tun_cfg[0], fe_tun_backup[i],
-					sizeof(struct cvi_vip_isp_fe_tun_cfg));
-				pre_fe_tuning_update(ctx, i);
-			}
-		}
-
-		if (be_tun_backup[i] != NULL) {
-			if (tuning_buf_addr.be_vir[i] != NULL) {
-				be_cfg = (struct cvi_vip_isp_be_cfg *)tuning_buf_addr.be_vir[i];
-				memcpy(&be_cfg->tun_cfg[0], be_tun_backup[i],
-					sizeof(struct cvi_vip_isp_be_tun_cfg));
-				pre_be_tuning_update(ctx, i);
-			}
-		}
-
-		if (post_tun_backup[i] != NULL) {
-			if (tuning_buf_addr.post_vir[i] != NULL) {
-				post_cfg = (struct cvi_vip_isp_post_cfg *)tuning_buf_addr.post_vir[i];
-				memcpy(&post_cfg->tun_cfg[0], post_tun_backup[i],
-					sizeof(struct cvi_vip_isp_post_tun_cfg));
-				postraw_tuning_update(ctx, i);
-			}
-		}
-	}
-}
-
 void vi_tuning_buf_release(struct isp_ctx *ctx)
 {
 	u8 i;
@@ -387,10 +341,20 @@ void vi_tuning_buf_release(struct isp_ctx *ctx)
 		if (!ctx->isp_pipe_enable[i])
 			continue;
 
-		sys_ion_free(vi_tuning_phy_ptr[i]);
-		vi_tuning_phy_ptr[i] = 0;
-		vi_tuning_vir_ptr[i] = NULL;
+		if (tuning_buf_addr.post_vir[i] != NULL) {
+			tuning_buf_addr.post_vir[i] = NULL;
+			tuning_buf_addr.post_addr[i] = 0;
+		}
+		if (tuning_buf_addr.be_vir[i]!= NULL) {
+			tuning_buf_addr.be_vir[i] = NULL;
+			tuning_buf_addr.be_addr[i] = 0;
+		}
+		if (tuning_buf_addr.fe_vir[i]!= NULL) {
+			tuning_buf_addr.fe_vir[i] = NULL;
+			tuning_buf_addr.fe_addr[i] = 0;
+		}
 	}
+	// vi_tuning_mempool_clear(ctx);
 }
 
 void *vi_get_tuning_buf_addr(u32 *size)
@@ -402,39 +366,19 @@ void *vi_get_tuning_buf_addr(u32 *size)
 
 void vi_tuning_buf_clear(struct isp_ctx *ctx)
 {
-	struct cvi_vip_isp_post_cfg *post_cfg;
-	struct cvi_vip_isp_be_cfg   *be_cfg;
-	struct cvi_vip_isp_fe_cfg   *fe_cfg;
-	u8 i = 0, tun_idx = 0;
+	u8 i;
+
+	if (ctx->tuning_update_en) {
+		vi_pr(VI_INFO, "No need clear tuning buffer pool in resume mode\n");
+		return;
+	}
 
 	for (i = 0; i < ISP_PRERAW_VIRT_MAX; i++) {
 		if (!ctx->isp_pipe_enable[i])
 			continue;
 
-		post_cfg = (struct cvi_vip_isp_post_cfg *)tuning_buf_addr.post_vir[i];
-		be_cfg   = (struct cvi_vip_isp_be_cfg *)tuning_buf_addr.be_vir[i];
-		fe_cfg   = (struct cvi_vip_isp_fe_cfg *)tuning_buf_addr.fe_vir[i];
-
-		if (tuning_buf_addr.post_vir[i] != NULL) {
-			memset((void *)tuning_buf_addr.post_vir[i], 0x0, sizeof(struct cvi_vip_isp_post_cfg));
-			tun_idx = post_cfg->tun_idx;
-			vi_pr(VI_INFO, "Clear post tuning tun_update(%d), tun_idx(%d)",
-					post_cfg->tun_update[tun_idx], tun_idx);
-		}
-
-		if (tuning_buf_addr.be_vir[i] != NULL) {
-			memset((void *)tuning_buf_addr.be_vir[i], 0x0, sizeof(struct cvi_vip_isp_be_cfg));
-			tun_idx = be_cfg->tun_idx;
-			vi_pr(VI_INFO, "Clear be tuning tun_update(%d), tun_idx(%d)",
-					be_cfg->tun_update[tun_idx], tun_idx);
-		}
-
-		if (tuning_buf_addr.fe_vir[i] != NULL) {
-			memset((void *)tuning_buf_addr.fe_vir[i], 0x0, sizeof(struct cvi_vip_isp_fe_cfg));
-			tun_idx = fe_cfg->tun_idx;
-			vi_pr(VI_INFO, "Clear fe tuning tun_update(%d), tun_idx(%d)",
-					fe_cfg->tun_update[tun_idx], tun_idx);
-		}
+		vi_tuning_mempool_clear(ctx);
+		vi_pr(VI_INFO, "Clear tuning buffer pool in normal mode\n");
 	}
 }
 
@@ -477,23 +421,11 @@ void pre_fe_tuning_update(
 		blc_cfg  = &fe_tun->blc_cfg[idx];
 		ispblk_blc_tun_cfg(ctx, blc_cfg, raw_num);
 
-		if (blc_cfg->update) {
-			struct cvi_vip_isp_blc_config *blc_backup_cfg;
-			blc_backup_cfg = &fe_tun_backup[raw_num]->blc_cfg[idx];
-			memcpy(blc_backup_cfg, blc_cfg, sizeof(struct cvi_vip_isp_blc_config));
-		}
-
 		//lscr_cfg = &fe_tun->lscr_cfg[idx];
 		//ispblk_lscr_tun_cfg(ctx, lscr_cfg, raw_num);
 
 		wbg_cfg = &fe_tun->wbg_cfg[idx];
 		ispblk_wbg_tun_cfg(ctx, wbg_cfg, raw_num);
-
-		if (wbg_cfg->update) {
-			struct cvi_vip_isp_wbg_config *wbg_backup_cfg;
-			wbg_backup_cfg = &fe_tun_backup[raw_num]->wbg_cfg[idx];
-			memcpy(wbg_backup_cfg, wbg_cfg, sizeof(struct cvi_vip_isp_wbg_config));
-		}
 	}
 }
 
@@ -542,34 +474,14 @@ void pre_be_tuning_update(
 		blc_cfg = &be_tun->blc_cfg[idx];
 		ispblk_blc_tun_cfg(ctx, blc_cfg, raw_num);
 
-		if (blc_cfg->update) {
-			struct cvi_vip_isp_blc_config *blc_backup_cfg;
-			blc_backup_cfg = &be_tun_backup[raw_num]->blc_cfg[idx];
-			memcpy(blc_backup_cfg, blc_cfg, sizeof(struct cvi_vip_isp_blc_config));
-		}
-
-
 		dpc_cfg = &be_tun->dpc_cfg[idx];
 		ispblk_dpc_tun_cfg(ctx, dpc_cfg, raw_num);
 
-		if (dpc_cfg->update) {
-			struct cvi_vip_isp_dpc_config *dpc_backup_cfg;
-			dpc_backup_cfg = &be_tun_backup[raw_num]->dpc_cfg[idx];
-			memcpy(dpc_backup_cfg, dpc_cfg, sizeof(struct cvi_vip_isp_dpc_config));
-		}
-
 		ge_cfg = &be_tun->ge_cfg[idx];
 		ispblk_ge_tun_cfg(ctx, ge_cfg, raw_num);
-
-		if (ge_cfg->update) {
-			struct cvi_vip_isp_ge_config *ge_backup_cfg;
-			ge_backup_cfg = &be_tun_backup[raw_num]->ge_cfg[idx];
-			memcpy(ge_backup_cfg, ge_cfg, sizeof(struct cvi_vip_isp_ge_config));
-		}
 	}
 
 	BE_RUNTIME_TUN(af);
-	BE_RUNTIME_TUN_BACKUP(af);
 }
 
 void postraw_tuning_update(
@@ -618,53 +530,29 @@ void postraw_tuning_update(
 
 		wbg_cfg = &post_tun->wbg_cfg[idx];
 		ispblk_wbg_tun_cfg(ctx, wbg_cfg, raw_num);
-		if (wbg_cfg->update) {
-			struct cvi_vip_isp_wbg_config *wbg_backup_cfg;
-			wbg_backup_cfg = &post_tun_backup[raw_num]->wbg_cfg[idx];
-			memcpy(wbg_backup_cfg, wbg_cfg, sizeof(struct cvi_vip_isp_wbg_config));
-		}
 
 		ccm_cfg = &post_tun->ccm_cfg[idx];
 		ispblk_ccm_tun_cfg(ctx, ccm_cfg, raw_num);
-		if (ccm_cfg->update) {
-			struct cvi_vip_isp_ccm_config *ccm_backup_cfg;
-			ccm_backup_cfg = &post_tun_backup[raw_num]->ccm_cfg[idx];
-			memcpy(ccm_backup_cfg, ccm_cfg, sizeof(struct cvi_vip_isp_ccm_config));
-		}
 
 		ae_cfg = &post_tun->ae_cfg[idx];
 		ispblk_ae_tun_cfg(ctx, ae_cfg, raw_num);
-		if (ae_cfg->update) {
-			struct cvi_vip_isp_ae_config *ae_backup_cfg;
-			ae_backup_cfg = &post_tun_backup[raw_num]->ae_cfg[idx];
-			memcpy(ae_backup_cfg, ae_cfg, sizeof(struct cvi_vip_isp_ae_config));
-		}
 	}
 
 	POST_RUNTIME_TUN(bnr);
-	POST_RUNTIME_TUN_BACKUP(bnr);
 	POST_RUNTIME_TUN(lsc);
-	POST_RUNTIME_TUN_BACKUP(lsc);
 	POST_RUNTIME_TUN(gms);
-	POST_RUNTIME_TUN_BACKUP(gms);
 	POST_RUNTIME_TUN(rgbcac);
-	POST_RUNTIME_TUN_BACKUP(rgbcac);
 	POST_RUNTIME_TUN(lcac);
-	POST_RUNTIME_TUN_BACKUP(lcac);
 	POST_RUNTIME_TUN(demosiac);
-	POST_RUNTIME_TUN_BACKUP(demosiac);
 
 	POST_RUNTIME_TUN(fswdr);
-	POST_RUNTIME_TUN_BACKUP(fswdr);
 	// POST_RUNTIME_TUN(drc);
 	POST_RUNTIME_TUN(hist_v);
-	POST_RUNTIME_TUN_BACKUP(hist_v);
 	//HW limit
 	//Need to update gamma ips in postraw done
 	//POST_RUNTIME_TUN(ygamma);
 	//POST_RUNTIME_TUN(gamma);
 	POST_RUNTIME_TUN(dhz);
-		POST_RUNTIME_TUN_BACKUP(dhz);
 
 	//Clut can't be writen when streaming
 	//HW limit
@@ -672,23 +560,13 @@ void postraw_tuning_update(
 	if (_is_be_post_online(ctx) || (!ctx->is_slice_buf_on)) {// _be_post_online or not slice buffer mode
 		if (!ctx->isp_pipe_cfg[raw_num].is_offline_preraw) {//timing of raw replay is before trigger
 			POST_RUNTIME_TUN(drc);
-			POST_RUNTIME_TUN_BACKUP(drc);
 			POST_RUNTIME_TUN(ygamma);
-			POST_RUNTIME_TUN_BACKUP(ygamma);
 			POST_RUNTIME_TUN(gamma);
-			POST_RUNTIME_TUN_BACKUP(gamma);
 			POST_RUNTIME_TUN(dci);
-			POST_RUNTIME_TUN_BACKUP(dci);
 			POST_RUNTIME_TUN(ycur);
-			POST_RUNTIME_TUN_BACKUP(ycur);
 
 			clut_cfg = &post_cfg->tun_cfg[0].clut_cfg;
 			ret = ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
-			if (clut_cfg->update) {
-				struct cvi_vip_isp_clut_config *clut_backup_cfg;
-				clut_backup_cfg = &post_tun_backup[raw_num]->clut_cfg;
-				memcpy(clut_backup_cfg, clut_cfg, sizeof(struct cvi_vip_isp_clut_config));
-			}
 
 			//Record the clut tbl idx written into HW for ISP MW.
 			spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
@@ -699,30 +577,19 @@ void postraw_tuning_update(
 	}
 
 	POST_RUNTIME_TUN(csc);
-	POST_RUNTIME_TUN_BACKUP(csc);
 	//HW limit
 	//To update dci tuning at postraw done because josh's ping pong sram has bug
 	//POST_RUNTIME_TUN(dci);
 	POST_RUNTIME_TUN(ldci);
-	POST_RUNTIME_TUN_BACKUP(ldci);
 	POST_RUNTIME_TUN(pre_ee);
-	POST_RUNTIME_TUN_BACKUP(pre_ee);
 	POST_RUNTIME_TUN(tnr);
-	POST_RUNTIME_TUN_BACKUP(tnr);
 	POST_RUNTIME_TUN(mono);
-	POST_RUNTIME_TUN_BACKUP(mono);
 	POST_RUNTIME_TUN(cnr);
-	POST_RUNTIME_TUN_BACKUP(cnr);
 	POST_RUNTIME_TUN(cac);
-	POST_RUNTIME_TUN_BACKUP(cac);
 	POST_RUNTIME_TUN(ynr);
-	POST_RUNTIME_TUN_BACKUP(ynr);
 	POST_RUNTIME_TUN(ee);
-	POST_RUNTIME_TUN_BACKUP(ee);
 	POST_RUNTIME_TUN(cacp);
-	POST_RUNTIME_TUN_BACKUP(cacp);
 	POST_RUNTIME_TUN(ca2);
-	POST_RUNTIME_TUN_BACKUP(ca2);
 	//HW limit
 	//Need to update gamma ips in postraw done
 	//POST_RUNTIME_TUN(ycur);
@@ -1471,6 +1338,8 @@ void ispblk_tnr_tun_cfg(
 	union REG_ISP_MMAP_44 mm_44;
 	union REG_ISP_444_422_8 reg_8;
 	union REG_ISP_444_422_9 reg_9;
+	union REG_ISP_MMAP_DC mm_dc;
+	union REG_ISP_MMAP_E0 mm_e0;
 
 	if (!ctx->is_3dnr_on || !cfg->update)
 		return;
@@ -1588,6 +1457,15 @@ void ispblk_tnr_tun_cfg(
 			ispblk_tnr_post_chg(ctx, raw_num);
 		}
 	}
+
+	mm_dc.raw = ISP_RD_REG(manr, REG_ISP_MMAP_T, REG_DC);
+	mm_dc.bits.COEF_R = cfg->coef_r;
+	mm_dc.bits.COEF_G = cfg->coef_g;
+	ISP_WR_REG(manr, REG_ISP_MMAP_T, REG_DC, mm_dc.raw);
+
+	mm_e0.raw = ISP_RD_REG(manr, REG_ISP_MMAP_T, REG_E0);
+	mm_e0.bits.COEF_B = cfg->coef_b;
+	ISP_WR_REG(manr, REG_ISP_MMAP_T, REG_E0, mm_e0.raw);
 }
 
 void ispblk_ee_tun_cfg(

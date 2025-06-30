@@ -63,6 +63,8 @@ struct SERVICE_CTX_ENTITY {
     void *ctx;
     bool enableRetinaFace;
     bool enableTeaisppq;
+    bool enableTEAISPBnr;
+    char teaisp_model_list[MAX_PATH_LEN];
     cvtdl_vpssconfig_t retinaVpssConfig;
     cvitdl_handle_t ai_handle;
     cvitdl_service_handle_t ai_service_handle;
@@ -114,6 +116,7 @@ struct SERVICE_CTX {
     uint8_t dev_num;
     VI_VPSS_MODE_E vi_vpss_mode;
     uint32_t buf1_blk_cnt;
+    uint8_t max_use_tpu_num;
     char model_path[MAX_PATH_LEN];
     char teaisppq_model_path[MAX_PATH_LEN];
     void *ai_dl;

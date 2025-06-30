@@ -37,6 +37,9 @@ byd_bf2253l:
 chipup_xs9922b:
 	$(call MAKE_SENSOR, ${@})
 
+cvsens_cv2002:
+	$(call MAKE_SENSOR, ${@})
+
 cvsens_cv2003:
 	$(call MAKE_SENSOR, ${@})
 
@@ -58,10 +61,16 @@ cvsens_cv4002:
 gcore_gc02m1:
 	$(call MAKE_SENSOR, ${@})
 
+gcore_gc0308:
+	$(call MAKE_SENSOR, ${@})
+
 gcore_gc0312:
 	$(call MAKE_SENSOR, ${@})
 
 gcore_gc0329:
+	$(call MAKE_SENSOR, ${@})
+
+gcore_gc05a2:
 	$(call MAKE_SENSOR, ${@})
 
 gcore_gc1054:

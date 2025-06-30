@@ -1,0 +1,4 @@
+# Locally calculated after vendoring
+sha256  80364e62eb8ff463df8a4bf9858e6ee0769f4ff1bcf7952cd64d0407a6a3e8ff  python-selenium-4.27.1-cargo2.tar.gz
+# Locally computed sha256 checksums
+sha256  de658a7d3761e92b471e2f630ea99eeb3389b27820809b1e4853baabd5fbadb7  LICENSE

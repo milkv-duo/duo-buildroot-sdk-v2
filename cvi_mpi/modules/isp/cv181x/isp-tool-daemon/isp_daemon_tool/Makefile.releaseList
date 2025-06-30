@@ -15,6 +15,7 @@ file += $(MW_LIB)/libawb.so
 file += $(MW_LIB)/libae.so
 file += $(MW_LIB)/libaf.so
 file += $(MW_LIB)/libisp.so
+file += $(MW_LIB)/libteaisp.so
 file += $(MW_LIB)/libsample.so
 file += $(MW_LIB)/libisp_algo.so
 file += $(MW_LIB)/libcvi_bin.so
@@ -32,6 +33,8 @@ file += $(MW_LIB)/libraw_replay.so
 file += $(MW_LIB)/libraw_dump.so
 file += $(MW_LIB)/3rd/libini.so
 file += $(MW_LIB)/3rd/libsbc.so
+file += $(MW_LIB)/libcviruntime.so
+file += $(MW_LIB)/libcvikernel.so
 
 # for middleware
 file += $(MW_LIB)/libcvi_audio.so

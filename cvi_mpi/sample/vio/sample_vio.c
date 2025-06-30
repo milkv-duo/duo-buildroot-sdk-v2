@@ -1196,3 +1196,316 @@ CVI_S32 SAMPLE_VIO_VpssRotation(void)
 	SAMPLE_COMM_SYS_Exit();
 	return s32Ret;
 }
+
+CVI_S32 SAMPLE_VIO_VpssStitch(void)
+{
+	// DYNAMIC_RANGE_E    enDynamicRange   = DYNAMIC_RANGE_SDR8;
+	// PIXEL_FORMAT_E     enPixFormat	    = SAMPLE_PIXEL_FORMAT;
+	// VIDEO_FORMAT_E     enVideoFormat    = VIDEO_FORMAT_LINEAR;
+	COMPRESS_MODE_E    enCompressMode   = COMPRESS_MODE_NONE;
+	// VI_VPSS_MODE_E	   enMastPipeMode   = VI_OFFLINE_VPSS_OFFLINE;
+
+	VB_CONFIG_S        stVbConf;
+	PIC_SIZE_E         enPicSize;
+	CVI_U32	       u32BlkSize;
+	SIZE_S stSize;
+	CVI_S32 s32Ret = CVI_SUCCESS;
+
+	VI_DEV ViDev = 0;
+	VI_PIPE ViPipe = 0;
+	VI_CHN ViChn = 0;
+	CVI_S32 s32WorkSnsId = 0;
+	SAMPLE_VI_CONFIG_S stViConfig;
+	VI_PIPE_ATTR_S     stPipeAttr;
+
+	SAMPLE_INI_CFG_S   stIniCfg = {0};
+	stIniCfg = (SAMPLE_INI_CFG_S) {
+		.enSource  = VI_PIPE_FRAME_SOURCE_DEV,
+		.devNum    = 1,
+		.enSnsType[0] = SONY_IMX327_2L_MIPI_2M_30FPS_12BIT,
+		.enWDRMode[0] = WDR_MODE_NONE,
+		.s32BusId[0]  = 3,
+		.MipiDev[0]   = 0xff,
+	};
+	// Get config from ini if found.
+	if (SAMPLE_COMM_VI_ParseIni(&stIniCfg)) {
+		SAMPLE_PRT("Parse complete\n");
+	}
+	if (stIniCfg.devNum > 1) {
+		SAMPLE_PRT("Only support 1 sensor device\n");
+		return CVI_FAILURE;
+	}
+	CVI_VI_SetDevNum(stIniCfg.devNum);
+
+	/************************************************
+	 * step1:  Config VI
+	 ************************************************/
+	s32Ret = SAMPLE_COMM_VI_IniToViCfg(&stIniCfg, &stViConfig);
+	if (s32Ret != CVI_SUCCESS)
+		return s32Ret;
+
+	// stViConfig.s32WorkingViNum				     = 1;
+	// stViConfig.as32WorkingViId[0]				     = 0;
+	// stViConfig.astViInfo[s32WorkSnsId].stDevInfo.ViDev	     = ViDev;
+	// if (stViConfig.astViInfo[s32WorkSnsId].stDevInfo.enWDRMode != WDR_MODE_NONE) {
+	// 	SAMPLE_PRT("Only use LINEAR mode, please check\n");
+	// 	return CVI_FAILURE;
+	// }
+
+	// stViConfig.astViInfo[s32WorkSnsId].stDevInfo.enWDRMode	     = enWDRMode;
+	// stViConfig.astViInfo[s32WorkSnsId].stPipeInfo.enMastPipeMode = enMastPipeMode;
+	// stViConfig.astViInfo[s32WorkSnsId].stPipeInfo.aPipe[0]	     = ViPipe;
+	// stViConfig.astViInfo[s32WorkSnsId].stPipeInfo.aPipe[1]	     = -1;
+	// stViConfig.astViInfo[s32WorkSnsId].stPipeInfo.aPipe[2]	     = -1;
+	// stViConfig.astViInfo[s32WorkSnsId].stPipeInfo.aPipe[3]	     = -1;
+	// stViConfig.astViInfo[s32WorkSnsId].stChnInfo.ViChn	     = ViChn;
+	// stViConfig.astViInfo[s32WorkSnsId].stChnInfo.enPixFormat     = enPixFormat;
+	// stViConfig.astViInfo[s32WorkSnsId].stChnInfo.enDynamicRange  = enDynamicRange;
+	// stViConfig.astViInfo[s32WorkSnsId].stChnInfo.enVideoFormat   = enVideoFormat;
+	// stViConfig.astViInfo[s32WorkSnsId].stChnInfo.enCompressMode  = enCompressMode;
+
+	/************************************************
+	 * step2:  Get input size
+	 ************************************************/
+	s32Ret = SAMPLE_COMM_VI_GetSizeBySensor(stViConfig.astViInfo[s32WorkSnsId].stSnsInfo.enSnsType, &enPicSize);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("SAMPLE_COMM_VI_GetSizeBySensor failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = SAMPLE_COMM_SYS_GetPicSize(enPicSize, &stSize);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("SAMPLE_COMM_SYS_GetPicSize failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+	/************************************************
+	 * step3:  Init SYS and common VB
+	 ************************************************/
+	memset(&stVbConf, 0, sizeof(VB_CONFIG_S));
+	stVbConf.u32MaxPoolCnt		= 2;
+
+	u32BlkSize = COMMON_GetPicBufferSize(stSize.u32Width, stSize.u32Height, SAMPLE_PIXEL_FORMAT, DATA_BITWIDTH_8
+					    , enCompressMode, DEFAULT_ALIGN);
+	stVbConf.astCommPool[0].u32BlkSize	= u32BlkSize;
+	stVbConf.astCommPool[0].u32BlkCnt	= 5;
+	SAMPLE_PRT("common pool[0] BlkSize %d\n", u32BlkSize);
+	u32BlkSize = COMMON_GetPicBufferSize(720, 1280, SAMPLE_PIXEL_FORMAT, DATA_BITWIDTH_8
+					    , enCompressMode, DEFAULT_ALIGN);
+	stVbConf.astCommPool[1].u32BlkSize	= u32BlkSize;
+	stVbConf.astCommPool[1].u32BlkCnt	= 8;
+	SAMPLE_PRT("common pool[1] BlkSize %d\n", u32BlkSize);
+
+	s32Ret = SAMPLE_COMM_SYS_Init(&stVbConf);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("system init failed with %#x\n", s32Ret);
+		return -1;
+	}
+
+	VPSS_MODE_E enVpssMode = CVI_SYS_GetVPSSMode();
+	enVpssMode = VPSS_MODE_DUAL;
+	VPSS_MODE_S stVpssMode;
+	stVpssMode.enMode = enVpssMode;
+	stVpssMode.aenInput[0] = 0;
+	stVpssMode.aenInput[1] = 0;
+	s32Ret = CVI_SYS_SetVPSSModeEx(&stVpssMode);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_SYS_SetVPSSMode failed with %#x\n", s32Ret);
+		return -1;
+	}
+
+	/************************************************
+	 * step4:  Init VI ISP
+	 ************************************************/
+	s32Ret = SAMPLE_COMM_VI_StartSensor(&stViConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "system start sensor failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+	s32Ret = SAMPLE_COMM_VI_StartDev(&stViConfig.astViInfo[ViDev]);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "VI_StartDev failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
+	s32Ret = SAMPLE_COMM_VI_StartMIPI(&stViConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "system start MIPI failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+	stPipeAttr.bYuvSkip = CVI_FALSE;
+	stPipeAttr.u32MaxW = stSize.u32Width;
+	stPipeAttr.u32MaxH = stSize.u32Height;
+	stPipeAttr.enPixFmt = PIXEL_FORMAT_RGB_BAYER_12BPP;
+	stPipeAttr.enBitWidth = DATA_BITWIDTH_12;
+	stPipeAttr.stFrameRate.s32SrcFrameRate = -1;
+	stPipeAttr.stFrameRate.s32DstFrameRate = -1;
+	stPipeAttr.bNrEn = CVI_TRUE;
+	s32Ret = CVI_VI_CreatePipe(ViPipe, &stPipeAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VI_CreatePipe failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = CVI_VI_StartPipe(ViPipe);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VI_StartPipe failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = CVI_VI_GetPipeAttr(ViPipe, &stPipeAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VI_StartPipe failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = SAMPLE_COMM_VI_CreateIsp(&stViConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "VI_CreateIsp failed with %#x!\n", s32Ret);
+		return s32Ret;
+	}
+
+	SAMPLE_COMM_VI_StartViChn(&stViConfig);
+
+	/************************************************
+	 * step5:  Init VPSS
+	 ************************************************/
+	VPSS_GRP	   VpssGrp	  = 0;
+	VPSS_GRP_ATTR_S    stVpssGrpAttr;
+	VPSS_CHN           VpssChn        = VPSS_CHN0;
+	CVI_BOOL           abChnEnable[VPSS_MAX_PHY_CHN_NUM] = {0};
+	VPSS_CHN_ATTR_S    astVpssChnAttr[VPSS_MAX_PHY_CHN_NUM] = {0};
+
+	stVpssGrpAttr.stFrameRate.s32SrcFrameRate    = -1;
+	stVpssGrpAttr.stFrameRate.s32DstFrameRate    = -1;
+	stVpssGrpAttr.enPixelFormat                  = SAMPLE_PIXEL_FORMAT;
+	stVpssGrpAttr.u32MaxW                        = stSize.u32Width;
+	stVpssGrpAttr.u32MaxH                        = stSize.u32Height;
+	stVpssGrpAttr.u8VpssDev                      = 1;
+
+	astVpssChnAttr[VpssChn].u32Width                    = 720;
+	astVpssChnAttr[VpssChn].u32Height                   = 1280;
+	astVpssChnAttr[VpssChn].enVideoFormat               = VIDEO_FORMAT_LINEAR;
+	astVpssChnAttr[VpssChn].enPixelFormat               = SAMPLE_PIXEL_FORMAT;
+	astVpssChnAttr[VpssChn].stFrameRate.s32SrcFrameRate = -1;
+	astVpssChnAttr[VpssChn].stFrameRate.s32DstFrameRate = -1;
+	astVpssChnAttr[VpssChn].u32Depth                    = 1;
+	astVpssChnAttr[VpssChn].bMirror                     = CVI_FALSE;
+	astVpssChnAttr[VpssChn].bFlip                       = CVI_FALSE;
+	astVpssChnAttr[VpssChn].stAspectRatio.enMode        = ASPECT_RATIO_AUTO;
+	astVpssChnAttr[VpssChn].stAspectRatio.bEnableBgColor = CVI_TRUE;
+	astVpssChnAttr[VpssChn].stAspectRatio.u32BgColor    = COLOR_RGB_BLACK;
+	astVpssChnAttr[VpssChn].stNormalize.bEnable         = CVI_FALSE;
+
+	/*start vpss*/
+	abChnEnable[0] = CVI_TRUE;
+	s32Ret = SAMPLE_COMM_VPSS_Init(VpssGrp, abChnEnable, &stVpssGrpAttr, astVpssChnAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("init vpss group failed. s32Ret: 0x%x !\n", s32Ret);
+		return s32Ret;
+	}
+
+	// stitch
+	CVI_STITCH_ATTR_S stStitchAttr;
+	stStitchAttr.u8ChnNum = 2;
+	stStitchAttr.VoChn = 0;
+	stStitchAttr.s32OutFps = -1;
+	stStitchAttr.enOutPixelFormat = SAMPLE_PIXEL_FORMAT;
+	stStitchAttr.stOutSize.u32Width = 720;
+	stStitchAttr.stOutSize.u32Height = 1280;
+	stStitchAttr.hVbPool = 1;
+
+	stStitchAttr.astStitchChn[0].stDstRect.s32X = 0;
+	stStitchAttr.astStitchChn[0].stDstRect.s32Y = 0;
+	stStitchAttr.astStitchChn[0].stDstRect.u32Width = 360;
+	stStitchAttr.astStitchChn[0].stDstRect.u32Height = 640;
+	stStitchAttr.astStitchChn[0].stStitchSrc.VpssGrp = 0;
+	stStitchAttr.astStitchChn[0].stStitchSrc.VpssChn = 0;
+
+	stStitchAttr.astStitchChn[1].stDstRect.s32X = 360;
+	stStitchAttr.astStitchChn[1].stDstRect.s32Y = 640;
+	stStitchAttr.astStitchChn[1].stDstRect.u32Width = 360;
+	stStitchAttr.astStitchChn[1].stDstRect.u32Height = 640;
+	stStitchAttr.astStitchChn[1].stStitchSrc.VpssGrp = 0;
+	stStitchAttr.astStitchChn[1].stStitchSrc.VpssChn = 0;
+
+	s32Ret = CVI_VPSS_CreateStitch(1, &stStitchAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VPSS_CreateStitch failed. s32Ret: 0x%x !\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = SAMPLE_COMM_VPSS_Start(VpssGrp, abChnEnable, &stVpssGrpAttr, astVpssChnAttr);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("start vpss group failed. s32Ret: 0x%x !\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = SAMPLE_COMM_VI_Bind_VPSS(ViPipe, ViChn, VpssGrp);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("vi bind vpss failed. s32Ret: 0x%x !\n", s32Ret);
+		return s32Ret;
+	}
+
+	s32Ret = CVI_VPSS_StartStitch(1);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VPSS_StartStitch failed. s32Ret: 0x%x !\n", s32Ret);
+		return s32Ret;
+	}
+
+#if !defined(__CV180X__)
+	/************************************************
+	 * step5:  Init VO
+	 ************************************************/
+	SAMPLE_VO_CONFIG_S stVoConfig;
+	RECT_S stDefDispRect  = {0, 0, 720, 1280};
+	SIZE_S stDefImageSize = {720, 1280};
+
+	s32Ret = SAMPLE_COMM_VO_GetDefConfig(&stVoConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_VO_GetDefConfig failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+	stVoConfig.VoDev	 = 0;
+	stVoConfig.stVoPubAttr.enIntfType  = VO_INTF_MIPI;
+	stVoConfig.stVoPubAttr.enIntfSync  = VO_OUTPUT_720x1280_60;
+	stVoConfig.stDispRect	 = stDefDispRect;
+	stVoConfig.stImageSize	 = stDefImageSize;
+	stVoConfig.enPixFormat	 = SAMPLE_PIXEL_FORMAT;
+	stVoConfig.enVoMode	 = VO_MODE_1MUX;
+
+	s32Ret = SAMPLE_COMM_VO_StartVO(&stVoConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("SAMPLE_COMM_VO_StartVO failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+#endif
+	PAUSE();
+	s32Ret = CVI_VPSS_StopStitch(1);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VPSS_StopStitch failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+#if !defined(__CV180X__)
+
+	SAMPLE_COMM_VO_StopVO(&stVoConfig);
+#endif
+
+	SAMPLE_COMM_VPSS_Stop(VpssGrp, abChnEnable);
+
+	s32Ret = CVI_VPSS_DestroyStitch(1);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("CVI_VPSS_DestroyStitch failed with %#x\n", s32Ret);
+		return s32Ret;
+	}
+
+	SAMPLE_COMM_VI_DestroyIsp(&stViConfig);
+
+	SAMPLE_COMM_VI_DestroyVi(&stViConfig);
+
+	SAMPLE_COMM_SYS_Exit();
+	return s32Ret;
+}

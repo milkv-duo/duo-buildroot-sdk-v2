@@ -6,6 +6,7 @@
  ***********************************************************************/
 #include <stdlib.h>
 #include <malloc.h>
+#include <rand.h>
 //#include <memalign.h>
 #include <crc.h>
 #include <watchdog.h>
@@ -1283,7 +1284,18 @@ int acm_app_init(void)
 	/*  set unicode strings */
 	get_unicode_string(vendorDesc, USB_MANUFACTURER_STRING);
 	get_unicode_string(productDesc, USB_PRODUCT_STRING);
-	get_unicode_string(serialDesc, USB_SERIAL_NUMBER_STRING);
+
+	srand(get_timer(0));
+	static char random_string[13] = USB_SERIAL_NUMBER_STRING;
+	static int random_flag = false;
+	// make sure only generate once
+	if (random_flag == false) {
+		for (int i = 0; i < 9; i++) {
+			random_string[i] = '0' + rand() % 10;
+		}
+		random_flag = true;
+	}
+	get_unicode_string(serialDesc, random_string);
 
 	/*  align buffers to modulo8 address */
 	ep0Buff = ep0BuffAlloc;

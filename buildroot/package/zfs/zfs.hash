@@ -1,0 +1,6 @@
+# From https://github.com/openzfs/zfs/releases/download/zfs-2.3.0/zfs-2.3.0.sha256.asc
+sha256  6e8787eab55f24c6b9c317f3fe9b0da9a665eb34c31df88ff368d9a92e9356a6  zfs-2.3.0.tar.gz
+
+# Hash for license files:
+sha256  1ffb70c33c4f79f04e947facc5c7851f289609256aacb47fc115f700427d9520  LICENSE
+sha256  f125a37c829705eff3e6f77a9f6c58fd71060f84ab54180b98fafdf94a2021eb  COPYRIGHT

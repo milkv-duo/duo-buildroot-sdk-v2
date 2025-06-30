@@ -4072,7 +4072,9 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips,
 		chip->select_chip(mtd, -1);
 	}
 
+#ifndef CONFIG_SPL_BUILD
 	check_and_update_fip_bin();
+#endif
 
 #ifdef DEBUG
 	if (i > 1)

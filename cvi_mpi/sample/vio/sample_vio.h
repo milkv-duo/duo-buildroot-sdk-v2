@@ -21,6 +21,7 @@ CVI_S32 SAMPLE_VIO_VoRotation(void);
 CVI_S32 SAMPLE_VIO_ViVpssAspectRatio(void);
 CVI_S32 SAMPLE_VIO_ViRotation(void);
 CVI_S32 SAMPLE_VIO_VpssRotation(void);
+CVI_S32 SAMPLE_VIO_VpssStitch(void);
 
 #ifdef __cplusplus
 #if __cplusplus

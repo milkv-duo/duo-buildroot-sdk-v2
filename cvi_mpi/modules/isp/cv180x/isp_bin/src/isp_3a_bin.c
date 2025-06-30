@@ -9,6 +9,7 @@
 #include "isp_3a_bin.h"
 #include "cvi_ae.h"
 #include "cvi_awb.h"
+#include "cvi_af.h"
 #include "cvi_isp.h"
 #include "3A_internal.h"
 
@@ -34,6 +35,7 @@ CVI_S32 isp_3aBinAttr_get_size(VI_PIPE ViPipe, CVI_U32 *size)
 	tmpSize += sizeof(ISP_AWB_Calibration_Gain_S);
 	tmpSize += sizeof(ISP_AWB_Calibration_Gain_S_EX);
 	tmpSize += sizeof(ISP_STATISTICS_CFG_S);
+	tmpSize += sizeof(ISP_FOCUS_ATTR_S);
 
 	*size = tmpSize;
 
@@ -211,6 +213,11 @@ CVI_S32 isp_3aBinAttr_get_parambuf(VI_PIPE ViPipe, CVI_U8 *buffer)
 	memcpy(buffer, &stStatCfg, sizeof(ISP_STATISTICS_CFG_S));
 	buffer += sizeof(ISP_STATISTICS_CFG_S);
 
+	ISP_FOCUS_ATTR_S stFocus = { 0 };
+
+	CVI_ISP_GetAFAttr(ViPipe, &stFocus);
+	memcpy(buffer, &stFocus, sizeof(ISP_FOCUS_ATTR_S));
+	buffer += sizeof(ISP_FOCUS_ATTR_S);
 	return CVI_SUCCESS;
 }
 
@@ -304,6 +311,11 @@ CVI_S32 isp_3aBinAttr_set_param(VI_PIPE ViPipe, CVI_U8 **binPtr)
 	(*binPtr) += sizeof(ISP_STATISTICS_CFG_S);
 	CVI_ISP_SetStatisticsConfig(ViPipe, &stStatCfg);
 
+	ISP_FOCUS_ATTR_S stFocusAttr = {0};
+
+	memcpy(&stFocusAttr, (*binPtr), sizeof(ISP_FOCUS_ATTR_S));
+	(*binPtr) += sizeof(ISP_FOCUS_ATTR_S);
+	CVI_ISP_SetAFAttr(ViPipe, &stFocusAttr);
 	return CVI_SUCCESS;
 }
 
@@ -329,6 +341,8 @@ CVI_S32 isp_3aJsonAttr_set_param(VI_PIPE ViPipe, ISP_3A_Parameter_Structures *ps
 	CVI_ISP_SetWBCalibrationEx(ViPipe, &pstPtr->WBCalibEx);
 	CVI_ISP_SetStatisticsConfig(ViPipe, &pstPtr->StatCfg);
 
+	//AF
+	CVI_ISP_SetAFAttr(ViPipe, &pstPtr->FocusAttr);
 	return CVI_SUCCESS;
 }
 
@@ -356,5 +370,7 @@ CVI_S32 isp_3aJsonAttr_get_param(VI_PIPE ViPipe, ISP_3A_Parameter_Structures *ps
 	CVI_ISP_GetWBCalibrationEx(ViPipe, &pstPtr->WBCalibEx);
 	CVI_ISP_GetStatisticsConfig(ViPipe, &pstPtr->StatCfg);
 
+	//AF
+	CVI_ISP_GetAFAttr(ViPipe, &pstPtr->FocusAttr);
 	return CVI_SUCCESS;
 }

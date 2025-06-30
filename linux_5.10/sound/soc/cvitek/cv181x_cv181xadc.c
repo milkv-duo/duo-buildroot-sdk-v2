@@ -20,6 +20,7 @@
 #include <linux/uaccess.h>
 #include "../codecs/cv181xadac.h"
 #include <linux/version.h>
+#include "cv1835_i2s_subsys.h"
 
 bool proc_ai_not_allocted = true;
 
@@ -130,20 +131,14 @@ static int cv181x_adc_proc_show(struct seq_file *m, void *v)
 
 	i2s0 = ioremap(0x04100000, 0x100);
 	adc = ioremap(0x0300A100, 0x100);
-	audio_pll = ioremap(0x3002854, 0x10);
 	sdma_pll = ioremap(0x3002004, 0x10);
-	if (readl(audio_pll) == 0x179EDCFA)
-		audio_freq = 22579200;
-	else if (readl(audio_pll) == 0x249f0000) {
-		audio_freq = 16384000;
-	} else
-		audio_freq = 24576000;
-
+	audio_freq = cv1835_get_mclk(0);
 
 	seq_puts(m, "\n------------- CVI AI ATTRIBUTE -------------\n");
 	seq_puts(m, "AiDev    Workmode    SampleRate    BitWidth\n");
 	val1 = (readl(i2s0) >> 1) & 0x1;
-	val2 = audio_freq / ((readl(i2s0 + 0x64) >> 16) * ((readl(i2s0 + 0x4) & 0x000001ff) + 1) * 2);
+	val2 = audio_freq / ((readl(i2s0 + 0x64) >> 16) * (readl(i2s0 + 0x64) & 0xffff));
+	val2 /= (((readl(i2s0 + 0x4) & 0x000001ff) + 1) * 2);
 	val3 = ((readl(i2s0 + 0x10) >> 1) & 0x3) * 16;
 	seq_printf(m, "  %d       %s        %6d        %2d\n", 0, val1 == 0 ? "slave" : "master", val2, val3);
 	seq_puts(m, "\n");
@@ -187,7 +182,6 @@ static int cv181x_adc_proc_show(struct seq_file *m, void *v)
 
 	iounmap(i2s0);
 	iounmap(adc);
-	iounmap(audio_pll);
 	iounmap(sdma_pll);
 	return 0;
 }

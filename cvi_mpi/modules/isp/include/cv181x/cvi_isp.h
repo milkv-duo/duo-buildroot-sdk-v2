@@ -13,6 +13,7 @@
 #include "cvi_comm_isp.h"
 #include "cvi_comm_3a.h"
 #include "cvi_comm_sns.h"
+#include "cvi_sns_ctrl.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -26,6 +27,8 @@ CVI_S32 CVI_ISP_MemInit(VI_PIPE ViPipe);
 CVI_S32 CVI_ISP_Run(VI_PIPE ViPipe);
 CVI_S32 CVI_ISP_RunOnce(VI_PIPE ViPipe);
 CVI_S32 CVI_ISP_Exit(VI_PIPE ViPipe);
+CVI_S32 CVI_ISP_SnsInit(VI_PIPE ViPipe, ISP_SNS_CFG_S *pstSnsCfg,
+				ISP_SNS_OBJ_S *pSnsObj, int WorkMode);
 
 /* Each Param set / get Operation */
 CVI_S32 CVI_ISP_SetPubAttr(VI_PIPE ViPipe, const ISP_PUB_ATTR_S *pstPubAttr);
@@ -71,6 +74,14 @@ CVI_S32 CVI_ISP_GetRegister(VI_PIPE ViPipe, CVI_U32 u32Addr, CVI_U32 *pu32Value)
 //-----------------------------------------------------------------------------
 CVI_S32 CVI_ISP_SetBlackLevelAttr(VI_PIPE ViPipe, const ISP_BLACK_LEVEL_ATTR_S *pstBlackLevelAttr);
 CVI_S32 CVI_ISP_GetBlackLevelAttr(VI_PIPE ViPipe, ISP_BLACK_LEVEL_ATTR_S *pstBlackLevelAttr);
+
+//-----------------------------------------------------------------------------
+//  Local Black Level Correction(LBLC)
+//-----------------------------------------------------------------------------
+CVI_S32 CVI_ISP_SetLblcAttr(VI_PIPE ViPipe, const ISP_LBLC_ATTR_S *pstLblcAttr);
+CVI_S32 CVI_ISP_GetLblcAttr(VI_PIPE ViPipe, ISP_LBLC_ATTR_S *pstLblcAttr);
+CVI_S32 CVI_ISP_SetLblcLutAttr(VI_PIPE ViPipe, const ISP_LBLC_LUT_ATTR_S *pstLblcLutAttr);
+CVI_S32 CVI_ISP_GetLblcLutAttr(VI_PIPE ViPipe, ISP_LBLC_LUT_ATTR_S *pstLblcLutAttr);
 
 //-----------------------------------------------------------------------------
 //  Dead pixel correction(DPC)
@@ -292,6 +303,7 @@ CVI_S32 CVI_MIPI_SetSensorReset(CVI_S32 devno, CVI_U32 reset);
 CVI_S32 CVI_MIPI_SetMipiAttr(CVI_S32 ViPipe, const CVI_VOID *devAttr);
 CVI_S32 CVI_MIPI_SetClkEdge(CVI_S32 devno, CVI_U32 is_up);
 CVI_S32 CVI_MIPI_SetSnsMclk(SNS_MCLK_S *mclk);
+CVI_S32 CVI_MIPI_SensorGpioInit(CVI_S32 devno, void *sns_gpio);
 
 CVI_S32 CVI_ISP_QueryInnerStateInfo(VI_PIPE ViPipe, ISP_INNER_STATE_INFO_S *pstInnerStateInfo);
 CVI_S32 CVI_ISP_GetVDTimeOut(VI_PIPE ViPipe, ISP_VD_TYPE_E enIspVDType, CVI_U32 u32MilliSec);
@@ -314,6 +326,21 @@ CVI_S32 CVI_ISP_IrAutoRunOnce(ISP_DEV IspDev, ISP_IR_AUTO_ATTR_S *pstIrAttr);
 
 CVI_S32 CVI_ISP_SetSmartInfo(VI_PIPE ViPipe, const ISP_SMART_INFO_S *pstSmartInfo, CVI_U8 TimeOut);
 CVI_S32 CVI_ISP_GetSmartInfo(VI_PIPE ViPipe, ISP_SMART_INFO_S *pstSmartInfo);
+
+//-----------------------------------------------------------------------------
+//  TEAISP
+//-----------------------------------------------------------------------------
+CVI_S32 CVI_TEAISP_SetMode(VI_PIPE ViPipe, TEAISP_MODE_E mode);
+CVI_S32 CVI_TEAISP_Init(VI_PIPE ViPipe, CVI_S32 maxDev);
+
+//-----------------------------------------------------------------------------
+//  TEAISP BNR
+//-----------------------------------------------------------------------------
+CVI_S32 CVI_TEAISP_BNR_SetModel(VI_PIPE ViPipe, const TEAISP_BNR_MODEL_INFO_S *pstModelInfo);
+CVI_S32 CVI_TEAISP_BNR_SetAttr(VI_PIPE ViPipe, const TEAISP_BNR_ATTR_S *pstTEAISPBNRAttr);
+CVI_S32 CVI_TEAISP_BNR_GetAttr(VI_PIPE ViPipe, TEAISP_BNR_ATTR_S *pstTEAISPBNRAttr);
+CVI_S32 CVI_TEAISP_BNR_SetNoiseProfileAttr(VI_PIPE ViPipe, const TEAISP_BNR_NP_S *np);
+CVI_S32 CVI_TEAISP_BNR_GetNoiseProfileAttr(VI_PIPE ViPipe, TEAISP_BNR_NP_S *np);
 
 //-----------------------------------------------------------------------------
 //  TEAISP PQ

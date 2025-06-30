@@ -345,17 +345,42 @@ typedef struct _ISP_AWB_INFO_S {
 	CVI_S16 s16LVx100;
 	CVI_FLOAT fBVstep;
 } ISP_AWB_INFO_S;
+// AF VCM motor Len calibration attr
+typedef struct _ISP_AWB_RATIO_ATTR_S {
+	CVI_BOOL bEnable;
+	CVI_U32 u32RGainRatio;
+	CVI_U32 u32BGainRatio;
+	CVI_U32 u32GGainRatio;
+} ISP_AWB_RATIO_ATTR_S;
+
+typedef struct _ISP_AF_VCM_ATTR_S {
+	CVI_U32 u32InfinitePos;
+	CVI_U32 u32MacroPos;
+	CVI_U32 u32MediumPos;
+} ISP_AF_VCM_ATTR_S;
 
 // AF related structure
 typedef struct _ISP_AF_PARAM_S {
 	SENSOR_ID SensorId;
 	CVI_U8 u8WDRMode;
+	CVI_U8 u8AWBZoneRow;
+	CVI_U8 u8AWBZoneCol;
 	CVI_S32 s32Rsv;
 } ISP_AF_PARAM_S;
 
 typedef struct _ISP_AF_INFO_S {
+	CVI_BOOL bAEStable;
+	CVI_S16 s16CurrentLV;
 	CVI_U32 u32FrameCnt;
+	CVI_U32 u32ExpTime;
+	CVI_U32 u32ISO;
+	CVI_U32 u32IspDgain;
+	CVI_U32 u32Again;
+	CVI_U32 u32Dgain;
+	CVI_U32 u8AvgLum;
+	CVI_U32 u32WDRExpRatio;
 	ISP_AF_STATISTICS_S *pstAfStat;
+	ISP_AWB_STAT_RESULT_S stAfLumaSts[ISP_CHANNEL_MAX_NUM];
 } ISP_AF_INFO_S;
 
 typedef struct _ISP_AF_RESULT_S {

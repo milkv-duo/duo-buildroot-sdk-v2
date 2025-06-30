@@ -155,10 +155,18 @@ void cv1835_set_mclk(u32 freq)
 		dev_info(dev->dev, "Unrecognised freq\n");
 		break;
 	}
-
+	dev->src_clk_freq[0] = freq;
+	dev->src_clk_freq[1] = freq;
+	dev->src_clk_freq[2] = freq;
+	dev->src_clk_freq[3] = freq;
 #ifdef CONFIG_ARCH_CV183X_ASIC
 	iounmap(gp_reg3);
 #endif
+}
+
+u32 cv1835_get_mclk(u32 id)
+{
+	return dev->src_clk_freq[id];
 }
 
 static int i2s_subsys_probe(struct platform_device *pdev)

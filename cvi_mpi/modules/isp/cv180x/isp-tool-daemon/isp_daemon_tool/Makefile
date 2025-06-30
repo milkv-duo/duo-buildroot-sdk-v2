@@ -58,7 +58,8 @@ LIBS += $(MW_LIBS) -latomic
 LIBS += -lsys -lvenc -lvdec -lvi -lvpss -lvo -lrgn -lgdc -lisp -lisp_algo -lawb -lae -laf -lsample -lcvi_bin -lcvi_bin_isp -lsns_full -lini -lsbc
 LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
-LIBS += -lcvi_dnvqe -lcvi_ssp2
+LIBS += -lcvi_dnvqe -lcvi_ssp2 -lteaisp
+LIBS += -lcviruntime -lcvikernel
 
 LOCAL_CFLAGS = $(DEFS) $(INCS)
 LOCAL_CPPFLAGS = -fno-use-cxa-atexit
@@ -83,6 +84,10 @@ all: package
 endif
 
 prepare: | $(TMP_FOLDER)
+	@cp -a $(TPU_SDK_PATH)/lib/libcvikernel-static.a $(MW_LIB)
+	@cp $(TPU_SDK_PATH)/lib/libcvikernel.so $(MW_LIB)
+	@cp -a $(TPU_SDK_PATH)/lib/libcviruntime-static.a $(MW_LIB)
+	@cp $(TPU_SDK_PATH)/lib/libcviruntime.so $(MW_LIB)
 ifeq ($(STREAM_TYPE), 2)
 ifneq "$(wildcard $(CVI_RTSP_TARBALL_PATH))" ""
 	@tar -zxf $(CVI_RTSP_TARBALL_PATH) -C $(TMP_FOLDER)
@@ -187,4 +192,8 @@ clean:
 	@rm -f $(OBJS) $(DEPS) $(COBJS) $(CDEPS) $(TARGET)
 	@rm -rf install $(TMP_FOLDER)
 	@rm -rf ../$(OUT_TARBALL)
+	@rm -f $(MW_LIB)/libcvikernel-static.a
+	@rm -f $(MW_LIB)/libcvikernel.so
+	@rm -f $(MW_LIB)/libcviruntime-static.a
+	@rm -f $(MW_LIB)/libcviruntime.so
 -include $(DEPS) $(CDEPS)

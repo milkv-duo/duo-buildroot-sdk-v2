@@ -10,6 +10,7 @@ SRCS_C := $(SDIR)/cvi_isp.c
 SRCS_C += $(SDIR)/cvi_mipi.c
 SRCS_C += $(SDIR)/isp_3a.c
 SRCS_C += $(SDIR)/isp_blc_ctrl.c
+SRCS_C += $(SDIR)/isp_lblc_ctrl.c
 SRCS_C += $(SDIR)/isp_bnr_ctrl.c
 SRCS_C += $(SDIR)/isp_ca2_ctrl.c
 SRCS_C += $(SDIR)/isp_cac_ctrl.c
@@ -57,6 +58,8 @@ SRCS_C += $(SDIR)/isp_wb_ctrl.c
 SRCS_C += $(SDIR)/isp_ycontrast_ctrl.c
 SRCS_C += $(SDIR)/isp_ynr_ctrl.c
 SRCS_C += $(SDIR)/teaisp_pq_ctrl.c
+SRCS_C += $(SDIR)/teaisp_bnr_ctrl.c
+SRCS_C += $(SDIR)/teaisp_helper.c
 SRCS_C += $(SDIR)/../../../common/clog/clog.c
 #
 ODIR    := $(CURDIR)/obj
@@ -65,6 +68,8 @@ DEPS	:= $(SRCS_C:$(SDIR)/%.c=$(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).d)
 #
 INCS = -I$(MW_INC) -I$(ISP_INC) -I$(SYS_INC) -I$(VI_INC) -Iinc -Isrc -I../isp_algo/inc
 INCS += -I../../common/clog
+INCS += -I../teaisp/src
+INCS += -I../../common/inc
 #
 TARGET_A = $(MW_LIB)/libisp.a
 TARGET_SO = $(MW_LIB)/libisp.so

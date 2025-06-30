@@ -4553,8 +4553,9 @@ CVI_S32 vpss_get_chn_frame(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, VIDEO_FRAME_INFO_
 	memset(pstFrameInfo, 0, sizeof(*pstFrameInfo));
 	ret = base_get_chn_buffer(chn, &blk, s32MilliSec);
 	if (ret != 0 || blk == VB_INVALID_HANDLE) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) get chn frame fail, s32MilliSec=%d, ret=%d\n",
-				VpssGrp, VpssChn, s32MilliSec, ret);
+		if (s32MilliSec != 0)
+			CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) get chn frame fail, s32MilliSec=%d, ret=%d\n",
+					VpssGrp, VpssChn, s32MilliSec, ret);
 		return CVI_ERR_VPSS_BUF_EMPTY;
 	}
 

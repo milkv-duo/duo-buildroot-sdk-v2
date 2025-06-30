@@ -12,6 +12,7 @@ extern "C" {
 #endif /* End of #ifdef __cplusplus */
 
 extern ISP_FOCUS_ATTR_S *pstFocusMpiAttr[AF_SENSOR_NUM];
+extern ISP_AF_VCM_ATTR_S *pststAfVcmAttr[AF_SENSOR_NUM];
 extern ISP_FOCUS_ATTR_S *stFocusAttrInfo[AF_SENSOR_NUM];
 extern ISP_FOCUS_Q_INFO_S *pstFocusQInfo[AF_SENSOR_NUM];
 extern CVI_U8 isUpdateAttr[AF_SENSOR_NUM][AF_UPDATE_TOTAL];
