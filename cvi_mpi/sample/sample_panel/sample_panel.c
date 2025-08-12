@@ -40,6 +40,7 @@ typedef enum {
 	DSI_PANEL_HX8394_EVB,
 	DSI_PANEL_MILKV_8HD,
 	DSI_PANEL_MILKV_8HD_2LANE,
+	DSI_PANEL_MILKV_ST7796S,
 	DSI_PANEL_HX8399_1080P,
 	DSI_PANEL_ICN9707,
 	DSI_PANEL_ILI9881C,
@@ -110,6 +111,7 @@ static char *s_panel_model_type_arr[] = {
 	"HX8394_EVB",
 	"MILKV_8HD",
 	"MILKV_8HD_2LANE",
+	"MILKV_ST7796S",
 	"HX8399_1080P",
 	"ICN9707",
 	"ILI9881C",
@@ -563,6 +565,13 @@ void SAMPLE_SET_PANEL_DESC(void)
 		g_panel_desc.stdsicfg.hs_timing_cfg = &hs_timing_cfg_milkv_8hd_800x1280_2lane;
 		g_panel_desc.stdsicfg.dsi_init_cmds = dsi_init_cmds_milkv_8hd_800x1280_2lane;
 		g_panel_desc.stdsicfg.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_milkv_8hd_800x1280_2lane);
+		break;
+	case DSI_PANEL_MILKV_ST7796S:
+		g_panel_desc.panel_type = PANEL_MODE_DSI;
+		g_panel_desc.stdsicfg.dev_cfg = &dev_cfg_milkv_st7796s_320x480;
+		g_panel_desc.stdsicfg.hs_timing_cfg = &hs_timing_cfg_milkv_st7796s_320x480;
+		g_panel_desc.stdsicfg.dsi_init_cmds = dsi_init_cmds_milkv_st7796s_320x480;
+		g_panel_desc.stdsicfg.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_milkv_st7796s_320x480);
 		break;
 	case LVDS_PANEL_LCM185X56:
 		g_panel_desc.panel_type = PANEL_MODE_LVDS;

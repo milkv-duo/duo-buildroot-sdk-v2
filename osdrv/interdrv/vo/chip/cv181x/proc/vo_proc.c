@@ -135,6 +135,9 @@ static void _intfSync_to_String(enum _VO_INTF_SYNC_E intfSync, char *str, int le
 	case VO_OUTPUT_480x800_60:
 		strncpy(str, "480x800@60", len);
 		break;
+	case VO_OUTPUT_320x480_60:
+		strncpy(str, "320x480@60", len);
+		break;
 	case VO_OUTPUT_USER:
 		strncpy(str, "User timing", len);
 		break;

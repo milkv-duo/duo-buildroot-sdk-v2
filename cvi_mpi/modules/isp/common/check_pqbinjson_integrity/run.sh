@@ -13,6 +13,13 @@ HEADERLIST+=" ${MW_INCLUDE_PATH}/cvi_comm_vo.h"
 HEADERLIST+=" ${MW_INCLUDE_PATH}/cvi_comm_sns.h"
 ISP_JSON_STRUCTFILE="${ISP_BASE_PATH}/${CHIP_ID}/isp_bin/src/isp_json_struct.c"
 APP=checkPqBinJsonIntegrity.py
+
+# Check for python3
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: python3 is not installed. Please install python3 (e.g., sudo apt install python3)." >&2
+    exit 1
+fi
+
 cd ${CUR_PATH}
-python ${APP} ${ISP_JSON_STRUCTFILE} ${HEADERLIST}
+python3 ${APP} ${ISP_JSON_STRUCTFILE} ${HEADERLIST}
 

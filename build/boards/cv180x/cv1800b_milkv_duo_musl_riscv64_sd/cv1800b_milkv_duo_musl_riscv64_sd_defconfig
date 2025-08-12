@@ -1,4 +1,5 @@
 CONFIG_CHIP_cv1800b=y
+CONFIG_BOARD_milkv_duo_musl_riscv64_sd=y
 CONFIG_ARCH="riscv"
 CONFIG_CROSS_COMPILE="riscv64-unknown-linux-musl-"
 CONFIG_CC_OPTIMIZE_FOR_SIZE=y

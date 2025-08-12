@@ -118,6 +118,62 @@ static void callback_rtos_irq_handler(int cmd_id, unsigned int ptr, void *dev_id
 
 DEFINE_CVI_SPINLOCK(mailbox_lock, SPIN_MBOX);
 
+// Define a function to show the value of RTOS_CMDQU_SEND
+static ssize_t rtos_cmdqu_send_show(struct device *dev,	struct device_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "0x%lX\n", (unsigned long)RTOS_CMDQU_SEND);
+}
+
+// Define a function to show the value of RTOS_CMDQU_SEND_WAIT
+static ssize_t rtos_cmdqu_send_wait_show(struct device *dev, struct device_attribute *attr,	char *buf)
+{
+	return sysfs_emit(buf, "0x%lX\n", (unsigned long)RTOS_CMDQU_SEND_WAIT);
+}
+
+// Define a function to show the value of RTOS_CMDQU_REQUEST
+static ssize_t rtos_cmdqu_request_show(struct device *dev, struct device_attribute *attr,	char *buf)
+{
+	return sysfs_emit(buf, "0x%lX\n", (unsigned long)RTOS_CMDQU_REQUEST);
+}
+
+// Define a function to show the value of RTOS_CMDQU_REQUEST_FREE
+static ssize_t rtos_cmdqu_request_free_show(struct device *dev, struct device_attribute *attr,	char *buf)
+{
+	return sysfs_emit(buf, "0x%lX\n", (unsigned long)RTOS_CMDQU_REQUEST_FREE);
+}
+
+// Define a function to show the value of RTOS_CMDQU_SEND_WAKEUP
+static ssize_t rtos_cmdqu_send_wakeup_show(struct device *dev, struct device_attribute *attr,	char *buf)
+{
+	return sysfs_emit(buf, "0x%lX\n", (unsigned long)RTOS_CMDQU_SEND_WAKEUP);
+}
+
+// Create device attributes, linking the name to the show function
+// The DEVICE_ATTR_RO macro creates a read-only attribute (_ro)
+static DEVICE_ATTR_RO(rtos_cmdqu_send);
+static DEVICE_ATTR_RO(rtos_cmdqu_send_wait);
+static DEVICE_ATTR_RO(rtos_cmdqu_request);
+static DEVICE_ATTR_RO(rtos_cmdqu_request_free);
+static DEVICE_ATTR_RO(rtos_cmdqu_send_wakeup);
+
+
+// Group the attributes together
+static struct attribute *rtos_cmdqu_attrs[] = {
+	&dev_attr_rtos_cmdqu_send.attr,
+	&dev_attr_rtos_cmdqu_send_wait.attr,
+	&dev_attr_rtos_cmdqu_request.attr,
+	&dev_attr_rtos_cmdqu_request_free.attr,
+	&dev_attr_rtos_cmdqu_send_wakeup.attr,
+	NULL, // Terminator
+};
+
+// Create an attribute group
+static const struct attribute_group rtos_cmdqu_attr_group = {
+    .name = "ioctl_cmds", // This will be the subdirectory name
+    .attrs = rtos_cmdqu_attrs,
+};
+
+
 irqreturn_t rtos_irq_handler(int irq, void *dev_id)
 {
 	char set_val, done_val;
@@ -526,6 +582,7 @@ static int cvi_rtos_cmdqu_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct cvi_rtos_cmdqu_device *ndev;
 	struct resource *res;
+	struct device *misc_dev;
 	int ret = 0;
 	int err = -1;
 
@@ -544,7 +601,24 @@ static int cvi_rtos_cmdqu_probe(struct platform_device *pdev)
 	}
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
-//	void __iomem *regs;
+	// Get the struct device associated with the misc device (Assignment now)
+	misc_dev = ndev->miscdev.this_device; // Assign here
+
+	if (misc_dev) {
+		ret = sysfs_create_group(&misc_dev->kobj, &rtos_cmdqu_attr_group);
+		if (ret) {
+			// Use dev_err consistently with the rest of the driver
+			dev_err(ndev->dev, "Failed to create sysfs ioctl_cmds group\n");
+			// Clean up misc device if sysfs fails? Or just warn?
+			// Current code continues, so just warning might be okay.
+			// misc_deregister(&ndev->miscdev); // Optional: undo registration
+			// return ret;                     // Optional: fail probe
+		}
+	} else {
+		dev_warn(ndev->dev, "Could not get misc device pointer for sysfs creation\n");
+	}
+
+//	void __iomem *regs; // This block is commented out, but if used, move decl up
 //	regs = devm_ioremap_resource(dev, res);
 //	if (IS_ERR(regs)) {
 //		ret = PTR_ERR(regs);
@@ -555,26 +629,32 @@ static int cvi_rtos_cmdqu_probe(struct platform_device *pdev)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0))
 #ifdef _LP64
 	reg_base = (__u64)devm_ioremap(&pdev->dev, res->start,
-		res->end - res->start);
+		resource_size(res));
 #else
 	reg_base = (__u32)devm_ioremap(&pdev->dev, res->start,
-		res->end - res->start);
+		resource_size(res));
 #endif
 #else
 #ifdef _LP64
 	reg_base = (__u64)ioremap_nocache((unsigned long)res->start,
-		(unsigned long)(res->end - res->start + 1));
+		resource_size(res));
 #else
 	reg_base = (__u32)ioremap_nocache((unsigned long)res->start,
-		(unsigned long)(res->end - res->start + 1));
+		resource_size(res));
 #endif
 #endif
 
-	pr_info("res-reg: start: 0x%llx, end: 0x%llx, virt-addr(%llx).\n",
-		res->start, res->end, le64_to_cpu(reg_base));
+	pr_info("res-reg: start: 0x%llx, end: 0x%llx, virt-addr(0x%llx).\n",
+		(unsigned long long)res->start, (unsigned long long)res->end, (unsigned long long)reg_base); // Cast reg_base for %llx if needed
 	// spinlock ip offset address (0xc0)
 	spinlock_base(reg_base + 0xc0);
 	mailbox_irq = platform_get_irq_byname(pdev, "mailbox");
+    if (mailbox_irq < 0) { // Check return value of platform_get_irq_byname
+        dev_err(ndev->dev, "Failed to get mailbox IRQ: %d\n", mailbox_irq);
+        ret = mailbox_irq;
+        goto err_deregister_misc; // Add cleanup label
+    }
+
 
 	INIT_LIST_HEAD(&rtos_cmdqu_wait_head.list);
 	/* init cmdqu*/
@@ -585,37 +665,60 @@ static int cvi_rtos_cmdqu_probe(struct platform_device *pdev)
 		(void *)ndev);
 
 	if (err) {
-		pr_err("fail to register interrupt handler\n");
-		return -1;
+		dev_err(ndev->dev, "fail to register interrupt handler: %d\n", err);
+		// Cleanup needed before returning
+		ret = err;
+		goto err_remove_sysfs; // Add cleanup label
 	}
 
 	/* rtos cmdqu register cb */
-	if (cvi_rtos_cmdqu_register_cb(ndev)) {
-		pr_err("fail to register rtos_cmdqu cb\n");
-		return -EINVAL;
+	ret = cvi_rtos_cmdqu_register_cb(ndev);
+	if (ret) { // Check ret directly
+		dev_err(ndev->dev, "fail to register rtos_cmdqu cb: %d\n", ret);
+		// Cleanup needed before returning
+		goto err_free_irq; // Add cleanup label
 	}
 
 	pr_info("%s DONE\n", __func__);
 	return 0;
 
-//ERROR_PROVE_DEVICE:
-//	return err;
+// --- Add Error Handling Labels ---
+err_free_irq:
+    free_irq(mailbox_irq, ndev);
+err_remove_sysfs:
+    if (misc_dev) {
+        sysfs_remove_group(&misc_dev->kobj, &rtos_cmdqu_attr_group);
+    }
+// ERROR_PROVE_DEVICE: // Label for ioremap error if uncommented
+err_deregister_misc:
+    misc_deregister(&ndev->miscdev);
+    // platform_set_drvdata(pdev, NULL); // drvdata not set yet here
+    // rtos_cmdqu_deinit(); // Deinit not called yet here
+    return ret; // Return the error code
 }
 
 static int cvi_rtos_cmdqu_remove(struct platform_device *pdev)
 {
 	struct cvi_rtos_cmdqu_device *ndev = platform_get_drvdata(pdev);
+	struct device *misc_dev;
 
 	/* rtos cmdqu rm cb */
 	if (cvi_rtos_cmdqu_rm_cb()) {
-		pr_err("Failed to rm rtos cmdqu cb\n");
+		// Use dev_err consistently
+		dev_err(ndev->dev, "Failed to rm rtos cmdqu cb\n");
 	}
+
+	misc_dev = ndev->miscdev.this_device;
+
+	if (misc_dev) {
+		sysfs_remove_group(&misc_dev->kobj, &rtos_cmdqu_attr_group);
+	}
+
 	misc_deregister(&ndev->miscdev);
-	platform_set_drvdata(pdev, NULL);
-	/* remove irq handler*/
 	free_irq(mailbox_irq, ndev);
+	platform_set_drvdata(pdev, NULL); // Set NULL after resources using ndev are freed
 	rtos_cmdqu_deinit();
-	pr_debug("%s DONE\n", __func__);
+	pr_debug("%s DONE\n", __func__); // Use dev_dbg or pr_info if appropriate
 
 	return 0;
 }

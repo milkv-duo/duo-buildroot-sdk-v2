@@ -224,6 +224,10 @@ VO_SYNC_INFO_S stSyncInfo[VO_OUTPUT_BUTT] = {
 		, .u16Vact = 800, .u16Vbb = 20, .u16Vfb = 20
 		, .u16Hact = 480, .u16Hbb = 50, .u16Hfb = 50
 		, .u16Vpw = 10, .u16Hpw = 10, .bIdv = 0, .bIhs = 0, .bIvs = 1},
+	[VO_OUTPUT_320x480_60] = {.bSynm = 1, .bIop = 1, .u16FrameRate = 60
+		, .u16Vact = 480, .u16Vbb = 2, .u16Vfb = 2
+		, .u16Hact = 320, .u16Hbb = 40, .u16Hfb = 10
+		, .u16Vpw = 2, .u16Hpw = 20, .bIdv = 0, .bIhs = 0, .bIvs = 1},
 };
 
 /****************************************************************************

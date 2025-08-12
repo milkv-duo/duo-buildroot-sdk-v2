@@ -62,13 +62,26 @@ sed -i 's/"GENERATOR_VERSION": ""/"GENERATOR_VERSION": "'"${GENERATOR_V}"'"/g' $
 sed -i 's/"ISP_VERSION": ""/"ISP_VERSION": "'"${ISP_V}"'"/g' ${DEVICE_FILE}
 sed -i 's/"ISP_BRANCH": ""/"ISP_BRANCH": "'"${ISP_BRANCH}"'"/g' ${DEVICE_FILE}
 
+
+# Check for python3
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: python3 is not installed. Please install python3 (e.g., sudo apt install python3)." >&2
+    exit 1
+fi
+
+# Check for jinja2
+if ! python3 -c "import jinja2" 2>/dev/null; then
+    echo "Error: Python module 'jinja2' is not installed. Please install it with: python3 -m pip install Jinja2" >&2
+    exit 1
+fi
+
 #generate pqtool_definition.json
 cd ${CUR_PATH}
-python hFile2json.py  $LEVELJSON $LAYOUTJSON $RPCJSON $HEADERLIST
+python3 hFile2json.py  $LEVELJSON $LAYOUTJSON $RPCJSON $HEADERLIST
 git checkout ${DEVICE_FILE}
 
 #check json file validity
-cat ${OUTPUT} | python -m json.tool 1>/dev/null 2>json_error
+cat ${OUTPUT} | python3 -m json.tool 1>/dev/null 2>json_error
 error=$(cat json_error)
 if [ ${#error} -eq 0 ]
 then

@@ -152,6 +152,11 @@ CVI_S32 SAMPLE_COMM_VO_GetWH(VO_INTF_SYNC_E enIntfSync, CVI_U32 *pu32W, CVI_U32 
 		*pu32H = 800;
 		*pu32Frm = 60;
 		break;
+	case VO_OUTPUT_320x480_60:
+		*pu32W = 320;
+		*pu32H = 480;
+		*pu32Frm = 60;
+		break;
 	case VO_OUTPUT_USER:
 		*pu32W = 720;
 		*pu32H = 576;

@@ -18,6 +18,7 @@ extern "C" {
 #include "dsi_hx8394_evb.h"
 #include "dsi_milkv_8hd.h"
 #include "dsi_milkv_8hd_2lane.h"
+#include "dsi_milkv_st7796s.h"
 #include "dsi_ili9881c.h"
 #include "dsi_ili9881d.h"
 #include "dsi_jd9366ab.h"
