@@ -517,8 +517,8 @@ enum chip_rev {
 #define AICBT_TXPWR_LVL_DEFAULT_8800d80 AICBT_TXPWR_LVL_8800d80
 
 
-#define FEATURE_SDIO_CLOCK          50000000 // 0: default, other: target clock rate
-#define FEATURE_SDIO_CLOCK_V3       150000000 // 0: default, other: target clock rate
+#define FEATURE_SDIO_CLOCK          25000000 // 0: default, other: target clock rate
+#define FEATURE_SDIO_CLOCK_V3       25000000 // 0: default, other: target clock rate
 #define FEATURE_SDIO_PHASE          2        // 0: default, 2: 180°
 
 struct aicbt_patch_table {
