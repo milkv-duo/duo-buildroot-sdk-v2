@@ -40,6 +40,7 @@ endif
 
 # zstd will append -O3 after $(CFLAGS), use MOREFLAGS to override again
 ZSTD_OPTS += MOREFLAGS="$(TARGET_OPTIMIZATION)"
+ZSTD_OPTS += CPPFLAGS=-DZSTD_USE_C90_QSORT
 
 ZSTD_BUILD_LIBS_BASENAMES = libzstd.pc
 ifeq ($(BR2_STATIC_LIBS),y)
