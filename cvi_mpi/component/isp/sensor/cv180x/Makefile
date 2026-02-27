@@ -12,9 +12,7 @@ sensor-y := $(filter-out Makefile Makefile_full, $(notdir $(wildcard $(CURDIR)/*
 endif
 
 define MAKE_SENSOR
-	pushd $(1) && \
-	$(MAKE) all && \
-	popd
+	$(MAKE) -C $(1) all
 endef
 
 .PHONY : prepare clean $(sensor-y)

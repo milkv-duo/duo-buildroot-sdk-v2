@@ -12,9 +12,7 @@ all:
 	@echo "##############################"
 	@echo $(SUBDIRS) $(MAKECMDGOALS)
 
-	@$(foreach t,$(SUBDIRS), \
-		cd $(t) && $(MAKE) all || exit 1 && cd -; )
+	@for t in $(SUBDIRS); do $(MAKE) -C $$t all || exit 1; done
 
 clean:
-	@$(foreach t,$(SUBDIRS), \
-		cd $(t) && $(MAKE) clean || exit 1 && cd -; )
+	@for t in $(SUBDIRS); do $(MAKE) -C $$t clean || exit 1; done

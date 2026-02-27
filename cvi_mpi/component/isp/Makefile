@@ -7,13 +7,9 @@ endif
 chip_arch = $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
 
 all:
-	@cd common; $(MAKE) all || exit 1; cd ../;
-	pushd sensor/$(chip_arch) && \
-	$(MAKE) all && \
-	popd;
+	@$(MAKE) -C common all || exit 1;
+	@$(MAKE) -C sensor/$(chip_arch) all || exit 1;
 
 clean:
-	@cd common; $(MAKE) clean || exit 1; cd ../;
-	pushd sensor/$(chip_arch) && \
-	$(MAKE) clean && \
-	popd;
+	@$(MAKE) -C common clean || exit 1;
+	@$(MAKE) -C sensor/$(chip_arch) clean || exit 1;

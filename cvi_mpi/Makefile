@@ -9,7 +9,7 @@ include $(PARAM_FILE)
 all: prepare 3rdparty module component sample self_test
 
 module: prepare 3rdparty
-	@make -C modules/
+	@$(MAKE) -C modules/
 
 prepare:
 	@if [ -f "mpi_prepare.mk" ]; then \
@@ -31,7 +31,7 @@ prepare:
 
 sample: module component
 	@if [ -d "sample/" ]; then \
-		make -C sample/; \
+		$(MAKE) -C sample/; \
 	fi
 
 self_test: module sample
@@ -40,11 +40,11 @@ self_test: module sample
 	fi
 
 component:
-	@make -C component/isp/ all
+	@$(MAKE) -C component/isp/ all
 
 dl_daemon: sample
 	@cmake self_test/dl_daemon -Bself_test/dl_daemon/build
-	@make -C self_test/dl_daemon/build/
+	@$(MAKE) -C self_test/dl_daemon/build/
 
 ifneq ($(SUBTYPE), fpga)
 install:
@@ -101,10 +101,10 @@ package:
 endif
 
 clean:
-	@make -C modules/ clean
-	@make -C 3rdparty/ clean
-	@make -C sample/ clean
-	@make -C component/isp/ clean
+	@$(MAKE) -C modules/ clean
+	@$(MAKE) -C 3rdparty/ clean
+	@$(MAKE) -C sample/ clean
+	@$(MAKE) -C component/isp/ clean
 	@rm -rf self_test/dl_daemon/build
 	@if [ -d "self_test/" ]; then \
 		make -C self_test/ clean; \
@@ -114,4 +114,4 @@ clean:
 	fi
 
 clean_all:
-	@make -C modules/ clean_all
+	@$(MAKE) -C modules/ clean_all

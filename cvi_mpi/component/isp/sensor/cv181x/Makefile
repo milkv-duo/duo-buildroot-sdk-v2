@@ -12,13 +12,14 @@ sensor-y := $(filter-out Makefile Makefile_full, $(notdir $(wildcard $(CURDIR)/*
 endif
 
 define MAKE_SENSOR
-	pushd $(1) && \
-	$(MAKE) all && \
-	popd
+	$(MAKE) -C $(1) all
 endef
 
 .PHONY : prepare clean $(sensor-y)
-all: prepare $(sensor-y) all_sensor
+.NOTPARALLEL:
+all: prepare
+	@for s in $(sensor-y); do $(MAKE) -C $$s all || exit 1; done
+	@$(MAKE) all_sensor
 
 prepare:
 	@echo "#################################################"

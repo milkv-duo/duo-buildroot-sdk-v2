@@ -205,8 +205,8 @@ check_and_leave:
 	@rm -rf $(MW_PATH)/lib/3rd/libmp3lame*
 
 sample_multi_process:
-	cd ./multiprocess_case/down_example; make clean;make
-	cd ./multiprocess_case/up_example; make clean;make
+	cd ./multiprocess_case/down_example; $(MAKE) clean; $(MAKE)
+	cd ./multiprocess_case/up_example; $(MAKE) clean; $(MAKE)
 
 clean:
 	@echo "sample/audio/clean in"  $(MW_PATH)

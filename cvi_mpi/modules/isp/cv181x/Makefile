@@ -16,7 +16,7 @@ all:
 	@cd isp; $(MAKE) all;
 	@cd isp_bin; $(MAKE) all;
 	@cd $(ISP_COMMON_DIR)/toolJsonGenerator; ./generate_toolJson.sh $(shell echo $(CHIP_ARCH) | tr A-Z a-z)
-	@cd isp-daemon2; $(MAKE) -j4; $(MAKE) install;
+	@cd isp-daemon2; $(MAKE); $(MAKE) install;
 	@cd $(ISP_COMMON_DIR)/raw_replay; $(MAKE) all;
 	@cd $(ISP_COMMON_DIR)/raw_dump; $(MAKE) all;
 
@@ -44,10 +44,10 @@ clean:
 	@cd $(ISP_COMMON_DIR)/raw_dump; $(MAKE) clean;
 
 clean_all:
-	@make -C  isp clean_all
-	@make -C  teaisp clean_all
-	@make -C  isp_bin  clean_all
-	@make -C  $(ISP_3A_DIR)  clean_all
-	@make -C  isp_algo  clean_all
-	@make -C  $(ISP_COMMON_DIR)/raw_replay  clean_all
-	@make -C  $(ISP_COMMON_DIR)/raw_dump clean_all
+	@$(MAKE) -C  isp clean_all
+	@$(MAKE) -C  teaisp clean_all
+	@$(MAKE) -C  isp_bin  clean_all
+	@$(MAKE) -C  $(ISP_3A_DIR)  clean_all
+	@$(MAKE) -C  isp_algo  clean_all
+	@$(MAKE) -C  $(ISP_COMMON_DIR)/raw_replay  clean_all
+	@$(MAKE) -C  $(ISP_COMMON_DIR)/raw_dump clean_all

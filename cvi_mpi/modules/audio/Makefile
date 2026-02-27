@@ -310,35 +310,35 @@ $(LIBAUDIO_SO): $(AUDIO_OBJS)
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $@)
 
 libsbc:
-	@cd ./sbc_codec; make all
+	@cd ./sbc_codec ; $(MAKE) all
 
 libvoice_engine:
-	@cd ./audio_codec; make all
+	@cd ./audio_codec ; $(MAKE) all
 
 libvqe:
-	@cd ./audio_vqe; make all
+	@cd ./audio_vqe ; $(MAKE) all
 
 libDnVqe:
-	@cd ./audio_dnvqe; make clean; make all
+	@cd ./audio_dnvqe ; $(MAKE) clean ; $(MAKE) all
 
 libcvi_RES1:
-	@cd ./audio_resample; make clean; make all
+	@cd ./audio_resample ; $(MAKE) clean ; $(MAKE) all
 
 libssp20220128:
 	@echo "build libssp version 20220128"
-	@cd ./algo/SSP_Algorithm_20220128; make clean; make all
+	@cd ./algo/SSP_Algorithm_20220128 ; $(MAKE) clean ; $(MAKE) all
 
 libdnssp:
 	@echo "build libssp2 version 20231218"
-	@cd ./algo/downlink; make clean; make all
+	@cd ./algo/downlink ; $(MAKE) clean ; $(MAKE) all
 
 libsonic:
 	@echo "build libsonic"
-	@cd ./algo/sonic; make clean; make all
+	@cd ./algo/sonic ; $(MAKE) clean ; $(MAKE) all
 
 libaac:
 	@echo "build fakeaac"
-	@cd ./fdk_aac_fake; make clean; make all
+	@cd ./fdk_aac_fake ; $(MAKE) clean ; $(MAKE) all
 
 install:
 	@echo "[audio step]COPY LIB!! "
@@ -359,26 +359,26 @@ clean:
 	@rm -f $(INSTALL_LIBDIR)/libcvi_ssp*
 	@rm -f $(INSTALL_LIBDIR)/libdnvqe*
 	@rm -f $(INSTALL_LIBDIR)/libtinyalsa*
-	@make -C ./fdk_aac_fake clean
+	@$(MAKE) -C ./fdk_aac_fake clean
 	@cd ./src/audio_rpc; rm -f *.o
-	@make -C ./sbc_codec clean
-	@make -C ./audio_codec clean
-	@make -C ./audio_vqe clean
-	@make -C ./algo/SSP_Algorithm_20220128 clean
-	@make -C ./audio_dnvqe clean
-	@make -C ./algo/sonic clean
-	@make -C ./audio_resample clean
+	@$(MAKE) -C ./sbc_codec clean
+	@$(MAKE) -C ./audio_codec clean
+	@$(MAKE) -C ./audio_vqe clean
+	@$(MAKE) -C ./algo/SSP_Algorithm_20220128 clean
+	@$(MAKE) -C ./audio_dnvqe clean
+	@$(MAKE) -C ./algo/sonic clean
+	@$(MAKE) -C ./audio_resample clean
 
 clean_all: clean
 	@rm -rf $(AUDIO_ODIR)
-	@make -C ./fdk_aac_fake clean_all
-	@make -C ./sbc_codec clean_all
-	@make -C ./audio_codec clean_all
-	@make -C ./audio_vqe clean_all
-	@make -C ./algo/SSP_Algorithm_20220128 clean_all
-	@make -C ./algo/downlink clean_all
-	@make -C ./audio_dnvqe clean_all
-	@make -C ./audio_resample clean_all
+	@$(MAKE) -C ./fdk_aac_fake clean_all
+	@$(MAKE) -C ./sbc_codec clean_all
+	@$(MAKE) -C ./audio_codec clean_all
+	@$(MAKE) -C ./audio_vqe clean_all
+	@$(MAKE) -C ./algo/SSP_Algorithm_20220128 clean_all
+	@$(MAKE) -C ./algo/downlink clean_all
+	@$(MAKE) -C ./audio_dnvqe clean_all
+	@$(MAKE) -C ./audio_resample clean_all
 
 prepare:
 	@echo [aduio Start] Timestamp is $(ts)
