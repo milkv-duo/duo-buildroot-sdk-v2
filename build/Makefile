@@ -687,7 +687,7 @@ define pack_image
 endef
 else ifeq (${STORAGE_TYPE},emmc)
 define pack_image
-	${Q}$(COMMON_TOOLS_PATH)/prebuild/make_ext4fs -l ${3}  -L $(shell echo ${1} | tr  '[:lower:]' '[:upper:]') $(OUTPUT_DIR)/rawimages/${1}.emmc ${2}
+	${Q}LD_LIBRARY_PATH=$(COMMON_TOOLS_PATH)/prebuild:$$LD_LIBRARY_PATH $(COMMON_TOOLS_PATH)/prebuild/make_ext4fs -l ${3}  -L $(shell echo ${1} | tr  '[:lower:]' '[:upper:]') $(OUTPUT_DIR)/rawimages/${1}.emmc ${2}
 	resize2fs -M $(OUTPUT_DIR)/rawimages/${1}.emmc
 endef
 else ifeq (${STORAGE_TYPE},spinor)

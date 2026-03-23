@@ -51,7 +51,7 @@ cmake -G Ninja $IVE_ROOT -DCVI_PLATFORM=$CHIP_ARCH \
                          -DTOOLCHAIN_ROOT_DIR=$HOST_TOOL_PATH \
                          -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE \
                          -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON \
-                         -DREPO_USER=$REPO_USER \
+                         "-DREPO_USER=$REPO_USER" \
                          -DKERNEL_ROOT=$KERNEL_ROOT
 
 ninja -j8 || exit 1

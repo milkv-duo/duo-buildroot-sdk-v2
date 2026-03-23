@@ -37,9 +37,9 @@ SDK_VER := 64bit
 else ifeq ($(TARGET_MACHINE), arm-linux-gnueabihf)
 SDK_VER := 32bit
 else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-gnu)
-SDK_VER := musl_riscv64
-else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-musl)
 SDK_VER := glibc_riscv64
+else ifeq ($(TARGET_MACHINE), riscv64-unknown-linux-musl)
+SDK_VER := musl_riscv64
 endif
 AI_SDK_PATH = $(OUTPUT_DIR)/tpu_$(SDK_VER)/cvitek_ai_sdk
 TPU_SDK_PATH = $(OUTPUT_DIR)/tpu_$(SDK_VER)/cvitek_tpu_sdk
@@ -60,6 +60,7 @@ LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2 -lteaisp
 LIBS += -lcviruntime -lcvikernel
+LIBS += -ltinyalsa
 
 LOCAL_CFLAGS = $(DEFS) $(INCS)
 LOCAL_CPPFLAGS = -fno-use-cxa-atexit
