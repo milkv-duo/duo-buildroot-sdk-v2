@@ -131,7 +131,8 @@ $CMAKE_BIN -G Ninja ${CVI_TDL_ROOT} -DCVI_PLATFORM=${CHIP_ARCH} \
                                     -DMW_VER=${MW_VER} \
                                     -DFTP_SERVER_IP=${FTP_SERVER_IP} \
                                     -DFTP_SERVER_NAME=${FTP_SERVER_NAME} \
-                                    -DFTP_SERVER_PWD=${FTP_SERVER_PWD}
+                                    -DFTP_SERVER_PWD=${FTP_SERVER_PWD} \
+                                    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 test $? -ne 0 && echo "cmake tdl_sdk failed !!" && popd && exit 1
 

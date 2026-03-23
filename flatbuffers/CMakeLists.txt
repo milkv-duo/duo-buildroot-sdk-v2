@@ -213,10 +213,10 @@ elseif(APPLE)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   if(CYGWIN)
     set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -std=gnu++11")
+      "${CMAKE_CXX_FLAGS} -std=gnu++17")
   else(CYGWIN)
     set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -std=c++0x")
+      "${CMAKE_CXX_FLAGS} -std=c++17")
   endif(CYGWIN)
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Wall -pedantic -Werror -Wextra -Werror=shadow")

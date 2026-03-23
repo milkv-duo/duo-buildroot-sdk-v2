@@ -48,6 +48,7 @@ if [ ! -e $BUILD_PATH/build_flatbuffers_host ]; then
 fi
 pushd $BUILD_PATH/build_flatbuffers_host
 cmake -G Ninja -DCMAKE_INSTALL_PREFIX=$FLATBUFFERS_HOST_PATH \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/flatbuffers
 cmake --build . --target install
 test $? -ne 0 && echo "build flatbuffers failed !!" && popd && exit 1
@@ -64,6 +65,7 @@ fi
 pushd $BUILD_PATH/build_cvimodel
 cmake -G Ninja -DFLATBUFFERS_PATH=$FLATBUFFERS_HOST_PATH \
     -DCMAKE_INSTALL_PREFIX=$CVIMODEL_HOST_PATH \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/cvibuilder
 cmake --build . --target install
 test $? -ne 0 && echo "build cvibuilder failed !!" && popd && exit 1
@@ -78,6 +80,7 @@ cmake -G Ninja $BUILD_FLAG \
     -DCHIP=$CHIP_ID \
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE_PATH \
     -DCMAKE_INSTALL_PREFIX=$TPU_SDK_INSTALL_PATH \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/cvikernel
 cmake --build . --target install -- -v
 test $? -ne 0 && echo "build cvikernel failed !!" && popd && exit 1
@@ -91,6 +94,7 @@ pushd $BUILD_PATH/build_cnpy
 cmake -G Ninja $BUILD_FLAG \
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE_PATH \
     -DCMAKE_INSTALL_PREFIX=$TPU_SDK_INSTALL_PATH \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/cnpy
 cmake --build . --target install
 test $? -ne 0 && echo "build cnpy failed !!" && popd && exit 1
@@ -110,6 +114,7 @@ cmake -G Ninja -DCHIP=$CHIP_ID -DRUNTIME=SOC $BUILD_FLAG \
     -DCVIBUILDER_PATH=$CVIMODEL_HOST_PATH \
     -DCMAKE_INSTALL_PREFIX=$TPU_SDK_INSTALL_PATH \
     -DENABLE_TEST=OFF \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/cviruntime
 cmake --build . --target install -- -v
 test $? -ne 0 && echo "build cviruntime failed !!" && popd && exit 1
@@ -126,6 +131,7 @@ cmake -G Ninja  \
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE_PATH \
     -DTPU_SDK_ROOT=$TPU_SDK_INSTALL_PATH \
     -DCMAKE_INSTALL_PREFIX=$TPU_SDK_INSTALL_PATH \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $TOP_DIR/cvimath
 cmake --build . --target install -- -v
 test $? -ne 0 && echo "build cvimath failed !!" && popd && exit 1
@@ -140,6 +146,7 @@ cmake -G Ninja $BUILD_FLAG \
     -DTPU_SDK_PATH=$TPU_SDK_INSTALL_PATH \
     -DOPENCV_PATH=$TPU_SDK_INSTALL_PATH/opencv \
     -DCMAKE_INSTALL_PREFIX=$TPU_SDK_INSTALL_PATH/samples \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     $DIR/samples
 cmake --build . --target install -- -v
 test $? -ne 0 && echo "build samples failed !!" && popd && exit 1

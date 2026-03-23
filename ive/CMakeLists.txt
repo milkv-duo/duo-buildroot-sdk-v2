@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.5)
 project(ive_project)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

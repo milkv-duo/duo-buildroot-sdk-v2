@@ -60,6 +60,7 @@ LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2 -lteaisp
 LIBS += -lcviruntime -lcvikernel
+LIBS += -ltinyalsa
 
 LOCAL_CFLAGS = $(DEFS) $(INCS)
 LOCAL_CPPFLAGS = -fno-use-cxa-atexit

@@ -1,0 +1,20 @@
+GCC 15 defaults to C23 mode where 'bool' is a reserved keyword.
+dbus-gvalue.c used 'bool' as a local variable name, which fails with GCC 15 C23.
+
+--- a/dbus/dbus-gvalue.c
++++ b/dbus/dbus-gvalue.c
+@@ -545,11 +545,11 @@
+     {
+     case DBUS_TYPE_BOOLEAN:
+       {
+-	dbus_bool_t bool;
++	dbus_bool_t bval;
+         if (!G_VALUE_HOLDS (value, G_TYPE_BOOLEAN))
+           goto invalid_type;
+-	dbus_message_iter_get_basic (iter, &bool);
+-	g_value_set_boolean (value, bool);
++	dbus_message_iter_get_basic (iter, &bval);
++	g_value_set_boolean (value, bval);
+ 	return TRUE;
+       }
+     case DBUS_TYPE_BYTE:

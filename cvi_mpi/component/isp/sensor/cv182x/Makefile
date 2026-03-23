@@ -343,7 +343,7 @@ lontium_lt6911:
 lontium_lt7911:
 	$(call MAKE_SENSOR, ${@})
 
-all_sensor:
+all_sensor: $(sensor-y)
 	@$(MAKE) -f Makefile_full || exit 1;
 
 clean:

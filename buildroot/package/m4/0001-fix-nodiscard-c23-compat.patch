@@ -1,0 +1,20 @@
+GCC 15 defaults to C23 mode (__STDC_VERSION__ = 202311L > 201710L), causing
+_GL_ATTRIBUTE_NODISCARD to expand to [[__nodiscard__]]. However gnulib places
+this attribute between 'inline' and the return type in inline function
+definitions (GL_LIST_INLINE _GL_ATTRIBUTE_NODISCARD returntype), which is not
+valid C23 attribute placement and causes parse errors. Always use
+__attribute__((warn_unused_result)) instead, which is valid in any position.
+
+--- a/lib/config.hin
++++ b/lib/config.hin
+@@ -2585,9 +2585,7 @@
+ # define _GL_ATTRIBUTE_MALLOC
+ #endif
+
+-#if 201710L < __STDC_VERSION__
+-# define _GL_ATTRIBUTE_NODISCARD [[__nodiscard__]]
+-#elif _GL_HAS_ATTRIBUTE (warn_unused_result)
++#if _GL_HAS_ATTRIBUTE (warn_unused_result)
+ # define _GL_ATTRIBUTE_NODISCARD __attribute__ ((__warn_unused_result__))
+ #else
+ # define _GL_ATTRIBUTE_NODISCARD

@@ -63,11 +63,11 @@ $(ODIR)/%.$(TARGET_MACHINE).$(CHIP_ARCH_L).o : $(SDIR)/%.c
 	@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $< -o $@
 	@echo [$(notdir $(CC))] $(notdir $@)
 
-$(TARGET_A): $(OBJS)
+$(TARGET_A): $(OBJS) prepare_3rdparty_module
 	@$(AR) $(ARFLAGS) $@ $(OBJS) $(TMP_FOLDER_LIB)/*.o
 	@echo -e $(YELLOW)[LINK]$(END)[$(notdir $(AR))] $(notdir $(TARGET_A))
 
-$(TARGET_SO): $(OBJS)
+$(TARGET_SO): $(OBJS) prepare_3rdparty_module
 	@$(LD) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $@ --start-group $(OBJS) $(TMP_FOLDER_LIB)/*.o --end-group
 	@echo -e $(GREEN)[LINK]$(END)[$(notdir $(LD))] $(notdir $(TARGET_SO))
 	@$(STRIP) $(TARGET_SO)
