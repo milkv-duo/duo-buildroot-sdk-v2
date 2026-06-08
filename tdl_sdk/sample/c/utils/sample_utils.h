@@ -137,6 +137,7 @@ int32_t SendFrameRTSP(VIDEO_FRAME_INFO_S *frame, RtspContext *rtsp_context);
  * @return 成功返回 0，失败返回-1
  */
 int32_t DumpFrame(char *filename, VIDEO_FRAME_INFO_S *pstVideoFrame);
+int32_t SaveFrameToImage(VIDEO_FRAME_INFO_S *frame, const char *filename);
 
 #ifdef __cplusplus
 }
