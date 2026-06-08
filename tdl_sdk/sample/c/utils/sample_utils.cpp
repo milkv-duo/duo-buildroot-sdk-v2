@@ -5,6 +5,7 @@
 #include "utils/frame_dump.hpp"
 #include "utils/tdl_log.hpp"
 #include "video_decoder/video_decoder_type.hpp"
+#include <opencv2/opencv.hpp>
 
 namespace {
 // 全局存储RTSP实例
@@ -154,6 +155,57 @@ int32_t DestoryCamera(TDLHandle handle) {
 
 int32_t DumpFrame(char *filename, VIDEO_FRAME_INFO_S *pstVideoFrame) {
   return FrameDump::saveFrame(filename, pstVideoFrame);
+}
+
+int32_t SaveFrameToImage(VIDEO_FRAME_INFO_S *frame, const char *filename)
+{
+    int width   = frame->stVFrame.u32Width;
+    int height  = frame->stVFrame.u32Height;
+    int strideY  = frame->stVFrame.u32Stride[0];
+    int strideUV = frame->stVFrame.u32Stride[1];
+
+    // --- Map both planes ---
+    uint8_t *y_addr = (uint8_t *)CVI_SYS_Mmap(
+        frame->stVFrame.u64PhyAddr[0],
+        frame->stVFrame.u32Length[0]);
+    uint8_t *uv_addr = (uint8_t *)CVI_SYS_Mmap(
+        frame->stVFrame.u64PhyAddr[1],
+        frame->stVFrame.u32Length[1]);
+
+    if (!y_addr || !uv_addr) {
+        LOGI("Mmap failed\n");
+        return CVI_FAILURE;
+    }
+
+    // Flush cache so CPU sees latest data from hardware
+    CVI_SYS_IonFlushCache(frame->stVFrame.u64PhyAddr[0], y_addr,
+                          frame->stVFrame.u32Length[0]);
+    CVI_SYS_IonFlushCache(frame->stVFrame.u64PhyAddr[1], uv_addr,
+                          frame->stVFrame.u32Length[1]);
+
+    // --- Build Y and UV mats respecting stride ---
+    cv::Mat y_mat (height,     strideY,  CV_8UC1, y_addr);
+    cv::Mat uv_mat(height / 2, strideUV, CV_8UC1, uv_addr);  // NV12: interleaved UV
+
+    // Crop to actual width in case stride > width
+    cv::Mat y_cropped  = y_mat (cv::Rect(0, 0, width, height));
+    cv::Mat uv_cropped = uv_mat(cv::Rect(0, 0, width, height / 2));
+
+    // Stack Y + UV into a contiguous NV12 mat for cvtColor
+    cv::Mat nv12;
+    cv::vconcat(y_cropped, uv_cropped, nv12);
+
+    // --- Convert and save ---
+    cv::Mat bgr;
+    cv::cvtColor(nv12, bgr, cv::COLOR_YUV2BGR_NV12);
+
+    bool ok = cv::imwrite(filename, bgr);
+
+    // --- Unmap ---
+    CVI_SYS_Munmap(y_addr,  frame->stVFrame.u32Length[0]);
+    CVI_SYS_Munmap(uv_addr, frame->stVFrame.u32Length[1]);
+
+    return ok ? CVI_SUCCESS : CVI_FAILURE;
 }
 
 }  // extern "C"
