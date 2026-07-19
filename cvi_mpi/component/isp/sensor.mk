@@ -94,6 +94,7 @@ sensor-$(CONFIG_SENSOR_SOI_F53)              += soi_f53
 sensor-$(CONFIG_SENSOR_SOI_F352)             += soi_f352
 sensor-$(CONFIG_SENSOR_SOI_K306)             += soi_k306
 sensor-$(CONFIG_SENSOR_SOI_H65)              += soi_h65
+sensor-$(CONFIG_SENSOR_SONY_IMX219)          += sony_imx219
 sensor-$(CONFIG_SENSOR_SONY_IMX307)          += sony_imx307
 sensor-$(CONFIG_SENSOR_SONY_IMX307_SLAVE)    += sony_imx307_slave
 sensor-$(CONFIG_SENSOR_SONY_IMX307_2L)       += sony_imx307_2L

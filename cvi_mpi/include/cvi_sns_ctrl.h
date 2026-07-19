@@ -161,6 +161,7 @@ extern ISP_SNS_OBJ_S stSnsOs04c10_Slave_Obj;
 extern ISP_SNS_OBJ_S stSnsOs08a20_Obj;
 extern ISP_SNS_OBJ_S stSnsOs08a20_Slave_Obj;
 extern ISP_SNS_OBJ_S stSnsOv4689_Obj;
+extern ISP_SNS_OBJ_S stSnsImx219_Obj;
 extern ISP_SNS_OBJ_S stSnsOv5647_Obj;
 extern ISP_SNS_OBJ_S stSnsOv6211_Obj;
 extern ISP_SNS_OBJ_S stSnsOv7251_Obj;
