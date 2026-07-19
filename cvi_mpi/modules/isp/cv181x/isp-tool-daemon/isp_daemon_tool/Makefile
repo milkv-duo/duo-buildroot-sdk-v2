@@ -63,6 +63,7 @@ LIBS += -lsys -lvenc -lvdec -lvi -lvpss -lvo -lrgn -lgdc -lisp -lisp_algo -lawb 
 LIBS += -lcvi_ispd2
 LIBS += -lraw_dump
 LIBS += -lcvi_dnvqe -lcvi_ssp2 -lteaisp
+LIBS += -ltinyalsa
 LIBS += -lcviruntime -lcvikernel
 
 LOCAL_CFLAGS = $(DEFS) $(INCS)

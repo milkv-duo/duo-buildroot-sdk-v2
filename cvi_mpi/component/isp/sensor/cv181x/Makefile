@@ -313,6 +313,9 @@ soi_h65:
 soi_k306:
 	$(call MAKE_SENSOR, ${@})
 
+sony_imx219:
+	$(call MAKE_SENSOR, ${@})
+
 sony_imx307:
 	$(call MAKE_SENSOR, ${@})
 
